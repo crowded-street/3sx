@@ -37,6 +37,45 @@ static const f32* caplogo[2] = { caplogo00, caplogo01 };
 s16 picon_no;
 f32 picon_level;
 
+/* The warning screen from its third step on, reached from the earlier ones'
+ * default. The case labels are the original ones and the switch is on the same
+ * expression; the group carries the original `default`, so a step matching none
+ * of the labels still reaches it. `Next_Demo` is set here and returned by the
+ * caller, exactly as before. */
+static void warning_from_step_7() {
+    switch (D_No[1]) {
+    case 7:
+        if (((p1sw_0 & 0x4FF0) | (p2sw_0 & 0x4FF0)) != 0) {
+            D_Timer = 1;
+        }
+
+        if (!--D_Timer) {
+            D_No[1] += 1;
+            FadeInit();
+        }
+
+        Put_Warning(1);
+        Next_Demo = 0;
+        break;
+
+    case 8:
+        Put_Warning(1);
+        Next_Demo = 0;
+
+        if (FadeOut(1, 8, 8) != 0) {
+            D_No[1] += 1;
+        }
+
+        break;
+
+    default:
+        D_No[1] = 0;
+        TexRelease(590);
+        Next_Demo = 1;
+        break;
+    }
+}
+
 s32 Warning() {
     Next_Demo = 0;
 
@@ -77,34 +116,8 @@ s32 Warning() {
 
         break;
 
-    case 7:
-        if (((p1sw_0 & 0x4FF0) | (p2sw_0 & 0x4FF0)) != 0) {
-            D_Timer = 1;
-        }
-
-        if (!--D_Timer) {
-            D_No[1] += 1;
-            FadeInit();
-        }
-
-        Put_Warning(1);
-        Next_Demo = 0;
-        break;
-
-    case 8:
-        Put_Warning(1);
-        Next_Demo = 0;
-
-        if (FadeOut(1, 8, 8) != 0) {
-            D_No[1] += 1;
-        }
-
-        break;
-
     default:
-        D_No[1] = 0;
-        TexRelease(590);
-        Next_Demo = 1;
+        warning_from_step_7();
         break;
     }
 
