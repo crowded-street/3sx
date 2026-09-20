@@ -333,6 +333,56 @@ static bool save_with_backup(const char* path, const char* backup_path, const vo
     return success;
 }
 
+/* One save or load, from the point the storage is ready. Every local it needs
+ * is its own, and its result is the one `SaveMove` returns. */
+static s32 run_save_operation() {
+    const SaveFileInfo* info = &file_info[operation.file_type];
+    char path[PATH_LEN_MAX];
+    char backup_path[PATH_LEN_MAX];
+    make_path(path, sizeof(path), info->name, false);
+    make_path(backup_path, sizeof(backup_path), info->name, true);
+    const SaveFileFormat* format = current_format(info);
+    void* buffer = SDL_malloc(format->size);
+    SDL_IOStream* io = NULL;
+    bool success = false;
+
+    switch (operation.mode) {
+    case SAVE_MODE_LOAD:
+        io = SDL_IOFromConstMem(buffer, format->size);
+        bool buffer_filled = false;
+        const char* paths[] = { path, backup_path };
+
+        for (int i = 0; i < SDL_arraysize(paths); i++) {
+            const char* _path = paths[i];
+            SDL_SeekIO(io, 0, SDL_IO_SEEK_SET);
+
+            if (read_file_if_exists(operation.storage, _path, buffer, info) == READ_SUCCESS) {
+                success = info->deserialize_handler(io);
+            }
+
+            if (success) {
+                break;
+            }
+        }
+
+        break;
+
+    case SAVE_MODE_SAVE:
+        io = SDL_IOFromMem(buffer, format->size);
+        info->serialize_handler(io);
+
+        success = save_with_backup(path, backup_path, buffer, format->size);
+
+        break;
+    }
+
+    SDL_CloseIO(io);
+    SDL_free(buffer);
+    SDL_CloseStorage(operation.storage);
+    SDL_zero(operation);
+    return success ? 0 : -1;
+}
+
 s32 SaveMove() {
     switch (operation.state) {
     case SAVE_STATE_IDLE:
@@ -354,51 +404,7 @@ s32 SaveMove() {
             return 1;
         }
 
-        const SaveFileInfo* info = &file_info[operation.file_type];
-        char path[PATH_LEN_MAX];
-        char backup_path[PATH_LEN_MAX];
-        make_path(path, sizeof(path), info->name, false);
-        make_path(backup_path, sizeof(backup_path), info->name, true);
-        const SaveFileFormat* format = current_format(info);
-        void* buffer = SDL_malloc(format->size);
-        SDL_IOStream* io = NULL;
-        bool success = false;
-
-        switch (operation.mode) {
-        case SAVE_MODE_LOAD:
-            io = SDL_IOFromConstMem(buffer, format->size);
-            bool buffer_filled = false;
-            const char* paths[] = { path, backup_path };
-
-            for (int i = 0; i < SDL_arraysize(paths); i++) {
-                const char* _path = paths[i];
-                SDL_SeekIO(io, 0, SDL_IO_SEEK_SET);
-
-                if (read_file_if_exists(operation.storage, _path, buffer, info) == READ_SUCCESS) {
-                    success = info->deserialize_handler(io);
-                }
-
-                if (success) {
-                    break;
-                }
-            }
-
-            break;
-
-        case SAVE_MODE_SAVE:
-            io = SDL_IOFromMem(buffer, format->size);
-            info->serialize_handler(io);
-
-            success = save_with_backup(path, backup_path, buffer, format->size);
-
-            break;
-        }
-
-        SDL_CloseIO(io);
-        SDL_free(buffer);
-        SDL_CloseStorage(operation.storage);
-        SDL_zero(operation);
-        return success ? 0 : -1;
+        return run_save_operation();
 
     case SAVE_STATE_ERROR:
         return -1;
