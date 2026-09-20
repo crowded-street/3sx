@@ -200,8 +200,14 @@ static void cleanup() {
 }
 
 #if DEBUG && IMGUI
+/* The debug window's own key: backtick, pressed, and not an auto-repeat.
+ * Copied operand for operand. */
+static bool is_debug_toggle_press(const SDL_KeyboardEvent* event) {
+    return (event->key == SDLK_GRAVE) && event->down && !event->repeat;
+}
+
 static void toggle_debug_window_visibility(SDL_KeyboardEvent* event) {
-    if ((event->key == SDLK_GRAVE) && event->down && !event->repeat) {
+    if (is_debug_toggle_press(event)) {
         ImGuiW_ToggleVisivility();
     }
 }
