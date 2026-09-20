@@ -382,17 +382,10 @@ void Game02() {
     BG_move_Ex(3);
 }
 
-void Game2_0() {
+/* What each mode does to the play flags before the first round, and the whole
+ * per-match reset that follows it. */
+static void apply_mode_play_settings() {
     s16 ix;
-
-    BG_Draw_System();
-    Switch_Screen(0);
-
-    if (Check_LDREQ_Clear() == 0) {
-        fatal_error("Load queue failed to drain in time");
-    }
-
-    System_all_clear_Level_B();
 
     switch (Mode_Type) {
     case MODE_ARCADE:
@@ -428,15 +421,9 @@ void Game2_0() {
         // Do nothing
         break;
     }
+}
 
-    Check_Replay();
-
-    if (Demo_Flag == 0) {
-        Play_Mode = 0;
-        Replay_Status[0] = 0;
-        Replay_Status[1] = 0;
-    }
-
+static void reset_round_state() {
     Game_difficulty = 15;
     Game_timer = 0;
     Game_pause = 0;
@@ -469,6 +456,30 @@ void Game2_0() {
     win_lose_work_clear();
     player_face_init();
     TATE00();
+}
+
+void Game2_0() {
+
+    BG_Draw_System();
+    Switch_Screen(0);
+
+    if (Check_LDREQ_Clear() == 0) {
+        fatal_error("Load queue failed to drain in time");
+    }
+
+    System_all_clear_Level_B();
+
+    apply_mode_play_settings();
+
+    Check_Replay();
+
+    if (Demo_Flag == 0) {
+        Play_Mode = 0;
+        Replay_Status[0] = 0;
+        Replay_Status[1] = 0;
+    }
+
+    reset_round_state();
 }
 
 static bool should_render_input_history() {
