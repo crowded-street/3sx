@@ -143,10 +143,51 @@ static s32 lz77_write_run(u8** srcp, u8** dstp, u16 offset) {
     return loop;
 }
 
+/* The long dictionary opcode: a fourteen-bit back-reference, optionally stepped.
+ * Returns how many output bytes it produced, on the same terms as
+ * lz77_write_run. */
+static s32 lz77_copy_long_run(u8** srcp, u8** dstp, u16 offset) {
+    u8* src = *srcp;
+    u8* dst = *dstp;
+    u8* dic;
+    s32 loop;
+    u8 step;
+
+    offset = ((offset << 8) | *src++) & 0x3FFF;
+
+    if (offset == 0) {
+        offset = 0x4000;
+    }
+
+    loop = *src++;
+
+    if (loop & 0x80) {
+        step = *src++;
+    } else {
+        step = 0;
+    }
+
+    loop &= 0x7F;
+
+    loop = whole_loop_if_zero(loop, 0x80);
+
+    dic = dst - offset;
+
+    if (step) {
+        dst = copy_from_dictionary_stepped(dst, dic, step, loop);
+    } else {
+        dst = copy_from_dictionary(dst, dic, loop);
+    }
+
+    *srcp = src;
+    *dstp = dst;
+
+    return loop;
+}
+
 s32 decLZ77withSizeCheck(u8* src, u8* dst, s32 size) {
     s32 loop;
     u8* dic;
-    u8 step;
     u16 offset;
 
     while (size > 0) {
@@ -154,33 +195,7 @@ s32 decLZ77withSizeCheck(u8* src, u8* dst, s32 size) {
 
         if (offset & 0x80) {
             if (offset & 0x40) {
-                offset = ((offset << 8) | *src++) & 0x3FFF;
-
-                if (offset == 0) {
-                    offset = 0x4000;
-                }
-
-                loop = *src++;
-
-                if (loop & 0x80) {
-                    step = *src++;
-                } else {
-                    step = 0;
-                }
-
-                loop &= 0x7F;
-
-                loop = whole_loop_if_zero(loop, 0x80);
-
-                dic = dst - offset;
-
-                if (step) {
-                    dst = copy_from_dictionary_stepped(dst, dic, step, loop);
-                } else {
-                    dst = copy_from_dictionary(dst, dic, loop);
-                }
-
-                size -= loop;
+                size -= lz77_copy_long_run(&src, &dst, offset);
             } else {
                 size -= lz77_write_run(&src, &dst, offset);
             }
