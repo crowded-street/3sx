@@ -400,6 +400,22 @@ void Fistbump_ParseCommand(const char* line) {
     }
 }
 
+/* The last states: the UDP handshake, and the two that do nothing. */
+static void fistbump_step_final_state() {
+    switch (state) {
+    case FISTBUMP_SENDING_UDP:
+        Fistbump_SendUDP();
+        break;
+
+    case FISTBUMP_GAME_START:
+    case FISTBUMP_ERROR:
+        break;
+
+    default:
+        break;
+    }
+}
+
 /* The states after the login handshake, reached from Fistbump_Run's new
  * default. Every label is the original one and Fistbump_Run had no default of
  * its own, so a state matching nothing still does nothing. */
@@ -411,12 +427,8 @@ static void fistbump_step_late_state() {
     case FISTBUMP_MATCHED:
         break;
 
-    case FISTBUMP_SENDING_UDP:
-        Fistbump_SendUDP();
-        break;
-
-    case FISTBUMP_GAME_START:
-    case FISTBUMP_ERROR:
+    default:
+        fistbump_step_final_state();
         break;
     }
 }
