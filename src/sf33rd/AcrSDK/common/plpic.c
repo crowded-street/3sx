@@ -19,6 +19,28 @@ typedef struct {
 #define U16_AT(_ptr, _offset) (((u8*)_ptr)[_offset] << 0x8 | ((u8*)_ptr)[_offset + 1])
 #define AS_U32(_var) (*((u32*)(&_var)))
 
+/* The four header fields a PIC has to carry. Returns 0 where each of the
+ * original tests returned 0 and 1 where they fell through. */
+static s32 pic_header_accepted(const plPICHeader* hed) {
+    if (hed->magic != 0x5380F634) {
+        return 0;
+    }
+
+    if (hed->id != 0x50494354) {
+        return 0;
+    }
+
+    if (hed->ratio != 1.0f) {
+        return 0;
+    }
+
+    if (hed->fields != 3) {
+        return 0;
+    }
+
+    return 1;
+}
+
 s32 plPICSetContextFromImage(plContext* dst, void* lpbas) {
     plPICHeader hed;
     plPICHeader* lphed;
@@ -35,19 +57,7 @@ s32 plPICSetContextFromImage(plContext* dst, void* lpbas) {
     AS_U32(hed.ver) = U32_AT(lphed, 0x4);
     AS_U32(hed.ratio) = U32_AT(lphed, 0x60);
 
-    if (hed.magic != 0x5380F634) {
-        return 0;
-    }
-
-    if (hed.id != 0x50494354) {
-        return 0;
-    }
-
-    if (hed.ratio != 1.0f) {
-        return 0;
-    }
-
-    if (hed.fields != 3) {
+    if (!pic_header_accepted(&hed)) {
         return 0;
     }
 
