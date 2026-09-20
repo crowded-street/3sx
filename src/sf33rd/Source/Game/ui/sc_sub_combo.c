@@ -104,6 +104,24 @@ static void draw_combo_caption(const ComboMessage* m, u8 xw, u8 xw2) {
     }
 }
 
+/* How many of the hits this message kind has room for, and how many are left
+ * over. Each returns the one value its block assigned. */
+static u8 combo_hits_shown(u8 kind, u8 num) {
+    if (num > combo_mtbl[kind][2]) {
+        return combo_mtbl[kind][2];
+    }
+
+    return num;
+}
+
+static u8 combo_hits_over(u8 kind, u8 num) {
+    if (num > combo_mtbl[kind][2]) {
+        return (num - (combo_mtbl[kind][2]));
+    }
+
+    return 0;
+}
+
 void combo_message_set(const ComboMessage* m) {
     u8 kind = m->kind;
     u8 num = m->num;
@@ -117,17 +135,8 @@ void combo_message_set(const ComboMessage* m) {
 
     ppgSetupCurrentDataList(&ppgScrList);
 
-    if (num > combo_mtbl[kind][2]) {
-        xw = combo_mtbl[kind][2];
-    } else {
-        xw = num;
-    }
-
-    if (num > combo_mtbl[kind][2]) {
-        xw2 = (num - (combo_mtbl[kind][2]));
-    } else {
-        xw2 = 0;
-    }
+    xw = combo_hits_shown(kind, num);
+    xw2 = combo_hits_over(kind, num);
 
     switch (kind) {
     case 2:
