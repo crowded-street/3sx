@@ -169,47 +169,57 @@ void Fistbump_Start(const char* server_ip, int tcp_port, int udp_port, const cha
     connect_state = FISTBUMP_CONN_RESOLVING_DNS;
 }
 
+/* The two waits Fistbump_Connect sits in: the name lookup, and then the TCP
+ * connect it starts. Each writes only the module's own state. */
+static void fistbump_advance_dns() {
+    switch (NET_GetAddressStatus(server_addr)) {
+    case NET_SUCCESS:
+        tcp_sock = NET_CreateClient(server_addr, (Uint16)saved_tcp_port);
+        if (tcp_sock == NULL) {
+            SDL_Log("Fistbump: failed to create TCP client: %s\n", SDL_GetError());
+            connect_state = FISTBUMP_CONN_ERROR;
+        } else {
+            connect_state = FISTBUMP_CONN_CONNECTING_TCP;
+        }
+        break;
+
+    case NET_FAILURE:
+        SDL_Log("Fistbump: DNS resolution failed: %s\n", SDL_GetError());
+        state = FISTBUMP_ERROR;
+        break;
+
+    case NET_WAITING:
+        break;
+    }
+}
+
+static void fistbump_advance_tcp() {
+    switch (NET_GetConnectionStatus(tcp_sock)) {
+    case NET_SUCCESS:
+        connect_state = FISTBUMP_CONN_CONNECTED;
+        break;
+
+    case NET_FAILURE:
+        SDL_Log("Fistbump: TCP connection failed: %s\n", SDL_GetError());
+        connect_state = FISTBUMP_CONN_ERROR;
+        break;
+
+    case NET_WAITING:
+        break;
+    }
+}
+
 void Fistbump_Connect() {
     switch (connect_state) {
     case FISTBUMP_CONN_IDLE:
         break;
 
     case FISTBUMP_CONN_RESOLVING_DNS:
-        switch (NET_GetAddressStatus(server_addr)) {
-        case NET_SUCCESS:
-            tcp_sock = NET_CreateClient(server_addr, (Uint16)saved_tcp_port);
-            if (tcp_sock == NULL) {
-                SDL_Log("Fistbump: failed to create TCP client: %s\n", SDL_GetError());
-                connect_state = FISTBUMP_CONN_ERROR;
-            } else {
-                connect_state = FISTBUMP_CONN_CONNECTING_TCP;
-            }
-            break;
-
-        case NET_FAILURE:
-            SDL_Log("Fistbump: DNS resolution failed: %s\n", SDL_GetError());
-            state = FISTBUMP_ERROR;
-            break;
-
-        case NET_WAITING:
-            break;
-        }
+        fistbump_advance_dns();
         break;
 
     case FISTBUMP_CONN_CONNECTING_TCP:
-        switch (NET_GetConnectionStatus(tcp_sock)) {
-        case NET_SUCCESS:
-            connect_state = FISTBUMP_CONN_CONNECTED;
-            break;
-
-        case NET_FAILURE:
-            SDL_Log("Fistbump: TCP connection failed: %s\n", SDL_GetError());
-            connect_state = FISTBUMP_CONN_ERROR;
-            break;
-
-        case NET_WAITING:
-            break;
-        }
+        fistbump_advance_tcp();
         break;
 
     case FISTBUMP_CONN_CONNECTED:
