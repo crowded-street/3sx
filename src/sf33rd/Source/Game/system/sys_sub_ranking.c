@@ -95,6 +95,19 @@ void Check_Partners_Rank(s16 dir_step, s16 PL_id) {
     }
 }
 
+/* Push the rows below `i` down one and put this player's entry in the gap. The
+ * three ranking tables that use it differ only in where they start, and each
+ * writes both of its offsets out at its own call site. */
+static void insert_ranking_row(s16 PL_id, s16 i, s16 base, s16 next) {
+    s16 j;
+
+    for (j = 3; j >= i; j--) {
+        Ranking_Data[j + next] = Ranking_Data[j + base];
+    }
+
+    Ranking_Data[i + base] = Present_Data[PL_id];
+}
+
 s32 Check_Sort_Score(s16 PL_id) {
     s16 i;
     s16 j;
@@ -115,15 +128,10 @@ s32 Check_Sort_Score(s16 PL_id) {
 
 s32 Check_Sort_Wins(s16 PL_id) {
     s16 i;
-    s16 j;
 
     for (i = 0; i < 5; i++) {
         if (Ranking_Data[i + 5].wins < Present_Data[PL_id].wins) {
-            for (j = 3; j >= i; j--) {
-                Ranking_Data[j + 6] = Ranking_Data[j + 5];
-            }
-
-            Ranking_Data[i + 5] = Present_Data[PL_id];
+            insert_ranking_row(PL_id, i, 5, 6);
             return i;
         }
     }
@@ -133,18 +141,13 @@ s32 Check_Sort_Wins(s16 PL_id) {
 
 s32 Check_Sort_CPU_Grade(s16 PL_id) {
     s16 i;
-    s16 j;
 
     for (i = 0; i < 5; i++) {
         if (!Check_CPU_Grade_Score(PL_id, i)) {
             continue;
         }
 
-        for (j = 3; j >= i; j--) {
-            Ranking_Data[j + 11] = Ranking_Data[j + 10];
-        }
-
-        Ranking_Data[i + 10] = Present_Data[PL_id];
+        insert_ranking_row(PL_id, i, 10, 11);
         return i;
     }
 
@@ -153,18 +156,13 @@ s32 Check_Sort_CPU_Grade(s16 PL_id) {
 
 s32 Check_Sort_Grade(s16 PL_id) {
     s16 i;
-    s16 j;
 
     for (i = 0; i < 5; i++) {
         if (!Check_Grade_Score(PL_id, i)) {
             continue;
         }
 
-        for (j = 3; j >= i; j--) {
-            Ranking_Data[j + 16] = Ranking_Data[j + 15];
-        }
-
-        Ranking_Data[i + 15] = Present_Data[PL_id];
+        insert_ranking_row(PL_id, i, 15, 16);
         return i;
     }
 
