@@ -122,22 +122,28 @@ static void demo00_from_step_3() {
     }
 }
 
+/* The attract demo's first frame: the textures it swaps in and the match
+ * settings it starts from. */
+static void enter_demo00() {
+    Switch_Screen(1);
+    Purge_texcash_of_list(3);
+    Make_texcash_of_list(3);
+    D_No[1] += 1;
+    G_No[2] = 0;
+    Game_pause = 0;
+    Conclusion_Flag = 0;
+    appear_type = APPEAR_TYPE_ANIMATED;
+    Control_Time = 0x800;
+    Round_Level = 7;
+    Weak_PL = random_16() & 1;
+}
+
 void Demo00() {
     Play_Game = 1;
 
     switch (D_No[1]) {
     case 0:
-        Switch_Screen(1);
-        Purge_texcash_of_list(3);
-        Make_texcash_of_list(3);
-        D_No[1] += 1;
-        G_No[2] = 0;
-        Game_pause = 0;
-        Conclusion_Flag = 0;
-        appear_type = APPEAR_TYPE_ANIMATED;
-        Control_Time = 0x800;
-        Round_Level = 7;
-        Weak_PL = random_16() & 1;
+        enter_demo00();
         break;
 
     case 1:
@@ -244,6 +250,26 @@ static void demo01_from_step_3() {
     }
 }
 
+/* The select demo's first frame: the two sides' characters, their super arts,
+ * and the grade bookkeeping both start from. */
+static void enter_demo01() {
+    Switch_Screen(1);
+    D_No[1] += 1;
+    Game_pause = 0;
+    Demo_Time_Stop = 0;
+    Before_Select_Sub();
+    Setup_Select_Demo_PL();
+    Setup_Demo_Arts();
+    Weak_PL = random_16() & 1;
+    Clear_Break_Com(0);
+    grade_check_work_1st_init(0, 0);
+    grade_check_work_1st_init(0, 1);
+    Clear_Break_Com(1);
+    grade_check_work_1st_init(1, 0);
+    grade_check_work_1st_init(1, 1);
+    Game01();
+}
+
 void Demo01() {
     if (D_No[1] >= 2) {
         Play_Game = 1;
@@ -251,21 +277,7 @@ void Demo01() {
 
     switch (D_No[1]) {
     case 0:
-        Switch_Screen(1);
-        D_No[1] += 1;
-        Game_pause = 0;
-        Demo_Time_Stop = 0;
-        Before_Select_Sub();
-        Setup_Select_Demo_PL();
-        Setup_Demo_Arts();
-        Weak_PL = random_16() & 1;
-        Clear_Break_Com(0);
-        grade_check_work_1st_init(0, 0);
-        grade_check_work_1st_init(0, 1);
-        Clear_Break_Com(1);
-        grade_check_work_1st_init(1, 0);
-        grade_check_work_1st_init(1, 1);
-        Game01();
+        enter_demo01();
         break;
 
     case 1:
