@@ -357,22 +357,26 @@ void Pattern14_0084(PLW* wk) {
     }
 }
 
-void Pattern14_0085(PLW* wk) {
+/* Pattern14_0085 and Pattern14_0086 are the same four Normal_Attack steps.
+ * Four lever values as parameters would put the helper one over the
+ * argument-count threshold, so the steps arrive as a table of the
+ * Normal_Attack_Step parameter object com_pattern_args.h defines. */
+static void run_pattern14_normal_attack_4step(PLW* wk, const Normal_Attack_Step* steps) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Normal_Attack(wk, 9, 0x220);
+        Normal_Attack(wk, steps[0].Reaction, steps[0].Lever_Data);
         break;
 
     case 1:
-        Normal_Attack(wk, 9, 0x102);
+        Normal_Attack(wk, steps[1].Reaction, steps[1].Lever_Data);
         break;
 
     case 2:
-        Normal_Attack(wk, 9, 0x202);
+        Normal_Attack(wk, steps[2].Reaction, steps[2].Lever_Data);
         break;
 
     case 3:
-        Normal_Attack(wk, 8, 0x40);
+        Normal_Attack(wk, steps[3].Reaction, steps[3].Lever_Data);
         break;
 
     default:
@@ -381,28 +385,16 @@ void Pattern14_0085(PLW* wk) {
     }
 }
 
+void Pattern14_0085(PLW* wk) {
+    run_pattern14_normal_attack_4step(
+        wk, (Normal_Attack_Step[]) { { 9, 0x220 }, { 9, 0x102 }, { 9, 0x202 }, { 8, 0x40 } }
+    );
+}
+
 void Pattern14_0086(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Normal_Attack(wk, 9, 0x12);
-        break;
-
-    case 1:
-        Normal_Attack(wk, 9, 0x220);
-        break;
-
-    case 2:
-        Normal_Attack(wk, 9, 0x102);
-        break;
-
-    case 3:
-        Normal_Attack(wk, 8, 0x202);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    run_pattern14_normal_attack_4step(
+        wk, (Normal_Attack_Step[]) { { 9, 0x12 }, { 9, 0x220 }, { 9, 0x102 }, { 8, 0x202 } }
+    );
 }
 
 static void pattern14_0087_from_step_6(PLW* wk) {
