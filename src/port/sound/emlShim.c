@@ -302,6 +302,35 @@ static u32 makeConditions(CSE_REQP* rq) {
     return addIdConditions(flags, cond);
 }
 
+/* The identity half of the condition test, reached from the bank half's
+ * default. Every case keeps its original label. */
+static int checkOneIdCondition(struct VId* id, CSE_REQP* match, u32 masked) {
+    switch (masked) {
+    case MATCH_ID1:
+        if (id->id1 != match->id1) {
+            return 0;
+        }
+        break;
+    case MATCH_ID2:
+        if (id->id2 != match->id2) {
+            return 0;
+        }
+        break;
+    case MATCH_GUID:
+        if (id->guid != match->guid) {
+            return 0;
+        }
+        break;
+    case MATCH_BANK:
+        if ((id->bank & 0xf) != (match->bank & 0xf)) {
+            return 0;
+        }
+        break;
+    }
+
+    return 1;
+}
+
 /* One condition bit: the arms that disqualify the voice return 0, and every
  * other path leaves it eligible. */
 static int checkOneCondition(struct VId* id, CSE_REQP* match, u32 masked) {
@@ -324,26 +353,8 @@ static int checkOneCondition(struct VId* id, CSE_REQP* match, u32 masked) {
             return 0;
         }
         break;
-    case MATCH_ID1:
-        if (id->id1 != match->id1) {
-            return 0;
-        }
-        break;
-    case MATCH_ID2:
-        if (id->id2 != match->id2) {
-            return 0;
-        }
-        break;
-    case MATCH_GUID:
-        if (id->guid != match->guid) {
-            return 0;
-        }
-        break;
-    case MATCH_BANK:
-        if ((id->bank & 0xf) != (match->bank & 0xf)) {
-            return 0;
-        }
-        break;
+    default:
+        return checkOneIdCondition(id, match, masked);
     }
 
     return 1;
