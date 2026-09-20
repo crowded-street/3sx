@@ -86,6 +86,21 @@ static void read_string(SDL_IOStream* src, char* dst) {
     } while (c != '\0');
 }
 
+/* Each entry's name, where the archive carries an attribute table and the entry
+ * is present. */
+static void read_afs_entry_names(SDL_IOStream* io, bool has_attributes, Uint32 attributes_offset) {
+    for (int i = 0; i < afs.entry_count; i++) {
+        AFSEntry* entry = &afs.entries[i];
+
+        if ((entry->offset != 0) && has_attributes) {
+            SDL_SeekIO(io, attributes_offset + i * AFS_ATTRIBUTE_ENTRY_SIZE, SDL_IO_SEEK_SET);
+            read_string(io, entry->name);
+        } else {
+            SDL_zeroa(entry->name);
+        }
+    }
+}
+
 static bool init_afs(const char* file_path) {
     afs.file_path = SDL_strdup(file_path);
     SDL_IOStream* io = SDL_IOFromFile(file_path, "rb");
@@ -150,16 +165,7 @@ static bool init_afs(const char* file_path) {
         }
     }
 
-    for (int i = 0; i < afs.entry_count; i++) {
-        AFSEntry* entry = &afs.entries[i];
-
-        if ((entry->offset != 0) && has_attributes) {
-            SDL_SeekIO(io, attributes_offset + i * AFS_ATTRIBUTE_ENTRY_SIZE, SDL_IO_SEEK_SET);
-            read_string(io, entry->name);
-        } else {
-            SDL_zeroa(entry->name);
-        }
-    }
+    read_afs_entry_names(io, has_attributes, attributes_offset);
 
     stream = io;
     return true;
