@@ -148,42 +148,73 @@ void Game08() {
     move_effect_work(4);
 }
 
+/* The bonus game's set-up, and the stage load it waits on. Both are exactly the
+ * blocks that stood under their case labels. */
+static void begin_bonus_game() {
+BG_Draw_System();
+Switch_Screen(0);
+System_all_clear_Level_B();
+Bonus_Game_Flag = Bonus_Type;
+Game_difficulty = 15;
+Game_timer = 0;
+Game_pause = 0;
+Demo_Time_Stop = 0;
+C_No[0] = 0;
+C_No[1] = 0;
+C_No[2] = 0;
+C_No[3] = 0;
+G_No[2] += 1;
+G_Timer = 19;
+Round_num = 0;
+Allow_a_battle_f = 0;
+Time_in_Time = 60;
+init_slow_flag();
+clear_hit_queue();
+pcon_rno[0] = pcon_rno[1] = pcon_rno[2] = pcon_rno[3] = 0;
+bbbs_com_initialize();
+ca_check_flag = 1;
+Bonus_Game_Work = 20;
+Bonus_Game_result = 0;
+Bonus_Game_ex_result = 0;
+bg_work_clear();
+win_lose_work_clear();
+
+if (Bonus_Game_Flag == 0x15) {
+    My_char[COM_id] = 12;
+} else {
+    My_char[COM_id] = My_char[Player_id];
+}
+}
+
+static void load_bonus_stage() {
+if (!Check_LDREQ_Queue_BG(bg_w.stage)) {
+    G_Timer = 1;
+} else {
+    G_No[2] += 1;
+    Clear_Flash_No();
+
+    if (Bonus_Type == 0x15) {
+        makeup_bonus_game_level(COM_id);
+        effect_35_init(0x3C, 5);
+        effect_J2_init(0x78);
+        effect_35_init(0xB4, 7);
+        effect_58_init(6, 0xB4, 0xA1);
+    } else {
+        effect_35_init(0x3C, 6);
+        effect_35_init(0x78, 7);
+        effect_58_init(6, 0x78, 0xA1);
+    }
+
+    TATE00();
+    Switch_Screen_Init(0);
+    Bonus_Sub();
+}
+}
+
 void Game09() {
     switch (G_No[2]) {
     case 0:
-        BG_Draw_System();
-        Switch_Screen(0);
-        System_all_clear_Level_B();
-        Bonus_Game_Flag = Bonus_Type;
-        Game_difficulty = 15;
-        Game_timer = 0;
-        Game_pause = 0;
-        Demo_Time_Stop = 0;
-        C_No[0] = 0;
-        C_No[1] = 0;
-        C_No[2] = 0;
-        C_No[3] = 0;
-        G_No[2] += 1;
-        G_Timer = 19;
-        Round_num = 0;
-        Allow_a_battle_f = 0;
-        Time_in_Time = 60;
-        init_slow_flag();
-        clear_hit_queue();
-        pcon_rno[0] = pcon_rno[1] = pcon_rno[2] = pcon_rno[3] = 0;
-        bbbs_com_initialize();
-        ca_check_flag = 1;
-        Bonus_Game_Work = 20;
-        Bonus_Game_result = 0;
-        Bonus_Game_ex_result = 0;
-        bg_work_clear();
-        win_lose_work_clear();
-
-        if (Bonus_Game_Flag == 0x15) {
-            My_char[COM_id] = 12;
-        } else {
-            My_char[COM_id] = My_char[Player_id];
-        }
+        begin_bonus_game();
 
         break;
 
@@ -192,28 +223,7 @@ void Game09() {
         Switch_Screen(1);
 
         if (--G_Timer == 0) {
-            if (!Check_LDREQ_Queue_BG(bg_w.stage)) {
-                G_Timer = 1;
-            } else {
-                G_No[2] += 1;
-                Clear_Flash_No();
-
-                if (Bonus_Type == 0x15) {
-                    makeup_bonus_game_level(COM_id);
-                    effect_35_init(0x3C, 5);
-                    effect_J2_init(0x78);
-                    effect_35_init(0xB4, 7);
-                    effect_58_init(6, 0xB4, 0xA1);
-                } else {
-                    effect_35_init(0x3C, 6);
-                    effect_35_init(0x78, 7);
-                    effect_58_init(6, 0x78, 0xA1);
-                }
-
-                TATE00();
-                Switch_Screen_Init(0);
-                Bonus_Sub();
-            }
+            load_bonus_stage();
         }
 
         break;
