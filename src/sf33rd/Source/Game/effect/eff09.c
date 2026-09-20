@@ -1013,16 +1013,35 @@ static void advance_eff09_21000_arrival(WORK_Other* ewk) {
     }
 }
 
-static void advance_eff09_21000_animation(WORK_Other* ewk) {
+/* What each of the two late animations does when it ends. */
+static void end_eff09_21000_animation(WORK_Other* ewk) {
+    ewk->wu.disp_flag = 0;
+    plw[Winner_id].wu.cmwk[0] = 1;
+}
+
+static void end_eff09_26000_transition(WORK_Other* ewk) {
+    set_char_move_init(&ewk->wu, 0, 102);
+}
+
+/* The late animation step 21000 and 26000 share: while updates are enabled,
+ * move, and when the animation has ended step the routine and do the state's own
+ * ending. They disagree on what counts as ended - any cg_type against 0xFF - and
+ * on the ending itself. */
+static void advance_eff09_late_animation(
+    WORK_Other* ewk, s32 (*animation_ended)(const WORK_Other* ewk), void (*on_end)(WORK_Other* ewk)
+) {
     if (eff09_2000_updates_enabled()) {
         char_move(&ewk->wu);
 
-        if (ewk->wu.cg_type) {
+        if (animation_ended(ewk)) {
             ewk->wu.routine_no[1]++;
-            ewk->wu.disp_flag = 0;
-            plw[Winner_id].wu.cmwk[0] = 1;
+            on_end(ewk);
         }
     }
+}
+
+static void advance_eff09_21000_animation(WORK_Other* ewk) {
+    advance_eff09_late_animation(ewk, eff09_0000_animation_ended, end_eff09_21000_animation);
 }
 
 void eff09_21000(WORK_Other* ewk) {
@@ -1076,14 +1095,7 @@ static void advance_eff09_26000_start_animation(WORK_Other* ewk, WORK* oya_ptr) 
 }
 
 static void advance_eff09_26000_transition(WORK_Other* ewk) {
-    if (eff09_2000_updates_enabled()) {
-        char_move(&ewk->wu);
-
-        if (ewk->wu.cg_type == 0xFF) {
-            ewk->wu.routine_no[1]++;
-            set_char_move_init(&ewk->wu, 0, 102);
-        }
-    }
+    advance_eff09_late_animation(ewk, eff09_8000_animation_ended, end_eff09_26000_transition);
 }
 
 static void advance_eff09_26000_parent_wait(WORK_Other* ewk, const WORK* oya_ptr) {
