@@ -44,6 +44,17 @@ static u8* copy_from_dictionary(u8* dst, const u8* dic, s32 loop) {
     return dst;
 }
 
+static u8* copy_from_dictionary_stepped(u8* dst, const u8* dic, u8 step, s32 loop) {
+    s32 j;
+
+    for (j = 0; j < loop; j++) {
+        *dst++ = *dic + step;
+        dic++;
+    }
+
+    return dst;
+}
+
 s32 decLZ77withSizeCheck(u8* src, u8* dst, s32 size) {
     s32 j;
     s32 loop;
@@ -78,10 +89,7 @@ s32 decLZ77withSizeCheck(u8* src, u8* dst, s32 size) {
                 dic = dst - offset;
 
                 if (step) {
-                    for (j = 0; j < loop; j++) {
-                        *dst++ = *dic + step;
-                        dic++;
-                    }
+                    dst = copy_from_dictionary_stepped(dst, dic, step, loop);
                 } else {
                     dst = copy_from_dictionary(dst, dic, loop);
                 }
