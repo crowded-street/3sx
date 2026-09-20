@@ -3272,6 +3272,36 @@ not enough.
 failure rather than a warning, which is the good news: the gate catches it, as
 long as the gate is run on both configurations.
 
+### A fold that shortens its call sites can win by not being looked at
+
+*Added 2026-09-20, measured on `flps2vram.c` and reverted.*
+
+`function_duplication_min_lines_of_code_for_check` is 10. The catalogue already
+refuses **reformatting** an arm to slip under it, on the grounds that the
+duplication is then unmeasured rather than gone. The same thing can happen
+without anyone reformatting anything, and it is easy to miss.
+
+The three pixel layouts in `flps2vram.c` are twelve assignments each, identical
+apart from the values - a clean Recipe V, three instances, only literals varying.
+Folded onto one helper with the values in a `PixelFormat` compound literal, it
+measured **8.54 -> 9.09**. Run through `clang-format`, which puts one field per
+line, the same code measured **8.54**. Nothing changed but the line count of the
+three call sites: at three fields per line each variant is eight lines and is not
+compared against anything; at one field per line each is fifteen and the three
+literals pair exactly as the three assignment runs did.
+
+Two things follow:
+
+- **Measure in the layout the file is written in.** Format first, then run
+  `ch.py`. A score taken before `clang-format` is a score for code that is not
+  going to be committed.
+- **A duplication group that reappears in the folded form is telling you
+  something true.** Three compound literals that differ only in their values are
+  as alike as the three runs they replaced; the fold moved the repetition rather
+  than removing it. That can still be worth doing for a reader, but it is not
+  worth a commit under rule 2, and the honest record is that the file stays where
+  it was.
+
 ### Recipe G's early exit inside a loop is `continue`
 
 *Added 2026-09-20, measured on `plpat09.c`.*
