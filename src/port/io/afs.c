@@ -52,25 +52,34 @@ static void _log(const char* fmt, ...) {
     va_end(args);
 }
 
-static bool is_valid_attribute_data(Uint32 attributes_offset, Uint32 attributes_size, Sint64 file_size,
-                                    Uint32 entries_end_offset, Uint32 entry_count) {
-    if ((attributes_offset == 0) || (attributes_size == 0)) {
+/* The five values is_valid_attribute_data weighs, in the order and with the
+ * types its parameter list had them. */
+typedef struct {
+    Uint32 attributes_offset;
+    Uint32 attributes_size;
+    Sint64 file_size;
+    Uint32 entries_end_offset;
+    Uint32 entry_count;
+} AfsAttributeSpan;
+
+static bool is_valid_attribute_data(const AfsAttributeSpan* a) {
+    if ((a->attributes_offset == 0) || (a->attributes_size == 0)) {
         return false;
     }
 
-    if (attributes_size > (file_size - entries_end_offset)) {
+    if (a->attributes_size > (a->file_size - a->entries_end_offset)) {
         return false;
     }
 
-    if (attributes_size < (entry_count * AFS_ATTRIBUTE_ENTRY_SIZE)) {
+    if (a->attributes_size < (a->entry_count * AFS_ATTRIBUTE_ENTRY_SIZE)) {
         return false;
     }
 
-    if (attributes_offset < entries_end_offset) {
+    if (a->attributes_offset < a->entries_end_offset) {
         return false;
     }
 
-    if (attributes_offset > (file_size - attributes_size)) {
+    if (a->attributes_offset > (a->file_size - a->attributes_size)) {
         return false;
     }
 
@@ -150,8 +159,8 @@ static bool init_afs(const char* file_path) {
     SDL_ReadU32LE(io, &attributes_offset);
     SDL_ReadU32LE(io, &attributes_size);
 
-    if (is_valid_attribute_data(
-            attributes_offset, attributes_size, SDL_GetIOSize(io), entries_end_offset, afs.entry_count)) {
+    if (is_valid_attribute_data(&(AfsAttributeSpan){
+                attributes_offset, attributes_size, SDL_GetIOSize(io), entries_end_offset, afs.entry_count })) {
         has_attributes = true;
     } else {
         SDL_SeekIO(io, entries_start_offset - AFS_ATTRIBUTE_HEADER_SIZE, SDL_IO_SEEK_SET);
@@ -159,8 +168,8 @@ static bool init_afs(const char* file_path) {
         SDL_ReadU32LE(io, &attributes_offset);
         SDL_ReadU32LE(io, &attributes_size);
 
-        if (is_valid_attribute_data(
-                attributes_offset, attributes_size, SDL_GetIOSize(io), entries_end_offset, afs.entry_count)) {
+        if (is_valid_attribute_data(&(AfsAttributeSpan){
+                    attributes_offset, attributes_size, SDL_GetIOSize(io), entries_end_offset, afs.entry_count })) {
             has_attributes = true;
         }
     }
