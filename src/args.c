@@ -16,31 +16,60 @@ static void error_out(const char* error) {
 }
 #endif
 
+#if NETPLAY_ENABLED
+/* The compound tests verify_configuration makes, each copied character for
+ * character from the condition it stood in. They sit inside this `#if` with
+ * their only callers, so a build without netplay does not carry them. */
+static bool p2p_is_specified(const NetplayArgs* netplay) {
+    return netplay->p2p_local_player > 0 || netplay->p2p_remote_ip != NULL;
+}
+
+static bool matchmaking_is_specified(const NetplayArgs* netplay) {
+    return netplay->matchmaking_ip != NULL || netplay->matchmaking_port != 0;
+}
+
+static bool stress_combined_with_network(const NetplayArgs* netplay, bool p2p_specified, bool matchmaking_specified) {
+    return netplay->stress && (p2p_specified || matchmaking_specified);
+}
+
+static bool stress_options_without_stress(const NetplayArgs* netplay) {
+    return !netplay->stress && (netplay->stress_seed != 0 || netplay->stress_check_distance != 0 ||
+                                netplay->stress_frames != 0 || netplay->stress_out != NULL);
+}
+
+static bool negative_stress_counts(const NetplayArgs* netplay) {
+    return netplay->stress_check_distance < 0 || netplay->stress_frames < 0;
+}
+
+static bool p2p_local_player_invalid(const NetplayArgs* netplay) {
+    return netplay->p2p_local_player != 1 && netplay->p2p_local_player != 2;
+}
+#endif
+
 static void verify_configuration(const Args* args) {
 #if NETPLAY_ENABLED
     const NetplayArgs* netplay = &args->netplay;
-    const bool p2p_specified = netplay->p2p_local_player > 0 || netplay->p2p_remote_ip != NULL;
-    const bool matchmaking_specified = netplay->matchmaking_ip != NULL || netplay->matchmaking_port != 0;
+    const bool p2p_specified = p2p_is_specified(netplay);
+    const bool matchmaking_specified = matchmaking_is_specified(netplay);
 
     if (p2p_specified && matchmaking_specified) {
         error_out("Can't specify P2P and matchmaking at the same time.");
     }
 
-    if (netplay->stress && (p2p_specified || matchmaking_specified)) {
+    if (stress_combined_with_network(netplay, p2p_specified, matchmaking_specified)) {
         error_out("A stress session is local, so it can't be combined with P2P or matchmaking.");
     }
 
-    if (!netplay->stress && (netplay->stress_seed != 0 || netplay->stress_check_distance != 0 ||
-                             netplay->stress_frames != 0 || netplay->stress_out != NULL)) {
+    if (stress_options_without_stress(netplay)) {
         error_out("Stress options require --stress.");
     }
 
-    if (netplay->stress_check_distance < 0 || netplay->stress_frames < 0) {
+    if (negative_stress_counts(netplay)) {
         error_out("Stress frame counts can't be negative.");
     }
 
     if (p2p_specified) {
-        if (netplay->p2p_local_player != 1 && netplay->p2p_local_player != 2) {
+        if (p2p_local_player_invalid(netplay)) {
             error_out("Local player must be 1 or 2.");
         }
 
