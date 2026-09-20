@@ -40,9 +40,16 @@ static const ConfigEntry default_entries[] = {
 static ConfigEntry entries[CONFIG_ENTRIES_MAX] = { 0 };
 static int entry_count = 0;
 
+/* A character an integer may carry at this position: a digit anywhere, or a
+ * minus sign at the front. Copied operand for operand from the test it stood
+ * in. */
+static bool is_int_char(const char* string, int i) {
+    return SDL_isdigit(string[i]) || ((i == 0) && (string[i] == '-'));
+}
+
 static bool is_int(const char* string) {
     for (int i = 0; i < SDL_strlen(string); i++) {
-        if (SDL_isdigit(string[i]) || ((i == 0) && (string[i] == '-'))) {
+        if (is_int_char(string, i)) {
             continue;
         } else {
             return false;
