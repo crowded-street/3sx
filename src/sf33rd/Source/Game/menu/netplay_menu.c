@@ -94,6 +94,83 @@ void Setup_Netplay_Menu(struct _TASK* task_ptr) {
     }
 }
 
+/* The menu page's own input frame: the cursor moves, the exits and the two
+ * confirm paths. Every `break` that left the menu's switch is a return here;
+ * the cursor switch keeps its own. */
+static void run_netplay_menu_input(struct _TASK* task_ptr, FistbumpState fs) {
+    Pause_ID = 0;
+    Dir_Move_Sub(task_ptr, 0);
+
+    if (IO_Result == 0) {
+        Pause_ID = 1;
+        Dir_Move_Sub(task_ptr, 1);
+    }
+
+    if (Menu_Cursor_Y[1] != Menu_Cursor_Y[0]) {
+        SE_cursor_move();
+    }
+
+    if ((IO_Result == SWK_EAST ||
+         (IO_Result == SWK_SOUTH && Menu_Cursor_Y[0] == Menu_Max && Menu_Page != NETPLAY_PAGE_LOGGED_OUT)) &&
+        (fs == FISTBUMP_IDLE || fs == FISTBUMP_AWAITING_LOGIN)) {
+        Menu_Suicide[0] = 0;
+        Menu_Suicide[1] = 1;
+        Menu_Suicide[2] = 1;
+        task_ptr->r_no[1] = 1;
+        task_ptr->r_no[2] = 0;
+        task_ptr->r_no[3] = 0;
+        task_ptr->free[0] = 0;
+        Order[115] = 4;
+        Order_Timer[115] = 4;
+
+        Netplay_HandleMenuExit();
+        SE_dir_selected();
+        return;
+    } else if (IO_Result == SWK_EAST && Fistbump_GetState() == FISTBUMP_AWAITING_MATCH) {
+        Fistbump_CancelQueue();
+        return;
+    } else if (IO_Result == SWK_EAST && Fistbump_GetState() == FISTBUMP_MATCHED) {
+        Fistbump_DeclineMatch();
+        return;
+    } else if (IO_Result == SWK_SOUTH) {
+        if (Fistbump_GetState() == FISTBUMP_MATCHED) {
+            Fistbump_AcceptMatch();
+            return;
+        }
+
+        if (Menu_Page == NETPLAY_PAGE_DIRECT) {
+            // DIRECT CONNECT is the only item; the EXIT row is handled above.
+            Netplay_BeginDirectP2P();
+            SE_selected();
+            return;
+        }
+
+        switch (Menu_Cursor_Y[0]) {
+        case 0:
+            Netplay_FindMatch();
+            break;
+
+        case 1:
+            Menu_Suicide[0] = 0;
+            Menu_Suicide[1] = 1;
+            Menu_Suicide[2] = 1;
+            task_ptr->r_no[1] = 1;
+            task_ptr->r_no[2] = 0;
+            task_ptr->r_no[3] = 0;
+            task_ptr->free[0] = 0;
+            Order[115] = 4;
+            Order_Timer[115] = 4;
+
+            Fistbump_Logout();
+            Netplay_HandleMenuExit();
+            SE_dir_selected();
+            break;
+        }
+
+        return;
+    }
+}
+
 void Netplay_Menu(struct _TASK* task_ptr) {
     const FistbumpState fs = Fistbump_GetState();
     const bool login_state = Fistbump_IsLoggedIn();
@@ -153,78 +230,7 @@ void Netplay_Menu(struct _TASK* task_ptr) {
         break;
 
     case 4:
-        Pause_ID = 0;
-        Dir_Move_Sub(task_ptr, 0);
-
-        if (IO_Result == 0) {
-            Pause_ID = 1;
-            Dir_Move_Sub(task_ptr, 1);
-        }
-
-        if (Menu_Cursor_Y[1] != Menu_Cursor_Y[0]) {
-            SE_cursor_move();
-        }
-
-        if ((IO_Result == SWK_EAST ||
-             (IO_Result == SWK_SOUTH && Menu_Cursor_Y[0] == Menu_Max && Menu_Page != NETPLAY_PAGE_LOGGED_OUT)) &&
-            (fs == FISTBUMP_IDLE || fs == FISTBUMP_AWAITING_LOGIN)) {
-            Menu_Suicide[0] = 0;
-            Menu_Suicide[1] = 1;
-            Menu_Suicide[2] = 1;
-            task_ptr->r_no[1] = 1;
-            task_ptr->r_no[2] = 0;
-            task_ptr->r_no[3] = 0;
-            task_ptr->free[0] = 0;
-            Order[115] = 4;
-            Order_Timer[115] = 4;
-
-            Netplay_HandleMenuExit();
-            SE_dir_selected();
-            break;
-        } else if (IO_Result == SWK_EAST && Fistbump_GetState() == FISTBUMP_AWAITING_MATCH) {
-            Fistbump_CancelQueue();
-            break;
-        } else if (IO_Result == SWK_EAST && Fistbump_GetState() == FISTBUMP_MATCHED) {
-            Fistbump_DeclineMatch();
-            break;
-        } else if (IO_Result == SWK_SOUTH) {
-            if (Fistbump_GetState() == FISTBUMP_MATCHED) {
-                Fistbump_AcceptMatch();
-                break;
-            }
-
-            if (Menu_Page == NETPLAY_PAGE_DIRECT) {
-                // DIRECT CONNECT is the only item; the EXIT row is handled above.
-                Netplay_BeginDirectP2P();
-                SE_selected();
-                break;
-            }
-
-            switch (Menu_Cursor_Y[0]) {
-            case 0:
-                Netplay_FindMatch();
-                break;
-
-            case 1:
-                Menu_Suicide[0] = 0;
-                Menu_Suicide[1] = 1;
-                Menu_Suicide[2] = 1;
-                task_ptr->r_no[1] = 1;
-                task_ptr->r_no[2] = 0;
-                task_ptr->r_no[3] = 0;
-                task_ptr->free[0] = 0;
-                Order[115] = 4;
-                Order_Timer[115] = 4;
-
-                Fistbump_Logout();
-                Netplay_HandleMenuExit();
-                SE_dir_selected();
-                break;
-            }
-
-            break;
-        }
-
+        run_netplay_menu_input(task_ptr, fs);
         break;
     }
 
