@@ -3272,6 +3272,34 @@ not enough.
 failure rather than a warning, which is the good news: the gate catches it, as
 long as the gate is run on both configurations.
 
+### `passive_fold.py` does not apply to the skeleton module it writes
+
+*Added 2026-09-20, after running it there and reading the result.*
+
+`passive_fold.py families --min-members 2` over `Game/com/patterns/*.c` reports **twelve
+families**, which reads like twelve unfolded Recipe V merges sitting in the lowest-scoring
+files in the repository. It is an artefact, and the tool must not be run there.
+
+`find_families` selects functions whose names match `\w+_\d+`, which catches the
+skeleton module's own `_2` and `_3` variants, and `skeletonize` then treats every
+argument it does not recognise as a varying *literal slot*. That is correct for a COM
+script, which takes only `wk` and writes its arguments out as constants. It is wrong for
+a skeleton, which already has parameters. Running `fold` on
+`com_patterns_3step.c` produced a helper calling `J_Command_Attack(wk, p)` with no `p` in
+scope, and wrappers reduced to `(PLW* wk)` whose bodies still referenced the parameters
+that had just been removed. It does not compile, and the two functions it merged had
+different parameter lists to begin with.
+
+**The check that catches it is reading the diff**, not the build - which is why it is
+worth writing down. `refactor_guard.py` would have been happy: no literal changed.
+
+The underlying question - are there genuine Recipe V families among the skeletons? - is a
+separate one, and the answer measured by hand is that the promising pair costs more than
+it gives. `active_pattern_adjust_attack` and `_2` are byte-identical apart from two
+literals, so they qualify; but their skeleton already takes three lever arguments, and a
+shared version needs five or six parameters. Code Duplication comes off and Excess Number
+of Function Arguments goes on.
+
 ### A fold that shortens its call sites can win by not being looked at
 
 *Added 2026-09-20, measured on `flps2vram.c` and reverted.*
