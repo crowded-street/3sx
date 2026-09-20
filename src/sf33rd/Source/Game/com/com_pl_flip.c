@@ -75,7 +75,7 @@ static s32 Check_Shell_Flip(PLW* wk);
 static s32 Check_Flip_Attack(PLW* wk);
 
 
-void Float_3rd(PLW* wk) {
+static void Float_Guard_Lever(PLW* wk, s32 lever_type) {
     if (wk->wu.routine_no[1] != 1) {
         Next_Be_Free(wk);
     }
@@ -84,7 +84,7 @@ void Float_3rd(PLW* wk) {
     case 0:
         CP_No[wk->wu.id][2]++;
         Timer_00[wk->wu.id] = 4;
-        Lever_Pool[wk->wu.id] = Setup_Guard_Lever(wk, 0);
+        Lever_Pool[wk->wu.id] = Setup_Guard_Lever(wk, lever_type);
         Lever_Buff[wk->wu.id] = Lever_Pool[wk->wu.id];
         break;
 
@@ -99,28 +99,12 @@ void Float_3rd(PLW* wk) {
     }
 }
 
+void Float_3rd(PLW* wk) {
+    Float_Guard_Lever(wk, 0);
+}
+
 void Float_4th(PLW* wk) {
-    if (wk->wu.routine_no[1] != 1) {
-        Next_Be_Free(wk);
-    }
-
-    switch (CP_No[wk->wu.id][2]) {
-    case 0:
-        CP_No[wk->wu.id][2]++;
-        Timer_00[wk->wu.id] = 4;
-        Lever_Pool[wk->wu.id] = Setup_Guard_Lever(wk, 1);
-        Lever_Buff[wk->wu.id] = Lever_Pool[wk->wu.id];
-        break;
-
-    default:
-        if (--Timer_00[wk->wu.id] != 0) {
-            break;
-        }
-
-        Timer_00[wk->wu.id] = 3;
-        Lever_Buff[wk->wu.id] = Lever_Pool[wk->wu.id];
-        break;
-    }
+    Float_Guard_Lever(wk, 1);
 }
 
 void Flip_Zero(PLW* wk) {
