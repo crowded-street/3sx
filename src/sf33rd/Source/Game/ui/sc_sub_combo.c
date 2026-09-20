@@ -30,38 +30,54 @@
 #include "structs.h"
 #include "core/xbox_buttons.h"
 
-static void draw_combo_hit_count(const ComboMessage* m, u8 xw, u8 xw2) {
-    u8 pl = m->pl;
+/* Player one's hit count: the two digits, then the caption once the count is
+ * long enough. */
+static void draw_hit_count_left(const ComboMessage* m, u8 xw) {
     u8 kind = m->kind;
     u8 x = m->x;
     u8 num = m->num;
     u8 hi = m->hi;
     u8 low = m->low;
 
+    if (hi != 0) {
+        scfont_sqput(&(ScFontSquare){ x, 7, 8, 0, hi, 6, 1, 2 }, 2);
+}
+
+    if (num > 1) {
+        scfont_sqput(&(ScFontSquare){ x + 1, 7, 8, 0, low, 6, 1, 2 }, 2);
+}
+
+    if (num > 3) {
+        scfont_sqput(&(ScFontSquare){ x + 3, 7, 8, 2, combo_mtbl[kind][0], combo_mtbl[kind][1], xw, 2 }, 2);
+        return;
+}
+}
+
+/* Player two's hit count: the caption first, then the digits leftwards. */
+static void draw_hit_count_right(const ComboMessage* m, u8 xw, u8 xw2) {
+    u8 kind = m->kind;
+    u8 hi = m->hi;
+    u8 low = m->low;
+
+    scfont_sqput(&(ScFontSquare){ xw2, 7, 8, 2, (combo_mtbl[kind][0] + combo_mtbl[kind][2]) - xw, combo_mtbl[kind][1], xw, 2 }, 2);
+
+    if (xw2 > 1) {
+        scfont_sqput(&(ScFontSquare){ xw2 - 2, 7, 8, 0, low, 6, 1, 2 }, 2);
+}
+
+    if ((xw2 > 2) && (hi != 0)) {
+        scfont_sqput(&(ScFontSquare){ xw2 - 3, 7, 8, 0, hi, 6, 1, 2 }, 2);
+        return;
+}
+}
+
+static void draw_combo_hit_count(const ComboMessage* m, u8 xw, u8 xw2) {
+    u8 pl = m->pl;
+
     if (pl == 0) {
-        if (hi != 0) {
-            scfont_sqput(&(ScFontSquare){ x, 7, 8, 0, hi, 6, 1, 2 }, 2);
-    }
-
-        if (num > 1) {
-            scfont_sqput(&(ScFontSquare){ x + 1, 7, 8, 0, low, 6, 1, 2 }, 2);
-    }
-
-        if (num > 3) {
-            scfont_sqput(&(ScFontSquare){ x + 3, 7, 8, 2, combo_mtbl[kind][0], combo_mtbl[kind][1], xw, 2 }, 2);
-            return;
-    }
+        draw_hit_count_left(m, xw);
     } else {
-        scfont_sqput(&(ScFontSquare){ xw2, 7, 8, 2, (combo_mtbl[kind][0] + combo_mtbl[kind][2]) - xw, combo_mtbl[kind][1], xw, 2 }, 2);
-
-        if (xw2 > 1) {
-            scfont_sqput(&(ScFontSquare){ xw2 - 2, 7, 8, 0, low, 6, 1, 2 }, 2);
-    }
-
-        if ((xw2 > 2) && (hi != 0)) {
-            scfont_sqput(&(ScFontSquare){ xw2 - 3, 7, 8, 0, hi, 6, 1, 2 }, 2);
-            return;
-    }
+        draw_hit_count_right(m, xw, xw2);
     }
 }
 
