@@ -25,6 +25,15 @@ int scePad2GetButtonProfile(int socket_number, unsigned char* profile) {
     return 4;
 }
 
+/* One button's pressure byte: full where the button is down. The eight differ
+ * in two values, the field written and the button read, and both are written
+ * out at their own call site. The field travels as its address because C has
+ * no way to pass a member name; the button is a plain read of a local struct
+ * and cannot trap, so evaluating it either way is the same program. */
+static void set_button_pressure(unsigned char* out, bool pressed) {
+    *out = pressed ? 0xFF : 0;
+}
+
 int scePad2Read(int socket_number, scePad2ButtonState* data) {
     memset(data, 0, sizeof(scePad2ButtonState));
 
@@ -63,14 +72,14 @@ int scePad2Read(int socket_number, scePad2ButtonState* data) {
 
     // This sets button pressure
 
-    data->crossP = button_state.south ? 0xFF : 0;
-    data->circleP = button_state.east ? 0xFF : 0;
-    data->squareP = button_state.west ? 0xFF : 0;
-    data->triangleP = button_state.north ? 0xFF : 0;
-    data->upP = button_state.dpad_up ? 0xFF : 0;
-    data->downP = button_state.dpad_down ? 0xFF : 0;
-    data->leftP = button_state.dpad_left ? 0xFF : 0;
-    data->rightP = button_state.dpad_right ? 0xFF : 0;
+    set_button_pressure(&data->crossP, button_state.south);
+    set_button_pressure(&data->circleP, button_state.east);
+    set_button_pressure(&data->squareP, button_state.west);
+    set_button_pressure(&data->triangleP, button_state.north);
+    set_button_pressure(&data->upP, button_state.dpad_up);
+    set_button_pressure(&data->downP, button_state.dpad_down);
+    set_button_pressure(&data->leftP, button_state.dpad_left);
+    set_button_pressure(&data->rightP, button_state.dpad_right);
 
     return sizeof(scePad2ButtonState);
 }
