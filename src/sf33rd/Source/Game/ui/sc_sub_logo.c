@@ -430,13 +430,82 @@ static void normalise_hnc_uv(ColoredVertex* vtx) {
     }
 }
 
-s32 hnc_wipeout(u8 atr) {
-    ColoredVertex vtx[4];
+/* The twenty-three columns each of the two wipe rows draws, and the two
+ * tapering columns that close it. The first returns the v cursor it left off
+ * at, which is the one value the caller reads afterwards. */
+static s32 draw_hnc_wipe_rows(ColoredVertex* vtx, s32 ipy, s32 len) {
     u8 i;
     u8 j;
     s32 ipx;
-    s32 ipy;
     s32 ipu;
+    s32 ipv;
+
+    ipx = 8;
+    ipu = 8;
+    ipv = 72;
+
+    for (i = 0; i < 2; i++) {
+        for (j = 0; j < 23; j++) {
+            vtx[0].x = ipx;
+            vtx[1].x = vtx[0].x - len;
+            vtx[2].x = 16.0f + vtx[0].x;
+            vtx[3].x = vtx[2].x - len;
+            vtx[0].y = vtx[1].y = ipy;
+            vtx[2].y = vtx[3].y = ipy + 24;
+            vtx[0].u = ipu;
+            vtx[1].u = vtx[0].u - len;
+            vtx[2].u = 16.0f + vtx[0].u;
+            vtx[3].u = vtx[2].u - len;
+            vtx[0].v = vtx[1].v = ipv;
+            vtx[2].v = vtx[3].v = ipv + 24;
+
+            normalise_hnc_uv(vtx);
+
+            njDrawTexture(vtx, 4, 1, 1);
+            ipx += 8;
+            ipu += 8;
+        }
+
+        ipu = 8;
+        ipv += 24;
+    }
+
+    return ipv;
+}
+
+static void draw_hnc_wipe_tail(ColoredVertex* vtx, s32 ipy, s32 ipv, s32 len) {
+    u8 j;
+    s32 ipx;
+    s32 ipu;
+
+    ipx = 184;
+    ipu = 0;
+
+    for (j = 0; j < 2; j++) {
+        vtx[0].x = vtx[1].x = ipx;
+        vtx[2].x = vtx[0].x + (16 - (j * 8));
+        vtx[3].x = vtx[2].x - len;
+        vtx[0].y = ipy;
+        vtx[1].y = vtx[0].y + ((24.0f * len) / 16.0f);
+        vtx[2].y = vtx[3].y = vtx[0].y + (0x18 - (j * 12));
+        vtx[0].u = vtx[1].u = ipu;
+        vtx[2].u = vtx[0].u + (16 - (j * 8));
+        vtx[3].u = vtx[2].u - len;
+        vtx[0].v = ipv;
+        vtx[1].v = vtx[0].v + ((24.0f * len) / 16.0f);
+        vtx[2].v = vtx[3].v = vtx[0].v + (24 - (j * 12));
+
+        normalise_hnc_uv(vtx);
+
+        njDrawTexture(vtx, 4, 1, 1);
+        ipy += 12;
+        ipv += 12;
+    }
+}
+
+s32 hnc_wipeout(u8 atr) {
+    ColoredVertex vtx[4];
+    s32 ipy;
     s32 ipv;
     s32 len;
 
@@ -446,62 +515,13 @@ s32 hnc_wipeout(u8 atr) {
         njColorBlendingMode(0, 1);
         vtx[0].z = vtx[1].z = vtx[2].z = vtx[3].z = PrioBase[2];
         vtx[0].col = vtx[1].col = vtx[2].col = vtx[3].col = -1;
-        ipx = 8;
         ipy = 88;
-        ipu = 8;
-        ipv = 72;
         len = 8 - Hnc_Num;
+        ipv = draw_hnc_wipe_rows(vtx, ipy, len);
 
-        for (i = 0; i < 2; i++) {
-            for (j = 0; j < 23; j++) {
-                vtx[0].x = ipx;
-                vtx[1].x = vtx[0].x - len;
-                vtx[2].x = 16.0f + vtx[0].x;
-                vtx[3].x = vtx[2].x - len;
-                vtx[0].y = vtx[1].y = ipy;
-                vtx[2].y = vtx[3].y = ipy + 24;
-                vtx[0].u = ipu;
-                vtx[1].u = vtx[0].u - len;
-                vtx[2].u = 16.0f + vtx[0].u;
-                vtx[3].u = vtx[2].u - len;
-                vtx[0].v = vtx[1].v = ipv;
-                vtx[2].v = vtx[3].v = ipv + 24;
-
-                normalise_hnc_uv(vtx);
-
-                njDrawTexture(vtx, 4, 1, 1);
-                ipx += 8;
-                ipu += 8;
-            }
-
-            ipu = 8;
-            ipv += 24;
-        }
-
-        ipx = 184;
-        ipu = 0;
         ipv -= 24;
 
-        for (j = 0; j < 2; j++) {
-            vtx[0].x = vtx[1].x = ipx;
-            vtx[2].x = vtx[0].x + (16 - (j * 8));
-            vtx[3].x = vtx[2].x - len;
-            vtx[0].y = ipy;
-            vtx[1].y = vtx[0].y + ((24.0f * len) / 16.0f);
-            vtx[2].y = vtx[3].y = vtx[0].y + (0x18 - (j * 12));
-            vtx[0].u = vtx[1].u = ipu;
-            vtx[2].u = vtx[0].u + (16 - (j * 8));
-            vtx[3].u = vtx[2].u - len;
-            vtx[0].v = ipv;
-            vtx[1].v = vtx[0].v + ((24.0f * len) / 16.0f);
-            vtx[2].v = vtx[3].v = vtx[0].v + (24 - (j * 12));
-
-            normalise_hnc_uv(vtx);
-
-            njDrawTexture(vtx, 4, 1, 1);
-            ipy += 12;
-            ipv += 12;
-        }
+        draw_hnc_wipe_tail(vtx, ipy, ipv, len);
     }
 
     Hnc_Num++;
