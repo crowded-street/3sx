@@ -235,18 +235,32 @@ void end_401_0000() {
     run_end_04_slide_scene(spawn_end_401_0000_effects, 0xC000);
 }
 
-void end_401_1000() {
+/* How each drift scene launches its drift. They differ in the vertical speed,
+ * and 402 still tests the launch's result although both paths leave the arm at
+ * once; each keeps its own line rather than being rewritten into the other. */
+static void launch_end_401_1000_drift(void) {
+    end_04_launch_drift(0xA000, 0x6000);
+}
+
+static void launch_end_402_1000_drift(void) {
+    if (end_04_launch_drift(0xA000, 0x4000)) {
+        return;
+    }
+}
+
+/* The drift scene end_401_1000 and end_402_1000 share: open and spawn the
+ * scene's effect, launch the drift, then let it run out. */
+static void run_end_04_drift_scene(u8 effect_id, void (*launch_drift)(void)) {
     switch (bgw_ptr->r_no_1) {
     case 0:
         end_04_open_scene();
-        effect_E6_init(0x5F);
+        effect_E6_init(effect_id);
         bgw_ptr->free = 0x12C;
         end_04_commit_position();
         break;
 
     case 1:
-        end_04_launch_drift(0xA000, 0x6000);
-
+        launch_drift();
         break;
 
     case 2:
@@ -256,6 +270,10 @@ void end_401_1000() {
     case 3:
         break;
     }
+}
+
+void end_401_1000() {
+    run_end_04_drift_scene(0x5F, launch_end_401_1000_drift);
 }
 
 /* Step the frame zoom in one notch every `interval` frames, and end the scene once it
@@ -374,26 +392,5 @@ void end_402_0000() {
 }
 
 void end_402_1000() {
-    switch (bgw_ptr->r_no_1) {
-    case 0:
-        end_04_open_scene();
-        effect_E6_init(0x5E);
-        bgw_ptr->free = 0x12C;
-        end_04_commit_position();
-        break;
-
-    case 1:
-        if (end_04_launch_drift(0xA000, 0x4000)) {
-            break;
-        }
-
-        break;
-
-    case 2:
-        end_04_drift_until_done();
-        break;
-
-    case 3:
-        break;
-    }
+    run_end_04_drift_scene(0x5E, launch_end_402_1000_drift);
 }
