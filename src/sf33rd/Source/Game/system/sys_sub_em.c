@@ -98,16 +98,18 @@ void Setup_Candidate_Buff(s16 PL_id) {
     }
 }
 
-s16 Check_EM_Buff(s16 ix, s16 ok_urien) {
+/* Taking a slot out of the candidate buffer, the direction the scan walks in,
+ * and the step that wraps it round the sixteen slots. */
+static s16 claim_candidate(s16 Rnd) {
     s16 em;
-    s16 Rnd = random_16();
-    s16 Next;
 
-    if (Check_EM_Sub(ix, ok_urien, Rnd)) {
-        em = Candidate_Buff[Rnd];
-        Candidate_Buff[Rnd] = 0xFF;
-        return em;
-    }
+    em = Candidate_Buff[Rnd];
+    Candidate_Buff[Rnd] = 0xFF;
+    return em;
+}
+
+static s16 pick_scan_direction() {
+    s16 Next;
 
     Next = random_16() & 1;
 
@@ -115,22 +117,39 @@ s16 Check_EM_Buff(s16 ix, s16 ok_urien) {
         Next = -1;
     }
 
+    return Next;
+}
+
+static s16 next_candidate_slot(s16 Rnd, s16 Next) {
+    Rnd += Next;
+
+    if (Rnd < 0) {
+        Rnd = 15;
+    }
+
+    if (Rnd > 15) {
+        Rnd = 0;
+    }
+
+    return Rnd;
+}
+
+s16 Check_EM_Buff(s16 ix, s16 ok_urien) {
+    s16 Rnd = random_16();
+    s16 Next;
+
+    if (Check_EM_Sub(ix, ok_urien, Rnd)) {
+        return claim_candidate(Rnd);
+    }
+
+    Next = pick_scan_direction();
+
     while (1) {
         if (Check_EM_Sub(ix, ok_urien, Rnd)) {
-            em = Candidate_Buff[Rnd];
-            Candidate_Buff[Rnd] = 0xFF;
-            return em;
+            return claim_candidate(Rnd);
         }
 
-        Rnd += Next;
-
-        if (Rnd < 0) {
-            Rnd = 15;
-        }
-
-        if (Rnd > 15) {
-            Rnd = 0;
-        }
+        Rnd = next_candidate_slot(Rnd, Next);
     }
 }
 
