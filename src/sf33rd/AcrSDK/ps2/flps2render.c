@@ -49,12 +49,12 @@ s32 flPS2SendTextureRegister(u32 th) {
     };
 
     if (!flPS2SetTextureRegister(th,
-                                 &psTexture_data[4],
-                                 &psTexture_data[6],
-                                 &psTexture_data[8],
-                                 &psTexture_data[10],
-                                 &psTexture_data[12],
-                                 &psTexture_data[14],
+                                 &(FLPS2TextureRegs){ &psTexture_data[4],
+                                                      &psTexture_data[6],
+                                                      &psTexture_data[8],
+                                                      &psTexture_data[10],
+                                                      &psTexture_data[12],
+                                                      &psTexture_data[14] },
                                  flSystemRenderOperation)) {
         return 0;
     }
@@ -62,8 +62,7 @@ s32 flPS2SendTextureRegister(u32 th) {
     return 1;
 }
 
-s32 flPS2SetTextureRegister(u32 th, u64* texA, u64* tex1, u64* tex0, u64* clamp, u64* miptbp1, u64* miptbp2,
-                            u32 render_ope) {
+s32 flPS2SetTextureRegister(u32 th, const FLPS2TextureRegs* regs, u32 render_ope) {
     FLTexture* lpflTexture;
     Renderer_SetTexture(th);
 
