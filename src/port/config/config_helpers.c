@@ -39,6 +39,39 @@ void io_printf(SDL_IOStream* io, const char* format, ...) {
     SDL_free(rendered);
 }
 
+/* One configuration line: the newline removed, leading whitespace skipped, and
+ * the text split at the first '='. Returns false wherever the loop body used
+ * to `continue` and true where a key and a value are ready. */
+static bool dict_parse_line(char* line, char* key, char* value) {
+    // Remove newline
+    line[strcspn(line, "\r\n")] = '\0';
+
+    char* p = line;
+
+    // Skip leading whitespace
+    while (SDL_isspace((unsigned char)*p)) {
+        p++;
+    }
+
+    // Skip empty/comment lines
+    if (*p == '\0' || *p == '#') {
+        return false;
+    }
+
+    if (sscanf(p, "%127[^=]=%127[^\n]", key, value) != 2) {
+        return false;
+    }
+
+    trim(key);
+    trim(value);
+
+    if (SDL_strlen(key) == 0 || SDL_strlen(value) == 0) {
+        return false;
+    }
+
+    return true;
+}
+
 void dict_read(FILE* file, DictIterator iterator) {
     if (file == NULL) {
         return;
@@ -47,32 +80,10 @@ void dict_read(FILE* file, DictIterator iterator) {
     char line[256];
 
     while (fgets(line, sizeof(line), file)) {
-        // Remove newline
-        line[strcspn(line, "\r\n")] = '\0';
-
-        char* p = line;
-
-        // Skip leading whitespace
-        while (SDL_isspace((unsigned char)*p)) {
-            p++;
-        }
-
-        // Skip empty/comment lines
-        if (*p == '\0' || *p == '#') {
-            continue;
-        }
-
         char key[128];
         char value[128];
 
-        if (sscanf(p, "%127[^=]=%127[^\n]", key, value) != 2) {
-            continue;
-        }
-
-        trim(key);
-        trim(value);
-
-        if (SDL_strlen(key) == 0 || SDL_strlen(value) == 0) {
+        if (!dict_parse_line(line, key, value)) {
             continue;
         }
 
