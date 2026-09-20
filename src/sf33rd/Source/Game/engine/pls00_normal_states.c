@@ -61,6 +61,7 @@ void nm_00000(PLW* /* unused */) { // 🟢
 /* Defined below, next to the states that share them. */
 static bool run_common_nm_attack_checks(PLW* wk);
 static bool run_common_nm_attack_checks_no_turn(PLW* wk);
+static bool run_attack_checks_before_leap(PLW* wk);
 
 /* A check that may take over the normal state, as the check lists see it. Every
  * one of these functions was already being called in a boolean context; the
@@ -103,6 +104,24 @@ static s32 nm_check_arcade_walk_start(PLW* wk) {
     }
 
     return 0;
+}
+
+/* The gauge checks take a second argument, always zero at these call sites; the
+ * super-arts and before-leap checks report narrower types. */
+static s32 nm_check_full_gauge_attack(PLW* wk) {
+    return check_full_gauge_attack(wk, 0);
+}
+
+static s32 nm_check_full_gauge_attack2(PLW* wk) {
+    return check_full_gauge_attack2(wk, 0);
+}
+
+static s32 nm_check_super_arts_attack(PLW* wk) {
+    return check_super_arts_attack(wk);
+}
+
+static s32 nm_check_before_leap(PLW* wk) {
+    return run_attack_checks_before_leap(wk);
 }
 
 /* The remaining check-list entries that are not a plain call.
@@ -166,22 +185,12 @@ void nm_01000(PLW* wk) { // 🟡
     run_nm_state_checks(wk, checks);
 }
 
-/* The three checks every attack path tries first: both full-gauge attacks and
- * the super art. */
 static bool run_gauge_attack_checks(PLW* wk) {
-    if (check_full_gauge_attack(wk, 0)) {
-        return true;
-    }
+    static const NmStateCheck checks[] = {
+        nm_check_full_gauge_attack, nm_check_full_gauge_attack2, nm_check_super_arts_attack, NULL
+    };
 
-    if (check_full_gauge_attack2(wk, 0)) {
-        return true;
-    }
-
-    if (check_super_arts_attack(wk)) {
-        return true;
-    }
-
-    return false;
+    return run_nm_state_checks(wk, checks);
 }
 
 /* The six attacks every path tries first, in this order: both full-gauge
@@ -442,19 +451,9 @@ void set_new_jpdir(PLW* wk) { // 🟢
 }
 
 static bool run_jump_attack_checks(PLW* wk) {
-    if (run_attack_checks_before_leap(wk)) {
-        return true;
-    }
+    static const NmStateCheck checks[] = { nm_check_before_leap, check_nm_attack, check_cg_cancel_data, NULL };
 
-    if (check_nm_attack(wk)) {
-        return true;
-    }
-
-    if (check_cg_cancel_data(wk)) {
-        return true;
-    }
-
-    return false;
+    return run_nm_state_checks(wk, checks);
 }
 
 void nm_18000(PLW* wk) { // 🟢
@@ -484,19 +483,9 @@ static void reset_guard_for_new_state(PLW* wk) {
 }
 
 static bool run_early_attack_checks(PLW* wk) {
-    if (run_attack_checks_before_leap(wk)) {
-        return true;
-    }
+    static const NmStateCheck checks[] = { nm_check_before_leap, check_leap_attack, check_nm_attack, NULL };
 
-    if (check_leap_attack(wk)) {
-        return true;
-    }
-
-    if (check_nm_attack(wk)) {
-        return true;
-    }
-
-    return false;
+    return run_nm_state_checks(wk, checks);
 }
 
 static void handle_jump_attack_state(PLW* wk) {
