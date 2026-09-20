@@ -1122,6 +1122,105 @@ allows.
 
 ---
 
+## Recipe K - Check List
+
+**Use when:** a function is nothing but a run of guards that all have the same shape -
+
+```c
+void nm_state(PLW *wk) {
+    if (first_check(wk))  { return; }
+    if (second_check(wk)) { return; }
+    if (third_check(wk))  { return; }
+    last_thing(wk);
+}
+```
+
+\- and CodeScene reports *Code Duplication* across several such functions. They are a
+list written as control flow. Recipe D refuses them because they differ in more than one
+check; Recipe C finds no identical run because each picks its own checks in its own order;
+Recipe F cannot help because there is nothing in common to parameterise except the shape
+itself.
+
+Measured on `pls00_normal_states.c`, where CodeScene read six states plus three
+attack-check helpers as one web: **8.03 -> 10.00** over four commits.
+
+**The conditions:**
+
+1. Every guard is `if (<call>(x)) { return <constant or nothing>; }` over the *same* single
+   argument. No other statements between the guards.
+2. The function ends in a plain `return <constant>` or falls off the end, and may end in
+   one unguarded call - see below.
+3. Every listed function can be reached through one function-pointer type. Where it cannot,
+   it gets an adapter; see *The adapters*.
+
+**How:**
+
+1. Name the pointer type once, next to the states that use it, and write the scan:
+
+   ```c
+   typedef s32 (*NmStateCheck)(PLW *wk);
+
+   static s32 run_nm_state_checks(PLW *wk, const NmStateCheck *checks) {
+       s32 i;
+
+       for (i = 0; checks[i] != NULL; i++) {
+           if (checks[i](wk)) {
+               return 1;
+           }
+       }
+
+       return 0;
+   }
+   ```
+
+2. Each function becomes its own table and one call:
+
+   ```c
+   void nm_state(PLW *wk) {
+       static const NmStateCheck checks[] = { first_check, second_check, third_check,
+                                              last_thing_adapter, NULL };
+
+       run_nm_state_checks(wk, checks);
+   }
+   ```
+
+**The last call.** A trailing unguarded call joins the table like any other entry. Testing
+its result and returning changes nothing, because nothing followed it. A trailing call that
+returns `void` needs an adapter that returns 0.
+
+**The adapters.** This is where the recipe is easy to get wrong. C decompilations are full
+of check functions reporting `s32`, `s16` and `bool` interchangeably, and **calling a
+`bool (*)(PLW *)` through an `s32 (*)(PLW *)` is undefined behaviour** - not a warning, and
+not something the build will catch. Every check whose type is not the table's type gets a
+three-line adapter:
+
+```c
+static s32 nm_check_f_r_walk(PLW *wk) {
+    return check_F_R_walk(wk);
+}
+```
+
+The same adapter form carries a call with a fixed extra argument
+(`check_full_gauge_attack(wk, 0)`), a call guarded by something else
+(`if (ArcadeBalance_IsEnabled())`, returning 0 where the guard fails), and a nested pair of
+guards. **Each adapter returns the value its own `if` tested**, so nothing is converted that
+was not already being converted at that `if`.
+
+Adapters are three or four lines, under the duplication check's ten-line floor, so they do
+not become a new finding. A *pair* of adapters that grows past that does: on
+`pls00_normal_states.c` the two lever-guarded ones were a duplicate pair on their own until
+the guard itself became a helper taking the list to run, which is worth 0.27.
+
+**What it costs.** One function-pointer indirection per check, in the fight loop. That is
+the same cost Recipe F already pays, and the same argument applies: it is a jump through a
+table rather than a direct call, in code that is doing a state transition.
+
+**What `refactor_guard.py` sees.** Nothing removed and nothing substituted: the checks were
+names, not constants. The `NULL` terminator is not a number, and the scan's `0` and `1` are
+the values the lists already returned.
+
+---
+
 ## Recipe A - Parameter Object
 
 **Use when:** CodeScene reports *Excess Number of Function Arguments* (more than four for
