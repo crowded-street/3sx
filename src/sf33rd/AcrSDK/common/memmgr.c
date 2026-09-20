@@ -315,9 +315,46 @@ static void plmem_point_next_block_at(MEM_MGR* memmgr, u32 next_han, u32 han) {
     }
 }
 
+/* The two orders a block list can be kept in, as the scan sees them. */
+static s32 now_block_is_below(const MEM_BLOCK* now_block, const MEM_BLOCK* block_ptr) {
+    return now_block->ptr < block_ptr->ptr;
+}
+
+static s32 now_block_is_above(const MEM_BLOCK* now_block, const MEM_BLOCK* block_ptr) {
+    return now_block->ptr > block_ptr->ptr;
+}
+
+/* Walk the block list from its head for as long as the order still holds, or
+ * until the list runs out. Returns the handle the walk stopped at, and leaves
+ * the handle before it in *now_han_out.
+ *
+ * Both directions ran this identical loop; only the comparison differed, so the
+ * comparison comes in as a predicate. */
+static u32 plmem_scan_block_list(
+    MEM_MGR* memmgr, MEM_BLOCK* block_ptr, u32* now_han_out,
+    s32 (*keep_walking)(const MEM_BLOCK* now_block, const MEM_BLOCK* block_ptr)
+) {
+    MEM_BLOCK* now_block = &memmgr->block[memmgr->blocklist];
+    u32 now_han = MEM_NULL_HANDLE;
+    u32 next_han = memmgr->blocklist;
+
+    while (keep_walking(now_block, block_ptr)) {
+        now_han = next_han;
+        next_han = now_block->next;
+
+        if (next_han == MEM_NULL_HANDLE) {
+            break;
+        }
+
+        now_block = &memmgr->block[next_han];
+    }
+
+    *now_han_out = now_han;
+    return next_han;
+}
+
 void plmemAppendBlockList(MEM_MGR* memmgr, u32 han) {
     MEM_BLOCK* block_ptr;
-    MEM_BLOCK* next_block;
     MEM_BLOCK* now_block;
     u32 next_han;
     u32 now_han;
@@ -339,31 +376,13 @@ void plmemAppendBlockList(MEM_MGR* memmgr, u32 han) {
         if (now_block->ptr > block_ptr->ptr) {
             next_han = memmgr->blocklist;
         } else {
-            while (now_block->ptr < block_ptr->ptr) {
-                now_han = next_han;
-                next_han = now_block->next;
-
-                if (next_han == MEM_NULL_HANDLE) {
-                    break;
-                }
-
-                now_block = &memmgr->block[next_han];
-            }
+            next_han = plmem_scan_block_list(memmgr, block_ptr, &now_han, now_block_is_below);
         }
     } else {
         if (now_block->ptr < block_ptr->ptr) {
             next_han = memmgr->blocklist;
         } else {
-            while (now_block->ptr > block_ptr->ptr) {
-                now_han = next_han;
-                next_han = now_block->next;
-
-                if (next_han == MEM_NULL_HANDLE) {
-                    break;
-                }
-
-                now_block = &memmgr->block[next_han];
-            }
+            next_han = plmem_scan_block_list(memmgr, block_ptr, &now_han, now_block_is_above);
         }
     }
 
