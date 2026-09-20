@@ -54,20 +54,59 @@ static s32 store_trans_chip(const ChipPlacement* p, s32 gidx, s32 code, s32 attr
                                            p->id });
 }
 
-void store_cached_trans_ext_tiles(const TransRun* run, s32 group) {
+/* What a cached extended pass makes of one tile map entry: the palette it looks
+ * the tile up under, and the attribute word each bank's chip is queued with.
+ * These three expressions are the whole of what separates the three passes. */
+typedef struct {
+    s32 palt;
+    s32 attr_16;
+    s32 attr_32;
+} TransTileAttrs;
+
+static TransTileAttrs cached_ext_attrs(const TransRun* run, const TileMapEntry* trsptr) {
+    s32 attr = (trsptr->attr ^ run->flip) & 0xC000;
+
+    return (TransTileAttrs) { 0, run->palo | attr, run->palo | (attr | 0x2000) };
+}
+
+static TransTileAttrs cached_cp3_ext_attrs(const TransRun* run, const TileMapEntry* trsptr) {
+    s32 attr = trsptr->attr;
+    s32 palt = (attr & 0x1FF) + run->palo;
+
+    attr = (attr ^ run->flip) & 0xC000;
+
+    return (TransTileAttrs) { 0, attr | palt, (attr | 0x2000) | palt };
+}
+
+static TransTileAttrs cached_rgb_ext_attrs(const TransRun* run, const TileMapEntry* trsptr) {
+    s32 attr = trsptr->attr;
+    s32 palt = (attr & 0x1FF) + run->palo;
+
+    attr = (attr ^ run->flip) & 0xC000;
+
+    return (TransTileAttrs) { palt, attr, attr | 0x2000 };
+}
+
+/* The three cached extended passes walk the same tile run and queue the same
+ * chips. They differ only in the three values above, so the pass takes the
+ * function that produces them.
+ *
+ * The rgb pass is the one that looks its tiles up under a real palette; the
+ * other two pass zero, as they wrote. */
+static void store_cached_trans_ext_run(
+    const TransRun* run, s32 group, TransTileAttrs (*attrs_of)(const TransRun* run, const TileMapEntry* trsptr)
+) {
     TileMapEntry* trsptr = run->trsptr;
     s32 count = run->count;
     f32 x = run->x, y = run->y;
     PatternCode cc = run->cc;
+    TransTileAttrs at;
     TEX* texptr;
     s32 rnum;
     s32 code;
     s32 wh;
     s32 dw;
     s32 dh;
-
-    (void)dw;
-    (void)dh;
 
     cc.parts.group = group;
 
@@ -79,32 +118,31 @@ void store_cached_trans_ext_tiles(const TransRun* run, s32 group) {
         dw = (texptr->wh & 0xE0) >> 2;
         dh = (texptr->wh & 0x1C) * 2;
         wh = (texptr->wh & 3) + 1;
+        at = attrs_of(run, trsptr);
         cc.parts.offset = trsptr->code;
 
         switch (wh) {
         case 1:
         case 2:
-            code = get_mltbuf16_ext(run->mt, cc.code, 0);
+            code = get_mltbuf16_ext(run->mt, cc.code, at.palt);
 
             rnum = store_trans_chip(
                 &(ChipPlacement) { x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
                 run->mt->mltgidx16,
                 code,
-                run->palo | ((trsptr->attr ^ run->flip) & 0xC000)
+                at.attr_16
             );
-
             break;
 
         case 4:
-            code = get_mltbuf32_ext(run->mt, cc.code, 0);
+            code = get_mltbuf32_ext(run->mt, cc.code, at.palt);
 
             rnum = store_trans_chip(
                 &(ChipPlacement) { x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
                 run->mt->mltgidx32,
                 code,
-                run->palo | (((trsptr->attr ^ run->flip) & 0xC000) | 0x2000)
+                at.attr_32
             );
-
             break;
         }
 
@@ -114,6 +152,10 @@ void store_cached_trans_ext_tiles(const TransRun* run, s32 group) {
 
         trsptr++;
     }
+}
+
+void store_cached_trans_ext_tiles(const TransRun* run, s32 group) {
+    store_cached_trans_ext_run(run, group, cached_ext_attrs);
 }
 
 void store_new_trans_ext_tiles(const TransRun* run, s32 group, PatternInstance* cp) {
@@ -251,70 +293,7 @@ void store_trans_tiles(const TransRun* run) {
 }
 
 void store_cached_trans_cp3_ext_tiles(const TransRun* run, s32 group) {
-    TileMapEntry* trsptr = run->trsptr;
-    s32 count = run->count;
-    f32 x = run->x, y = run->y;
-    PatternCode cc = run->cc;
-    TEX* texptr;
-    s32 rnum;
-    s32 code;
-    s32 wh;
-    s32 dw;
-    s32 dh;
-    s32 attr;
-    s32 palt;
-
-    (void)dw;
-    (void)dh;
-
-    cc.parts.group = group;
-
-    while (count--) {
-        x = advance_trans_x(x, run->flip, trsptr);
-        y = advance_trans_y(y, run->flip, trsptr);
-
-        texptr = (TEX*)((uintptr_t)run->textbl + ((u32*)run->textbl)[trsptr->code]);
-        dw = (texptr->wh & 0xE0) >> 2;
-        dh = (texptr->wh & 0x1C) * 2;
-        wh = (texptr->wh & 3) + 1;
-        attr = trsptr->attr;
-        palt = (attr & 0x1FF) + run->palo;
-        attr = (attr ^ run->flip) & 0xC000;
-        cc.parts.offset = trsptr->code;
-
-        switch (wh) {
-        case 1:
-        case 2:
-            code = get_mltbuf16_ext(run->mt, cc.code, 0);
-
-            rnum = store_trans_chip(
-                &(ChipPlacement) { x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
-                run->mt->mltgidx16,
-                code,
-                attr | palt
-            );
-
-            break;
-
-        case 4:
-            code = get_mltbuf32_ext(run->mt, cc.code, 0);
-
-            rnum = store_trans_chip(
-                &(ChipPlacement) { x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
-                run->mt->mltgidx32,
-                code,
-                (attr | 0x2000) | palt
-            );
-
-            break;
-        }
-
-        if (rnum == 0) {
-            break;
-        }
-
-        trsptr++;
-    }
+    store_cached_trans_ext_run(run, group, cached_cp3_ext_attrs);
 }
 
 void store_new_trans_cp3_ext_tiles(const TransRun* run, s32 group, PatternInstance* cp) {
@@ -463,65 +442,7 @@ void store_trans_cp3_tiles(const TransRun* run) {
 }
 
 void store_cached_trans_rgb_ext_tiles(const TransRun* run, s32 group) {
-    TileMapEntry* trsptr = run->trsptr;
-    s32 count = run->count;
-    f32 x = run->x, y = run->y;
-    PatternCode cc = run->cc;
-    TEX* texptr;
-    s32 rnum;
-    s32 code;
-    s32 attr;
-    s32 palt;
-    s32 wh;
-    s32 dw;
-    s32 dh;
-
-    cc.parts.group = group;
-
-    while (count--) {
-        x = advance_trans_x(x, run->flip, trsptr);
-        y = advance_trans_y(y, run->flip, trsptr);
-
-        texptr = (TEX*)((uintptr_t)run->textbl + ((u32*)run->textbl)[trsptr->code]);
-        dw = (texptr->wh & 0xE0) >> 2;
-        dh = (texptr->wh & 0x1C) * 2;
-        wh = (texptr->wh & 3) + 1;
-        attr = trsptr->attr;
-        palt = (attr & 0x1FF) + run->palo;
-        attr = (attr ^ run->flip) & 0xC000;
-        cc.parts.offset = trsptr->code;
-
-        switch (wh) {
-        case 1:
-        case 2:
-            code = get_mltbuf16_ext(run->mt, cc.code, palt);
-
-            rnum = store_trans_chip(
-                &(ChipPlacement) { x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
-                run->mt->mltgidx16,
-                code,
-                attr
-            );
-            break;
-
-        case 4:
-            code = get_mltbuf32_ext(run->mt, cc.code, palt);
-
-            rnum = store_trans_chip(
-                &(ChipPlacement) { x, y, dw, dh, run->flip, run->wk->my_clear_level, run->mt->id },
-                run->mt->mltgidx32,
-                code,
-                attr | 0x2000
-            );
-            break;
-        }
-
-        if (rnum == 0) {
-            break;
-        }
-
-        trsptr++;
-    }
+    store_cached_trans_ext_run(run, group, cached_rgb_ext_attrs);
 }
 
 void store_new_trans_rgb_ext_tiles(const TransRun* run, s32 group, PatternInstance* cp) {
