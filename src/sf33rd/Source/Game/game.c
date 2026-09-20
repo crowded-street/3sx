@@ -251,6 +251,92 @@ void Game12_2() {
 }
 
 /// Character select
+/* Entering character select: the scene counters, the music this mode plays,
+ * and the random seed a network match takes from its peers instead. */
+static void enter_character_select() {
+    Switch_Screen(1);
+    G_No[2] += 1;
+    S_No[0] = 0;
+    S_No[1] = 0;
+    S_No[2] = 0;
+    S_No[3] = 0;
+    SsBgmHalfVolume(0);
+
+    if (Mode_Type == MODE_ARCADE) {
+        BGM_Request(53);
+    } else {
+        BGM_Request(66);
+    }
+
+    Break_Into = 0;
+    Stop_Combo = 0;
+
+    if (Mode_Type != MODE_NETWORK) {
+        Random_ix32 = Interrupt_Timer;
+        Random_ix32_ex = Interrupt_Timer;
+    } else {
+        Setup_Net_Random_ix();
+        All_Clear_Timer();
+    }
+
+    init_slow_flag();
+    System_all_clear_Level_B();
+    pulpul_stop();
+    init_pulpul_work();
+}
+
+/* Leaving it: the characters the debug overrides force, the textures the fight
+ * needs, and who is playing. */
+static void begin_character_select_exit() {
+    Game01_Sub();
+    Cover_Timer = 24;
+    Set_Appear_Type_For_Mode();
+    set_hitmark_color();
+
+#if DEBUG
+    if (debug_config.character_override[0]) {
+        My_char[0] = debug_config.character_override[0] - 1;
+    }
+
+    if (debug_config.character_override[1]) {
+        My_char[1] = debug_config.character_override[1] - 1;
+    }
+#endif
+
+    Purge_texcash_of_list(3);
+    Make_texcash_of_list(3);
+
+    if (Demo_Flag) {
+        G_No[1] = 2;
+        G_No[2] = 0;
+        G_No[3] = 0;
+        E_No[0] = 4;
+        E_No[1] = 0;
+        E_No[2] = 0;
+        E_No[3] = 0;
+    } else {
+        Demo_Time_Stop = 1;
+        plw[0].wu.operator = 0;
+        Operator_Status[0] = 0;
+        plw[1].wu.operator = 0;
+        Operator_Status[1] = 0;
+    }
+
+    if (plw[0].wu.operator != 0) {
+        Sel_Arts_Complete[0] = -1;
+    }
+
+    if (plw[1].wu.operator != 0) {
+        Sel_Arts_Complete[1] = -1;
+    }
+
+    if ((plw[0].wu.operator != 0) && (plw[1].wu.operator != 0)) {
+        Play_Type = 1;
+    } else {
+        Play_Type = 0;
+    }
+}
+
 void Game01() {
     BG_Draw_System();
     Basic_Sub();
@@ -258,35 +344,7 @@ void Game01() {
 
     switch (G_No[2]) {
     case 0:
-        Switch_Screen(1);
-        G_No[2] += 1;
-        S_No[0] = 0;
-        S_No[1] = 0;
-        S_No[2] = 0;
-        S_No[3] = 0;
-        SsBgmHalfVolume(0);
-
-        if (Mode_Type == MODE_ARCADE) {
-            BGM_Request(53);
-        } else {
-            BGM_Request(66);
-        }
-
-        Break_Into = 0;
-        Stop_Combo = 0;
-
-        if (Mode_Type != MODE_NETWORK) {
-            Random_ix32 = Interrupt_Timer;
-            Random_ix32_ex = Interrupt_Timer;
-        } else {
-            Setup_Net_Random_ix();
-            All_Clear_Timer();
-        }
-
-        init_slow_flag();
-        System_all_clear_Level_B();
-        pulpul_stop();
-        init_pulpul_work();
+        enter_character_select();
         break;
 
     case 1:
@@ -307,53 +365,7 @@ void Game01() {
         Select_Player();
 
         if (Switch_Screen(0) != 0) {
-            Game01_Sub();
-            Cover_Timer = 24;
-            Set_Appear_Type_For_Mode();
-            set_hitmark_color();
-
-#if DEBUG
-            if (debug_config.character_override[0]) {
-                My_char[0] = debug_config.character_override[0] - 1;
-            }
-
-            if (debug_config.character_override[1]) {
-                My_char[1] = debug_config.character_override[1] - 1;
-            }
-#endif
-
-            Purge_texcash_of_list(3);
-            Make_texcash_of_list(3);
-
-            if (Demo_Flag) {
-                G_No[1] = 2;
-                G_No[2] = 0;
-                G_No[3] = 0;
-                E_No[0] = 4;
-                E_No[1] = 0;
-                E_No[2] = 0;
-                E_No[3] = 0;
-            } else {
-                Demo_Time_Stop = 1;
-                plw[0].wu.operator = 0;
-                Operator_Status[0] = 0;
-                plw[1].wu.operator = 0;
-                Operator_Status[1] = 0;
-            }
-
-            if (plw[0].wu.operator != 0) {
-                Sel_Arts_Complete[0] = -1;
-            }
-
-            if (plw[1].wu.operator != 0) {
-                Sel_Arts_Complete[1] = -1;
-            }
-
-            if ((plw[0].wu.operator != 0) && (plw[1].wu.operator != 0)) {
-                Play_Type = 1;
-            } else {
-                Play_Type = 0;
-            }
+            begin_character_select_exit();
         }
 
         break;
