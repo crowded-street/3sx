@@ -451,6 +451,17 @@ static void OpenGLRenderer_DrawSolidQuad(const Quad* quad, unsigned int color) {
     SDL_zero(_quad->texture_spec);
 }
 
+/* Tearing the context and window down when a shader will not build. The four
+ * shader checks wrote the same five lines; the return stays at each call
+ * site. */
+static void fail_gl_shader_init() {
+    SDL_Log("Failed to initialize OpenGL shaders");
+    SDL_GL_DestroyContext(gl_context);
+    SDL_DestroyWindow(window);
+    gl_context = NULL;
+    window = NULL;
+}
+
 /* The offscreen canvas: a colour texture, a depth texture and the framebuffer
  * they hang off. */
 static void configure_canvas() {
@@ -524,22 +535,14 @@ static SDL_Window* OpenGLRenderer_Init(const SDLRenderBackendInitInfo* init_info
 
     solid_shader = build_shader_program("vert.glsl", "frag_solid.glsl");
     if (solid_shader == 0) {
-        SDL_Log("Failed to initialize OpenGL shaders");
-        SDL_GL_DestroyContext(gl_context);
-        SDL_DestroyWindow(window);
-        gl_context = NULL;
-        window = NULL;
+        fail_gl_shader_init();
         return NULL;
     }
 
     palette_4_shader = build_shader_program("vert.glsl", "frag_palette_4.glsl");
 
     if (palette_4_shader == 0) {
-        SDL_Log("Failed to initialize OpenGL shaders");
-        SDL_GL_DestroyContext(gl_context);
-        SDL_DestroyWindow(window);
-        gl_context = NULL;
-        window = NULL;
+        fail_gl_shader_init();
         return NULL;
     }
 
@@ -550,11 +553,7 @@ static SDL_Window* OpenGLRenderer_Init(const SDLRenderBackendInitInfo* init_info
     palette_8_shader = build_shader_program("vert.glsl", "frag_palette_8.glsl");
 
     if (palette_8_shader == 0) {
-        SDL_Log("Failed to initialize OpenGL shaders");
-        SDL_GL_DestroyContext(gl_context);
-        SDL_DestroyWindow(window);
-        gl_context = NULL;
-        window = NULL;
+        fail_gl_shader_init();
         return NULL;
     }
 
@@ -565,11 +564,7 @@ static SDL_Window* OpenGLRenderer_Init(const SDLRenderBackendInitInfo* init_info
     direct_shader = build_shader_program("vert.glsl", "frag_direct.glsl");
 
     if (direct_shader == 0) {
-        SDL_Log("Failed to initialize OpenGL shaders");
-        SDL_GL_DestroyContext(gl_context);
-        SDL_DestroyWindow(window);
-        gl_context = NULL;
-        window = NULL;
+        fail_gl_shader_init();
         return NULL;
     }
 
