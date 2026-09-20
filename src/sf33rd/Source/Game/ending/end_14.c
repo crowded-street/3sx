@@ -704,7 +704,22 @@ void end_e01_0000() {
     }
 }
 
-void end_e01_7000() {
+/* The effects each 7000 scene spawns on its first frame. */
+static void end_e01_7000_effects(void) {
+    effect_E6_init(0x23);
+}
+
+static void end_e02_7000_effects(void) {
+    effect_E6_init(0x20);
+    effect_E6_init(0x21);
+    effect_E6_init(0x22);
+}
+
+/* end_e01_7000 and end_e02_7000 are the same three-case scene: place the
+ * background, spawn its effects, then fall until the first background layer has
+ * reached step 4. They disagree on which effects to spawn and on how fast the
+ * fall is. */
+static void run_end_e_7000(void (*spawn_effects)(void), s32 fall_speed) {
     switch (bgw_ptr->r_no_1) {
     case 0:
         bgw_ptr->r_no_1++;
@@ -712,14 +727,14 @@ void end_e01_7000() {
         bgw_ptr->xy[1].disp.pos = end_e_pos[end_w.r_no_2][1];
         bgw_ptr->abs_x = 512;
         bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
-        effect_E6_init(0x23);
+        spawn_effects();
         break;
 
     case 1:
         if (bg_w.bgw[0].r_no_1 >= 4) {
             bgw_ptr->r_no_1++;
         } else {
-            bgw_ptr->xy[1].cal -= 0x7000;
+            bgw_ptr->xy[1].cal -= fall_speed;
         }
 
         bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
@@ -728,6 +743,10 @@ void end_e01_7000() {
     case 2:
         break;
     }
+}
+
+void end_e01_7000() {
+    run_end_e_7000(end_e01_7000_effects, 0x7000);
 }
 
 void end_e02_move() {
@@ -862,29 +881,5 @@ void end_e02_4000() {
 }
 
 void end_e02_7000() {
-    switch (bgw_ptr->r_no_1) {
-    case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = end_e_pos[end_w.r_no_2][0];
-        bgw_ptr->xy[1].disp.pos = end_e_pos[end_w.r_no_2][1];
-        bgw_ptr->abs_x = 512;
-        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
-        effect_E6_init(0x20);
-        effect_E6_init(0x21);
-        effect_E6_init(0x22);
-        break;
-
-    case 1:
-        if (bg_w.bgw[0].r_no_1 >= 4) {
-            bgw_ptr->r_no_1++;
-        } else {
-            bgw_ptr->xy[1].cal -= 0x6000;
-        }
-
-        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
-        break;
-
-    case 2:
-        break;
-    }
+    run_end_e_7000(end_e02_7000_effects, 0x6000);
 }
