@@ -957,6 +957,29 @@ static s32 falling_with_lever_at_height(PLW* wk, u16 lever, s16 cmd_ex) {
  * combinations plus a range default is one Complex Method; each part here keeps
  * its own arms and hands everything it does not name to the next, so a cmd that
  * matches none of them still arrives at the range test exactly as before. */
+/* The last arm of the wst dispatch and the body-range default it falls back to. */
+static u16 decode_wst_body_range_data(PLW* wk, u16 cmd, u16 lever, s16 cmd_ex) {
+    u16 rnum = 0;
+
+    switch (cmd & 0xF000) {
+    case 0x5000:
+        if (falling_within_height(wk, cmd_ex)) {
+            rnum = wk->cp->sw_new & lever;
+        }
+
+        break;
+
+    default:
+        if (get_em_body_range(&wk->wu) >= cmd) {
+            rnum = 1;
+        }
+
+        break;
+    }
+
+    return rnum;
+}
+
 static u16 decode_wst_range_data(PLW* wk, u16 cmd, u16 lever, s16 cmd_ex) {
     u16 rnum = 0;
 
@@ -975,18 +998,8 @@ static u16 decode_wst_range_data(PLW* wk, u16 cmd, u16 lever, s16 cmd_ex) {
 
         break;
 
-    case 0x5000:
-        if (falling_within_height(wk, cmd_ex)) {
-            rnum = wk->cp->sw_new & lever;
-        }
-
-        break;
-
     default:
-        if (get_em_body_range(&wk->wu) >= cmd) {
-            rnum = 1;
-        }
-
+        rnum = decode_wst_body_range_data(wk, cmd, lever, cmd_ex);
         break;
     }
 
