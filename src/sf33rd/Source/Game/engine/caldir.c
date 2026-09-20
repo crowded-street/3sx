@@ -895,28 +895,38 @@ void cmsd_y_initial_speed(MotionState* cc) {
     cc->amy %= cc->timer;
 }
 
-void cmsd_x_delta_speed(MotionState* cc) {
-    if (cc->spx != 0) {
-        cc->amx = cc->x.pl - (cc->timer * cc->spx);
-        cc->dlx = cc->amx / cc->timer2;
-        cc->amx %= cc->timer2;
-        cc->spx += cc->dlx;
+/* One axis of a motion state, as the delta-speed step reads it: the three
+ * accumulators it updates, the distance it is solving for, and the full speed
+ * calculation it falls back to when the axis is not moving yet. C has no
+ * pointer-to-member, so the fields travel as pointers into the caller's own
+ * MotionState. */
+typedef struct {
+    s32* am;
+    s32* sp;
+    s32* dl;
+    s32 pl;
+    void (*all_speed_data)(MotionState* cc);
+} Cmsd_Axis;
+
+/* The x and y delta steps are the same five statements over different fields. */
+static void cmsd_delta_speed(MotionState* cc, const Cmsd_Axis* axis) {
+    if (*axis->sp != 0) {
+        *axis->am = axis->pl - (cc->timer * *axis->sp);
+        *axis->dl = *axis->am / cc->timer2;
+        *axis->am %= cc->timer2;
+        *axis->sp += *axis->dl;
         return;
     }
 
-    cmsd_all_x_speed_data(cc);
+    axis->all_speed_data(cc);
+}
+
+void cmsd_x_delta_speed(MotionState* cc) {
+    cmsd_delta_speed(cc, &(Cmsd_Axis) { &cc->amx, &cc->spx, &cc->dlx, cc->x.pl, cmsd_all_x_speed_data });
 }
 
 void cmsd_y_delta_speed(MotionState* cc) {
-    if (cc->spy != 0) {
-        cc->amy = cc->y.pl - (cc->timer * cc->spy);
-        cc->dly = cc->amy / cc->timer2;
-        cc->amy %= cc->timer2;
-        cc->spy += cc->dly;
-        return;
-    }
-
-    cmsd_all_y_speed_data(cc);
+    cmsd_delta_speed(cc, &(Cmsd_Axis) { &cc->amy, &cc->spy, &cc->dly, cc->y.pl, cmsd_all_y_speed_data });
 }
 
 /* Both speed calculations end the same way: the computed speeds and
