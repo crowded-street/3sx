@@ -296,6 +296,25 @@ u32 plmemPullHandle(MEM_MGR* memmgr) {
     return MEM_NULL_HANDLE;
 }
 
+/* Closing the list round the newly inserted block, where a neighbour exists. */
+static void plmem_point_prev_block_at(MEM_MGR* memmgr, u32 now_han, u32 han) {
+    MEM_BLOCK* now_block;
+
+    if (now_han != MEM_NULL_HANDLE) {
+        now_block = &memmgr->block[now_han];
+        now_block->next = han;
+    }
+}
+
+static void plmem_point_next_block_at(MEM_MGR* memmgr, u32 next_han, u32 han) {
+    MEM_BLOCK* next_block;
+
+    if (next_han != MEM_NULL_HANDLE) {
+        next_block = &memmgr->block[next_han];
+        next_block->prev = han;
+    }
+}
+
 void plmemAppendBlockList(MEM_MGR* memmgr, u32 han) {
     MEM_BLOCK* block_ptr;
     MEM_BLOCK* next_block;
@@ -351,15 +370,8 @@ void plmemAppendBlockList(MEM_MGR* memmgr, u32 han) {
     block_ptr->prev = now_han;
     block_ptr->next = next_han;
 
-    if (now_han != MEM_NULL_HANDLE) {
-        now_block = &memmgr->block[now_han];
-        now_block->next = han;
-    }
-
-    if (next_han != MEM_NULL_HANDLE) {
-        next_block = &memmgr->block[next_han];
-        next_block->prev = han;
-    }
+    plmem_point_prev_block_at(memmgr, now_han, han);
+    plmem_point_next_block_at(memmgr, next_han, han);
 }
 
 void plmemDeleteBlockList(MEM_MGR* memmgr, u32 han) {
