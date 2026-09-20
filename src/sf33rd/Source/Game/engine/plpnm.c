@@ -300,13 +300,15 @@ void nm_05_0000(PLW* wk) { // 🟢
     run_nm_dash_state(wk, 4, 2);
 }
 
-void nm_05_0100(PLW* wk) { // 🟢
+/* The state nm_05_0100 and nm_06_0200 share: one skeleton, byte for byte apart
+ * from the pattern index and the movement row. */
+static void run_nm_dash_cancel_state(PLW* wk, s16 index, s16 mvxy_row) {
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
         wk->wu.rl_flag = wk->wu.rl_waza;
-        set_char_move_init(&wk->wu, 0, 4);
-        setup_mvxy_data(&wk->wu, 2);
+        set_char_move_init(&wk->wu, 0, index);
+        setup_mvxy_data(&wk->wu, mvxy_row);
 
         if (wk->wu.cg_type == 1) {
             add_mvxy_speed(&wk->wu);
@@ -344,6 +346,10 @@ void nm_05_0100(PLW* wk) { // 🟢
         char_move(&wk->wu);
         break;
     }
+}
+
+void nm_05_0100(PLW* wk) { // 🟢
+    run_nm_dash_cancel_state(wk, 4, 2);
 }
 
 void Normal_06000(PLW* wk) { // 🟢
@@ -364,49 +370,7 @@ void nm_06_0100(PLW* wk) { // 🟢
 }
 
 void nm_06_0200(PLW* wk) { // 🟢
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.rl_flag = wk->wu.rl_waza;
-        set_char_move_init(&wk->wu, 0, 5);
-        setup_mvxy_data(&wk->wu, 3);
-
-        if (wk->wu.cg_type == 1) {
-            add_mvxy_speed(&wk->wu);
-            wk->wu.routine_no[3]++;
-            wk->wu.cg_type = 0;
-        }
-
-        break;
-
-    case 1:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 1) {
-            add_mvxy_speed(&wk->wu);
-            wk->wu.routine_no[3]++;
-            wk->wu.cg_type = 0;
-        }
-
-        break;
-
-    case 2:
-        char_move(&wk->wu);
-
-        if (wk->wu.cg_type == 1) {
-            wk->wu.routine_no[3]++;
-            wk->wu.cg_type = 0;
-            break;
-        }
-
-        cal_mvxy_speed(&wk->wu);
-        add_mvxy_speed(&wk->wu);
-        break;
-
-    case 3:
-        char_move(&wk->wu);
-        break;
-    }
+    run_nm_dash_cancel_state(wk, 5, 3);
 }
 
 void Normal_07000(PLW* wk) { // 🟢
