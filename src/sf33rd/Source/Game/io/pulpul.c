@@ -289,10 +289,61 @@ s32 chkVibUnit(s32 port) {
 
 /* Everything the pad does while its vibration unit is present: lose it if the
  * unit has gone, otherwise run the one pattern slot's state machine. */
-static void run_pulpul_device(PPWORK* wk) {
-    s32 i;
+/* Walking the pattern rows until one of them is a real vibration index.
+ * Returns 0 where the row ended the pattern - each of those returns is a
+ * `break` out of the device switch - and 1 where a row is ready to start,
+ * which is where the arm fell through. The two backward jumps are the
+ * pattern's own row-skips and travel unchanged. */
+static s32 advance_pulpul_step(PPWORK* wk, s32 i) {
     s32 index;
     s32 data;
+
+lbl:
+    index = wk->p[i].padr[wk->p[i].exix].ix;
+    data = wk->p[i].padr[wk->p[i].exix].timer;
+
+    if (index <= 0) {
+        if (index == 0) {
+            wk->p[i].rno[0] = 0;
+            vib_req[wk->id][i] = 0;
+            vibParamTrans(wk->id, &pulpara[1]);
+            return 0;
+        } else if (index == -1) {
+            wk->p[i].exix = data;
+            goto lbl;
+        }
+
+        if (index == -3) {
+            wk->p[i].rno[0] = 0;
+
+            if (test_flag) {
+                *ot_mot_of = data;
+                ot_make_curr_vib_data();
+            }
+
+            pulpul_request((s16)wk->id, data);
+            return 0;
+        }
+
+        if (index == -2) {
+            if (wk->vital >= data) {
+                wk->p[i].exix += 1;
+            } else {
+                wk->p[i].exix += 2;
+            }
+            goto lbl;
+        }
+
+        wk->p[i].rno[0] = 0;
+        return 0;
+    }
+
+    wk->p[i].rno[0] = 2;
+    return 1;
+}
+
+static void run_pulpul_device(PPWORK* wk) {
+    s32 i;
     s32 result;
 
     if (chkVibUnit(wk->id) == 0) {
@@ -314,46 +365,9 @@ static void run_pulpul_device(PPWORK* wk) {
         case 1:
             wk->p[i].exix += 1;
 
-        lbl:
-            index = wk->p[i].padr[wk->p[i].exix].ix;
-            data = wk->p[i].padr[wk->p[i].exix].timer;
-
-            if (index <= 0) {
-                if (index == 0) {
-                    wk->p[i].rno[0] = 0;
-                    vib_req[wk->id][i] = 0;
-                    vibParamTrans(wk->id, &pulpara[1]);
-                    break;
-                } else if (index == -1) {
-                    wk->p[i].exix = data;
-                    goto lbl;
-                }
-
-                if (index == -3) {
-                    wk->p[i].rno[0] = 0;
-
-                    if (test_flag) {
-                        *ot_mot_of = data;
-                        ot_make_curr_vib_data();
-                    }
-
-                    pulpul_request((s16)wk->id, data);
-                    break;
-                }
-
-                if (index == -2) {
-                    if (wk->vital >= data) {
-                        wk->p[i].exix += 1;
-                    } else {
-                        wk->p[i].exix += 2;
-                    }
-                    goto lbl;
-                }
-
-                wk->p[i].rno[0] = 0;
+            if (!advance_pulpul_step(wk, i)) {
                 break;
             }
-            wk->p[i].rno[0] = 2;
             /* fallthrough */
 
         case 2:
