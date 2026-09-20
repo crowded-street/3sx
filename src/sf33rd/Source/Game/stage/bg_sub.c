@@ -35,19 +35,19 @@ void bg_chase_move() {
 
 static void start_requested_x_chase() {
     if (chase_x != scr_req_x) {
-            chase_x = scr_req_x;
+        chase_x = scr_req_x;
 
-            if (bgw_ptr->zuubun) {
-                bgw_ptr->chase_xy[0].disp.pos = bgw_ptr->abs_x + bg_w.pos_offset;
-            } else {
-                bgw_ptr->chase_xy[0].disp.pos = bgw_ptr->position_x + bg_w.pos_offset;
-            }
+        if (bgw_ptr->zuubun) {
+            bgw_ptr->chase_xy[0].disp.pos = bgw_ptr->abs_x + bg_w.pos_offset;
+        } else {
+            bgw_ptr->chase_xy[0].disp.pos = bgw_ptr->position_x + bg_w.pos_offset;
+        }
 
-            chase_time_x = 6;
-            cal_bg_speed_data_x(bgw_ptr->fam_no, chase_time_x, chase_x);
-            bg_w.chase_flag |= 1;
-            bg_w.chase_flag &= ~2;
-            bg_w.old_chase_flag = 1;
+        chase_time_x = 6;
+        cal_bg_speed_data_x(bgw_ptr->fam_no, chase_time_x, chase_x);
+        bg_w.chase_flag |= 1;
+        bg_w.chase_flag &= ~2;
+        bg_w.old_chase_flag = 1;
     }
 }
 
@@ -76,23 +76,23 @@ static void chase_x_start_check() {
 }
 
 static void start_requested_y_chase() {
-        bg_w.chase_flag |= 0x10;
-        bg_w.chase_flag &= ~0x20;
-        bg_w.old_chase_flag |= 0x10;
-        bg_w.old_chase_flag &= ~0x20;
+    bg_w.chase_flag |= 0x10;
+    bg_w.chase_flag &= ~0x20;
+    bg_w.old_chase_flag |= 0x10;
+    bg_w.old_chase_flag &= ~0x20;
 
-        if (chase_y != scr_req_y) {
-            chase_y = scr_req_y;
+    if (chase_y != scr_req_y) {
+        chase_y = scr_req_y;
 
-            if (bgw_ptr->abs_y < 0) {
-                bgw_ptr->chase_xy[1].disp.pos = 0;
-            } else {
-                bgw_ptr->chase_xy[1].disp.pos = bgw_ptr->abs_y;
-            }
-
-            chase_time_y = 6;
-            cal_bg_speed_data_y(bgw_ptr->fam_no, chase_time_y, chase_y);
+        if (bgw_ptr->abs_y < 0) {
+            bgw_ptr->chase_xy[1].disp.pos = 0;
+        } else {
+            bgw_ptr->chase_xy[1].disp.pos = bgw_ptr->abs_y;
         }
+
+        chase_time_y = 6;
+        cal_bg_speed_data_y(bgw_ptr->fam_no, chase_time_y, chase_y);
+    }
 }
 
 static void chase_y_start_check() {
