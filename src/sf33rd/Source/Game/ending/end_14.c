@@ -783,14 +783,21 @@ void end_e02_1000() {
     }
 }
 
+/* The opening run end_e02_2000 and end_e02_3000 share: the background goes to
+ * the right-hand column at the height the arm names, which is the one value
+ * that differs between them. */
+static void end_e_place_bg_right(s16 y) {
+    bgw_ptr->r_no_1++;
+    bgw_ptr->xy[0].disp.pos = 768;
+    bgw_ptr->xy[1].disp.pos = y;
+    bgw_ptr->abs_x = 512;
+    bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+}
+
 void end_e02_2000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = 768;
-        bgw_ptr->xy[1].disp.pos = 256;
-        bgw_ptr->abs_x = 512;
-        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+        end_e_place_bg_right(256);
         break;
 
     case 1:
@@ -811,11 +818,7 @@ void end_e02_2000() {
 void end_e02_3000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        bgw_ptr->r_no_1++;
-        bgw_ptr->xy[0].disp.pos = 768;
-        bgw_ptr->xy[1].disp.pos = 408;
-        bgw_ptr->abs_x = 512;
-        bgw_ptr->abs_y = bgw_ptr->xy[1].disp.pos;
+        end_e_place_bg_right(408);
         break;
 
     case 1:
