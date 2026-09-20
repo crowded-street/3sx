@@ -58,28 +58,51 @@ void Passive08_0161(PLW* wk) {
     );
 }
 
-void Passive08_0162(PLW* wk) {
+/* The three Normal_Attack steps this script runs, named rather than indexed:
+ * subscripts would put integers into the file that the scripts themselves never
+ * wrote, and refactor_guard.py is right to refuse that. */
+typedef struct {
+    Normal_Attack_Step first;
+    Normal_Attack_Step second;
+    Normal_Attack_Step third;
+} Passive08_Normal_Attacks;
+
+/* Passive08_0162 and Passive08_0164 are the same four steps: a jump attack term
+ * and three Normal_Attacks. Six of their nineteen literals differ, which is too
+ * many to pass one by one, so each call's values travel as the parameter object
+ * that call already has a shape for. */
+static void run_passive08_jump_attack_term_3normal(
+    PLW* wk, const Jump_Term_Args* a, const Passive08_Normal_Attacks* n
+) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Jump_Attack_Term(wk, &(Jump_Term_Args) { -0x7FA8, -0x7FC0, 9, 0x20, 0, -0x7FB0, -1, 0x200 });
+        Jump_Attack_Term(wk, a);
         break;
 
     case 1:
-        Normal_Attack(wk, 9, 0x12);
+        Normal_Attack(wk, n->first.Reaction, n->first.Lever_Data);
         break;
 
     case 2:
-        Normal_Attack(wk, 8, 0x202);
+        Normal_Attack(wk, n->second.Reaction, n->second.Lever_Data);
         break;
 
     case 3:
-        Normal_Attack(wk, 9, 0x402);
+        Normal_Attack(wk, n->third.Reaction, n->third.Lever_Data);
         break;
 
     default:
         End_Pattern(wk);
         break;
     }
+}
+
+void Passive08_0162(PLW* wk) {
+    run_passive08_jump_attack_term_3normal(
+        wk,
+        &(Jump_Term_Args) { -0x7FA8, -0x7FC0, 9, 0x20, 0, -0x7FB0, -1, 0x200 },
+        &(Passive08_Normal_Attacks) { { 9, 0x12 }, { 8, 0x202 }, { 9, 0x402 } }
+    );
 }
 
 void Passive08_0163(PLW* wk) {
@@ -92,27 +115,11 @@ void Passive08_0163(PLW* wk) {
 }
 
 void Passive08_0164(PLW* wk) {
-    switch (CP_Index[wk->wu.id][0]) {
-    case 0:
-        Jump_Attack_Term(wk, &(Jump_Term_Args) { -0x7FA0, -0x7FC0, 9, 0x400, 0, -0x7FB0, -1, 0x200 });
-        break;
-
-    case 1:
-        Normal_Attack(wk, 8, 0x102);
-        break;
-
-    case 2:
-        Normal_Attack(wk, 8, 0x400);
-        break;
-
-    case 3:
-        Normal_Attack(wk, 8, 0x402);
-        break;
-
-    default:
-        End_Pattern(wk);
-        break;
-    }
+    run_passive08_jump_attack_term_3normal(
+        wk,
+        &(Jump_Term_Args) { -0x7FA0, -0x7FC0, 9, 0x400, 0, -0x7FB0, -1, 0x200 },
+        &(Passive08_Normal_Attacks) { { 8, 0x102 }, { 8, 0x400 }, { 8, 0x402 } }
+    );
 }
 
 void Passive08_0165(PLW* wk) {
