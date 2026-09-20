@@ -213,12 +213,18 @@ static void toggle_debug_window_visibility(SDL_KeyboardEvent* event) {
 }
 #endif
 
+/* Key events the fullscreen toggle passes over: the wrong key, a release, or
+ * an auto-repeat. Copied operand for operand. */
+static bool fullscreen_toggle_ignored(bool correct_key, const SDL_KeyboardEvent* event) {
+    return !correct_key || !event->down || event->repeat;
+}
+
 static void handle_fullscreen_toggle(SDL_KeyboardEvent* event) {
     const bool is_alt_enter = (event->key == SDLK_RETURN) && (event->mod & SDL_KMOD_ALT);
     const bool is_f11 = (event->key == SDLK_F11);
     const bool correct_key = (is_alt_enter || is_f11);
 
-    if (!correct_key || !event->down || event->repeat) {
+    if (fullscreen_toggle_ignored(correct_key, event)) {
         return;
     }
 
