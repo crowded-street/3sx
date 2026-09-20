@@ -141,10 +141,46 @@ s32 mlTsbInitEchoWork() {
     return 0;
 }
 
+/* One repeat of an echo: the event it replays, the level it replays it at, and
+ * the decay that ends it. Writes only through the echo work and the request
+ * the caller owns. */
+static void fire_echo_repeat(CSE_ECHOWORK* pEchoWork, CSE_REQP* reqp) {
+    SoundEvent* pTSB;
+
+    pTSB = mlTsbGetDataAdrs(pEchoWork->Bank, pEchoWork->Code);
+    mlTsbSetToReqp(reqp, pTSB, pEchoWork->Bank);
+    reqp->note += pEchoWork->Rtpc[1];
+    reqp->id1 += pEchoWork->Rtpc[2];
+    reqp->id2 += pEchoWork->Rtpc[3];
+    reqp->prio += pEchoWork->Rtpc[4];
+    reqp->vol += pEchoWork->Rtpc[5];
+    reqp->pan += pEchoWork->Rtpc[6];
+    reqp->pitch += pEchoWork->Rtpc[7];
+    reqp->kofftime += pEchoWork->Rtpc[8];
+    reqp->limit += pEchoWork->Rtpc[9];
+    mlTsbKeyOn(pTSB, reqp, pEchoWork->Bank, (pTSB->prog + pEchoWork->Rtpc[0]));
+    pEchoWork->CurrTimes--;
+
+    if (pEchoWork->CurrTimes == 0) {
+        pEchoWork->BeFlag = 0;
+    } else {
+        pEchoWork->CurrInterval = pEchoWork->Interval;
+
+        if (pEchoWork->CurrTimes == (pEchoWork->Times - 1)) {
+            pEchoWork->Rtpc[5] -= pEchoWork->VolDec1st;
+        } else {
+            pEchoWork->Rtpc[5] -= pEchoWork->VolDec;
+        }
+
+        if (pEchoWork->Rtpc[5] < -127) {
+            pEchoWork->BeFlag = 0;
+        }
+    }
+}
+
 s32 mlTsbMoveEchoWork() {
     u32 i;
     CSE_ECHOWORK* pEchoWork;
-    SoundEvent* pTSB;
     CSE_REQP reqp = {};
 
     for (i = 0; i < ECHOWORK_MAX; i++) {
@@ -154,35 +190,7 @@ s32 mlTsbMoveEchoWork() {
             pEchoWork->CurrInterval--;
 
             if (pEchoWork->CurrInterval == 0) {
-                pTSB = mlTsbGetDataAdrs(pEchoWork->Bank, pEchoWork->Code);
-                mlTsbSetToReqp(&reqp, pTSB, pEchoWork->Bank);
-                reqp.note += pEchoWork->Rtpc[1];
-                reqp.id1 += pEchoWork->Rtpc[2];
-                reqp.id2 += pEchoWork->Rtpc[3];
-                reqp.prio += pEchoWork->Rtpc[4];
-                reqp.vol += pEchoWork->Rtpc[5];
-                reqp.pan += pEchoWork->Rtpc[6];
-                reqp.pitch += pEchoWork->Rtpc[7];
-                reqp.kofftime += pEchoWork->Rtpc[8];
-                reqp.limit += pEchoWork->Rtpc[9];
-                mlTsbKeyOn(pTSB, &reqp, pEchoWork->Bank, (pTSB->prog + pEchoWork->Rtpc[0]));
-                pEchoWork->CurrTimes--;
-
-                if (pEchoWork->CurrTimes == 0) {
-                    pEchoWork->BeFlag = 0;
-                } else {
-                    pEchoWork->CurrInterval = pEchoWork->Interval;
-
-                    if (pEchoWork->CurrTimes == (pEchoWork->Times - 1)) {
-                        pEchoWork->Rtpc[5] -= pEchoWork->VolDec1st;
-                    } else {
-                        pEchoWork->Rtpc[5] -= pEchoWork->VolDec;
-                    }
-
-                    if (pEchoWork->Rtpc[5] < -127) {
-                        pEchoWork->BeFlag = 0;
-                    }
-                }
+                fire_echo_repeat(pEchoWork, &reqp);
             }
         }
     }
