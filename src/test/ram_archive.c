@@ -7,6 +7,17 @@
 #define RAM_ARCHIVE_MAGIC "SCRD"
 #define RAM_FRAME_SIZE 524288
 
+/* A run of zeroes, the only one of the two runs that reads no source bytes -
+ * so the write pointer is the single value it produces. The literal run
+ * advances both cursors and stays inline. */
+static Uint8* fill_zero_run(Uint8* d, Uint8 length) {
+    for (int i = 0; i < length; i++) {
+        *d++ = 0;
+    }
+
+    return d;
+}
+
 static void decompress_frame(Uint8* dst, const Uint8* src, Uint32 frame_size) {
     // This code assumes zero-run payload is valid
     const Uint8* s = src;
@@ -23,10 +34,7 @@ static void decompress_frame(Uint8* dst, const Uint8* src, Uint32 frame_size) {
             }
         } else {
             const Uint8 length = (control & 0x7F) + 1;
-
-            for (int i = 0; i < length; i++) {
-                *d++ = 0;
-            }
+            d = fill_zero_run(d, length);
         }
     }
 }
