@@ -34,6 +34,23 @@ s32 Play_Demo() {
  * from the previous group's default. The case labels are the original ones and
  * every switch is on the same expression; the last group carries the original
  * `default`. */
+/* The frame the demo hands the screen back on: the flags it clears and the
+ * demo index it steps, wrapping after the last one. */
+static void end_demo_playback() {
+    if (Switch_Screen(0) != 0) {
+        D_No[1] += 1;
+        Demo_Flag = 0;
+        Present_Mode = 0;
+        Cover_Timer = 23;
+        BGM_Stop();
+
+        if (++Select_Demo_Index > 3) {
+            Select_Demo_Index = 0;
+            return;
+        }
+    }
+}
+
 static void demo00_from_step_5() {
     switch (D_No[1]) {
     case 5:
@@ -50,20 +67,7 @@ static void demo00_from_step_5() {
 
     case 6:
         Game02();
-
-        if (Switch_Screen(0) != 0) {
-            D_No[1] += 1;
-            Demo_Flag = 0;
-            Present_Mode = 0;
-            Cover_Timer = 23;
-            BGM_Stop();
-
-            if (++Select_Demo_Index > 3) {
-                Select_Demo_Index = 0;
-                return;
-            }
-        }
-
+        end_demo_playback();
         break;
 
     default:
