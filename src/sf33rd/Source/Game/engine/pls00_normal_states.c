@@ -105,6 +105,60 @@ static s32 nm_check_arcade_walk_start(PLW* wk) {
     return 0;
 }
 
+/* The remaining check-list entries that are not a plain call.
+ *
+ * nm_02000 and nm_08000 each divert to a pattern state when the animation
+ * reports 64; nm_27000 and nm_29000 each run a pair of checks only while the
+ * lever is not held down. Each returns what its own arm returned from. */
+static s32 nm_divert_to_36000_on_cg_64(PLW* wk) {
+    if (wk->wu.cg_type == 64) {
+        TO_nm_36000(&wk->wu);
+        return 1;
+    }
+
+    return 0;
+}
+
+static s32 nm_divert_to_37000_on_cg_64(PLW* wk) {
+    if (wk->wu.cg_type == 64) {
+        TO_nm_37000(&wk->wu);
+        return 1;
+    }
+
+    return 0;
+}
+
+static s32 nm_check_arcade_walk_start_and(PLW* wk) {
+    return ArcadeBalance_IsEnabled() && check_arcade_walk_start(wk);
+}
+
+/* Both turn states run a pair of checks only while the lever is not held down. */
+static s32 nm_check_unless_lever_down(PLW* wk, const NmStateCheck* checks) {
+    if (wk->cp->lever_dir != 2) {
+        return run_nm_state_checks(wk, checks);
+    }
+
+    return 0;
+}
+
+static s32 nm_check_bend_or_walk_unless_down(PLW* wk) {
+    static const NmStateCheck checks[] = { check_bend_myself, nm_check_f_r_walk, NULL };
+
+    return nm_check_unless_lever_down(wk, checks);
+}
+
+static s32 nm_check_stand_or_walk_unless_down(PLW* wk) {
+    static const NmStateCheck checks[] = { check_stand_up, nm_check_arcade_walk_start_and, NULL };
+
+    return nm_check_unless_lever_down(wk, checks);
+}
+
+static s32 nm_cg_type_check_27(PLW* wk) {
+    nm_27_cg_type_check(wk);
+
+    return 0;
+}
+
 void nm_01000(PLW* wk) { // 🟡
     static const NmStateCheck checks[] = { setup_kuzureochi,    nm_check_common_attacks, check_bend_myself,
                                            check_defense_lever, nm_check_f_r_walk,       NULL };
@@ -203,28 +257,15 @@ static bool run_common_nm_attack_checks_no_turn(PLW* wk) {
 }
 
 void nm_02000(PLW* wk) { // 🟡
-    if (animation_ended_to_nm_01000(wk)) {
-        return;
-    }
+    static const NmStateCheck checks[] = { animation_ended_to_nm_01000,
+                                           nm_divert_to_36000_on_cg_64,
+                                           nm_check_common_attacks_no_turn,
+                                           check_bend_myself,
+                                           check_defense_lever,
+                                           nm_check_f_r_walk,
+                                           NULL };
 
-    if (wk->wu.cg_type == 64) {
-        TO_nm_36000(&wk->wu);
-        return;
-    }
-
-    if (run_common_nm_attack_checks_no_turn(wk)) {
-        return;
-    }
-
-    if (check_bend_myself(wk)) {
-        return;
-    }
-
-    if (check_defense_lever(wk)) {
-        return;
-    }
-
-    check_F_R_walk(wk);
+    run_nm_state_checks(wk, checks);
 }
 
 void nm_03000(PLW* wk) { // 🟡
@@ -259,28 +300,15 @@ void nm_07000(PLW* wk) { // 🟡
 }
 
 void nm_08000(PLW* wk) { // 🟡
-    if (animation_ended_to_nm_09000(wk)) {
-        return;
-    }
+    static const NmStateCheck checks[] = { animation_ended_to_nm_09000,
+                                           nm_divert_to_37000_on_cg_64,
+                                           nm_check_common_attacks,
+                                           check_defense_lever,
+                                           nm_check_arcade_walk_start_and,
+                                           check_stand_up,
+                                           NULL };
 
-    if (wk->wu.cg_type == 64) {
-        TO_nm_37000(&wk->wu);
-        return;
-    }
-
-    if (run_common_nm_attack_checks(wk)) {
-        return;
-    }
-
-    if (check_defense_lever(wk)) {
-        return;
-    }
-
-    if (ArcadeBalance_IsEnabled() && check_arcade_walk_start(wk)) {
-        return;
-    }
-
-    check_stand_up(wk);
+    run_nm_state_checks(wk, checks);
 }
 
 void nm_09000(PLW* wk) { // 🟡
@@ -671,25 +699,13 @@ static bool run_common_nm_attack_checks(PLW* wk) {
 }
 
 void nm_27000(PLW* wk) { // 🟡
-    if (animation_ended_to_nm_01000(wk)) {
-        return;
-    }
+    static const NmStateCheck checks[] = { animation_ended_to_nm_01000,
+                                           nm_check_common_attacks,
+                                           nm_check_bend_or_walk_unless_down,
+                                           nm_cg_type_check_27,
+                                           NULL };
 
-    if (run_common_nm_attack_checks(wk)) {
-        return;
-    }
-
-    if (wk->cp->lever_dir != 2) {
-        if (check_bend_myself(wk)) {
-            return;
-        }
-
-        if (check_F_R_walk(wk)) {
-            return;
-        }
-    }
-
-    nm_27_cg_type_check(wk);
+    run_nm_state_checks(wk, checks);
 }
 
 /* cg_type 2 of the nm_27 state: if the opponent is not attacking and the player
@@ -740,25 +756,13 @@ void nm_27_cg_type_check(PLW* wk) { // 🟢
 }
 
 void nm_29000(PLW* wk) { // 🟡
-    if (animation_ended_to_nm_09000(wk)) {
-        return;
-    }
+    static const NmStateCheck checks[] = { animation_ended_to_nm_09000,
+                                           nm_check_common_attacks,
+                                           nm_check_stand_or_walk_unless_down,
+                                           nm_cg_type_check_27,
+                                           NULL };
 
-    if (run_common_nm_attack_checks(wk)) {
-        return;
-    }
-
-    if (wk->cp->lever_dir != 2) {
-        if (check_stand_up(wk)) {
-            return;
-        }
-
-        if (ArcadeBalance_IsEnabled() && check_arcade_walk_start(wk)) {
-            return;
-        }
-    }
-
-    nm_27_cg_type_check(wk);
+    run_nm_state_checks(wk, checks);
 }
 
 static void dispatch_by_pat_status(PLW* wk, void (*on_low_pat_status)(WORK*), void (*on_high_pat_status)(WORK*)) {
