@@ -96,22 +96,46 @@ static s32 ending_finished_and_faded() {
     return Ending_main(End_PL) && (Request_Fade(9) != 0);
 }
 
+/* The ending's set-up and its teardown, each exactly the block that stood under
+ * its case label. */
+static void begin_ending() {
+Switch_Screen(0);
+G_No[2] = 1;
+Game_pause = 0;
+Final_Result_id = WINNER;
+WGJ_Target = WINNER;
+WGJ_Win = Win_Record[WINNER];
+grade_final_grade_bonus();
+WGJ_Score = Continue_Coin[WINNER] + Score[WINNER][0];
+Purge_mmtm_area(6);
+cpExitTask(TASK_MENU);
+cpExitTask(TASK_PAUSE);
+}
+
+static void finish_ending() {
+G_No[1] = 6;
+G_No[2] = 0;
+E_No[0] = 8;
+E_No[1] = 0;
+E_No[2] = 0;
+E_No[3] = 0;
+Clear_Personal_Data(0);
+Clear_Personal_Data(1);
+plw[0].wu.operator = 0;
+plw[1].wu.operator = 0;
+Operator_Status[0] = 0;
+Operator_Status[1] = 0;
+Last_Player_id = Player_Number = -1;
+Purge_mmtm_area(6);
+System_all_clear_Level_B();
+}
+
 void Game08() {
     BG_Draw_System();
 
     switch (G_No[2]) {
     case 0:
-        Switch_Screen(0);
-        G_No[2] = 1;
-        Game_pause = 0;
-        Final_Result_id = WINNER;
-        WGJ_Target = WINNER;
-        WGJ_Win = Win_Record[WINNER];
-        grade_final_grade_bonus();
-        WGJ_Score = Continue_Coin[WINNER] + Score[WINNER][0];
-        Purge_mmtm_area(6);
-        cpExitTask(TASK_MENU);
-        cpExitTask(TASK_PAUSE);
+        begin_ending();
         break;
 
     case 1:
@@ -132,21 +156,7 @@ void Game08() {
 
     case 3:
         if (--G_Timer == 0) {
-            G_No[1] = 6;
-            G_No[2] = 0;
-            E_No[0] = 8;
-            E_No[1] = 0;
-            E_No[2] = 0;
-            E_No[3] = 0;
-            Clear_Personal_Data(0);
-            Clear_Personal_Data(1);
-            plw[0].wu.operator = 0;
-            plw[1].wu.operator = 0;
-            Operator_Status[0] = 0;
-            Operator_Status[1] = 0;
-            Last_Player_id = Player_Number = -1;
-            Purge_mmtm_area(6);
-            System_all_clear_Level_B();
+            finish_ending();
         }
 
         break;
