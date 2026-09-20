@@ -25,6 +25,51 @@ static s32 animation_can_advance(void) {
 }
 
 
+/* The four steps of the drop: rising to the high mark, holding there, falling
+ * to the low one, and holding again. Each is guarded by the pause test its own
+ * step used. */
+static void eff55_rise(WORK_Other* ewk) {
+    if (game_is_active()) {
+        ewk->wu.xyz[1].cal += 0x3000;
+
+        if (ewk->wu.xyz[1].disp.pos >= 128) {
+            ewk->wu.routine_no[0]++;
+            ewk->wu.old_rno[0] = 300;
+        }
+    }
+}
+
+static void eff55_hold_high(WORK_Other* ewk) {
+    if (animation_can_advance()) {
+        ewk->wu.old_rno[0]--;
+
+        if (ewk->wu.old_rno[0] < 0) {
+            ewk->wu.routine_no[0]++;
+        }
+    }
+}
+
+static void eff55_fall(WORK_Other* ewk) {
+    if (!EXE_flag && !Game_pause) {
+        ewk->wu.xyz[1].cal -= 0x4000;
+
+        if (ewk->wu.xyz[1].disp.pos < 97) {
+            ewk->wu.routine_no[0]++;
+            ewk->wu.old_rno[0] = 480;
+        }
+    }
+}
+
+static void eff55_hold_low(WORK_Other* ewk) {
+    if (!EXE_flag && !Game_pause) {
+        ewk->wu.old_rno[0]--;
+
+        if (ewk->wu.old_rno[0] < 0) {
+            ewk->wu.routine_no[0] = 1;
+        }
+    }
+}
+
 void effect_55_move(WORK_Other* ewk) {
     if (obr_no_disp_check()) {
         return;
@@ -38,51 +83,25 @@ void effect_55_move(WORK_Other* ewk) {
         break;
 
     case 1:
-if (game_is_active()) {
-            ewk->wu.xyz[1].cal += 0x3000;
-
-            if (ewk->wu.xyz[1].disp.pos >= 128) {
-                ewk->wu.routine_no[0]++;
-                ewk->wu.old_rno[0] = 300;
-            }
-        }
+        eff55_rise(ewk);
 
         disp_pos_trans_entry(ewk);
         break;
 
     case 2:
-        if (animation_can_advance()) {
-            ewk->wu.old_rno[0]--;
-
-            if (ewk->wu.old_rno[0] < 0) {
-                ewk->wu.routine_no[0]++;
-            }
-        }
+        eff55_hold_high(ewk);
 
         disp_pos_trans_entry(ewk);
         break;
 
     case 3:
-        if (!EXE_flag && !Game_pause) {
-            ewk->wu.xyz[1].cal -= 0x4000;
-
-            if (ewk->wu.xyz[1].disp.pos < 97) {
-                ewk->wu.routine_no[0]++;
-                ewk->wu.old_rno[0] = 480;
-            }
-        }
+        eff55_fall(ewk);
 
         disp_pos_trans_entry(ewk);
         break;
 
     case 4:
-        if (!EXE_flag && !Game_pause) {
-            ewk->wu.old_rno[0]--;
-
-            if (ewk->wu.old_rno[0] < 0) {
-                ewk->wu.routine_no[0] = 1;
-            }
-        }
+        eff55_hold_low(ewk);
 
         disp_pos_trans_entry(ewk);
         break;
