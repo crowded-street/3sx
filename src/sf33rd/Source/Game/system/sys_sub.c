@@ -475,22 +475,32 @@ void Clear_Disp_Ranking(s16 PL_id) {
 
 /* The run a melt record asks for: s_cnt zeroes, or s_cnt words copied from
  * s_len back in the output. Returns the write pointer where it stopped. */
-static u16* meltw_write_run(u16* d, u32 s_len, u32 s_cnt) {
-    u16* s_ptr;
-
-    if (s_len == 0) {
-        do {
-            *d++ = 0;
-        } while (--s_cnt);
-    } else {
-        s_ptr = d - s_len;
-
-        do {
-            *d++ = *s_ptr++;
-        } while (--s_cnt);
-    }
+static u16* meltw_fill_zeroes(u16* d, u32 s_cnt) {
+    do {
+        *d++ = 0;
+    } while (--s_cnt);
 
     return d;
+}
+
+static u16* meltw_copy_back(u16* d, u32 s_len, u32 s_cnt) {
+    u16* s_ptr;
+
+    s_ptr = d - s_len;
+
+    do {
+        *d++ = *s_ptr++;
+    } while (--s_cnt);
+
+    return d;
+}
+
+static u16* meltw_write_run(u16* d, u32 s_len, u32 s_cnt) {
+    if (s_len == 0) {
+        return meltw_fill_zeroes(d, s_cnt);
+    }
+
+    return meltw_copy_back(d, s_len, s_cnt);
 }
 
 void Meltw(u16* s, u16* d, s32 file_ptr) {
