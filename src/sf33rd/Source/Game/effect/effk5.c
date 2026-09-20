@@ -136,7 +136,6 @@ static void update_effect_K5(WORK_Other* ewk, WORK* mwk) {
     mwk->h_han = &ramhan[mwk->id];
 }
 
-
 void effect_K5_move(WORK_Other* ewk) {
     WORK* mwk = (WORK*)ewk->my_master;
 
@@ -212,11 +211,7 @@ static void update_matching_delay_K5(WORK* ewk, GOTCP* gotcp) {
     }
 }
 
-typedef enum {
-    K5_TIMING_CONTINUE,
-    K5_TIMING_DECODED,
-    K5_TIMING_STOP
-} K5TimingResult;
+typedef enum { K5_TIMING_CONTINUE, K5_TIMING_DECODED, K5_TIMING_STOP } K5TimingResult;
 
 static K5TimingResult process_hit_index_K5(WORK* ewk, MVJ* mvj, GOTCP* gotcp, u16 now_mf) {
     ST st;

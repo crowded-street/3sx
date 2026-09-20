@@ -23,7 +23,6 @@ static s32 background_reached_target(s32 arrived_x, s32 arrived_y) {
     return (arrived_x != 0) && (arrived_y != 0);
 }
 
-
 void effect_93_move(WORK_Other* ewk) {
     Eff93_Jmp_Tbl[ewk->wu.routine_no[0]](ewk);
 }

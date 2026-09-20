@@ -21,11 +21,9 @@ static s32 can_update_crow_fuss(WORK_Other* ewk) {
     return !EXE_flag && !Game_pause && !EXE_obroll && crow_fuss_check(ewk);
 }
 
-
 static s32 effect_can_advance(void) {
     return !EXE_flag && !Game_pause && !EXE_obroll;
 }
-
 
 void effect_78_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
@@ -36,7 +34,7 @@ void effect_78_move(WORK_Other* ewk) {
         break;
 
     case 1:
-if (can_update_crow_fuss(ewk)) {
+        if (can_update_crow_fuss(ewk)) {
             char_move(&ewk->wu);
         }
 

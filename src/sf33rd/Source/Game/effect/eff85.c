@@ -22,7 +22,6 @@ static s32 can_update_effect(void) {
     return !EXE_flag && !Game_pause && !EXE_obroll;
 }
 
-
 void effect_85_move(WORK_Other* ewk) {
     void (*const eff85_jp_tbl[3])(WORK_Other*) = { eff85_0000, eff85_0100, eff85_0200 };
     eff85_jp_tbl[ewk->wu.routine_no[0]](ewk);
@@ -40,7 +39,7 @@ void eff85_0100(WORK_Other* ewk) {
     void (*const eff85_move_tbl[9])(WORK_Other*) = { eff85_1000,   eff85_common, eff85_3000, eff85_common, eff85_5000,
                                                      eff85_common, eff85_7000,   eff85_8000, eff85_9000 };
 
-        if (can_update_effect()) {
+    if (can_update_effect()) {
         eff85_move_tbl[ewk->wu.routine_no[1]](ewk);
     }
 

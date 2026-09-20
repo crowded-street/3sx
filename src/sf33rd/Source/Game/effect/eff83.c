@@ -22,11 +22,9 @@ static s32 game_is_active(void) {
     return !EXE_flag && !Game_pause;
 }
 
-
 static s32 animation_can_advance(void) {
     return !EXE_flag && !Game_pause;
 }
-
 
 /* Travel until close enough to the master, then sound the effect and start the
  * depth move. */

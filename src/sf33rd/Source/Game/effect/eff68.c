@@ -20,15 +20,13 @@ static s32 game_is_active(void) {
     return !EXE_flag && !Game_pause;
 }
 
-
 static s32 animation_can_advance(void) {
     return !EXE_flag && !Game_pause;
 }
 
-
 /* Hold until the first timer runs out, then aim at the first waypoint. */
 static void e68_wait_start(WORK_Other* ewk) {
-if (game_is_active()) {
+    if (game_is_active()) {
         ewk->wu.routine_no[4]--;
 
         if (ewk->wu.routine_no[4] < 1) {

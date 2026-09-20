@@ -4,9 +4,9 @@
  */
 
 #include "sf33rd/Source/Game/effect/eff13_tengu.h"
-#include "sf33rd/Source/Game/effect/eff13_internal.h"
 #include "common.h"
 #include "sf33rd/Source/Game/effect/eff00.h"
+#include "sf33rd/Source/Game/effect/eff13_internal.h"
 #include "sf33rd/Source/Game/effect/eff96.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/effect/effi9.h"
@@ -91,10 +91,12 @@ static void update_tengu_routine(WORK_Other* ewk, TAMA* twk, PLW* mwk) {
         ewk->wu.dir_timer = twk->data00;
         ewk->wu.mvxy.d[0].sp = 0;
         ewk->wu.mvxy.d[1].sp = -0x7000;
-        cal_initial_speed(&ewk->wu,
-                          ewk->wu.dir_timer,
-                          mwk->wu.xyz[0].disp.pos + ewk->wu.old_pos[0],
-                          mwk->wu.xyz[1].disp.pos + ewk->wu.old_pos[1]);
+        cal_initial_speed(
+            &ewk->wu,
+            ewk->wu.dir_timer,
+            mwk->wu.xyz[0].disp.pos + ewk->wu.old_pos[0],
+            mwk->wu.xyz[1].disp.pos + ewk->wu.old_pos[1]
+        );
         break;
 
     case 1:

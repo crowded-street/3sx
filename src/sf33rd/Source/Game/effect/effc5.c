@@ -99,9 +99,9 @@ static void wait_for_car_departure_C5(WORK_Other* ewk) {
     (void)ewk;
 }
 
-static void update_car_departure_C5(WORK_Other* ewk,
-                                    void (*on_expired)(WORK_Other*),
-                                    void (*while_waiting)(WORK_Other*)) {
+static void update_car_departure_C5(
+    WORK_Other* ewk, void (*on_expired)(WORK_Other*), void (*while_waiting)(WORK_Other*)
+) {
     if (game_is_active()) {
         ewk->wu.old_rno[0]--;
 
@@ -134,15 +134,10 @@ static void advance_car_state_C5(WORK_Other* ewk) {
     ewk->wu.routine_no[0]++;
 }
 
-static void (*const car_state_handlers_C5[])(WORK_Other*) = {
-    [0] = initialize_car_C5,
-    [1] = approach_car_C5,
-    [2] = idle_car_C5,
-    [3] = prepare_car_departure_C5,
-    [4] = depart_car_C5,
-    [5] = hide_car_C5,
-    [6] = advance_car_state_C5
-};
+static void (*const car_state_handlers_C5[])(WORK_Other*) = { [0] = initialize_car_C5,   [1] = approach_car_C5,
+                                                              [2] = idle_car_C5,         [3] = prepare_car_departure_C5,
+                                                              [4] = depart_car_C5,       [5] = hide_car_C5,
+                                                              [6] = advance_car_state_C5 };
 
 static void dispose_car_C5(WORK_Other* ewk) {
     all_cgps_put_back(&ewk->wu);

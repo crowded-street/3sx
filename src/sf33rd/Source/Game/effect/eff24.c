@@ -44,7 +44,6 @@ static s32 can_update_effect(void) {
     return !EXE_flag && !Game_pause && !EXE_obroll;
 }
 
-
 void effect_24_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -55,7 +54,7 @@ void effect_24_move(WORK_Other* ewk) {
         break;
 
     case 1:
-if (can_update_effect()) {
+        if (can_update_effect()) {
             eff24_quake_sub(ewk);
         }
 

@@ -39,7 +39,6 @@ static s32 is_selection_ready(const WORK_Other* ewk) {
     return Sel_PL_Complete[ewk->master_id] || plw[ewk->master_id].wu.operator == 0;
 }
 
-
 void effect_38_move(WORK_Other* ewk) {
     EFF38_Jmp_Tbl[ewk->wu.routine_no[0]](ewk);
 
@@ -341,7 +340,7 @@ void EFF38_MOVE(WORK_Other* ewk) {
 
     switch (ewk->wu.routine_no[1]) {
     case 0:
-if (is_selection_ready(ewk)) {
+        if (is_selection_ready(ewk)) {
             ewk->wu.routine_no[1] = 2;
         } else {
             ewk->wu.routine_no[1]++;
@@ -372,15 +371,13 @@ static void select_initial_character_38(WORK_Other* ewk, s16 PL_id, s16 Your_Cha
 
 static void set_initial_target_38(WORK_Other* ewk, s16 Play_Status) {
     if (Play_Status == 0) {
-        ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos +
-                            EFF38_Base_XY[ewk->master_id][0][0] +
+        ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + EFF38_Base_XY[ewk->master_id][0][0] +
                             EFF38_Correct_Data[ewk->master_id][0][ewk->wu.dir_step][0];
         ewk->wu.xyz[1].disp.pos = ewk->wu.vital_new = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos +
                                                       EFF38_Base_XY[ewk->master_id][0][1] +
                                                       EFF38_Correct_Data[ewk->master_id][0][ewk->wu.dir_step][1];
     } else {
-        ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos +
-                            EFF38_Base_XY[ewk->master_id][1][0] +
+        ewk->wu.hit_quake = bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos + EFF38_Base_XY[ewk->master_id][1][0] +
                             EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][0];
         ewk->wu.xyz[1].disp.pos = ewk->wu.vital_new = bg_w.bgw[ewk->wu.my_family - 1].wxy[1].disp.pos +
                                                       EFF38_Base_XY[ewk->master_id][1][1] +

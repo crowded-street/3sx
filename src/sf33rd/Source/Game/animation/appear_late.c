@@ -5,9 +5,9 @@
  * Split out of appear.c.
  */
 
-#include "sf33rd/Source/Game/animation/appear.h"
 #include "common.h"
 #include "sf33rd/Source/Game/animation/app_data.h"
+#include "sf33rd/Source/Game/animation/appear.h"
 #include "sf33rd/Source/Game/effect/eff09.h"
 #include "sf33rd/Source/Game/effect/eff15.h"
 #include "sf33rd/Source/Game/effect/eff46.h"

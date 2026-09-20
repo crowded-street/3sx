@@ -85,7 +85,6 @@ static void pl17_at1_wind_up(PLW* wk) {
     if (wk->wu.routine_no[3] != 1) {
         add_mvxy_speed(&wk->wu);
     }
-
 }
 
 /* The grounded markers: 20 hands over to state 3, 30 kills the vertical speed
@@ -106,7 +105,6 @@ static void pl17_at1_ground_markers(PLW* wk) {
     if (wk->wu.routine_no[3] != 2) {
         add_mvxy_speed(&wk->wu);
     }
-
 }
 
 /* The union leg's markers, which only run while it has not returned to state 2. */
@@ -127,7 +125,6 @@ static void pl17_at1_union_markers(PLW* wk) {
             wk->wu.routine_no[3] = 5;
         }
     }
-
 }
 
 /* The airborne markers. Its marker-30 block is a near miss of the grounded one -
@@ -147,7 +144,6 @@ static void pl17_at1_air_markers(PLW* wk) {
         wk->wu.mvxy.index++;
         wk->wu.cg_type = 0;
     }
-
 }
 
 /* A wall bounce saved on an earlier frame re-centres the player 142 either side

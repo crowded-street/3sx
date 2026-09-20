@@ -4,9 +4,9 @@
  */
 
 #include "sf33rd/Source/Game/effect/effe6_middle.h"
-#include "sf33rd/Source/Game/effect/effe6_internal.h"
 #include "bin2obj/char_table.h"
 #include "common.h"
+#include "sf33rd/Source/Game/effect/effe6_internal.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/ending/end_00.h"
 #include "sf33rd/Source/Game/ending/end_data.h"
@@ -19,7 +19,6 @@
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
-
 
 static void update_effe6_0011_fall(WORK_Other* ewk) {
     if (ewk->wu.old_rno[6] < end_w.r_no_2) {
@@ -59,7 +58,6 @@ void effe6_0011(WORK_Other* ewk) {
     }
 }
 
-
 static void update_effe6_0013_motion(WORK_Other* ewk) {
     add_y_sub(&ewk->wu);
 
@@ -97,7 +95,6 @@ void effe6_0013(WORK_Other* ewk) {
         break;
     }
 }
-
 
 static void update_effe6_0015_approach(WORK_Other* ewk) {
     if (ewk->wu.old_rno[6] == end_w.r_no_2) {

@@ -877,7 +877,7 @@ const s16 ahj_kop_cps3[6][4] = {
  * ArcadeBalance_IsEnabled is still called exactly once per frame. The row type is
  * written out as the caller already writes it, so the guard sees one `s16(` and
  * one `2` added rather than a substitution. */
-static void ahj_aim_on_marker_30(PLW* wk, PLW* twk, const s16(*curr_empos_hos)[2], const s16* curr_kop) {
+static void ahj_aim_on_marker_30(PLW* wk, PLW* twk, const s16 (*curr_empos_hos)[2], const s16* curr_kop) {
     s16 ex;
     s16 ey;
 
