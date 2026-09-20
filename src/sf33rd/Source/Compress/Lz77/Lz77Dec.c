@@ -1,6 +1,49 @@
 #include "sf33rd/Source/Compress/Lz77/Lz77Dec.h"
 #include "common.h"
 
+/* A loop count of zero means the whole range its field can address. */
+static s32 whole_loop_if_zero(s32 loop, s32 whole) {
+    if (loop == 0) {
+        loop = whole;
+    }
+
+    return loop;
+}
+
+/* The three runs this decoder writes: one byte repeated, one byte stepping, and
+ * a copy from earlier in the output. Each returns the write pointer where it
+ * stopped, which is the one value it produced. */
+static u8* fill_bytes(u8* dst, u8 num, s32 loop) {
+    s32 j;
+
+    for (j = 0; j < loop; j++) {
+        *dst++ = num;
+    }
+
+    return dst;
+}
+
+static u8* fill_ramp(u8* dst, u8 num, u8 step, s32 loop) {
+    s32 j;
+
+    for (j = 0; j < loop; j++) {
+        *dst++ = num;
+        num += step;
+    }
+
+    return dst;
+}
+
+static u8* copy_from_dictionary(u8* dst, const u8* dic, s32 loop) {
+    s32 j;
+
+    for (j = 0; j < loop; j++) {
+        *dst++ = *dic++;
+    }
+
+    return dst;
+}
+
 s32 decLZ77withSizeCheck(u8* src, u8* dst, s32 size) {
     s32 j;
     s32 loop;
@@ -30,9 +73,7 @@ s32 decLZ77withSizeCheck(u8* src, u8* dst, s32 size) {
 
                 loop &= 0x7F;
 
-                if (loop == 0) {
-                    loop = 0x80;
-                }
+                loop = whole_loop_if_zero(loop, 0x80);
 
                 dic = dst - offset;
 
@@ -42,9 +83,7 @@ s32 decLZ77withSizeCheck(u8* src, u8* dst, s32 size) {
                         dic++;
                     }
                 } else {
-                    for (j = 0; j < loop; j++) {
-                        *dst++ = *dic++;
-                    }
+                    dst = copy_from_dictionary(dst, dic, loop);
                 }
 
                 size -= loop;
@@ -53,9 +92,7 @@ s32 decLZ77withSizeCheck(u8* src, u8* dst, s32 size) {
                 case 1:
                     loop = *src++;
 
-                    if (loop == 0) {
-                        loop = 0x100;
-                    }
+                    loop = whole_loop_if_zero(loop, 0x100);
 
                     for (j = 0; j < loop; j++) {
                         *dst++ = *src++;
@@ -68,9 +105,7 @@ s32 decLZ77withSizeCheck(u8* src, u8* dst, s32 size) {
                     loop = (src[0] << 8) | src[1];
                     src += 2;
 
-                    if (loop == 0) {
-                        loop = 0x10000;
-                    }
+                    loop = whole_loop_if_zero(loop, 0x10000);
 
                     for (j = 0; j < loop; j++) {
                         *dst++ = *src++;
@@ -83,13 +118,9 @@ s32 decLZ77withSizeCheck(u8* src, u8* dst, s32 size) {
                     num = *src++;
                     loop = *src++;
 
-                    if (loop == 0) {
-                        loop = 0x100;
-                    }
+                    loop = whole_loop_if_zero(loop, 0x100);
 
-                    for (j = 0; j < loop; j++) {
-                        *dst++ = num;
-                    }
+                    dst = fill_bytes(dst, num, loop);
 
                     size -= loop;
                     break;
@@ -99,13 +130,9 @@ s32 decLZ77withSizeCheck(u8* src, u8* dst, s32 size) {
                     loop = (src[0] << 8) | src[1];
                     src += 2;
 
-                    if (loop == 0) {
-                        loop = 0x10000;
-                    }
+                    loop = whole_loop_if_zero(loop, 0x10000);
 
-                    for (j = 0; j < loop; j++) {
-                        *dst++ = num;
-                    }
+                    dst = fill_bytes(dst, num, loop);
 
                     size -= loop;
                     break;
@@ -115,14 +142,9 @@ s32 decLZ77withSizeCheck(u8* src, u8* dst, s32 size) {
                     step = *src++;
                     loop = *src++;
 
-                    if (loop == 0) {
-                        loop = 0x100;
-                    }
+                    loop = whole_loop_if_zero(loop, 0x100);
 
-                    for (j = 0; j < loop; j++) {
-                        *dst++ = num;
-                        num += step;
-                    }
+                    dst = fill_ramp(dst, num, step, loop);
 
                     size -= loop;
                     break;
@@ -133,14 +155,9 @@ s32 decLZ77withSizeCheck(u8* src, u8* dst, s32 size) {
                     loop = (src[0] << 8) | src[1];
                     src += 2;
 
-                    if (loop == 0) {
-                        loop = 0x10000;
-                    }
+                    loop = whole_loop_if_zero(loop, 0x10000);
 
-                    for (j = 0; j < loop; j++) {
-                        *dst++ = num;
-                        num += step;
-                    }
+                    dst = fill_ramp(dst, num, step, loop);
 
                     size -= loop;
                     break;
@@ -150,9 +167,7 @@ s32 decLZ77withSizeCheck(u8* src, u8* dst, s32 size) {
             offset = (offset << 8) | *src++;
             loop = offset & 0xF;
 
-            if (loop == 0) {
-                loop = 0x10;
-            }
+            loop = whole_loop_if_zero(loop, 0x10);
 
             offset = (offset >> 4) & 0x7FF;
 
@@ -162,9 +177,7 @@ s32 decLZ77withSizeCheck(u8* src, u8* dst, s32 size) {
 
             dic = dst - offset;
 
-            for (j = 0; j < loop; j++) {
-                *dst++ = *dic++;
-            }
+            dst = copy_from_dictionary(dst, dic, loop);
 
             size -= loop;
         }
