@@ -89,6 +89,54 @@ void flPADGetALL() {
     flPADACRConf();
 }
 
+/* The analogue depths the lever flip reorders: the first four come through
+ * fllever_depth_flip_data, the rest straight across. */
+static void build_depth_flip(u8* depthflip, const FLPAD* src, u8 flip_lever) {
+    s16 j;
+
+    for (j = 0; j < 4; j++) {
+        depthflip[j] = src->anshot.pow[fllever_depth_flip_data[flip_lever][j]];
+    }
+
+    for (j = 4; j < 0x10; j++) {
+        depthflip[j] = src->anshot.pow[j];
+    }
+}
+
+static void clear_conf_depths(FLPAD* dst) {
+    s16 j;
+
+    for (j = 0; j < 0x10; j++) {
+        dst->anshot.pow[j] = 0;
+    }
+}
+
+/* The configured button map: each raw bit contributes its mapped bit, and each
+ * mapped slot takes the deepest press that reaches it. Returns the mapped
+ * switch word, the one value the loop produced. */
+static u32 map_conf_buttons(FLPAD* dst, const u8* csh, const u8* depthflip, u32 conf_data) {
+    u32 conf_data2;
+    s16 j;
+
+    conf_data2 = 0;
+
+    for (j = 0; j < 0x18; j++) {
+        if (conf_data & flpad_io_map[j]) {
+            conf_data2 |= flpad_io_map[csh[j]];
+        }
+
+        if (csh[j] < 0x10) {
+            if (dst->anshot.pow[csh[j]] < depthflip[j]) {
+                dst->anshot.pow[csh[j]] = depthflip[j];
+            }
+        } else if (csh[j] > 0x18) {
+            padconf_setup_depth(dst->anshot.pow, depthflip[j], flpad_io_map[csh[j]]);
+        }
+    }
+
+    return conf_data2;
+}
+
 void flPADACRConf() {
     u8* csh;
     u32 conf_data;
@@ -117,33 +165,11 @@ void flPADACRConf() {
 
         csh = flpad_config[i].conf_sw;
 
-        for (j = 0; j < 4; j++) {
-            depthflip[j] = flpad_adr[0][i].anshot.pow[fllever_depth_flip_data[flpad_config[i].flip_lever][j]];
-        }
+        build_depth_flip(depthflip, &flpad_adr[0][i], flpad_config[i].flip_lever);
 
-        for (j = 4; j < 0x10; j++) {
-            depthflip[j] = flpad_adr[0][i].anshot.pow[j];
-        }
+        clear_conf_depths(&flpad_adr[1][i]);
 
-        for (j = 0; j < 0x10; j++) {
-            flpad_adr[1][i].anshot.pow[j] = 0;
-        }
-
-        conf_data2 = 0;
-
-        for (j = 0; j < 0x18; j++) {
-            if (conf_data & flpad_io_map[j]) {
-                conf_data2 |= flpad_io_map[csh[j]];
-            }
-
-            if (csh[j] < 0x10) {
-                if (flpad_adr[1][i].anshot.pow[csh[j]] < depthflip[j]) {
-                    flpad_adr[1][i].anshot.pow[csh[j]] = depthflip[j];
-                }
-            } else if (csh[j] > 0x18) {
-                padconf_setup_depth(flpad_adr[1][i].anshot.pow, depthflip[j], flpad_io_map[csh[j]]);
-            }
-        }
+        conf_data2 = map_conf_buttons(&flpad_adr[1][i], csh, depthflip, conf_data);
 
         flupdate_pad_button_data(&flpad_adr[1][i], conf_data2);
         flupdate_pad_on_cnt(&flpad_adr[1][i]);
