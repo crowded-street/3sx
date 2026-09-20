@@ -34,55 +34,82 @@ typedef struct {
 s32 flPS2LockTexture(const FlLockArgs* a);
 s32 flPS2UnlockTexture(FLTexture*);
 
-/* The three pixel layouts this file sets, each exactly the run of assignments
- * that stood at every one of its call sites. */
+/* One pixel layout: the length, shift and mask of each channel. The three this
+ * file sets differ in nothing but those twelve values, so each writes them out
+ * at its own call site and this helper performs the twelve assignments that
+ * stood in all three. The values are named rather than positional: PixelFormat
+ * already declares them in this order, and naming them is what makes a
+ * mis-paired channel impossible to write. */
+static void set_pixelformat(plContext* c, const PixelFormat* p) {
+    c->pixelformat.rl = p->rl;
+    c->pixelformat.rs = p->rs;
+    c->pixelformat.rm = p->rm;
+    c->pixelformat.gl = p->gl;
+    c->pixelformat.gs = p->gs;
+    c->pixelformat.gm = p->gm;
+    c->pixelformat.bl = p->bl;
+    c->pixelformat.bs = p->bs;
+    c->pixelformat.bm = p->bm;
+    c->pixelformat.al = p->al;
+    c->pixelformat.as = p->as;
+    c->pixelformat.am = p->am;
+}
 
 /* the 16-bit RGBA5551 layout */
 static void set_pixelformat_rgba5551(plContext* c) {
-    c->pixelformat.rl = 5;
-    c->pixelformat.rs = 0xA;
-    c->pixelformat.rm = 0x1F;
-    c->pixelformat.gl = 5;
-    c->pixelformat.gs = 5;
-    c->pixelformat.gm = 0x1F;
-    c->pixelformat.bl = 5;
-    c->pixelformat.bs = 0;
-    c->pixelformat.bm = 0x1F;
-    c->pixelformat.al = 1;
-    c->pixelformat.as = 0xF;
-    c->pixelformat.am = 1;
+    set_pixelformat(
+        c,
+        &(PixelFormat) { .rl = 5,
+                         .rs = 0xA,
+                         .rm = 0x1F,
+                         .gl = 5,
+                         .gs = 5,
+                         .gm = 0x1F,
+                         .bl = 5,
+                         .bs = 0,
+                         .bm = 0x1F,
+                         .al = 1,
+                         .as = 0xF,
+                         .am = 1 }
+    );
 }
 
 /* the 24-bit RGB888 layout */
 static void set_pixelformat_rgb888(plContext* c) {
-    c->pixelformat.rl = 8;
-    c->pixelformat.rs = 0x10;
-    c->pixelformat.rm = 0xFF;
-    c->pixelformat.gl = 8;
-    c->pixelformat.gs = 8;
-    c->pixelformat.gm = 0xFF;
-    c->pixelformat.bl = 8;
-    c->pixelformat.bs = 0;
-    c->pixelformat.bm = 0xFF;
-    c->pixelformat.al = 0;
-    c->pixelformat.as = 0;
-    c->pixelformat.am = 0;
+    set_pixelformat(
+        c,
+        &(PixelFormat) { .rl = 8,
+                         .rs = 0x10,
+                         .rm = 0xFF,
+                         .gl = 8,
+                         .gs = 8,
+                         .gm = 0xFF,
+                         .bl = 8,
+                         .bs = 0,
+                         .bm = 0xFF,
+                         .al = 0,
+                         .as = 0,
+                         .am = 0 }
+    );
 }
 
 /* the 32-bit RGBA8888 layout */
 static void set_pixelformat_rgba8888(plContext* c) {
-    c->pixelformat.rl = 8;
-    c->pixelformat.rs = 0x10;
-    c->pixelformat.rm = 0xFF;
-    c->pixelformat.gl = 8;
-    c->pixelformat.gs = 8;
-    c->pixelformat.gm = 0xFF;
-    c->pixelformat.bl = 8;
-    c->pixelformat.bs = 0;
-    c->pixelformat.bm = 0xFF;
-    c->pixelformat.al = 8;
-    c->pixelformat.as = 0x18;
-    c->pixelformat.am = 0xFF;
+    set_pixelformat(
+        c,
+        &(PixelFormat) { .rl = 8,
+                         .rs = 0x10,
+                         .rm = 0xFF,
+                         .gl = 8,
+                         .gs = 8,
+                         .gm = 0xFF,
+                         .bl = 8,
+                         .bs = 0,
+                         .bm = 0xFF,
+                         .al = 8,
+                         .as = 0x18,
+                         .am = 0xFF }
+    );
 }
 
 u32 flCreateTextureHandle(plContext* bits, u32 flag) {
