@@ -45,7 +45,7 @@ static void* decrypt(SDL_IOStream* simms[4], size_t* size) {
         const Uint8 b1 = read_byte(simms[1]);
         const Uint8 b2 = read_byte(simms[2]);
         const Uint8 b3 = read_byte(simms[3]);
-        const Uint32 decrypted = cps3_decrypt(b0, b1, b2, b3, i);
+        const Uint32 decrypted = cps3_decrypt(&(Cps3Word){ b0, b1, b2, b3 }, i);
         SDL_WriteIO(dst, &decrypted, sizeof(Uint32));
     }
 
