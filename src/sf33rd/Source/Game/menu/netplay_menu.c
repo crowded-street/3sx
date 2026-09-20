@@ -103,6 +103,44 @@ static bool netplay_menu_exit_pressed(FistbumpState fs) {
            (fs == FISTBUMP_IDLE || fs == FISTBUMP_AWAITING_LOGIN);
 }
 
+/* What confirm does on this page: accept a match, start a direct connection,
+ * or take the cursor row's own action. */
+static void run_netplay_menu_confirm(struct _TASK* task_ptr) {
+    if (Fistbump_GetState() == FISTBUMP_MATCHED) {
+        Fistbump_AcceptMatch();
+        return;
+    }
+
+    if (Menu_Page == NETPLAY_PAGE_DIRECT) {
+        // DIRECT CONNECT is the only item; the EXIT row is handled above.
+        Netplay_BeginDirectP2P();
+        SE_selected();
+        return;
+    }
+
+    switch (Menu_Cursor_Y[0]) {
+    case 0:
+        Netplay_FindMatch();
+        break;
+
+    case 1:
+        Menu_Suicide[0] = 0;
+        Menu_Suicide[1] = 1;
+        Menu_Suicide[2] = 1;
+        task_ptr->r_no[1] = 1;
+        task_ptr->r_no[2] = 0;
+        task_ptr->r_no[3] = 0;
+        task_ptr->free[0] = 0;
+        Order[115] = 4;
+        Order_Timer[115] = 4;
+
+        Fistbump_Logout();
+        Netplay_HandleMenuExit();
+        SE_dir_selected();
+        break;
+    }
+}
+
 /* The menu page's own input frame: the cursor moves, the exits and the two
  * confirm paths. Every `break` that left the menu's switch is a return here;
  * the cursor switch keeps its own. */
@@ -140,40 +178,7 @@ static void run_netplay_menu_input(struct _TASK* task_ptr, FistbumpState fs) {
         Fistbump_DeclineMatch();
         return;
     } else if (IO_Result == SWK_SOUTH) {
-        if (Fistbump_GetState() == FISTBUMP_MATCHED) {
-            Fistbump_AcceptMatch();
-            return;
-        }
-
-        if (Menu_Page == NETPLAY_PAGE_DIRECT) {
-            // DIRECT CONNECT is the only item; the EXIT row is handled above.
-            Netplay_BeginDirectP2P();
-            SE_selected();
-            return;
-        }
-
-        switch (Menu_Cursor_Y[0]) {
-        case 0:
-            Netplay_FindMatch();
-            break;
-
-        case 1:
-            Menu_Suicide[0] = 0;
-            Menu_Suicide[1] = 1;
-            Menu_Suicide[2] = 1;
-            task_ptr->r_no[1] = 1;
-            task_ptr->r_no[2] = 0;
-            task_ptr->r_no[3] = 0;
-            task_ptr->free[0] = 0;
-            Order[115] = 4;
-            Order_Timer[115] = 4;
-
-            Fistbump_Logout();
-            Netplay_HandleMenuExit();
-            SE_dir_selected();
-            break;
-        }
-
+        run_netplay_menu_confirm(task_ptr);
         return;
     }
 }
