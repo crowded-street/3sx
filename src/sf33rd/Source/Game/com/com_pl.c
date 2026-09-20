@@ -514,24 +514,37 @@ void Com_Guard_VS_Shell(PLW* wk) {
     Timer_00[wk->wu.id]--;
 }
 
-static s32 Check_No12_Shell_Guard(PLW* wk, WORK_Other* tmw) {
+static s32 Shell_Past_Left_Guard(PLW* wk, WORK_Other* tmw) {
     s16 pos_x;
 
-    if (wk->wu.rl_flag) {
-        pos_x = wk->wu.xyz[0].disp.pos - 48;
+    pos_x = wk->wu.xyz[0].disp.pos - 48;
 
-        if (tmw->wu.xyz[0].disp.pos < pos_x) {
-            return 1;
-        }
-    } else {
-        pos_x = wk->wu.xyz[0].disp.pos + 48;
-
-        if (tmw->wu.xyz[0].disp.pos > pos_x) {
-            return 1;
-        }
+    if (tmw->wu.xyz[0].disp.pos < pos_x) {
+        return 1;
     }
 
     return 0;
+}
+
+static s32 Shell_Past_Right_Guard(PLW* wk, WORK_Other* tmw) {
+    s16 pos_x;
+
+    pos_x = wk->wu.xyz[0].disp.pos + 48;
+
+    if (tmw->wu.xyz[0].disp.pos > pos_x) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static s32 Check_No12_Shell_Guard(PLW* wk, WORK_Other* tmw) {
+
+    if (wk->wu.rl_flag) {
+        return Shell_Past_Left_Guard(wk, tmw);
+    }
+
+    return Shell_Past_Right_Guard(wk, tmw);
 }
 
 void Check_Guard_Type(PLW* wk, WORK* em) {
