@@ -289,6 +289,27 @@ s32 chkVibUnit(s32 port) {
 
 /* Everything the pad does while its vibration unit is present: lose it if the
  * unit has gone, otherwise run the one pattern slot's state machine. */
+/* A row that hands the pattern on to another request, and a row that picks the
+ * next row by the player's remaining vitality. */
+static void request_pulpul_row(PPWORK* wk, s32 i, s32 data) {
+    wk->p[i].rno[0] = 0;
+
+    if (test_flag) {
+        *ot_mot_of = data;
+        ot_make_curr_vib_data();
+    }
+
+    pulpul_request((s16)wk->id, data);
+}
+
+static void skip_pulpul_vital_row(PPWORK* wk, s32 i, s32 data) {
+    if (wk->vital >= data) {
+        wk->p[i].exix += 1;
+    } else {
+        wk->p[i].exix += 2;
+    }
+}
+
 /* Walking the pattern rows until one of them is a real vibration index.
  * Returns 0 where the row ended the pattern - each of those returns is a
  * `break` out of the device switch - and 1 where a row is ready to start,
@@ -314,23 +335,12 @@ lbl:
         }
 
         if (index == -3) {
-            wk->p[i].rno[0] = 0;
-
-            if (test_flag) {
-                *ot_mot_of = data;
-                ot_make_curr_vib_data();
-            }
-
-            pulpul_request((s16)wk->id, data);
+            request_pulpul_row(wk, i, data);
             return 0;
         }
 
         if (index == -2) {
-            if (wk->vital >= data) {
-                wk->p[i].exix += 1;
-            } else {
-                wk->p[i].exix += 2;
-            }
+            skip_pulpul_vital_row(wk, i, data);
             goto lbl;
         }
 
