@@ -34,6 +34,20 @@ static void scan_ioconv_range(u32 currSw, s32 i, s32 first, s32 limit) {
     }
 }
 
+/* Fold one analog stick's direction bits down into the digital ones, when the
+ * digital pad is reporting nothing. The two copies differ only in which half of
+ * the word they take. */
+static void merge_analog_direction(IOPad* pad, s32 i, s32 shift) {
+    if (!(flpad_adr[0][i].sw & 0xF)) {
+        pad->sw |= (pad->sw >> shift) & 0xF;
+        pad->sw_old |= (pad->sw_old >> shift) & 0xF;
+        pad->sw_new |= (pad->sw_new >> shift) & 0xF;
+        pad->sw_off |= (pad->sw_off >> shift) & 0xF;
+        pad->sw_chg |= (pad->sw_chg >> shift) & 0xF;
+        pad->sw_repeat |= (pad->sw_repeat >> shift) & 0xF;
+    }
+}
+
 void keyConvert() {
     IOPad* pad;
     u32 currSw;
@@ -77,23 +91,9 @@ void keyConvert() {
         pad->stick[1] = flpad_adr[0][i].stick[1];
 
         if (mpp_w.useAnalogStickData) {
-            if (!(flpad_adr[0][i].sw & 0xF)) {
-                pad->sw |= (pad->sw >> 16) & 0xF;
-                pad->sw_old |= (pad->sw_old >> 16) & 0xF;
-                pad->sw_new |= (pad->sw_new >> 16) & 0xF;
-                pad->sw_off |= (pad->sw_off >> 16) & 0xF;
-                pad->sw_chg |= (pad->sw_chg >> 16) & 0xF;
-                pad->sw_repeat |= (pad->sw_repeat >> 16) & 0xF;
-            }
+            merge_analog_direction(pad, i, 16);
 
-            if (!(flpad_adr[0][i].sw & 0xF)) {
-                pad->sw |= (pad->sw >> 20) & 0xF;
-                pad->sw_old |= (pad->sw_old >> 20) & 0xF;
-                pad->sw_new |= (pad->sw_new >> 20) & 0xF;
-                pad->sw_off |= (pad->sw_off >> 20) & 0xF;
-                pad->sw_chg |= (pad->sw_chg >> 20) & 0xF;
-                pad->sw_repeat |= (pad->sw_repeat >> 20) & 0xF;
-            }
+            merge_analog_direction(pad, i, 20);
         }
 
         if (pad->kind == 0 || pad->kind == 0x8000) {
