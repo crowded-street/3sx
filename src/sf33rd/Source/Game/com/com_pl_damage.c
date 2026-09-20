@@ -199,9 +199,17 @@ void Damage_3rd(PLW* /* unused */) {}
 
 void Damage_4th(PLW* /* unused */) {}
 
-static void Damage_5th_Wait_Recovery(PLW* wk) {
+static s32 Damage_Recovery_Reached(PLW* wk) {
     if (wk->wu.routine_no[1] != 1) {
         Exit_Damage_Sub(wk);
+        return 0;
+    }
+
+    return 1;
+}
+
+static void Damage_5th_Wait_Recovery(PLW* wk) {
+    if (!Damage_Recovery_Reached(wk)) {
         return;
     }
 
@@ -276,8 +284,7 @@ static void pick_get_up_action(PLW* wk) {
 }
 
 static void Damage_6th_Wait_Recovery(PLW* wk) {
-    if (wk->wu.routine_no[1] != 1) {
-        Exit_Damage_Sub(wk);
+    if (!Damage_Recovery_Reached(wk)) {
         return;
     }
 
