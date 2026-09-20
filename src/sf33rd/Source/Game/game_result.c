@@ -375,6 +375,34 @@ void Game10() {
     BG_move();
 }
 
+/* Once the results screen has switched away: reload the stage's textures and go
+ * to the next fight, or to the bonus stage. */
+static void game11_screen_switched() {
+    Cover_Timer = 24;
+    Game01_Sub();
+    BGM_Stop();
+    Purge_texcash_of_list(3);
+    Make_texcash_of_list(3);
+
+    if (Bonus_Type == 0) {
+        G_No[1] = 2;
+        G_No[2] = 0;
+        E_No[0] = 4;
+        E_No[1] = 0;
+        E_No[2] = 0;
+        E_No[3] = 0;
+        Bonus_Game_Flag = 0;
+    } else {
+        G_No[1] = 9;
+        G_No[2] = 0;
+        G_No[3] = 0;
+        E_No[0] = 4;
+        E_No[1] = 0;
+        E_No[2] = 0;
+        E_No[3] = 0;
+    }
+}
+
 void Game11() {
     BG_Draw_System();
     Basic_Sub();
@@ -405,29 +433,7 @@ void Game11() {
         Next_Q();
 
         if (Switch_Screen(0) != 0) {
-            Cover_Timer = 24;
-            Game01_Sub();
-            BGM_Stop();
-            Purge_texcash_of_list(3);
-            Make_texcash_of_list(3);
-
-            if (Bonus_Type == 0) {
-                G_No[1] = 2;
-                G_No[2] = 0;
-                E_No[0] = 4;
-                E_No[1] = 0;
-                E_No[2] = 0;
-                E_No[3] = 0;
-                Bonus_Game_Flag = 0;
-            } else {
-                G_No[1] = 9;
-                G_No[2] = 0;
-                G_No[3] = 0;
-                E_No[0] = 4;
-                E_No[1] = 0;
-                E_No[2] = 0;
-                E_No[3] = 0;
-            }
+            game11_screen_switched();
         }
 
         break;
