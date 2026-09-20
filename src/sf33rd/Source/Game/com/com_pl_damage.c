@@ -199,6 +199,16 @@ void Damage_3rd(PLW* /* unused */) {}
 
 void Damage_4th(PLW* /* unused */) {}
 
+static s32 Damage_Sub_State_Active(PLW* wk) {
+    if (wk->wu.routine_no[3] == 0) {
+        CP_No[wk->wu.id][1] = 0;
+        CP_No[wk->wu.id][2] = 0;
+        return 0;
+    }
+
+    return 1;
+}
+
 static s32 Damage_Recovery_Reached(PLW* wk) {
     if (wk->wu.routine_no[1] != 1) {
         Exit_Damage_Sub(wk);
@@ -220,9 +230,7 @@ static void Damage_5th_Wait_Recovery(PLW* wk) {
 }
 
 void Damage_5th(PLW* wk) {
-    if (wk->wu.routine_no[3] == 0) {
-        CP_No[wk->wu.id][1] = 0;
-        CP_No[wk->wu.id][2] = 0;
+    if (!Damage_Sub_State_Active(wk)) {
         return;
     }
 
@@ -295,9 +303,7 @@ static void Damage_6th_Wait_Recovery(PLW* wk) {
 
 void Damage_6th(PLW* wk) {
 
-    if (wk->wu.routine_no[3] == 0) {
-        CP_No[wk->wu.id][1] = 0;
-        CP_No[wk->wu.id][2] = 0;
+    if (!Damage_Sub_State_Active(wk)) {
         return;
     }
 
