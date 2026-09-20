@@ -380,26 +380,19 @@ static void hugo_vs_from_area_6(PLW* wk, WORK* em) {
     }
 }
 
-static void hugo_vs_from_area_5(PLW* wk, WORK* em) {
-    switch (Passive_Mode + Area_Number[wk->wu.id]) {
-    case 5:
-        if (hugo_options_in_area_5(wk, em)) {
-            break;
-        }
+/* One step of a character's area chain: which options it tries while the fighter
+ * is in this area, and where it hands on when the fighter is not. The area
+ * number and the jump reach stay inside each step, because a case label cannot
+ * be a parameter. */
+typedef struct {
+    s32 (*options_in_area)(PLW* wk, WORK* em);
+    void (*next_area)(PLW* wk, WORK* em);
+} VsAreaStep;
 
-        Check_VS_Jump(wk, (PLW*)em, 32);
-        break;
-
-    default:
-        hugo_vs_from_area_6(wk, em);
-        break;
-    }
-}
-
-static void hugo_vs_from_area_4(PLW* wk, WORK* em) {
+static void vs_from_area_4(PLW* wk, WORK* em, const VsAreaStep* step) {
     switch (Passive_Mode + Area_Number[wk->wu.id]) {
     case 4:
-        if (hugo_options_in_area_4(wk, em)) {
+        if (step->options_in_area(wk, em)) {
             break;
         }
 
@@ -407,9 +400,33 @@ static void hugo_vs_from_area_4(PLW* wk, WORK* em) {
         break;
 
     default:
-        hugo_vs_from_area_5(wk, em);
+        step->next_area(wk, em);
         break;
     }
+}
+
+static void vs_from_area_5(PLW* wk, WORK* em, const VsAreaStep* step) {
+    switch (Passive_Mode + Area_Number[wk->wu.id]) {
+    case 5:
+        if (step->options_in_area(wk, em)) {
+            break;
+        }
+
+        Check_VS_Jump(wk, (PLW*)em, 32);
+        break;
+
+    default:
+        step->next_area(wk, em);
+        break;
+    }
+}
+
+static void hugo_vs_from_area_5(PLW* wk, WORK* em) {
+    vs_from_area_5(wk, em, &(VsAreaStep) { hugo_options_in_area_5, hugo_vs_from_area_6 });
+}
+
+static void hugo_vs_from_area_4(PLW* wk, WORK* em) {
+    vs_from_area_4(wk, em, &(VsAreaStep) { hugo_options_in_area_4, hugo_vs_from_area_5 });
 }
 
 void HUGO_vs(PLW* wk) {
@@ -437,35 +454,11 @@ static void gill_vs_from_area_6(PLW* wk, WORK* em) {
 }
 
 static void gill_vs_from_area_5(PLW* wk, WORK* em) {
-    switch (Passive_Mode + Area_Number[wk->wu.id]) {
-    case 5:
-        if (options_in_area_5(wk, em)) {
-            break;
-        }
-
-        Check_VS_Jump(wk, (PLW*)em, 32);
-        break;
-
-    default:
-        gill_vs_from_area_6(wk, em);
-        break;
-    }
+    vs_from_area_5(wk, em, &(VsAreaStep) { options_in_area_5, gill_vs_from_area_6 });
 }
 
 static void gill_vs_from_area_4(PLW* wk, WORK* em) {
-    switch (Passive_Mode + Area_Number[wk->wu.id]) {
-    case 4:
-        if (options_in_area_4(wk, em)) {
-            break;
-        }
-
-        Check_VS_Jump(wk, (PLW*)em, 16);
-        break;
-
-    default:
-        gill_vs_from_area_5(wk, em);
-        break;
-    }
+    vs_from_area_4(wk, em, &(VsAreaStep) { options_in_area_4, gill_vs_from_area_5 });
 }
 
 void GILL_vs(PLW* wk) {
