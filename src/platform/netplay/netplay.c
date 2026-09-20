@@ -917,21 +917,43 @@ void Netplay_CancelMatchmaking() {
     matchmaking_pending = false;
 }
 
+/* Holding the game at character select until it is ready, then handing over to
+ * Gekko; and the teardown that returns the session to idle. */
+static void step_netplay_transition() {
+    if (game_ready_to_run_character_select()) {
+        transition_ready_frames += 1;
+    } else {
+        transition_ready_frames = 0;
+        clean_input_buffers();
+        step_game(true);
+    }
+
+    if (transition_ready_frames >= 2) {
+        configure_gekko();
+        session_state = NETPLAY_SESSION_CONNECTING;
+    }
+}
+
+static void end_netplay_session() {
+    if (session != NULL) {
+        gekko_destroy(&session);
+        SDLNetAdapter_Destroy();
+    }
+
+    if (p2p_sock != NULL) {
+        NET_DestroyDatagramSocket(p2p_sock);
+        p2p_sock = NULL;
+        NET_Quit();
+    }
+
+    Netplay_CancelMatchmaking();
+    session_state = NETPLAY_SESSION_IDLE;
+}
+
 void Netplay_Run() {
     switch (session_state) {
     case NETPLAY_SESSION_TRANSITIONING:
-        if (game_ready_to_run_character_select()) {
-            transition_ready_frames += 1;
-        } else {
-            transition_ready_frames = 0;
-            clean_input_buffers();
-            step_game(true);
-        }
-
-        if (transition_ready_frames >= 2) {
-            configure_gekko();
-            session_state = NETPLAY_SESSION_CONNECTING;
-        }
+        step_netplay_transition();
 
         break;
 
@@ -941,19 +963,7 @@ void Netplay_Run() {
         break;
 
     case NETPLAY_SESSION_EXITING:
-        if (session != NULL) {
-            gekko_destroy(&session);
-            SDLNetAdapter_Destroy();
-        }
-
-        if (p2p_sock != NULL) {
-            NET_DestroyDatagramSocket(p2p_sock);
-            p2p_sock = NULL;
-            NET_Quit();
-        }
-
-        Netplay_CancelMatchmaking();
-        session_state = NETPLAY_SESSION_IDLE;
+        end_netplay_session();
         break;
 
     case NETPLAY_SESSION_IDLE:
