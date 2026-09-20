@@ -194,10 +194,23 @@ void end_500_0001() {
     }
 }
 
-void end_500_0006() {
+/* Each scene's own fade request, kept as it was written: 500's tests the result
+ * against zero and 501's does not, and neither is rewritten into the other. */
+static s32 end_5_request_black_fade(void) {
+    return Request_Fade(1) != 0;
+}
+
+static s32 end_5_request_white_fade(void) {
+    return Request_Fade(3);
+}
+
+/* The fade-out scene end_500_0006 and end_501_0010 share: ask for the fade, wait
+ * for it, then hold the panel. They differ in which fade they ask for and in the
+ * colour the panel is overwritten with. */
+static void run_end_5_fade_scene(s32 (*request_fade)(void), u32 panel_color) {
     switch (bgw_ptr->r_no_1) {
     case 0:
-        if (Request_Fade(1) != 0) {
+        if (request_fade()) {
             bgw_ptr->r_no_1++;
             end_no_cut = 1;
         }
@@ -209,15 +222,19 @@ void end_500_0006() {
             bgw_ptr->r_no_1++;
             end_no_cut = 0;
             end_w.timer = 30;
-            overwrite_panel(0xFF000000, 0x17);
+            overwrite_panel(panel_color, 0x17);
         }
 
         break;
 
     case 2:
-        overwrite_panel(0xFF000000, 0x17);
+        overwrite_panel(panel_color, 0x17);
         break;
     }
+}
+
+void end_500_0006() {
+    run_end_5_fade_scene(end_5_request_black_fade, 0xFF000000);
 }
 
 void end_500_quake_y_sub() {
@@ -511,29 +528,7 @@ void end_501_0009() {
 void end_501_0010() {
     end_5_bg1_move_sub2();
 
-    switch (bgw_ptr->r_no_1) {
-    case 0:
-        if (Request_Fade(3)) {
-            bgw_ptr->r_no_1++;
-            end_no_cut = 1;
-        }
-
-        break;
-
-    case 1:
-        if (end_fade_complete()) {
-            bgw_ptr->r_no_1++;
-            end_no_cut = 0;
-            end_w.timer = 30;
-            overwrite_panel(0xFFFFFFFF, 0x17);
-        }
-
-        break;
-
-    case 2:
-        overwrite_panel(0xFFFFFFFF, 0x17);
-        break;
-    }
+    run_end_5_fade_scene(end_5_request_white_fade, 0xFFFFFFFF);
 }
 
 void end_501_0011() {
