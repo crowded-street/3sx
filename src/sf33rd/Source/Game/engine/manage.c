@@ -913,7 +913,10 @@ void Game_Manage_7_5() {
     }
 }
 
-void Game_Manage_7_6() {
+/* Wait out the scene timer, cut short when the scene was skipped, then step
+ * to the next scene. Game_Manage_7_6 and Game_Manage_8_3 are this, identically;
+ * both keep their names because the jump tables take their addresses. */
+static void advance_scene_after_cut() {
     if (Scene_Cut) {
         C_Timer = 1;
     }
@@ -922,6 +925,10 @@ void Game_Manage_7_6() {
         C_No[0]++;
         C_No[1] = 0;
     }
+}
+
+void Game_Manage_7_6() {
+    advance_scene_after_cut();
 }
 
 void Game_Manage_7_7() {
@@ -1100,14 +1107,7 @@ void Game_Manage_8_2() {
 }
 
 void Game_Manage_8_3() {
-    if (Scene_Cut) {
-        C_Timer = 1;
-    }
-
-    if (--C_Timer == 0) {
-        C_No[0]++;
-        C_No[1] = 0;
-    }
+    advance_scene_after_cut();
 }
 
 /* Outside versus, a winning human player who queued another battle goes
