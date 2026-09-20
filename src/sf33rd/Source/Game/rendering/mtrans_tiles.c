@@ -16,8 +16,8 @@
 #include "common.h"
 #include "sf33rd/AcrSDK/ps2/flps2render.h"
 #include "sf33rd/Source/Game/rendering/chren3rd.h"
-#include "sf33rd/Source/Game/rendering/dc_ghost.h"
 #include "sf33rd/Source/Game/rendering/color3rd.h"
+#include "sf33rd/Source/Game/rendering/dc_ghost.h"
 #include "sf33rd/Source/Game/rendering/mtrans.h"
 #include "sf33rd/Source/Game/rendering/mtrans_internal.h"
 #include "sf33rd/Source/Game/rendering/mtrans_seqs.h"
@@ -606,30 +606,41 @@ typedef struct {
     s32 palt;
 } RgbTile;
 
-static s32 load_trans_rgb16(const RgbTile* tile) {
+/* Which of the two multi-texture banks a tile is loaded into: the cache lookup,
+ * the group index it counts from, and how a slot code splits into a group and a
+ * part within it. */
+typedef struct {
+    s32 (*get_mltbuf)(MultiTexture* mt, u32 code, u32 palt, s32* ret);
+    s32 gidx;
+    s32 code_shift;
+    s32 code_mask;
+} TransRgbBank;
+
+/* The 16- and 32-bit rgb loads are the same four lines over a different bank. The
+ * group index is read at the call site rather than inside the branch; texcash.c
+ * writes mltgidx16 and mltgidx32 once, when the multi-texture is built, so it is
+ * the same value either way. */
+static s32 load_trans_rgb(const RgbTile* tile, const TransRgbBank* bank) {
     MultiTexture* mt = tile->mt;
     s32 palt = tile->palt;
     s32 code;
 
-    if (get_mltbuf16(mt, tile->pattern_code, palt, &code) != 0) {
+    if (bank->get_mltbuf(mt, tile->pattern_code, palt, &code) != 0) {
         lz_ext_p6_cx(&((u8*)tile->texptr)[1], (u16*)mt->mltbuf, tile->size, (u16*)(ColorRAM[palt]));
-        njReLoadTexturePartNumG(mt->mltgidx16 + (code >> 8), (s8*)mt->mltbuf, code & 0xFF, tile->size * 2);
+        njReLoadTexturePartNumG(
+            bank->gidx + (code >> bank->code_shift), (s8*)mt->mltbuf, code & bank->code_mask, tile->size * 2
+        );
     }
 
     return code;
 }
 
+static s32 load_trans_rgb16(const RgbTile* tile) {
+    return load_trans_rgb(tile, &(TransRgbBank) { get_mltbuf16, tile->mt->mltgidx16, 8, 0xFF });
+}
+
 static s32 load_trans_rgb32(const RgbTile* tile) {
-    MultiTexture* mt = tile->mt;
-    s32 palt = tile->palt;
-    s32 code;
-
-    if (get_mltbuf32(mt, tile->pattern_code, palt, &code) != 0) {
-        lz_ext_p6_cx(&((u8*)tile->texptr)[1], (u16*)mt->mltbuf, tile->size, (u16*)(ColorRAM[palt]));
-        njReLoadTexturePartNumG(mt->mltgidx32 + (code >> 6), (s8*)mt->mltbuf, code & 0x3F, tile->size * 2);
-    }
-
-    return code;
+    return load_trans_rgb(tile, &(TransRgbBank) { get_mltbuf32, tile->mt->mltgidx32, 6, 0x3F });
 }
 
 void store_trans_rgb_tiles(const RgbTileRun* run) {
