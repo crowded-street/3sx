@@ -308,20 +308,26 @@ void Push_LDREQ_Queue_Direct(s16 ix, LoadRequestID id) {
     Push_LDREQ_Queue(&ldreq);
 }
 
+/* The finished request leaves the head of the queue and the rest shuffle down,
+ * with the last slot left free. */
+static void Pop_Load_Request_Queue() {
+    int i;
+
+    for (i = 0; i < SDL_arraysize(q_ldreq) - 1; i++) {
+        q_ldreq[i] = q_ldreq[i + 1];
+    }
+
+    q_ldreq[i].status = LDREQ_STATUS_FREE;
+    q_ldreq[i].type = LDREQ_INVALID;
+}
+
 void Check_LDREQ_Queue() {
     if (!ldreq_break) {
         if (q_ldreq[0].status != LDREQ_STATUS_FREE) {
             ldreq_process[q_ldreq[0].type](&q_ldreq[0]);
 
             if (q_ldreq[0].status == LDREQ_STATUS_FREE) {
-                int i;
-
-                for (i = 0; i < SDL_arraysize(q_ldreq) - 1; i++) {
-                    q_ldreq[i] = q_ldreq[i + 1];
-                }
-
-                q_ldreq[i].status = LDREQ_STATUS_FREE;
-                q_ldreq[i].type = LDREQ_INVALID;
+                Pop_Load_Request_Queue();
             }
         }
     } else {
