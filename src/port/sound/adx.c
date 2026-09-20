@@ -191,17 +191,26 @@ static void process_track(ADXTrack* track) {
     queue_looped_samples(track);
 }
 
-static void track_init(ADXTrack* track, int file_id, void* buf, size_t buf_size, bool looping_allowed) {
-    if (file_id == -1 && buf == NULL) {
+/* The four values track_init takes beside the track, in the order and with the
+ * types its parameter list had them. */
+typedef struct {
+    int file_id;
+    void* buf;
+    size_t buf_size;
+    bool looping_allowed;
+} AdxTrackSource;
+
+static void track_init(ADXTrack* track, const AdxTrackSource* a) {
+    if (a->file_id == -1 && a->buf == NULL) {
         fatal_error("One of file_id or buf must be valid.");
     }
 
-    if (file_id != -1) {
-        track->data = load_file(file_id, &track->size);
+    if (a->file_id != -1) {
+        track->data = load_file(a->file_id, &track->size);
         track->should_free_data_after_use = true;
     } else {
-        track->data = buf;
-        track->size = buf_size;
+        track->data = a->buf;
+        track->size = a->buf_size;
         track->should_free_data_after_use = false;
     }
 
@@ -213,7 +222,7 @@ static void track_init(ADXTrack* track, int file_id, void* buf, size_t buf_size,
 
     SDL_zerop(&track->loop_info);
 
-    if (looping_allowed) {
+    if (a->looping_allowed) {
         loop_info_init(&track->loop_info, &track->decoder.header);
     }
 
@@ -336,7 +345,7 @@ void ADX_StartMem(void* buf, size_t size) {
     ADX_Stop();
 
     ADXTrack* track = alloc_track();
-    track_init(track, -1, buf, size, true);
+    track_init(track, &(AdxTrackSource){ -1, buf, size, true });
 }
 
 int ADX_GetNumFiles() {
@@ -353,7 +362,7 @@ void ADX_EntryAfs(int file_id) {
     }
 
     ADXTrack* track = alloc_track();
-    track_init(track, file_id, NULL, 0, false);
+    track_init(track, &(AdxTrackSource){ file_id, NULL, 0, false });
 }
 
 void ADX_StartSeamless() {
@@ -376,7 +385,7 @@ void ADX_StartAfs(int file_id) {
     ADX_Stop();
 
     ADXTrack* track = alloc_track();
-    track_init(track, file_id, NULL, 0, true);
+    track_init(track, &(AdxTrackSource){ file_id, NULL, 0, true });
 }
 
 void ADX_SetOutVol(int volume) {
