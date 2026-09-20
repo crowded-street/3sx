@@ -425,32 +425,37 @@ static void adjust_sean_ball_down(WORK_Other* ewk, u16 sw_work) {
     }
 }
 
-static void adjust_sean_ball_left(WORK_Other* ewk, u16 sw_work) {
-    if (sw_work & 4) {
-        ewk->wu.old_rno[2]++;
+/* Which side of Sean's ball this is: the button that pushes it, the counter it
+ * counts on, how far that counter may run while facing and while turned away,
+ * and the column of the two add tables it reads. */
+typedef struct {
+    u16 button;
+    s16 counter;
+    s16 limit_facing;
+    s16 limit_away;
+    s16 column;
+} SeanBallSide;
+
+static void adjust_sean_ball(WORK_Other* ewk, u16 sw_work, const SeanBallSide* side) {
+    if (sw_work & side->button) {
+        ewk->wu.old_rno[side->counter]++;
 
         if (ewk->wu.rl_flag) {
-            if (ewk->wu.old_rno[2] < 4) {
-                ewk->wu.mvxy.d[0].sp += eff09_add_tbl1[ewk->wu.dir_step][0];
+            if (ewk->wu.old_rno[side->counter] < side->limit_facing) {
+                ewk->wu.mvxy.d[0].sp += eff09_add_tbl1[ewk->wu.dir_step][side->column];
             }
-        } else if (ewk->wu.old_rno[2] < 8) {
-            ewk->wu.mvxy.d[0].sp += eff09_add_tbl2[ewk->wu.dir_step][0];
+        } else if (ewk->wu.old_rno[side->counter] < side->limit_away) {
+            ewk->wu.mvxy.d[0].sp += eff09_add_tbl2[ewk->wu.dir_step][side->column];
         }
     }
 }
 
-static void adjust_sean_ball_right(WORK_Other* ewk, u16 sw_work) {
-    if (sw_work & 8) {
-        ewk->wu.old_rno[3]++;
+static void adjust_sean_ball_left(WORK_Other* ewk, u16 sw_work) {
+    adjust_sean_ball(ewk, sw_work, &(SeanBallSide) { 4, 2, 4, 8, 0 });
+}
 
-        if (ewk->wu.rl_flag) {
-            if (ewk->wu.old_rno[3] < 8) {
-                ewk->wu.mvxy.d[0].sp += eff09_add_tbl1[ewk->wu.dir_step][1];
-            }
-        } else if (ewk->wu.old_rno[3] < 4) {
-            ewk->wu.mvxy.d[0].sp += eff09_add_tbl2[ewk->wu.dir_step][1];
-        }
-    }
+static void adjust_sean_ball_right(WORK_Other* ewk, u16 sw_work) {
+    adjust_sean_ball(ewk, sw_work, &(SeanBallSide) { 8, 3, 8, 4, 1 });
 }
 
 void sean_ball_move(WORK_Other* ewk, u16 sw_work) {
