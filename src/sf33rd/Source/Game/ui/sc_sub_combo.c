@@ -65,13 +65,32 @@ static void draw_combo_hit_count(const ComboMessage* m, u8 xw, u8 xw2) {
     }
 }
 
-void combo_message_set(const ComboMessage* m) {
+/* The combo captions that are not a hit count, reached from the hit-count
+ * arms' default. The case labels are the original ones and the switch is on the
+ * same expression, and neither switch carries a `default`. */
+static void draw_combo_caption(const ComboMessage* m, u8 xw, u8 xw2) {
     u8 pl = m->pl;
     u8 kind = m->kind;
     u8 x = m->x;
+
+    switch (kind) {
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+        if (pl == 0) {
+            scfont_sqput(&(ScFontSquare){ x, 7, 8, 2, combo_mtbl[kind][0], combo_mtbl[kind][1], xw, 2 }, 2);
+        } else {
+            scfont_sqput(&(ScFontSquare){ xw2, 7, 8, 2, (combo_mtbl[kind][0] + combo_mtbl[kind][2]) - xw, combo_mtbl[kind][1], xw, 2 }, 2);
+        }
+
+        break;
+    }
+}
+
+void combo_message_set(const ComboMessage* m) {
+    u8 kind = m->kind;
     u8 num = m->num;
-    u8 hi = m->hi;
-    u8 low = m->low;
 
     u8 xw;
     u8 xw2;
@@ -101,16 +120,8 @@ void combo_message_set(const ComboMessage* m) {
         draw_combo_hit_count(m, xw, xw2);
         break;
 
-    case 3:
-    case 4:
-    case 5:
-    case 6:
-        if (pl == 0) {
-            scfont_sqput(&(ScFontSquare){ x, 7, 8, 2, combo_mtbl[kind][0], combo_mtbl[kind][1], xw, 2 }, 2);
-        } else {
-            scfont_sqput(&(ScFontSquare){ xw2, 7, 8, 2, (combo_mtbl[kind][0] + combo_mtbl[kind][2]) - xw, combo_mtbl[kind][1], xw, 2 }, 2);
-        }
-
+    default:
+        draw_combo_caption(m, xw, xw2);
         break;
     }
 }
