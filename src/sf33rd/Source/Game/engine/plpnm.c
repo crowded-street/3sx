@@ -742,40 +742,6 @@ static void escape_launch_on_marker_1(PLW* wk, const s16* datix) {
     }
 }
 
-void Normal_42000(PLW* wk) { // 🟢
-    const s16* dadr = nmPB_data[wk->wu.routine_no[2] - 42];
-
-    set_parry_depth_and_hosei(wk);
-
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        begin_parry_state(wk, dadr);
-        break;
-
-    case 1:
-        if (1) {
-            wk->wu.routine_no[3]++;
-            char_move_wca(&wk->wu);
-        } else {
-            /* fallthrough */
-
-        case 2:
-            char_move(&wk->wu);
-        }
-
-        parry_launch_on_marker_1(wk, dadr);
-        break;
-
-    case 3:
-        jumping_union_process(&wk->wu, 4);
-        break;
-
-    case 4:
-        char_move(&wk->wu);
-        break;
-    }
-}
-
 /* The throw escape's first frame: the facing, the pattern and movement data
  * its row names, a fixed hit stop, and the gauge and grade it earns. */
 static void begin_throw_escape_state(PLW* wk, const s16* datix) {
@@ -795,14 +761,18 @@ static void begin_throw_escape_state(PLW* wk, const s16* datix) {
     grade_add_grap_def(wk->wu.id);
 }
 
-void Normal_47000(PLW* wk) { // 🟢
-    const s16* datix = nmCE_data[wk->wu.routine_no[2] - 47];
-
+/* Normal_42000 and Normal_47000 are the same state machine: the same parry
+ * depth and hosei, the same fallthrough into case 2, the same jump and move
+ * arms. Only the data table and the two actions the arms call differ, so they
+ * come in as function pointers. */
+static void run_parry_like_state(
+    PLW* wk, const s16* data, void (*begin)(PLW*, const s16*), void (*launch_on_marker_1)(PLW*, const s16*)
+) {
     set_parry_depth_and_hosei(wk);
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        begin_throw_escape_state(wk, datix);
+        begin(wk, data);
         break;
 
     case 1:
@@ -816,7 +786,7 @@ void Normal_47000(PLW* wk) { // 🟢
             char_move(&wk->wu);
         }
 
-        escape_launch_on_marker_1(wk, datix);
+        launch_on_marker_1(wk, data);
         break;
 
     case 3:
@@ -827,6 +797,14 @@ void Normal_47000(PLW* wk) { // 🟢
         char_move(&wk->wu);
         break;
     }
+}
+
+void Normal_42000(PLW* wk) { // 🟢
+    run_parry_like_state(wk, nmPB_data[wk->wu.routine_no[2] - 42], begin_parry_state, parry_launch_on_marker_1);
+}
+
+void Normal_47000(PLW* wk) { // 🟢
+    run_parry_like_state(wk, nmCE_data[wk->wu.routine_no[2] - 47], begin_throw_escape_state, escape_launch_on_marker_1);
 }
 
 void Normal_48000(PLW* wk) { // 🟢
