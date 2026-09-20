@@ -465,16 +465,24 @@ void op_107_move() {
 
 const s16 op_108_sound[13] = { 0, 4, 20, 24, 28, 32, 48, 52, 60, 64, 76, 80, 86 };
 
-static void update_op_108_first_step(void) {
+/* One step of the 108 sequence: the counter runs up to the row's sound cue,
+ * and the scene moves on when it gets there. Six steps are this, differing in
+ * two values - the scene they move to and the one they are still on - both
+ * written out at their own call site. */
+static void update_op_108_step(s16 next_scene, s16 this_scene) {
     op_w.mv_ctr += 1;
 
     if (op_w.mv_ctr >= op_108_sound[op_w.r_no_2]) {
-        advance_opening_step(42);
-        op_bg_move(42);
+        advance_opening_step(next_scene);
+        op_bg_move(next_scene);
         return;
     }
 
-    op_bg_move(41);
+    op_bg_move(this_scene);
+}
+
+static void update_op_108_first_step(void) {
+    update_op_108_step(42, 41);
 }
 
 static void update_op_108_effect_sequence(void) {
@@ -496,15 +504,7 @@ static void update_op_108_effect_sequence(void) {
 }
 
 static void update_op_108_followup_step(void) {
-    op_w.mv_ctr += 1;
-
-    if (op_w.mv_ctr >= op_108_sound[op_w.r_no_2]) {
-        advance_opening_step(44);
-        op_bg_move(44);
-        return;
-    }
-
-    op_bg_move(43);
+    update_op_108_step(44, 43);
 }
 
 static void update_op_108_timed_transition(s16 next_index) {
@@ -518,51 +518,19 @@ static void update_op_108_timed_transition(s16 next_index) {
 }
 
 static void update_op_108_scene_45_transition(void) {
-    op_w.mv_ctr += 1;
-
-    if (op_w.mv_ctr >= op_108_sound[op_w.r_no_2]) {
-        advance_opening_step(46);
-        op_bg_move(46);
-        return;
-    }
-
-    op_bg_move(45);
+    update_op_108_step(46, 45);
 }
 
 static void update_op_108_scene_47_transition(void) {
-    op_w.mv_ctr += 1;
-
-    if (op_w.mv_ctr >= op_108_sound[op_w.r_no_2]) {
-        advance_opening_step(48);
-        op_bg_move(48);
-        return;
-    }
-
-    op_bg_move(47);
+    update_op_108_step(48, 47);
 }
 
 static void update_op_108_scene_49_transition(void) {
-    op_w.mv_ctr += 1;
-
-    if (op_w.mv_ctr >= op_108_sound[op_w.r_no_2]) {
-        advance_opening_step(50);
-        op_bg_move(50);
-        return;
-    }
-
-    op_bg_move(49);
+    update_op_108_step(50, 49);
 }
 
 static void update_op_108_scene_51_transition(void) {
-    op_w.mv_ctr += 1;
-
-    if (op_w.mv_ctr >= op_108_sound[op_w.r_no_2]) {
-        advance_opening_step(52);
-        op_bg_move(52);
-        return;
-    }
-
-    op_bg_move(51);
+    update_op_108_step(52, 51);
 }
 
 static void update_op_108_final_transition(void) {
