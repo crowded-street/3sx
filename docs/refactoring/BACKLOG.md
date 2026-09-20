@@ -108,6 +108,32 @@ At the 2026-09-01 start: **19 files**, 46,865 lines of code, **330** complex met
 At 2026-09-19: **none** of the nineteen is still below 4.0, eight are at 10.00, and
 `scr_trans`'s file is at 9.09. Mean Code Health across the repository is 9.64.
 
+## The yellow band, file by file - audited 2026-09-20
+
+Forty-six files score below 9.0. Every one of them was opened and its findings read in
+the 2026-09-20 afternoon pass, so "make it all green" has an answer rather than a backlog:
+**twenty-eight of the forty-six are the two CPU script folders and the skeleton module
+they share**, and the rest are individually recorded refusals.
+
+| Group | Files | Why it stops |
+| --- | --- | --- |
+| `Game/com/patterns` | 14 | Priced against CodeScene's published thresholds rather than against experiments - see *Where `Game/com/patterns` stops* in the playbook. A skeleton's cyclomatic complexity is its arm count plus one, so the folder's own mean cannot go under the file-mean threshold whatever arrangement the files take |
+| `Game/com/active`, `Game/com/passive` | 14 | Fully folded. `passive_fold.py families --family com --min-members 2` over both folders reports **no family left**, and the duplication CodeScene still sees is between scripts whose engine calls differ in their arguments - the case the fold already took where it could |
+| `plpnm.c`, `pls00_normal_states.c`, `opening_bg0.c`, `opening_bg1.c`, `bg_zoom.c`, `eff09.c`, `ck_pass.c`, `pls03.c` | 8 | Sibling state machines that differ in more than one value, or only in their state numbering. Recipe D's forbidden near-miss, re-diffed rather than inherited |
+| `mtrans.c`, `mtrans_buffers.c`, `flps2vram.c` | 3 | The 16/32 twin web, which differs in a pointer type - a type change |
+| `Lz77Dec.c` | 1 | Every block advances `src`, `dst` and `size` at once. Recipe E refuses a block that writes more than one outer local, and there is no Excess Number of Function Arguments finding here to license Recipe A's parameter object |
+| `memmgr.c` | 1 | The two gap scans and the two neighbour walks are twins; cutting one pays, cutting both costs more than it gives (8.88 against 8.15) |
+| `caldir.c` | 1 | The x/y twins differ in five field names each. Recipe A would clear the argument finding at the cost of 58 call sites across twenty files, which is a scope decision rather than a file one |
+| `keymap.c` | 1 | `get_button_name` is a name table written as a switch. Every legal split of it reproduces its own shape as a duplicate - measured at 8.92 -> 8.54 |
+| `end_05.c`, `end_14.c` | 2 | Near-misses. `end_500_0006` against `end_501_0010` comes closest and still fails the byte-identical test: one writes `Request_Fade(1) != 0` and the other `Request_Fade(3)` |
+
+**The one that moved.** `end_18.c`'s pair was the open question the `Game/ending` note
+left for the owner - one skeleton, byte-identical apart from an effect id and a message
+index, two instances. Recipe V's amendment settles it on the verification rather than the
+count, and the file went **9.38 -> 10.00**. The same test was then applied to every other
+two-instance pair in the band and refused all of them, which is the evidence that the
+licence is narrow.
+
 ## The platform, SDK and shim sweep - 2026-09-20
 
 A pass over everything that is not a numbered task and not a character script: the
