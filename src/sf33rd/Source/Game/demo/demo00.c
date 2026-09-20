@@ -124,6 +124,66 @@ s32 Warning() {
     return Next_Demo;
 }
 
+/* The Capcom logo from its fifth step on, and from its seventh, each reached
+ * from the previous group's default. The case labels are the original ones and
+ * every switch is on the same expression; the last group carries the original
+ * `default`. `Next_Demo` is set in these arms and returned by the caller. */
+static void capcom_logo_from_step_6() {
+    switch (D_No[1]) {
+    case 6:
+        CAPLOGO_Move(1);
+
+        if (--D_Timer == 0) {
+            D_No[1] += 1;
+            FadeInit();
+        }
+
+        break;
+
+    case 7:
+        CAPLOGO_Move(1);
+
+        if (FadeOut(1, 6, 8) != 0) {
+            D_No[1] += 1;
+        }
+
+        break;
+
+    default:
+        TexRelease(600);
+        Next_Demo = 1;
+        break;
+    }
+}
+
+static void capcom_logo_from_step_4() {
+    switch (D_No[1]) {
+    case 4:
+        if (!CAPLOGO_Move(0)) {
+            D_No[1] += 1;
+            Push_LDREQ_Queue_Direct(23, LDREQ_ID_SHARED);
+            FadeInit();
+        }
+
+        break;
+
+    case 5:
+        CAPLOGO_Move(1);
+
+        if (FadeIn(1, 6, 8) != 0) {
+            D_No[1] += 1;
+            D_Timer = 256;
+            Push_LDREQ_Queue_Direct(24, LDREQ_ID_SHARED);
+        }
+
+        break;
+
+    default:
+        capcom_logo_from_step_6();
+        break;
+    }
+}
+
 s32 CAPCOM_Logo() {
     ppgSetupCurrentDataList(&ppgCapLogoList);
     Next_Demo = 0;
@@ -160,48 +220,8 @@ s32 CAPCOM_Logo() {
 
         break;
 
-    case 4:
-        if (!CAPLOGO_Move(0)) {
-            D_No[1] += 1;
-            Push_LDREQ_Queue_Direct(23, LDREQ_ID_SHARED);
-            FadeInit();
-        }
-
-        break;
-
-    case 5:
-        CAPLOGO_Move(1);
-
-        if (FadeIn(1, 6, 8) != 0) {
-            D_No[1] += 1;
-            D_Timer = 256;
-            Push_LDREQ_Queue_Direct(24, LDREQ_ID_SHARED);
-        }
-
-        break;
-
-    case 6:
-        CAPLOGO_Move(1);
-
-        if (--D_Timer == 0) {
-            D_No[1] += 1;
-            FadeInit();
-        }
-
-        break;
-
-    case 7:
-        CAPLOGO_Move(1);
-
-        if (FadeOut(1, 6, 8) != 0) {
-            D_No[1] += 1;
-        }
-
-        break;
-
     default:
-        TexRelease(600);
-        Next_Demo = 1;
+        capcom_logo_from_step_4();
         break;
     }
 
