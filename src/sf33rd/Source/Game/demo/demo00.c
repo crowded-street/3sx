@@ -229,19 +229,22 @@ s16 CAPLOGO_Move(u16 type) {
             rnum = 1;
         }
 
-        Put_char(caplogo[type], 600, 9, -16, 80, 1.0f, 1.0f);
+        Put_char(&(PutCharArgs){ caplogo[type], 600, 9, -16, 80, 1.0f, 1.0f });
         break;
 
     default:
         njSetPaletteBankNumG(600, 0x1F);
-        Put_char(caplogo[type], 600, 9, 48, 88, 1.0f, 1.0f);
+        Put_char(&(PutCharArgs){ caplogo[type], 600, 9, 48, 88, 1.0f, 1.0f });
         break;
     }
 
     return rnum;
 }
 
-void Put_char(const f32* ptr, u32 indexG, u16 prio, s16 x, s16 y, f32 zx, f32 zy) {
+void Put_char(const PutCharArgs* a) {
+    /* The original took this by value and walked it to the terminator; the copy
+     * keeps that local, which is what a by-value parameter was. */
+    const f32* ptr = a->ptr;
     ColoredVertex tex[4];
     s16 off_x;
     s16 off_y;
@@ -251,7 +254,7 @@ void Put_char(const f32* ptr, u32 indexG, u16 prio, s16 x, s16 y, f32 zx, f32 zy
     }
 
     tex[0].col = tex[1].col = tex[2].col = tex[3].col = 0xFFFFFFFF;
-    tex[0].z = tex[1].z = tex[2].z = tex[3].z = PrioBase[prio];
+    tex[0].z = tex[1].z = tex[2].z = tex[3].z = PrioBase[a->prio];
 
     while (*ptr != -1.0f) {
         tex[0].u = tex[1].u = *ptr++;
@@ -260,11 +263,11 @@ void Put_char(const f32* ptr, u32 indexG, u16 prio, s16 x, s16 y, f32 zx, f32 zy
         tex[1].v = tex[3].v = *ptr++;
         off_x = *ptr++;
         off_y = *ptr++;
-        tex[0].x = tex[1].x = (x + off_x * zx);
-        tex[0].y = tex[2].y = (y + off_y * zy);
-        tex[2].x = tex[3].x = (x + (off_x * zx) + ((u32)*ptr++ * zx));
-        tex[1].y = tex[3].y = (y + (off_y * zy) + ((u32)*ptr++ * zy));
-        njDrawTexture(tex, 4, indexG, 1);
+        tex[0].x = tex[1].x = (a->x + off_x * a->zx);
+        tex[0].y = tex[2].y = (a->y + off_y * a->zy);
+        tex[2].x = tex[3].x = (a->x + (off_x * a->zx) + ((u32)*ptr++ * a->zx));
+        tex[1].y = tex[3].y = (a->y + (off_y * a->zy) + ((u32)*ptr++ * a->zy));
+        njDrawTexture(tex, 4, a->indexG, 1);
     }
 }
 

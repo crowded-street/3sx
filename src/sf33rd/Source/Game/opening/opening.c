@@ -186,7 +186,7 @@ s16 TITLE_Move(u16 type) {
     ppgSetupCurrentDataList(&ppgTitleList);
 
     if (type == 1) {
-        Put_char(title[type], 601, 9, 192, 96, 1.0f, 1.0f);
+        Put_char(&(PutCharArgs){ title[type], 601, 9, 192, 96, 1.0f, 1.0f });
         return 0;
     }
 
@@ -196,7 +196,7 @@ s16 TITLE_Move(u16 type) {
 
     advance_title_frame();
 
-    Put_char(title[type], 601, 9, 192, 96, scr_sc, scr_sc);
+    Put_char(&(PutCharArgs){ title[type], 601, 9, 192, 96, scr_sc, scr_sc });
     return 0;
 }
 
