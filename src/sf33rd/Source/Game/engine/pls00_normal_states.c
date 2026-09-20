@@ -828,15 +828,21 @@ void nm_34000(PLW* wk) { // 🟢
     }
 }
 
+/* Both the 36000 and 39000 cancels go back to routine 1; the sub-routine they
+ * resume at depends on whether this is the first character's first koc. */
+static void return_to_routine_1(PLW* wk) {
+    if (wk->wu.now_koc == 0 && wk->wu.char_index == 0) {
+        wk->wu.routine_no[2] = 1;
+        wk->wu.routine_no[3] = 1;
+    } else {
+        wk->wu.routine_no[2] = 1;
+        wk->wu.routine_no[3] = 0;
+    }
+}
+
 void nm_36000(PLW* wk) { // 🟢
     if (wk->wu.cg_type == 0xFF) {
-        if (wk->wu.now_koc == 0 && wk->wu.char_index == 0) {
-            wk->wu.routine_no[2] = 1;
-            wk->wu.routine_no[3] = 1;
-        } else {
-            wk->wu.routine_no[2] = 1;
-            wk->wu.routine_no[3] = 0;
-        }
+        return_to_routine_1(wk);
     } else if (is_elena_special_36(wk)) {
         exset_char_move_init(&wk->wu, 0, 0);
         wk->wu.routine_no[2] = 1;
@@ -895,13 +901,7 @@ void nm_38000(PLW* wk) { // 🟡
 
 void nm_39000(PLW* wk) { // 🟢
     if (wk->wu.cg_type == 0xFF) {
-        if (wk->wu.now_koc == 0 && wk->wu.char_index == 0) {
-            wk->wu.routine_no[2] = 1;
-            wk->wu.routine_no[3] = 1;
-        } else {
-            wk->wu.routine_no[2] = 1;
-            wk->wu.routine_no[3] = 0;
-        }
+        return_to_routine_1(wk);
     }
 
     nm_01000(wk);
