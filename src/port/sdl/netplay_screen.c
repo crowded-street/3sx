@@ -20,6 +20,77 @@ static int match_found_hold = 0;
 
 bool display_netplay_text = false;
 
+/* The status text matchmaking shows at the top of the screen, and the hold
+ * that keeps one message up for a few frames before the next. */
+static void render_matchmaking_status(FistbumpState fs) {
+    // Errors show immediately. Other state changes hold the current
+    // message for MM_TEXT_HOLD_FRAMES before switching.
+    if (fs == FISTBUMP_ERROR) {
+        display_state = fs;
+        transition_hold = 0;
+    } else if (fs == display_state) {
+        // Do nothing
+    } else if (transition_hold > 0) {
+        transition_hold--;
+    } else {
+        display_state = fs;
+        transition_hold = MM_TEXT_HOLD_FRAMES;
+    }
+
+    switch (display_state) {
+    case FISTBUMP_IDLE:
+        break;
+
+    case FISTBUMP_CONNECTING:
+        SSPutStrPro(&(ScStrPro){ 1, 384, 100, 9, 0xFFFFFFFF, "Connecting to server..." });
+        break;
+
+    case FISTBUMP_SENDING_TOKEN:
+        break;
+
+    case FISTBUMP_LOGGING_IN:
+    case FISTBUMP_AWAITING_LOGIN:
+        DAG dag = Fistbump_GetDAG();
+
+        SSPutStrPro(&(ScStrPro){ 1, 384, 80, 9, 0xFFFFFFFF, "Activation Code:" });
+        SSPutStr_Bigger(&(ScStrBig){ 128, 96, 9, dag.code }, 2.0f, 2, 0);
+
+        SSPutStrPro(&(ScStrPro){ 1, 384, 140, 9, 0xFFFFFFFF, "Log-in to the WebUI at:" });
+        SSPutStrPro(&(ScStrPro){ 1, 384, 150, 9, 0xFFFFFFFF, dag.activate_url });
+
+        SSPutStrPro(&(ScStrPro){ 1, 384, 200, 9, 0xFFFFFFFF, "Press      to go back." });
+        dispButtonImage2(&(ButtonImage){ 163, 197, 0x18, 0x13, 0xF, 0, 5, 0 });
+
+        break;
+
+    case FISTBUMP_AWAITING_MATCH:
+        SSPutStrPro(&(ScStrPro){ 1, 384, 140, 9, 0xFFFFFFFF, "Finding match..." });
+        SSPutStrPro(&(ScStrPro){ 1, 384, 160, 9, 0xFFFFFFFF, "Press      to cancel search." });
+        dispButtonImage2(&(ButtonImage){ 143, 157, 0x18, 0x13, 0xF, 0, 5, 0 });
+        break;
+
+    case FISTBUMP_MATCHED:
+        MatchResult* match = Fistbump_GetResult();
+
+        SSPutStrPro(&(ScStrPro){ 1, 384, 130, 9, 0xFFFFFFFF, "Matched with:" });
+        SSPutStrPro(&(ScStrPro){ 1, 384, 140, 9, 0xFFFFFFFF, match->opponent_name });
+
+        SSPutStrPro(&(ScStrPro){ 1, 384, 160, 9, 0xFFFFFFFF, "      ACCEPT      DECLINE" });
+        dispButtonImage2(&(ButtonImage){ 121, 157, 0x19, 0x13, 0xF, 0, 4, 0 });
+        dispButtonImage2(&(ButtonImage){ 193, 157, 0x19, 0x13, 0xF, 0, 5, 0 });
+
+        break;
+
+    case FISTBUMP_SENDING_UDP:
+        SSPutStrPro(&(ScStrPro){ 1, 384, 140, 9, 0xFFFFFFFF, "Starting match..." });
+        break;
+
+    case FISTBUMP_GAME_START:
+    case FISTBUMP_ERROR:
+        break;
+    }
+}
+
 void NetplayScreen_Render() {
     const NetplaySessionState ns = Netplay_GetSessionState();
     const FistbumpState fs = Fistbump_GetState();
@@ -31,73 +102,7 @@ void NetplayScreen_Render() {
     // While matchmaking is in progress show status text at the top of the
     // screen. This is safe at any time and doesn't require the full render pipeline.
     if (fs != FISTBUMP_IDLE && fs != FISTBUMP_GAME_START) {
-        // Errors show immediately. Other state changes hold the current
-        // message for MM_TEXT_HOLD_FRAMES before switching.
-        if (fs == FISTBUMP_ERROR) {
-            display_state = fs;
-            transition_hold = 0;
-        } else if (fs == display_state) {
-            // Do nothing
-        } else if (transition_hold > 0) {
-            transition_hold--;
-        } else {
-            display_state = fs;
-            transition_hold = MM_TEXT_HOLD_FRAMES;
-        }
-
-        switch (display_state) {
-        case FISTBUMP_IDLE:
-            break;
-
-        case FISTBUMP_CONNECTING:
-            SSPutStrPro(&(ScStrPro){ 1, 384, 100, 9, 0xFFFFFFFF, "Connecting to server..." });
-            break;
-
-        case FISTBUMP_SENDING_TOKEN:
-            break;
-
-        case FISTBUMP_LOGGING_IN:
-        case FISTBUMP_AWAITING_LOGIN:
-            DAG dag = Fistbump_GetDAG();
-
-            SSPutStrPro(&(ScStrPro){ 1, 384, 80, 9, 0xFFFFFFFF, "Activation Code:" });
-            SSPutStr_Bigger(&(ScStrBig){ 128, 96, 9, dag.code }, 2.0f, 2, 0);
-
-            SSPutStrPro(&(ScStrPro){ 1, 384, 140, 9, 0xFFFFFFFF, "Log-in to the WebUI at:" });
-            SSPutStrPro(&(ScStrPro){ 1, 384, 150, 9, 0xFFFFFFFF, dag.activate_url });
-
-            SSPutStrPro(&(ScStrPro){ 1, 384, 200, 9, 0xFFFFFFFF, "Press      to go back." });
-            dispButtonImage2(&(ButtonImage){ 163, 197, 0x18, 0x13, 0xF, 0, 5, 0 });
-
-            break;
-
-        case FISTBUMP_AWAITING_MATCH:
-            SSPutStrPro(&(ScStrPro){ 1, 384, 140, 9, 0xFFFFFFFF, "Finding match..." });
-            SSPutStrPro(&(ScStrPro){ 1, 384, 160, 9, 0xFFFFFFFF, "Press      to cancel search." });
-            dispButtonImage2(&(ButtonImage){ 143, 157, 0x18, 0x13, 0xF, 0, 5, 0 });
-            break;
-
-        case FISTBUMP_MATCHED:
-            MatchResult* match = Fistbump_GetResult();
-
-            SSPutStrPro(&(ScStrPro){ 1, 384, 130, 9, 0xFFFFFFFF, "Matched with:" });
-            SSPutStrPro(&(ScStrPro){ 1, 384, 140, 9, 0xFFFFFFFF, match->opponent_name });
-
-            SSPutStrPro(&(ScStrPro){ 1, 384, 160, 9, 0xFFFFFFFF, "      ACCEPT      DECLINE" });
-            dispButtonImage2(&(ButtonImage){ 121, 157, 0x19, 0x13, 0xF, 0, 4, 0 });
-            dispButtonImage2(&(ButtonImage){ 193, 157, 0x19, 0x13, 0xF, 0, 5, 0 });
-
-            break;
-
-        case FISTBUMP_SENDING_UDP:
-            SSPutStrPro(&(ScStrPro){ 1, 384, 140, 9, 0xFFFFFFFF, "Starting match..." });
-            break;
-
-        case FISTBUMP_GAME_START:
-        case FISTBUMP_ERROR:
-            break;
-        }
-
+        render_matchmaking_status(fs);
         return;
     }
 
