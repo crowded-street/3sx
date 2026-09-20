@@ -285,6 +285,10 @@ static s32 Shell_Flip_Target_Rejected(WORK* shell) {
     return res;
 }
 
+static s32 Shell_Flip_Needs_Another(s32 res, WORK* shell) {
+    return res || shell->vital_new < 256;
+}
+
 static s32 Shell_Flip_Delay_Result(PLW* wk, s32 xx) {
     xx -= 8;
 
@@ -312,7 +316,7 @@ static s32 Check_Shell_Flip(PLW* wk) {
     shell = (WORK*)wk->wu.dmg_adrs;
     res = Shell_Flip_Target_Rejected(shell);
 
-    if (res || shell->vital_new < 256) {
+    if (Shell_Flip_Needs_Another(res, shell)) {
         if ((xx = Check_Shell_Another_in_Flip(wk)) == 0) {
             if (res) {
                 return -1;
