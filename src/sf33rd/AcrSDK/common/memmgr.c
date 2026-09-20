@@ -376,6 +376,19 @@ static u32 plmem_scan_block_list(
     return next_han;
 }
 
+/* Where a new block goes when the list runs upward: at the head if it sorts
+ * below the head, otherwise wherever the scan stops. Its downward twin is left
+ * inline on purpose - see plmemCompact for why lifting both arms costs more
+ * than it saves. */
+static u32 plmem_insert_point_ascending(MEM_MGR* memmgr, MEM_BLOCK* block_ptr, MEM_BLOCK* now_block, u32* now_han_out) {
+    if (now_block->ptr > block_ptr->ptr) {
+        *now_han_out = MEM_NULL_HANDLE;
+        return memmgr->blocklist;
+    }
+
+    return plmem_scan_block_list(memmgr, block_ptr, now_han_out, now_block_is_below);
+}
+
 void plmemAppendBlockList(MEM_MGR* memmgr, u32 han) {
     MEM_BLOCK* block_ptr;
     MEM_BLOCK* now_block;
@@ -396,11 +409,7 @@ void plmemAppendBlockList(MEM_MGR* memmgr, u32 han) {
     next_han = memmgr->blocklist;
 
     if (memmgr->direction != 0) {
-        if (now_block->ptr > block_ptr->ptr) {
-            next_han = memmgr->blocklist;
-        } else {
-            next_han = plmem_scan_block_list(memmgr, block_ptr, &now_han, now_block_is_below);
-        }
+        next_han = plmem_insert_point_ascending(memmgr, block_ptr, now_block, &now_han);
     } else {
         if (now_block->ptr < block_ptr->ptr) {
             next_han = memmgr->blocklist;
