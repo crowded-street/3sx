@@ -265,11 +265,13 @@ void scr_11_21() {
     x_left_check(meri);
 }
 
-void scr_11_22() {
+/* The two mirrored screen-scroll steps. They differ only in which player slot
+ * each of the two reads, so the pair of indices comes in as parameters. */
+static void scr_by_player_pair(s16 player, s16 other) {
     s16 meri;
     s16 meri2;
 
-    meri = (satse[plw[1].player_number] - satse[plw[0].player_number]);
+    meri = (satse[plw[player].player_number] - satse[plw[other].player_number]);
     meri >>= 1;
     meri2 = plw[0].wu.scr_mv_x + plw[1].wu.scr_mv_x;
     meri2 >>= 1;
@@ -277,12 +279,16 @@ void scr_11_22() {
     meri2 -= ideal_w.iw[0].disp.pos;
 
     if (meri2 < 0) {
-        if (plw[1].micchaku_flag != 1) {
+        if (plw[player].micchaku_flag != 1) {
             x_left_check(meri2);
         }
-    } else if (plw[0].micchaku_flag != 2) {
+    } else if (plw[other].micchaku_flag != 2) {
         x_right_check(meri2);
     }
+}
+
+void scr_11_22() {
+    scr_by_player_pair(1, 0);
 }
 
 void scr_12_20() {
@@ -294,23 +300,7 @@ void scr_12_20() {
 }
 
 void scr_12_21() {
-    s16 meri;
-    s16 meri2;
-
-    meri = (satse[plw[0].player_number] - satse[plw[1].player_number]);
-    meri >>= 1;
-    meri2 = plw[0].wu.scr_mv_x + plw[1].wu.scr_mv_x;
-    meri2 >>= 1;
-    meri2 += meri;
-    meri2 -= ideal_w.iw[0].disp.pos;
-
-    if (meri2 < 0) {
-        if (plw[0].micchaku_flag != 1) {
-            x_left_check(meri2);
-        }
-    } else if (plw[1].micchaku_flag != 2) {
-        x_right_check(meri2);
-    }
+    scr_by_player_pair(0, 1);
 }
 
 void scr_12_22() {
