@@ -1233,6 +1233,14 @@ Recipe X both refuse to merge.
 | `emlShim.c` | 8.94 | *was 7.46.* `checkConditions` is the last finding at cc 17, and Recipe X does not reach it at any chain depth: splitting its eight-arm ladder measures 8.87 at four arms a level, 8.92 at three and 8.81 at two, all below the 8.94 it starts from, because the halves stay over the threshold until the chain is deep enough to be a duplication group |
 | `memmgr.c` | 8.64 | *was 7.58.* Recipe D twice and Recipe A once. `plmemAppendBlockList` is what remains: its two direction branches are twins differing in `<` against `>`, and each writes **three** outer locals - `now_han`, `next_han` and `now_block` - so Recipe E refuses them and there is no single result to return |
 | `prilay.c` | **10.00** | *was 7.60.* Recipe E on both pixel paths, Recipe P on the bounds test, then Recipe E on the two 4-bit cases. The last step is the one worth copying: both halves of a mirrored pair were extracted and it measured **+0.76 with no twin penalty**, because a writer that composes a byte and a reader that selects a nibble are not similar enough to pair |
+| `args.c`, `spu.c`, `savesub.c` | **10.00** each | *were 8.74, 8.41 and 8.36.* `args.c` is Recipe P six times then Recipe E three times; `spu.c` is Recipe P on the two envelope tests then Recipe E twice; `savesub.c`'s `SAVE_STATE_WORKING` arm turned out to be entirely self-contained, so its helper takes **no parameters at all** |
+| `ioconv.c` | 9.92 | *was 8.68.* Recipe N on the three switch-table scans, Recipe D on the two analog merges, Recipe P three times, Recipe E once. What is left is two bumps in `keyConvert` that do not move: lifting the repeat-rate block measures flat and was reverted |
+| `demo00.c`, `demo02.c` | 9.38 each | *were 8.38 and 8.42.* Recipe A, Recipe X and Recipe X chained twice. `demo02.c`'s last bump is `demo00_from_step_5`, and lifting its demo-finish block costs **0.50** - the helper twins with something. `demo00.c`'s mean is far enough over 4 that six probe functions do not clear it |
+| `sc_sub_combo.c` | 9.38 | *was 8.56.* Both player-side pairs split - and player one's side alone measured **worse than doing nothing**, 8.56 -> 8.18, because the helper carries that side's whole complexity out of a function that stays flagged anyway. Both is what pays |
+| `sys_sub_ranking.c` | 9.38 | *was 8.54.* Recipe V on the insert three of the four ranking tables share. `Check_Sort_Score` is left out: its table starts at zero and is written without a `+ 0` to parameterise |
+| `Lz77Dec.c` | 8.79 | *was 8.33.* Recipe E cannot touch `decLZ77withSizeCheck` at all - every block in it advances `src`, `dst` and `size` at once, and a cursor struct is the out-parameter object Recipe E forbids inventing. Recipe D reaches the four families inside it that each produce one value; the three literal-copy loops that would come next advance **two** pointers and stay |
+| `pulpul.c` | 8.73 | *was 8.22.* `run_pulpul_device` keeps three findings and cannot lose them: its state machine falls through on every arm, so Recipe X cannot cut it, and it contains a **backward** `goto` that Recipe R does not reach either |
+| `opening_bg0.c` | 8.12 | a family plateau, measured twice. The file already holds six `op_bg0_lay_blocks_*` helpers, and both remaining moves - extracting `op_bg0_0003`'s inner switch, and splitting `op_bg0_lay_blocks_6` - make a seventh member and measure **8.12 -> 8.03**. *Weigh each arm against the twin family it would join* |
 | `sdl_gpu_renderer.c` | **10.00** | *was 6.82.* Recipe E eight times and two parameter objects, in that order: the frame's phases, the per-quad pipeline choice, the six set-up sections, `create_shader` and `create_pipeline`'s argument lists, the three remaining set-up blocks, the screen pass's bindings |
 | `flps2etc.c` | 9.84 | *was 6.94.* Recipes E, G and P over the four image loaders. What remains is the two PIC row decoders at two bumps each: the third arm of each run-length form advances **both** the source and the destination inside its loop, so lifting it is a block writing two outer locals, which Recipe E refuses |
 | `pltim2.c` | 9.38 | *was 7.21.* Recipe P on the header checks, Recipe D on the pixel-format blocks the two context setters share, Recipe E and Recipe X on the rest. The four format helpers are one Code Duplication group, and folding them onto one parameter object measures **8.77 -> 8.77** - it clears the duplication and brings Overall Code Complexity straight back, because three of the functions it removes are cc 1. See *A fold that removes simple functions can push the file mean over its threshold*, measured again |
@@ -3207,4 +3215,50 @@ bodies at column zero and had to be fixed in a follow-up commit.
 The reason it survived the gate is worth the note: **the build, `refactor_guard.py`
 and `inline_equiv.py` all normalise whitespace**, so none of the three can see
 it. Print the function you just made and read it.
+
+### Build every configuration the file has code for
+
+*Added 2026-09-20, measured on `args.c` and `ioconv.c`.*
+
+Three separate things this session hit the same wall:
+
+- A predicate named out of an `SDL_assert` is unreferenced once the assert
+  compiles out (`arcade_char_data.c`).
+- Three helpers placed just above their caller but **outside** the
+  `#if NETPLAY_ENABLED` the caller sits in: the Debug build, which defines it,
+  compiled clean, and the default build failed with fourteen errors
+  (`args.c`).
+- A predicate for a condition inside `#if DEBUG` would be unreferenced in every
+  build that does not define `DEBUG` (`ioconv.c`, avoided).
+
+The common rule is short: **a helper lifted out of conditionally-compiled code
+belongs inside the same guard as its caller**, and a file with any such code has
+to be built both ways. In this repository that is `build` and `build-dbg` - the
+Debug one is the only configuration that defines `NETPLAY_ENABLED`, and it is
+the one `replay_verify.sh` uses, so building only what the replay gate builds is
+not enough.
+
+`-Werror=-Wunneeded-internal-declaration` turns every one of these into a build
+failure rather than a warning, which is the good news: the gate catches it, as
+long as the gate is run on both configurations.
+
+### Three gates, and what each one is blind to
+
+*Added 2026-09-20, after each of the three passed on something broken.*
+
+The verification sequence is build, `refactor_guard.py`, CodeScene. It is worth
+knowing precisely what each one cannot see, because this session got a clean
+result from every one of them on code that was wrong:
+
+| Gate | Blind to |
+| --- | --- |
+| `refactor_guard.py` | **Syntax.** A parameter-object rewrite with four assignments missing their `=` reported OK on literals *and* calls. A slice that left a stray `}` behind reported OK. It answers one question and neither is "does this compile" |
+| `refactor_guard.py` | **An empty group.** An unexpanded glob makes it report `OK combined group (0 literals unchanged)` and exit 0 |
+| `inline_equiv.py` | **A parameter named after a field it writes** - it substitutes textually and produces `ps2slot[i].1 = 1`, so it would also miss a real transposition there |
+| `inline_equiv.py` | **Whitespace**, like the other two - two helpers shipped with their whole bodies at column zero and no gate noticed |
+| the build | **Everything about behaviour.** It is the only one that sees syntax, and the only one that sees the other configuration |
+| all three | **Indentation, and a duplicated guard** - the second is caught by `refactor_guard.py` only because the copied condition brings its literals with it |
+
+None of this is an argument for fewer gates. It is an argument for reading the
+function you just wrote, which is the only check that covers all six rows.
 
