@@ -392,6 +392,27 @@ void Fistbump_ParseCommand(const char* line) {
     }
 }
 
+/* The states after the login handshake, reached from Fistbump_Run's new
+ * default. Every label is the original one and Fistbump_Run had no default of
+ * its own, so a state matching nothing still does nothing. */
+static void fistbump_step_late_state() {
+    switch (state) {
+    case FISTBUMP_LOGGING_IN:
+    case FISTBUMP_AWAITING_LOGIN:
+    case FISTBUMP_AWAITING_MATCH:
+    case FISTBUMP_MATCHED:
+        break;
+
+    case FISTBUMP_SENDING_UDP:
+        Fistbump_SendUDP();
+        break;
+
+    case FISTBUMP_GAME_START:
+    case FISTBUMP_ERROR:
+        break;
+    }
+}
+
 void Fistbump_Run() {
     char tmp[1024];
 
@@ -411,18 +432,8 @@ void Fistbump_Run() {
         Fistbump_Login();
         break;
 
-    case FISTBUMP_LOGGING_IN:
-    case FISTBUMP_AWAITING_LOGIN:
-    case FISTBUMP_AWAITING_MATCH:
-    case FISTBUMP_MATCHED:
-        break;
-
-    case FISTBUMP_SENDING_UDP:
-        Fistbump_SendUDP();
-        break;
-
-    case FISTBUMP_GAME_START:
-    case FISTBUMP_ERROR:
+    default:
+        fistbump_step_late_state();
         break;
     }
 }
