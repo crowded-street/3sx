@@ -4,7 +4,6 @@
  * The opening scenes up to 108, one op_1NN_move each.
  */
 
-#include "sf33rd/Source/Game/opening/opening.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 #include "sf33rd/Source/Common/MemMan.h"
@@ -19,6 +18,8 @@
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/io/gd3rd.h"
 #include "sf33rd/Source/Game/opening/op_sub.h"
+#include "sf33rd/Source/Game/opening/opening.h"
+#include "sf33rd/Source/Game/opening/opening_internal.h"
 #include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "sf33rd/Source/Game/rendering/color3rd.h"
 #include "sf33rd/Source/Game/rendering/dc_ghost.h"
@@ -33,7 +34,6 @@
 #include "sf33rd/Source/Game/system/sys_sub2.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/Source/Game/ui/sc_sub.h"
-#include "sf33rd/Source/Game/opening/opening_internal.h"
 void op_100_move() {
     op_w.r_no_1 += 1;
     Go_BGM();
@@ -131,21 +131,42 @@ static bool op_103_sound_ready() {
     return (gSeqStatus[0] >= op_103_sound[op_w.r_no_2]) && (gSeqStatus[0] != 0x67);
 }
 
-static void update_op_103_effect_sequence(void) {
-    if (op_103_sound_ready()) {
-        op_w.r_no_2 += 1;
-        op_w.index = 6;
-        op_work_clear();
-        effect_F6_init(11);
-        effect_F6_init(12);
-        effect_F6_init(13);
-        effect_F6_init(14);
-        effect_F6_init(15);
-        effect_F6_init(16);
+/* 107 advances with advance_opening_step; 103 sets the index before clearing the
+ * work rather than after, so it keeps its own three lines - op_work_clear is not
+ * indifferent to the order. */
+static void advance_op_103_step(void) {
+    op_w.r_no_2 += 1;
+    op_w.index = 6;
+    op_work_clear();
+}
+
+/* The six effects the 103 sequence spawns, in the order it spawns them. */
+static void spawn_op_103_effects(void) {
+    effect_F6_init(11);
+    effect_F6_init(12);
+    effect_F6_init(13);
+    effect_F6_init(14);
+    effect_F6_init(15);
+    effect_F6_init(16);
+}
+
+/* The effect sequence 103 and 107 share: once the sound has reached the step's
+ * cue, move the scene on and spawn its six effects; until then, keep the
+ * background moving. */
+static void run_op_effect_sequence(
+    bool (*cue_reached)(void), void (*advance)(void), void (*spawn_effects)(void), s16 bg_step
+) {
+    if (cue_reached()) {
+        advance();
+        spawn_effects();
         return;
     }
 
-    op_bg_move(5);
+    op_bg_move(bg_step);
+}
+
+static void update_op_103_effect_sequence(void) {
+    run_op_effect_sequence(op_103_sound_ready, advance_op_103_step, spawn_op_103_effects, 5);
 }
 
 static void op_103_move_from_9() {
@@ -372,19 +393,27 @@ static bool op_107_sound_ready() {
     return (gSeqStatus[0] >= op_107_sound[op_w.r_no_2]) && (gSeqStatus[0] != 0x6B);
 }
 
-static void update_op_107_effect_sequence(void) {
-    if (gSeqStatus[0] >= op_107_sound[op_w.r_no_2]) {
-        advance_opening_step(34);
-        effect_F6_init(35);
-        effect_F6_init(36);
-        effect_F6_init(37);
-        effect_F6_init(38);
-        effect_F6_init(39);
-        effect_F6_init(40);
-        return;
-    }
+/* The 107 sequence's own cue. It is not op_107_sound_ready: that one also
+ * refuses while the sequence status is 0x6B, and this test never did. */
+static bool op_107_effect_cue_reached() {
+    return gSeqStatus[0] >= op_107_sound[op_w.r_no_2];
+}
 
-    op_bg_move(33);
+static void advance_op_107_step(void) {
+    advance_opening_step(34);
+}
+
+static void spawn_op_107_effects(void) {
+    effect_F6_init(35);
+    effect_F6_init(36);
+    effect_F6_init(37);
+    effect_F6_init(38);
+    effect_F6_init(39);
+    effect_F6_init(40);
+}
+
+static void update_op_107_effect_sequence(void) {
+    run_op_effect_sequence(op_107_effect_cue_reached, advance_op_107_step, spawn_op_107_effects, 33);
 }
 
 /* Scene 107 runs twelve steps; its tail is reached through the default arm.
