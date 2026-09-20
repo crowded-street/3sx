@@ -270,55 +270,48 @@ static s32 options_in_area_6(PLW* wk, WORK* em) {
     return defends_in_area_6(wk, em);
 }
 
-static void ken_vs_from_area_6(PLW* wk, WORK* em) {
-    switch (Passive_Mode + Area_Number[wk->wu.id]) {
-    case 6:
-        if (options_in_area_6(wk, em)) {
-            break;
-        }
+/* What a chain step does after a jump that did not take, and what the last step
+ * does beyond its own options. Ken runs a personal action in both places; Hugo
+ * does neither, and the empty function is how that is written. */
+static void vs_nothing_after(PLW* wk, WORK* em) {}
 
-        if (Check_VS_Jump(wk, (PLW*)em, 64)) {
-            break;
-        }
-
-        Check_Personal_Action(wk, em);
-
-        break;
-
-    default:
-        if (ken_options_in_area_d(wk, em)) {
-            break;
-        }
-
-        Check_Personal_Action(wk, em);
-        break;
-    }
+static void vs_personal_action(PLW* wk, WORK* em) {
+    Check_Personal_Action(wk, em);
 }
 
-static void ken_vs_from_area_5(PLW* wk, WORK* em) {
-    switch (Passive_Mode + Area_Number[wk->wu.id]) {
-    case 5:
-        if (options_in_area_5(wk, em)) {
-            break;
-        }
-
-        if (Check_VS_Jump(wk, (PLW*)em, 32)) {
-            break;
-        }
-
-        Check_Personal_Action(wk, em);
-        break;
-
-    default:
-        ken_vs_from_area_6(wk, em);
-        break;
-    }
+static void vs_squat_beyond_area(PLW* wk, WORK* em) {
+    Check_VS_Squat(wk, em, &(VS_Squat_Args) { 7, 33, 32 });
 }
 
-static void ken_vs_from_area_4(PLW* wk, WORK* em) {
+/* One step of a character's area chain: the options tried while the fighter is
+ * in this area, what follows a jump that did not take, and where the chain hands
+ * on when the fighter is elsewhere. */
+typedef struct {
+    s32 (*options_in_area)(PLW* wk, WORK* em);
+    void (*after_jump)(PLW* wk, WORK* em);
+    void (*next_area)(PLW* wk, WORK* em);
+} VsAreaStep;
+
+/* The last step of a chain. It has nowhere to hand on to, so instead it tries
+ * the character's out-of-area options and then whatever it does beyond them. */
+typedef struct {
+    s32 (*options_in_area)(PLW* wk, WORK* em);
+    void (*after_jump)(PLW* wk, WORK* em);
+    s32 (*options_beyond_area)(PLW* wk, WORK* em);
+    void (*beyond_area)(PLW* wk, WORK* em);
+} VsLastAreaStep;
+
+/* Areas 4, 5 and 6 are the same step at three reaches. The reach goes with the
+ * area number, because that number is a case label and cannot be a parameter,
+ * so there is one helper per area rather than one for all three.
+ *
+ * Where a character discarded the jump's result and fell straight to the break,
+ * the test is written out and the action after it is empty; both paths reach the
+ * same place. */
+static void vs_from_area_4(PLW* wk, WORK* em, const VsAreaStep* step) {
     switch (Passive_Mode + Area_Number[wk->wu.id]) {
     case 4:
-        if (options_in_area_4(wk, em)) {
+        if (step->options_in_area(wk, em)) {
             break;
         }
 
@@ -326,13 +319,71 @@ static void ken_vs_from_area_4(PLW* wk, WORK* em) {
             break;
         }
 
-        Check_Personal_Action(wk, em);
+        step->after_jump(wk, em);
         break;
 
     default:
-        ken_vs_from_area_5(wk, em);
+        step->next_area(wk, em);
         break;
     }
+}
+
+static void vs_from_area_5(PLW* wk, WORK* em, const VsAreaStep* step) {
+    switch (Passive_Mode + Area_Number[wk->wu.id]) {
+    case 5:
+        if (step->options_in_area(wk, em)) {
+            break;
+        }
+
+        if (Check_VS_Jump(wk, (PLW*)em, 32)) {
+            break;
+        }
+
+        step->after_jump(wk, em);
+        break;
+
+    default:
+        step->next_area(wk, em);
+        break;
+    }
+}
+
+static void vs_from_area_6(PLW* wk, WORK* em, const VsLastAreaStep* step) {
+    switch (Passive_Mode + Area_Number[wk->wu.id]) {
+    case 6:
+        if (step->options_in_area(wk, em)) {
+            break;
+        }
+
+        if (Check_VS_Jump(wk, (PLW*)em, 64)) {
+            break;
+        }
+
+        step->after_jump(wk, em);
+        break;
+
+    default:
+        if (step->options_beyond_area(wk, em)) {
+            break;
+        }
+
+        step->beyond_area(wk, em);
+        break;
+    }
+}
+
+static void ken_vs_from_area_6(PLW* wk, WORK* em) {
+    vs_from_area_6(
+        wk, em, &(VsLastAreaStep) { options_in_area_6, vs_personal_action, ken_options_in_area_d, vs_personal_action }
+    );
+}
+
+static void ken_vs_from_area_5(PLW* wk, WORK* em) {
+    vs_from_area_5(wk, em, &(VsAreaStep) { options_in_area_5, vs_personal_action, ken_vs_from_area_6 });
+}
+
+static void ken_vs_from_area_4(PLW* wk, WORK* em) {
+    vs_from_area_4(wk, em, &(VsAreaStep) { options_in_area_4, vs_personal_action, ken_vs_from_area_5 });
 }
 
 /* KEN_vs, HUGO_vs and GILL_vs are the same option list: dash in each of the
@@ -370,69 +421,17 @@ void KEN_vs(PLW* wk) {
 }
 
 static void hugo_vs_from_area_6(PLW* wk, WORK* em) {
-    switch (Passive_Mode + Area_Number[wk->wu.id]) {
-    case 6:
-        if (hugo_options_in_area_6(wk, em)) {
-            break;
-        }
-
-        Check_VS_Jump(wk, (PLW*)em, 64);
-        break;
-
-    default:
-        if (hugo_options_in_area_d(wk, em)) {
-            break;
-        }
-    }
-}
-
-/* One step of a character's area chain: which options it tries while the fighter
- * is in this area, and where it hands on when the fighter is not. The area
- * number and the jump reach stay inside each step, because a case label cannot
- * be a parameter. */
-typedef struct {
-    s32 (*options_in_area)(PLW* wk, WORK* em);
-    void (*next_area)(PLW* wk, WORK* em);
-} VsAreaStep;
-
-static void vs_from_area_4(PLW* wk, WORK* em, const VsAreaStep* step) {
-    switch (Passive_Mode + Area_Number[wk->wu.id]) {
-    case 4:
-        if (step->options_in_area(wk, em)) {
-            break;
-        }
-
-        Check_VS_Jump(wk, (PLW*)em, 16);
-        break;
-
-    default:
-        step->next_area(wk, em);
-        break;
-    }
-}
-
-static void vs_from_area_5(PLW* wk, WORK* em, const VsAreaStep* step) {
-    switch (Passive_Mode + Area_Number[wk->wu.id]) {
-    case 5:
-        if (step->options_in_area(wk, em)) {
-            break;
-        }
-
-        Check_VS_Jump(wk, (PLW*)em, 32);
-        break;
-
-    default:
-        step->next_area(wk, em);
-        break;
-    }
+    vs_from_area_6(
+        wk, em, &(VsLastAreaStep) { hugo_options_in_area_6, vs_nothing_after, hugo_options_in_area_d, vs_nothing_after }
+    );
 }
 
 static void hugo_vs_from_area_5(PLW* wk, WORK* em) {
-    vs_from_area_5(wk, em, &(VsAreaStep) { hugo_options_in_area_5, hugo_vs_from_area_6 });
+    vs_from_area_5(wk, em, &(VsAreaStep) { hugo_options_in_area_5, vs_nothing_after, hugo_vs_from_area_6 });
 }
 
 static void hugo_vs_from_area_4(PLW* wk, WORK* em) {
-    vs_from_area_4(wk, em, &(VsAreaStep) { hugo_options_in_area_4, hugo_vs_from_area_5 });
+    vs_from_area_4(wk, em, &(VsAreaStep) { hugo_options_in_area_4, vs_nothing_after, hugo_vs_from_area_5 });
 }
 
 void HUGO_vs(PLW* wk) {
@@ -440,31 +439,17 @@ void HUGO_vs(PLW* wk) {
 }
 
 static void gill_vs_from_area_6(PLW* wk, WORK* em) {
-    switch (Passive_Mode + Area_Number[wk->wu.id]) {
-    case 6:
-        if (options_in_area_6(wk, em)) {
-            break;
-        }
-
-        Check_VS_Jump(wk, (PLW*)em, 64);
-        break;
-
-    default:
-        if (gill_options_in_area_d(wk, em)) {
-            break;
-        }
-
-        Check_VS_Squat(wk, em, &(VS_Squat_Args) { 7, 33, 32 });
-        break;
-    }
+    vs_from_area_6(
+        wk, em, &(VsLastAreaStep) { options_in_area_6, vs_nothing_after, gill_options_in_area_d, vs_squat_beyond_area }
+    );
 }
 
 static void gill_vs_from_area_5(PLW* wk, WORK* em) {
-    vs_from_area_5(wk, em, &(VsAreaStep) { options_in_area_5, gill_vs_from_area_6 });
+    vs_from_area_5(wk, em, &(VsAreaStep) { options_in_area_5, vs_nothing_after, gill_vs_from_area_6 });
 }
 
 static void gill_vs_from_area_4(PLW* wk, WORK* em) {
-    vs_from_area_4(wk, em, &(VsAreaStep) { options_in_area_4, gill_vs_from_area_5 });
+    vs_from_area_4(wk, em, &(VsAreaStep) { options_in_area_4, vs_nothing_after, gill_vs_from_area_5 });
 }
 
 void GILL_vs(PLW* wk) {
