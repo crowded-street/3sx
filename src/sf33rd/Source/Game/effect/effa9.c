@@ -71,6 +71,22 @@ static void effa9_play_out(WORK_Other* ewk) {
     }
 }
 
+/* Where a slot in the position table puts the effect, and the position the
+ * sorter is given once it has moved. */
+static void a9_place_at_slot(WORK_Other* ewk, s16 Pos_Index) {
+    ewk->wu.xyz[0].disp.pos = Offset_BG_X[3] + bg_w.bgw[3].wxy[0].disp.pos + Position_Data_A9[Pos_Index][0];
+    ewk->wu.xyz[1].disp.pos = bg_w.bgw[3].wxy[1].disp.pos + Position_Data_A9[Pos_Index][1];
+    ewk->wu.xyz[2].disp.pos = Position_Data_A9[Pos_Index][2];
+    ewk->wu.vital_new = Position_Data_A9[Pos_Index][3];
+}
+
+static void a9_publish_position(WORK_Other* ewk) {
+    ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
+    ewk->wu.position_y = ewk->wu.xyz[1].disp.pos;
+    ewk->wu.position_z = ewk->wu.xyz[2].disp.pos;
+    sort_push_request4(&ewk->wu);
+}
+
 void effect_A9_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -100,10 +116,7 @@ void effect_A9_move(WORK_Other* ewk) {
         return;
     }
 
-    ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
-    ewk->wu.position_y = ewk->wu.xyz[1].disp.pos;
-    ewk->wu.position_z = ewk->wu.xyz[2].disp.pos;
-    sort_push_request4(&ewk->wu);
+    a9_publish_position(ewk);
 }
 
 s32 effect_A9_init(s16 Char_Index, s16 Option, s16 Pos_Index, s16 Option2) {
@@ -124,10 +137,7 @@ s32 effect_A9_init(s16 Char_Index, s16 Option, s16 Pos_Index, s16 Option2) {
     ewk->wu.char_index = Char_Index;
     ewk->wu.my_mts = 13;
     ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
-    ewk->wu.xyz[0].disp.pos = Offset_BG_X[3] + bg_w.bgw[3].wxy[0].disp.pos + Position_Data_A9[Pos_Index][0];
-    ewk->wu.xyz[1].disp.pos = bg_w.bgw[3].wxy[1].disp.pos + Position_Data_A9[Pos_Index][1];
-    ewk->wu.xyz[2].disp.pos = Position_Data_A9[Pos_Index][2];
-    ewk->wu.vital_new = Position_Data_A9[Pos_Index][3];
+    a9_place_at_slot(ewk, Pos_Index);
     Setup_A9(ewk, Char_Index, Option, Option2);
     return 0;
 }
