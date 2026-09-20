@@ -389,10 +389,26 @@ void Damage_7th(PLW* wk) {
     }
 }
 
-void Damage_8th(PLW* wk) {
+static void Damage_8th_Setup_Faint_Rapid(PLW* wk) {
     s16 Rnd;
     s16 Lv;
 
+    CP_No[wk->wu.id][2] += 1;
+    Timer_00[wk->wu.id] = 1;
+    Lv = Setup_Lv08(0);
+
+    if (Break_Into_CPU == 2) {
+        Lv = 7;
+    }
+
+    if (Demo_Flag == 0 && Weak_PL == wk->wu.id) {
+        Lv = 0;
+    }
+
+    Timer_01[wk->wu.id] = Faint_Rapid_Data[emLevelRemake(Lv, 8, 0)][(Rnd = random_16_com() & 7)];
+}
+
+void Damage_8th(PLW* wk) {
     if (wk->wu.routine_no[1] != 1) {
         Exit_Damage_Sub(wk);
         return;
@@ -401,19 +417,7 @@ void Damage_8th(PLW* wk) {
     switch (CP_No[wk->wu.id][2]) {
     case 0:
         if (wk->wu.routine_no[2] == 0x19 && wk->wu.routine_no[3] != 0) {
-            CP_No[wk->wu.id][2] += 1;
-            Timer_00[wk->wu.id] = 1;
-            Lv = Setup_Lv08(0);
-
-            if (Break_Into_CPU == 2) {
-                Lv = 7;
-            }
-
-            if (Demo_Flag == 0 && Weak_PL == wk->wu.id) {
-                Lv = 0;
-            }
-
-            Timer_01[wk->wu.id] = Faint_Rapid_Data[emLevelRemake(Lv, 8, 0)][(Rnd = random_16_com() & 7)];
+            Damage_8th_Setup_Faint_Rapid(wk);
         }
 
         break;
