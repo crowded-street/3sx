@@ -92,16 +92,26 @@ static s32 gill_options_in_area_d(PLW* wk, WORK* em) {
     return defends_in_area_d(wk, em);
 }
 
-static s32 attacks_in_area_6(PLW* wk, WORK* em) {
-    if (Check_PL_Unit_C(wk)) {
-        return 1;
-    }
-
+/* The two limited attacks both the area-6 list and the unit-checked list try,
+ * in that order. */
+static s32 limited_attacks_in_area(PLW* wk, WORK* em) {
     if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args) { 12, 32, 3, 0 })) {
         return 1;
     }
 
     if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args) { 7, 32, 5, 0 })) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static s32 attacks_in_area_6(PLW* wk, WORK* em) {
+    if (Check_PL_Unit_C(wk)) {
+        return 1;
+    }
+
+    if (limited_attacks_in_area(wk, em)) {
         return 1;
     }
 
@@ -129,11 +139,7 @@ static s32 attacks_in_area_with_unit(PLW* wk, WORK* em, s32 (*unit_check)(PLW*))
         return 1;
     }
 
-    if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args) { 12, 32, 3, 0 })) {
-        return 1;
-    }
-
-    if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args) { 7, 32, 5, 0 })) {
+    if (limited_attacks_in_area(wk, em)) {
         return 1;
     }
 
