@@ -93,10 +93,8 @@ static void copy_pad_state(IOPad* pad, s32 i) {
     }
 }
 
-void keyConvert() {
-    IOPad* pad;
-    u32 currSw;
-    s32 i;
+/* Whether the pad repeat runs at the turbo rate this frame. */
+static s32 turbo_repeat_enabled() {
     s32 repeat_on = 0;
 
 #if DEBUG
@@ -112,6 +110,15 @@ void keyConvert() {
             repeat_on = 0;
         }
     }
+
+    return repeat_on;
+}
+
+void keyConvert() {
+    IOPad* pad;
+    u32 currSw;
+    s32 i;
+    s32 repeat_on = turbo_repeat_enabled();
 
     for (i = 0; i < 2; i++) {
         flPADSetRepeatSw(&flpad_adr[0][i], 0xFF000F, 15, 3);
