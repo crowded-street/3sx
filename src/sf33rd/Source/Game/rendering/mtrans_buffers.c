@@ -102,7 +102,7 @@ s32 get_mltbuf32(MultiTexture* mt, u32 code, u32 palt, s32* ret) {
             return 0;
         }
 
-        if ((mc->cs.code == -1) && (b < 0)) {
+        if (is_first_available_pattern_slot(mc, b)) {
             b = i;
         }
 
