@@ -355,7 +355,9 @@ void cal_speeds_effD7(WORK_Other* ewk, const BallTrajectoryD7* trajectory) {
     ewk->wu.mvxy.d[1].sp = 0;
     ewk->wu.mvxy.a[1].sp = 0;
     ewk->wu.mvxy.a[1].real.h = trajectory->vertical_speed;
-    cal_delta_speed(&ewk->wu, trajectory->duration, trajectory->target_x, trajectory->target_y, 0, 1);
+    cal_delta_speed(
+        &ewk->wu, &(Motion_Target) { trajectory->duration, trajectory->target_x, trajectory->target_y, 0, 1 }
+    );
 
     if (ewk->wu.rl_flag == 0) {
         ewk->wu.mvxy.a[0].sp = -ewk->wu.mvxy.a[0].sp;

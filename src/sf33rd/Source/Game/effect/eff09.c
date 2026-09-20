@@ -519,7 +519,7 @@ void eff09_3000(WORK_Other* ewk) {
         ewk->wu.disp_flag = 1;
         ewk->wu.old_rno[0] = 96;
         set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
-        cal_all_speed_data(&ewk->wu, ewk->wu.old_rno[0], ewk->wu.xyz[0].disp.pos, 40, 1, 2);
+        cal_all_speed_data(&ewk->wu, &(Motion_Target) { ewk->wu.old_rno[0], ewk->wu.xyz[0].disp.pos, 40, 1, 2 });
         break;
 
     case 1:
@@ -567,7 +567,7 @@ static void initialize_eff09_4000(WORK_Other* ewk) {
 
     ewk->wu.xyz[0].disp.pos = work;
     ewk->wu.old_rno[0] = 202;
-    cal_all_speed_data(&ewk->wu, ewk->wu.old_rno[0], work2, 0, 0, 2);
+    cal_all_speed_data(&ewk->wu, &(Motion_Target) { ewk->wu.old_rno[0], work2, 0, 0, 2 });
 }
 
 /* The timed approach both effects run: while updates are enabled, move the
@@ -774,7 +774,7 @@ static void initialize_eff09_11000(WORK_Other* ewk, const WORK* oya_ptr) {
 
     ewk->wu.xyz[0].disp.pos = work;
     ewk->wu.old_rno[0] = 220;
-    cal_all_speed_data(&ewk->wu, ewk->wu.old_rno[0], work2, 0, 0, 2);
+    cal_all_speed_data(&ewk->wu, &(Motion_Target) { ewk->wu.old_rno[0], work2, 0, 0, 2 });
 }
 
 static void advance_eff09_11000(WORK_Other* ewk, WORK* oya_ptr) {
@@ -995,7 +995,7 @@ static void initialize_eff09_21000(WORK_Other* ewk) {
         initialize_eff09_21000_winner(ewk, &arrive_x, &arrive_y);
     }
 
-    cal_all_speed_data(&ewk->wu, ewk->wu.old_rno[0], arrive_x, arrive_y, 2, 2);
+    cal_all_speed_data(&ewk->wu, &(Motion_Target) { ewk->wu.old_rno[0], arrive_x, arrive_y, 2, 2 });
 }
 
 static void advance_eff09_21000_arrival(WORK_Other* ewk) {

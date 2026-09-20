@@ -38,7 +38,7 @@ void Eff93_SLIDE_L(WORK_Other* ewk) {
             ewk->wu.direction = bg_w.bgw[1].xy[1].disp.pos + 16;
             ewk->wu.mvxy.a[0].sp = 0x90000;
             ewk->wu.mvxy.a[1].sp = 0;
-            cal_delta_speed(&ewk->wu, 10, ewk->wu.hit_quake, ewk->wu.direction, 1, 1);
+            cal_delta_speed(&ewk->wu, &(Motion_Target) { 10, ewk->wu.hit_quake, ewk->wu.direction, 1, 1 });
             bg_mvxy.a[0].sp = ewk->wu.mvxy.a[0].sp;
             bg_mvxy.a[1].sp = ewk->wu.mvxy.a[1].sp;
             bg_mvxy.d[0].sp = ewk->wu.mvxy.d[0].sp;

@@ -57,7 +57,7 @@ static void update_tengu_home_phase(WORK_Other* ewk, TAMA* twk, PLW* mwk) {
     if (ewk->wu.dir_step > 8) {
         ewk->wu.routine_no[2] = 1;
         ewk->wu.dir_timer = 8;
-        cal_all_speed_data(&ewk->wu, ewk->wu.dir_timer, ewk->wu.dmcal_m, ewk->wu.dmcal_d, 2, 2);
+        cal_all_speed_data(&ewk->wu, &(Motion_Target) { ewk->wu.dir_timer, ewk->wu.dmcal_m, ewk->wu.dmcal_d, 2, 2 });
     }
 }
 
@@ -79,7 +79,7 @@ static void update_tengu_return_phase(WORK_Other* ewk, TAMA* twk, PLW* mwk) {
         ewk->wu.att_hit_ok = 0;
         ewk->wu.dir_timer = twk->hos_x;
         set_tengu_my_home(&ewk->wu, &mwk->wu);
-        cal_all_speed_data(&ewk->wu, ewk->wu.dir_timer, ewk->wu.dmcal_m, ewk->wu.dmcal_d, 2, 2);
+        cal_all_speed_data(&ewk->wu, &(Motion_Target) { ewk->wu.dir_timer, ewk->wu.dmcal_m, ewk->wu.dmcal_d, 2, 2 });
     }
 }
 
@@ -210,7 +210,7 @@ void make_speed_xy_att(WORK* ewk, WORK* mwk, u8 xsw, u8 ysw) {
     s16 ay;
 
     get_target_att_position(mwk, &ax, &ay);
-    cal_all_speed_data(ewk, ewk->dir_timer, ax, ay, xsw, ysw);
+    cal_all_speed_data(ewk, &(Motion_Target) { ewk->dir_timer, ax, ay, xsw, ysw });
 }
 
 void make_speed_xy_back(WORK* ewk, WORK* mwk, TAMA* twk) {

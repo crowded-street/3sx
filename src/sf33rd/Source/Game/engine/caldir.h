@@ -23,10 +23,21 @@ void cmsd_x_initial_speed(MotionState* cc);
 void cmsd_y_initial_speed(MotionState* cc);
 void cmsd_x_delta_speed(MotionState* cc);
 void cmsd_y_delta_speed(MotionState* cc);
-void cal_all_speed_data(WORK* wk, s16 tm, s16 x1, s16 y1, s8 xsw, s8 ysw);
+/* The target a motion is being solved for: when to arrive, where, and which
+   speed curve each axis follows. These are cal_all_speed_data's and
+   cal_delta_speed's last five arguments, in their own order. */
+typedef struct {
+    s16 tm;
+    s16 x1;
+    s16 y1;
+    s8 xsw;
+    s8 ysw;
+} Motion_Target;
+
+void cal_all_speed_data(WORK* wk, const Motion_Target* t);
 void cal_initial_speed(WORK* wk, s16 tm, s16 x1, s16 y1);
 void cal_initial_speed_y(WORK* wk, s16 tm, s16 y1);
-void cal_delta_speed(WORK* wk, s16 tm, s16 x1, s16 y1, s8 xsw, s8 ysw);
+void cal_delta_speed(WORK* wk, const Motion_Target* t);
 s16 cal_top_of_position_y(WORK* wk);
 s16 cal_time_of_sign_change(WORK* wk);
 s16 cal_move_dir_forecast(WORK* wk, s16 tm);

@@ -163,9 +163,9 @@ static void launch_appear_26000(PLW* wk) {
     appear_work[wk->wu.id] = 0x14;
 
     if (wk->wu.id) {
-        cal_all_speed_data(&wk->wu, appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work + 88, 0, 0, 1);
+        cal_all_speed_data(&wk->wu, &(Motion_Target) { appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work + 88, 0, 0, 1 });
     } else {
-        cal_all_speed_data(&wk->wu, appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work - 88, 0, 0, 1);
+        cal_all_speed_data(&wk->wu, &(Motion_Target) { appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work - 88, 0, 0, 1 });
     }
 }
 
@@ -695,9 +695,13 @@ static void step_appear_36000_slide(PLW* wk, s16 id_w) {
             app_counter[wk->wu.id] = 0x16;
 
             if (wk->wu.id) {
-                cal_all_speed_data(&wk->wu, app_counter[wk->wu.id], bg_w.bgw[1].pos_x_work + 0x58, 0, 2, 0);
+                cal_all_speed_data(
+                    &wk->wu, &(Motion_Target) { app_counter[wk->wu.id], bg_w.bgw[1].pos_x_work + 0x58, 0, 2, 0 }
+                );
             } else {
-                cal_all_speed_data(&wk->wu, app_counter[wk->wu.id], bg_w.bgw[1].pos_x_work - 0x58, 0, 2, 0);
+                cal_all_speed_data(
+                    &wk->wu, &(Motion_Target) { app_counter[wk->wu.id], bg_w.bgw[1].pos_x_work - 0x58, 0, 2, 0 }
+                );
             }
         }
 
@@ -750,9 +754,13 @@ static void dismount_appear_37000(PLW* wk) {
     app_counter[wk->wu.id] = 0x2a;
 
     if (wk->wu.id) {
-        cal_all_speed_data(&wk->wu, app_counter[wk->wu.id], bg_w.bgw[1].pos_x_work + 0x58, 0, 0, 0);
+        cal_all_speed_data(
+            &wk->wu, &(Motion_Target) { app_counter[wk->wu.id], bg_w.bgw[1].pos_x_work + 0x58, 0, 0, 0 }
+        );
     } else {
-        cal_all_speed_data(&wk->wu, app_counter[wk->wu.id], bg_w.bgw[1].pos_x_work - 0x58, 0, 0, 0);
+        cal_all_speed_data(
+            &wk->wu, &(Motion_Target) { app_counter[wk->wu.id], bg_w.bgw[1].pos_x_work - 0x58, 0, 0, 0 }
+        );
     }
 
     wk->wu.next_z = wk->wu.my_priority;

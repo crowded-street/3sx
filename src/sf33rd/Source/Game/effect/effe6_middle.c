@@ -136,7 +136,7 @@ void effe6_0015(WORK_Other* ewk) {
     case 0:
         effe6_init_common(ewk);
         ewk->wu.old_rno[2] = 40;
-        cal_all_speed_data(&ewk->wu, ewk->wu.old_rno[2], 544, 48, 2, 2);
+        cal_all_speed_data(&ewk->wu, &(Motion_Target) { ewk->wu.old_rno[2], 544, 48, 2, 2 });
         break;
 
     case 1:

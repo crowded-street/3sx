@@ -229,7 +229,7 @@ void set_kabe_move_spd(WORK* wk, s16 tm) {
         tar_pos += 192;
     }
 
-    cal_all_speed_data(wk, tm, tar_pos, wk->xyz[1].disp.pos + 120, 2, 2);
+    cal_all_speed_data(wk, &(Motion_Target) { tm, tar_pos, wk->xyz[1].disp.pos + 120, 2, 2 });
 
     if (!wk->rl_flag) {
         wk->mvxy.a[0].sp = -wk->mvxy.a[0].sp;

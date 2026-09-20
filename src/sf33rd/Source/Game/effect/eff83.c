@@ -76,7 +76,9 @@ void effect_83_move(WORK_Other* ewk) {
         setup_shadow_of_the_Effy(&ewk->wu);
         set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
         ewk->wu.old_rno[0] = 50;
-        cal_all_speed_data(&ewk->wu, ewk->wu.old_rno[0], oya_ptr->xyz[0].disp.pos, ewk->wu.xyz[1].disp.pos, 2, 2);
+        cal_all_speed_data(
+            &ewk->wu, &(Motion_Target) { ewk->wu.old_rno[0], oya_ptr->xyz[0].disp.pos, ewk->wu.xyz[1].disp.pos, 2, 2 }
+        );
         break;
 
     case 1:

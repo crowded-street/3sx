@@ -122,7 +122,9 @@ void effl3_0001(WORK_Other* ewk) {
         ewk->wu.disp_flag = 1;
         set_char_move_init(&ewk->wu, 1, 49);
         ewk->wu.old_rno[2] = 60;
-        cal_all_speed_data(&ewk->wu, ewk->wu.old_rno[2], ewk->wu.old_rno[0], ewk->wu.xyz[1].disp.pos - 32, 2, 2);
+        cal_all_speed_data(
+            &ewk->wu, &(Motion_Target) { ewk->wu.old_rno[2], ewk->wu.old_rno[0], ewk->wu.xyz[1].disp.pos - 32, 2, 2 }
+        );
         break;
 
     case 1:

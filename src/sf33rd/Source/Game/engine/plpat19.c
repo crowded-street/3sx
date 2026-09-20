@@ -239,7 +239,7 @@ static void aim_ex_dra_at_target(PLW* wk) {
 
     ey = dra_em_tall[twk->player_number][1];
     wk->wu.mvxy.a[0].sp = 0;
-    cal_delta_speed(&wk->wu, 8, ex, ey, 2, 2);
+    cal_delta_speed(&wk->wu, &(Motion_Target) { 8, ex, ey, 2, 2 });
 
     if (wk->wu.rl_flag == 0) {
         wk->wu.mvxy.a[0].sp = -wk->wu.mvxy.a[0].sp;

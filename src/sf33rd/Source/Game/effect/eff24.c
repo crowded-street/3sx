@@ -184,7 +184,7 @@ void dog24_data_set(WORK_Other* ewk) {
         work = ewk->wu.xyz[0].disp.pos - dog24_x_data[ewk->wu.old_rno[1]];
     }
 
-    cal_all_speed_data(&ewk->wu, ewk->wu.old_rno[5], work, ewk->wu.xyz[1].disp.pos, 2, 0);
+    cal_all_speed_data(&ewk->wu, &(Motion_Target) { ewk->wu.old_rno[5], work, ewk->wu.xyz[1].disp.pos, 2, 0 });
 }
 
 static void eff24_bounce_speed(WORK_Other* ewk) {

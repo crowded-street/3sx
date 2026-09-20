@@ -127,7 +127,9 @@ static void initialize_eff09_18000(WORK_Other* ewk, const WORK* oya_ptr) {
     ewk->wu.xyz[1].disp.pos = base_y_pos + 160;
     ewk->wu.old_rno[0] = 35;
     ewk->wu.old_rno[1] = oya_ptr->xyz[1].disp.pos + 106 + base_y_pos;
-    cal_all_speed_data(&ewk->wu, ewk->wu.old_rno[0], oya_ptr->xyz[0].disp.pos, ewk->wu.old_rno[1], 0, 0);
+    cal_all_speed_data(
+        &ewk->wu, &(Motion_Target) { ewk->wu.old_rno[0], oya_ptr->xyz[0].disp.pos, ewk->wu.old_rno[1], 0, 0 }
+    );
 }
 
 static void advance_eff09_18000(WORK_Other* ewk) {

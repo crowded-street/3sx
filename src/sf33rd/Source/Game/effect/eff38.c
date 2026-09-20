@@ -203,7 +203,7 @@ static void initialize_shift_38(WORK_Other* ewk) {
                             EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][1];
         ewk->wu.mvxy.a[0].sp = -0x60000;
         ewk->wu.mvxy.a[1].sp = 0x30000;
-        cal_delta_speed(&ewk->wu, 10, ewk->wu.hit_quake, ewk->wu.vital_new, 1, 1);
+        cal_delta_speed(&ewk->wu, &(Motion_Target) { 10, ewk->wu.hit_quake, ewk->wu.vital_new, 1, 1 });
         ewk->wu.dir_timer = 10;
     } else {
         ewk->wu.hit_quake = 128 + bg_w.bgw[ewk->wu.my_family - 1].wxy[0].disp.pos +
@@ -212,7 +212,7 @@ static void initialize_shift_38(WORK_Other* ewk) {
                             EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][1];
         ewk->wu.mvxy.a[0].sp = 0x60000;
         ewk->wu.mvxy.a[1].sp = -0x30000;
-        cal_delta_speed(&ewk->wu, 10, ewk->wu.hit_quake, ewk->wu.vital_new, 1, 1);
+        cal_delta_speed(&ewk->wu, &(Motion_Target) { 10, ewk->wu.hit_quake, ewk->wu.vital_new, 1, 1 });
         ewk->wu.dir_timer = 10;
     }
 }

@@ -941,17 +941,17 @@ static void store_motion_result(WORK* wk, const MotionState* bb) {
     wk->xyz[1].cal += bb->amy;
 }
 
-void cal_all_speed_data(WORK* wk, s16 tm, s16 x1, s16 y1, s8 xsw, s8 ysw) {
+void cal_all_speed_data(WORK* wk, const Motion_Target* t) {
     MotionState bb;
 
     wk->xyz[0].disp.low = wk->xyz[1].disp.low = -0x8000;
-    bb.timer = tm;
+    bb.timer = t->tm;
     bb.timer2 = bb.timer + (bb.timer * (bb.timer - 1) / 2);
-    bb.x.ps.h = x1 - wk->xyz[0].disp.pos;
-    bb.y.ps.h = y1 - wk->xyz[1].disp.pos;
+    bb.x.ps.h = t->x1 - wk->xyz[0].disp.pos;
+    bb.y.ps.h = t->y1 - wk->xyz[1].disp.pos;
     bb.x.ps.l = bb.y.ps.l = 0;
-    bb.swx = xsw;
-    bb.swy = ysw;
+    bb.swx = t->xsw;
+    bb.swy = t->ysw;
 
     if (bb.timer == 0) {
         bb.amy = 0;
@@ -1018,17 +1018,17 @@ void cal_initial_speed_y(WORK* wk, s16 tm, s16 y1) {
     wk->xyz[1].cal += bb.amy;
 }
 
-void cal_delta_speed(WORK* wk, s16 tm, s16 x1, s16 y1, s8 xsw, s8 ysw) {
+void cal_delta_speed(WORK* wk, const Motion_Target* t) {
     MotionState bb;
 
     wk->xyz[0].disp.low = wk->xyz[1].disp.low = 0;
-    bb.timer = tm + 0;
+    bb.timer = t->tm + 0;
     bb.timer2 = bb.timer + bb.timer * (bb.timer - 1) / 2;
-    bb.x.ps.h = x1 - wk->xyz[0].disp.pos;
-    bb.y.ps.h = y1 - wk->xyz[1].disp.pos;
+    bb.x.ps.h = t->x1 - wk->xyz[0].disp.pos;
+    bb.y.ps.h = t->y1 - wk->xyz[1].disp.pos;
     bb.x.ps.l = bb.y.ps.l = 0;
-    bb.swx = xsw;
-    bb.swy = ysw;
+    bb.swx = t->xsw;
+    bb.swy = t->ysw;
     bb.spx = wk->mvxy.a[0].sp;
     bb.spy = wk->mvxy.a[1].sp;
 

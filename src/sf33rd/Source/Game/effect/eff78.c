@@ -101,7 +101,9 @@ void crow_fuss_move(WORK_Other* ewk) {
             ewk->wu.dir_timer = 28;
             ewk->wu.old_rno[1] = ewk->wu.xyz[0].disp.pos + crow_char_tbl[ewk->wu.direction][1];
             ewk->wu.old_rno[2] = ewk->wu.xyz[1].disp.pos + crow_char_tbl[ewk->wu.direction][2];
-            cal_all_speed_data(&ewk->wu, ewk->wu.dir_timer, ewk->wu.old_rno[1], ewk->wu.old_rno[2], 2, 2);
+            cal_all_speed_data(
+                &ewk->wu, &(Motion_Target) { ewk->wu.dir_timer, ewk->wu.old_rno[1], ewk->wu.old_rno[2], 2, 2 }
+            );
         }
 
         break;
@@ -140,7 +142,9 @@ void crow_fuss_move(WORK_Other* ewk) {
             ewk->wu.dir_timer = 48;
             ewk->wu.old_rno[1] = eff78_data_tbl[ewk->wu.type << 1];
             ewk->wu.old_rno[2] = eff78_data_tbl[(ewk->wu.type << 1) + 1];
-            cal_all_speed_data(&ewk->wu, ewk->wu.dir_timer, ewk->wu.old_rno[1], ewk->wu.old_rno[2] + 4, 0, 0);
+            cal_all_speed_data(
+                &ewk->wu, &(Motion_Target) { ewk->wu.dir_timer, ewk->wu.old_rno[1], ewk->wu.old_rno[2] + 4, 0, 0 }
+            );
         }
 
         break;

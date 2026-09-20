@@ -44,7 +44,9 @@ static void c1_start(WORK_Other* ewk, WORK* oya_ptr) {
     set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
     ewk->wu.old_rno[0] = 64;
 
-    cal_all_speed_data(&ewk->wu, ewk->wu.old_rno[0], c1_target_x(oya_ptr), ewk->wu.xyz[1].disp.pos, 2, 2);
+    cal_all_speed_data(
+        &ewk->wu, &(Motion_Target) { ewk->wu.old_rno[0], c1_target_x(oya_ptr), ewk->wu.xyz[1].disp.pos, 2, 2 }
+    );
 }
 
 /* Travel until the effect is close enough to the master, then sound it and

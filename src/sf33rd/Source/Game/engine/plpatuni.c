@@ -895,7 +895,7 @@ static void ahj_aim_on_marker_30(PLW* wk, PLW* twk, const s16 (*curr_empos_hos)[
 
             ey = curr_empos_hos[twk->player_number][1];
             wk->wu.mvxy.a[0].sp = 0;
-            cal_delta_speed(&wk->wu, curr_kop[1], ex, ey, curr_kop[2], curr_kop[3]);
+            cal_delta_speed(&wk->wu, &(Motion_Target) { curr_kop[1], ex, ey, curr_kop[2], curr_kop[3] });
             /* fallthrough */
 
         default:

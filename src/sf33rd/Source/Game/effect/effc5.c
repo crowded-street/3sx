@@ -190,7 +190,7 @@ s32 effect_C5_init(PLW* oya, s16 reverse_f) {
         ewk->wu.old_rno[0] = 40;
         work = (bg_w.bgw[1].pos_x_work + 192) & 0xFFFF;
         ewk->wu.xyz[0].disp.pos = (bg_w.bgw[1].pos_x_work + 320) & 0xFFFF;
-        cal_all_speed_data(&ewk->wu, ewk->wu.old_rno[0], work, 0, 1, 1);
+        cal_all_speed_data(&ewk->wu, &(Motion_Target) { ewk->wu.old_rno[0], work, 0, 1, 1 });
     } else {
         ewk->wu.xyz[1].cal = 0;
         ewk->wu.xyz[0].disp.low = 0;
@@ -198,7 +198,7 @@ s32 effect_C5_init(PLW* oya, s16 reverse_f) {
         ewk->wu.old_rno[0] = 40;
         work = (bg_w.bgw[1].pos_x_work - 192) & 0xFFFF;
         ewk->wu.xyz[0].disp.pos = (bg_w.bgw[1].pos_x_work - 320) & 0xFFFF;
-        cal_all_speed_data(&ewk->wu, ewk->wu.old_rno[0], work, 0, 1, 1);
+        cal_all_speed_data(&ewk->wu, &(Motion_Target) { ewk->wu.old_rno[0], work, 0, 1, 1 });
     }
 
     suzi_offset_set(ewk);

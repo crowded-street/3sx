@@ -44,7 +44,7 @@ void Att_MOONSALT_KNEE_DROP2(PLW* wk) {
 
         ey = mnd_em_tall2[twk->player_number][1];
         wk->wu.mvxy.a[0].sp = 0;
-        cal_delta_speed(&wk->wu, wk->as->r_no, ex, ey, 2, 2);
+        cal_delta_speed(&wk->wu, &(Motion_Target) { wk->as->r_no, ex, ey, 2, 2 });
 
         if (wk->wu.rl_flag == 0) {
             wk->wu.mvxy.a[0].sp = -wk->wu.mvxy.a[0].sp;

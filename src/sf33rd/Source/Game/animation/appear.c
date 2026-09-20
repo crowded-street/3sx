@@ -235,11 +235,13 @@ static void launch_appear_04000(PLW* wk) {
     app_counter[wk->wu.id] = 0x1C;
 
     if (wk->wu.id) {
-        cal_all_speed_data(&wk->wu, app_counter[wk->wu.id], bg_w.bgw[1].pos_x_work + 0x58, 0, 0, 1);
+        cal_all_speed_data(
+            &wk->wu, &(Motion_Target) { app_counter[wk->wu.id], bg_w.bgw[1].pos_x_work + 0x58, 0, 0, 1 }
+        );
         return;
     }
 
-    cal_all_speed_data(&wk->wu, app_counter[wk->wu.id], bg_w.bgw[1].pos_x_work - 0x58, 0, 0, 1);
+    cal_all_speed_data(&wk->wu, &(Motion_Target) { app_counter[wk->wu.id], bg_w.bgw[1].pos_x_work - 0x58, 0, 0, 1 });
 }
 
 static void land_appear_04000(PLW* wk) {
@@ -308,11 +310,13 @@ static void launch_appear_05000(PLW* wk) {
     appear_work[wk->wu.id] = 0x1B;
 
     if (wk->wu.id) {
-        cal_all_speed_data(&wk->wu, appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work + 0x60, 0, 2, 0);
+        cal_all_speed_data(
+            &wk->wu, &(Motion_Target) { appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work + 0x60, 0, 2, 0 }
+        );
         return;
     }
 
-    cal_all_speed_data(&wk->wu, appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work - 0x60, 0, 2, 0);
+    cal_all_speed_data(&wk->wu, &(Motion_Target) { appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work - 0x60, 0, 2, 0 });
 }
 
 static void land_appear_05000(PLW* wk) {
@@ -1121,11 +1125,11 @@ static void start_appear_18000(PLW* wk) {
     appear_work[wk->wu.id] = 0x1F;
 
     if (wk->wu.id) {
-        cal_delta_speed(&wk->wu, appear_work[wk->wu.id], (bg_w.bgw[1].pos_x_work + 0x58), 0, 0, 1);
+        cal_delta_speed(&wk->wu, &(Motion_Target) { appear_work[wk->wu.id], (bg_w.bgw[1].pos_x_work + 0x58), 0, 0, 1 });
         bg_app_stop = 1;
         return;
     }
-    cal_delta_speed(&wk->wu, appear_work[wk->wu.id], (bg_w.bgw[1].pos_x_work - 0x58), 0, 0, 1);
+    cal_delta_speed(&wk->wu, &(Motion_Target) { appear_work[wk->wu.id], (bg_w.bgw[1].pos_x_work - 0x58), 0, 0, 1 });
 
     bg_app_stop = 1;
 }
@@ -1138,9 +1142,13 @@ static void land_appear_18000(PLW* wk) {
         appear_work[wk->wu.id] = 0x1F;
 
         if (wk->wu.id) {
-            cal_delta_speed(&wk->wu, appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work + 0x58, 0, 0, 1);
+            cal_delta_speed(
+                &wk->wu, &(Motion_Target) { appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work + 0x58, 0, 0, 1 }
+            );
         } else {
-            cal_delta_speed(&wk->wu, appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work - 0x58, 0, 0, 1);
+            cal_delta_speed(
+                &wk->wu, &(Motion_Target) { appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work - 0x58, 0, 0, 1 }
+            );
         }
     }
 
@@ -1198,9 +1206,13 @@ static void launch_appear_19000(PLW* wk) {
     appear_work[wk->wu.id] = 0x20;
 
     if (wk->wu.id) {
-        cal_all_speed_data(&wk->wu, appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work + 0x58, 0, 1, 1);
+        cal_all_speed_data(
+            &wk->wu, &(Motion_Target) { appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work + 0x58, 0, 1, 1 }
+        );
     } else {
-        cal_all_speed_data(&wk->wu, appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work - 0x58, 0, 1, 1);
+        cal_all_speed_data(
+            &wk->wu, &(Motion_Target) { appear_work[wk->wu.id], bg_w.bgw[1].pos_x_work - 0x58, 0, 1, 1 }
+        );
     }
 
     if (wk->wu.id == 0) {
