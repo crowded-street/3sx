@@ -148,6 +148,90 @@ s32 plAPXSetContextFromImage(plContext* dst, void* lpbas) {
     return 1;
 }
 
+/* The palette's own layout and extent. Each returns 0 where its switch fell to
+ * the default and returned 0 from the loader, and 1 where it fell through. */
+static s32 set_apx_clut_format(plContext* dst, s32 ClutBit) {
+    switch (ClutBit) {
+    case 16:
+        dst->bitdepth = 2;
+        dst->pixelformat.rl = 5;
+        dst->pixelformat.rs = 0xA;
+        dst->pixelformat.rm = 0x1F;
+        dst->pixelformat.gl = 5;
+        dst->pixelformat.gs = 5;
+        dst->pixelformat.gm = 0x1F;
+        dst->pixelformat.bl = 5;
+        dst->pixelformat.bs = 0;
+        dst->pixelformat.bm = 0x1F;
+        dst->pixelformat.al = 1;
+        dst->pixelformat.as = 0xF;
+        dst->pixelformat.am = 1;
+        dst->pixelformat.rs = 0;
+        dst->pixelformat.bs = 0xA;
+        break;
+
+    case 24:
+        dst->bitdepth = 3;
+        dst->pixelformat.rl = 8;
+        dst->pixelformat.rs = 0x10;
+        dst->pixelformat.rm = 0xFF;
+        dst->pixelformat.gl = 8;
+        dst->pixelformat.gs = 8;
+        dst->pixelformat.gm = 0xFF;
+        dst->pixelformat.bl = 8;
+        dst->pixelformat.bs = 0;
+        dst->pixelformat.bm = 0xFF;
+        dst->pixelformat.al = 0;
+        dst->pixelformat.as = 0;
+        dst->pixelformat.am = 0;
+        dst->pixelformat.rs = 0;
+        dst->pixelformat.bs = 0x10;
+        break;
+
+    case 32:
+        dst->bitdepth = 4;
+        dst->pixelformat.rl = 8;
+        dst->pixelformat.rs = 0x10;
+        dst->pixelformat.rm = 0xFF;
+        dst->pixelformat.gl = 8;
+        dst->pixelformat.gs = 8;
+        dst->pixelformat.gm = 0xFF;
+        dst->pixelformat.bl = 8;
+        dst->pixelformat.bs = 0;
+        dst->pixelformat.bm = 0xFF;
+        dst->pixelformat.al = 8;
+        dst->pixelformat.as = 0x18;
+        dst->pixelformat.am = 0xFF;
+        dst->pixelformat.rs = 0;
+        dst->pixelformat.bs = 0x10;
+        break;
+
+    default:
+        return 0;
+    }
+
+    return 1;
+}
+
+static s32 set_apx_clut_extent(plContext* dst, s32 PixelBit) {
+    switch (PixelBit) {
+    case 4:
+        dst->width = 0x10;
+        dst->height = 1;
+        break;
+
+    case 8:
+        dst->width = 0x100;
+        dst->height = 1;
+        break;
+
+    default:
+        return 0;
+    }
+
+    return 1;
+}
+
 s32 plAPXSetPaletteContextFromImage(plContext* dst, void* lpbas) {
     s32 pal_num;
     APXFileHeader* lpApxFileHeader;
@@ -161,77 +245,11 @@ s32 plAPXSetPaletteContextFromImage(plContext* dst, void* lpbas) {
     for (lp0 = 0; lp0 < pal_num; lp0++) {
         dst->desc = 0;
 
-        switch (lpApxFileHeader->ClutBit) {
-        case 16:
-            dst->bitdepth = 2;
-            dst->pixelformat.rl = 5;
-            dst->pixelformat.rs = 0xA;
-            dst->pixelformat.rm = 0x1F;
-            dst->pixelformat.gl = 5;
-            dst->pixelformat.gs = 5;
-            dst->pixelformat.gm = 0x1F;
-            dst->pixelformat.bl = 5;
-            dst->pixelformat.bs = 0;
-            dst->pixelformat.bm = 0x1F;
-            dst->pixelformat.al = 1;
-            dst->pixelformat.as = 0xF;
-            dst->pixelformat.am = 1;
-            dst->pixelformat.rs = 0;
-            dst->pixelformat.bs = 0xA;
-            break;
-
-        case 24:
-            dst->bitdepth = 3;
-            dst->pixelformat.rl = 8;
-            dst->pixelformat.rs = 0x10;
-            dst->pixelformat.rm = 0xFF;
-            dst->pixelformat.gl = 8;
-            dst->pixelformat.gs = 8;
-            dst->pixelformat.gm = 0xFF;
-            dst->pixelformat.bl = 8;
-            dst->pixelformat.bs = 0;
-            dst->pixelformat.bm = 0xFF;
-            dst->pixelformat.al = 0;
-            dst->pixelformat.as = 0;
-            dst->pixelformat.am = 0;
-            dst->pixelformat.rs = 0;
-            dst->pixelformat.bs = 0x10;
-            break;
-
-        case 32:
-            dst->bitdepth = 4;
-            dst->pixelformat.rl = 8;
-            dst->pixelformat.rs = 0x10;
-            dst->pixelformat.rm = 0xFF;
-            dst->pixelformat.gl = 8;
-            dst->pixelformat.gs = 8;
-            dst->pixelformat.gm = 0xFF;
-            dst->pixelformat.bl = 8;
-            dst->pixelformat.bs = 0;
-            dst->pixelformat.bm = 0xFF;
-            dst->pixelformat.al = 8;
-            dst->pixelformat.as = 0x18;
-            dst->pixelformat.am = 0xFF;
-            dst->pixelformat.rs = 0;
-            dst->pixelformat.bs = 0x10;
-            break;
-
-        default:
+        if (!set_apx_clut_format(dst, lpApxFileHeader->ClutBit)) {
             return 0;
         }
 
-        switch (lpApxFileHeader->PixelBit) {
-        case 4:
-            dst->width = 0x10;
-            dst->height = 1;
-            break;
-
-        case 8:
-            dst->width = 0x100;
-            dst->height = 1;
-            break;
-
-        default:
+        if (!set_apx_clut_extent(dst, lpApxFileHeader->PixelBit)) {
             return 0;
         }
 
