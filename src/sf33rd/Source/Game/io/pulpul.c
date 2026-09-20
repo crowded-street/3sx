@@ -342,9 +342,30 @@ lbl:
     return 1;
 }
 
+/* Starting the row the pattern stopped on, and setting the life it runs for.
+ * Returns 0 where the arm broke out and 1 where it fell through. */
+static s32 start_pulpul_row(PPWORK* wk, s32 i) {
+    s32 result;
+
+    result = pulpul_pdVibMxStart(wk, i, wk->port, &pulpara[wk->p[i].padr[wk->p[i].exix].ix]);
+
+    if (!result) {
+        return 0;
+    }
+
+    wk->p[i].rno[0] = 3;
+
+    if (i == 1) {
+        wk->p[i].life = ((wk->p[i].padr[wk->p[i].exix].timer) * (0x20 - pul[wk->id].tim_ans)) / 0x20;
+    } else {
+        wk->p[i].life = wk->p[i].padr[wk->p[i].exix].timer;
+    }
+
+    return 1;
+}
+
 static void run_pulpul_device(PPWORK* wk) {
     s32 i;
-    s32 result;
 
     if (chkVibUnit(wk->id) == 0) {
         wk->ok_dev = 0;
@@ -371,18 +392,8 @@ static void run_pulpul_device(PPWORK* wk) {
             /* fallthrough */
 
         case 2:
-            result = pulpul_pdVibMxStart(wk, i, wk->port, &pulpara[wk->p[i].padr[wk->p[i].exix].ix]);
-
-            if (!result) {
+            if (!start_pulpul_row(wk, i)) {
                 break;
-            }
-
-            wk->p[i].rno[0] = 3;
-
-            if (i == 1) {
-                wk->p[i].life = ((wk->p[i].padr[wk->p[i].exix].timer) * (0x20 - pul[wk->id].tim_ans)) / 0x20;
-            } else {
-                wk->p[i].life = wk->p[i].padr[wk->p[i].exix].timer;
             }
             /* fallthrough */
 
