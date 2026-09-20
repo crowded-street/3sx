@@ -352,6 +352,25 @@ lbl:
     return 1;
 }
 
+/* Taking up a newly requested pattern, and counting down the row that is
+ * playing. */
+static s32 begin_pulpul_pattern(PPWORK* wk, s32 i) {
+    if (wk->p[i].ppnew == 0) {
+        return 0;
+    }
+
+    wk->p[i].rno[0] = 1;
+    wk->p[i].ppnew = 0;
+    wk->p[i].exix = -1;
+    return 1;
+}
+
+static void tick_pulpul_row(PPWORK* wk, s32 i) {
+    if (--wk->p[i].life < 0) {
+        wk->p[i].rno[0] = 1;
+    }
+}
+
 /* Starting the row the pattern stopped on, and setting the life it runs for.
  * Returns 0 where the arm broke out and 1 where it fell through. */
 static s32 start_pulpul_row(PPWORK* wk, s32 i) {
@@ -386,12 +405,8 @@ static void run_pulpul_device(PPWORK* wk) {
     for (i = 0; i <= 0; i++) {
         switch (wk->p[i].rno[0]) {
         case 0:
-            if (wk->p[i].ppnew == 0)
+            if (!begin_pulpul_pattern(wk, i))
                 break;
-
-            wk->p[i].rno[0] = 1;
-            wk->p[i].ppnew = 0;
-            wk->p[i].exix = -1;
             /* fallthrough */
         case 1:
             wk->p[i].exix += 1;
@@ -408,9 +423,7 @@ static void run_pulpul_device(PPWORK* wk) {
             /* fallthrough */
 
         case 3:
-            if (--wk->p[i].life < 0) {
-                wk->p[i].rno[0] = 1;
-            }
+            tick_pulpul_row(wk, i);
             break;
         }
     }
