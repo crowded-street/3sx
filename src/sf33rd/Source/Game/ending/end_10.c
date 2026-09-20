@@ -106,6 +106,22 @@ static void end_10_wait_out_hold() {
     }
 }
 
+/* The colour cycle both 1000 scenes run while they hold: count the dwell down,
+ * and on each expiry step the colour and wrap it. They differ in the dwell and
+ * in how many colours they cycle through. */
+static void step_end_1000_colour_cycle(s16 interval, s16 limit) {
+    bgw_ptr->free--;
+
+    if (bgw_ptr->free <= 0) {
+        bgw_ptr->free = interval;
+        bgw_ptr->l_limit++;
+
+        if (bgw_ptr->l_limit >= limit) {
+            bgw_ptr->l_limit = 0;
+        }
+    }
+}
+
 void end_1000_0000() {
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -120,16 +136,7 @@ void end_1000_0000() {
         break;
 
     case 1:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->free = 4;
-            bgw_ptr->l_limit++;
-
-            if (bgw_ptr->l_limit >= 6) {
-                bgw_ptr->l_limit = 0;
-            }
-        }
+        step_end_1000_colour_cycle(4, 6);
 
         break;
     }
@@ -223,16 +230,7 @@ void end_1000_4000() {
         break;
 
     case 1:
-        bgw_ptr->free--;
-
-        if (bgw_ptr->free <= 0) {
-            bgw_ptr->free = 8;
-            bgw_ptr->l_limit++;
-
-            if (bgw_ptr->l_limit >= 5) {
-                bgw_ptr->l_limit = 0;
-            }
-        }
+        step_end_1000_colour_cycle(8, 5);
 
         break;
     }
