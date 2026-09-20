@@ -249,13 +249,18 @@ static void land_appear_04000(PLW* wk) {
     wk->wu.xyz[1].cal = 0;
 }
 
+/* The first frame of the jump-in entry. */
+static void begin_appear_04000(PLW* wk) {
+    wk->wu.routine_no[3]++;
+    bg_app_stop = 1;
+    wk->wu.disp_flag = 1;
+    set_char_move_init(&wk->wu, 9, 0x10);
+}
+
 void Appear_04000(PLW* wk) {
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        bg_app_stop = 1;
-        wk->wu.disp_flag = 1;
-        set_char_move_init(&wk->wu, 9, 0x10);
+        begin_appear_04000(wk);
         break;
 
     case 1:
