@@ -606,36 +606,33 @@ s32 flPS2LockTexture(const FlLockArgs* a) {
     return 1;
 }
 
-s32 flUnlockTexture(u32 th) {
-    FLTexture* lpflTexture = &flTexture[th - 1];
+/* Unlocking an entry in one of the two handle tables. Which table, how big it
+ * is, and which renderer-side unlock to report to are all that differ.
+ *
+ * The entry pointer is taken before the bound is checked, which is what both
+ * originals did; nothing is read through it until after the check. */
+static s32 unlock_fl_entry(FLTexture* table, u32 th, u32 max, void (*renderer_unlock)(unsigned int th)) {
+    FLTexture* entry = &table[th - 1];
 
-    if (th > FL_TEXTURE_MAX) {
+    if (th > max) {
         return 0;
     }
 
-    if (!lpflTexture->be_flag) {
+    if (!entry->be_flag) {
         return 0;
     }
 
-    const s32 ret = flPS2UnlockTexture(lpflTexture);
-    Renderer_UnlockTexture(th);
+    const s32 ret = flPS2UnlockTexture(entry);
+    renderer_unlock(th);
     return ret;
 }
 
+s32 flUnlockTexture(u32 th) {
+    return unlock_fl_entry(flTexture, th, FL_TEXTURE_MAX, Renderer_UnlockTexture);
+}
+
 s32 flUnlockPalette(u32 th) {
-    FLTexture* lpflPalette = &flPalette[th - 1];
-
-    if (th > FL_PALETTE_MAX) {
-        return 0;
-    }
-
-    if (!lpflPalette->be_flag) {
-        return 0;
-    }
-
-    const s32 ret = flPS2UnlockTexture(lpflPalette);
-    Renderer_UnlockPalette(th);
-    return ret;
+    return unlock_fl_entry(flPalette, th, FL_PALETTE_MAX, Renderer_UnlockPalette);
 }
 
 /* Unlocking a read-write lock puts the buffer back the way the hardware wants
