@@ -65,6 +65,34 @@ static bool menu_task_blocks_turbo() {
     return (task[TASK_MENU].condition == 1) && (task[TASK_MENU].r_no[0] != 10);
 }
 
+/* This frame's pad state, copied across and adjusted: the analog stick folded
+ * in where the option asks for it, and the interface type from the pad kind. */
+static void copy_pad_state(IOPad* pad, s32 i) {
+    pad->state = flpad_adr[0][i].state;
+    pad->anstate = flpad_adr[0][i].anstate;
+    pad->kind = flpad_adr[0][i].kind;
+    pad->sw = flpad_adr[0][i].sw;
+    pad->sw_old = flpad_adr[0][i].sw_old;
+    pad->sw_new = flpad_adr[0][i].sw_new;
+    pad->sw_off = flpad_adr[0][i].sw_off;
+    pad->sw_chg = flpad_adr[0][i].sw_chg;
+    pad->sw_repeat = flpad_adr[0][i].sw_repeat;
+    pad->stick[0] = flpad_adr[0][i].stick[0];
+    pad->stick[1] = flpad_adr[0][i].stick[1];
+
+    if (mpp_w.useAnalogStickData) {
+        merge_analog_direction(pad, i, 16);
+
+        merge_analog_direction(pad, i, 20);
+    }
+
+    if (pad->kind == 0 || pad->kind == 0x8000) {
+        Interface_Type[i] = 0;
+    } else {
+        Interface_Type[i] = 2;
+    }
+}
+
 void keyConvert() {
     IOPad* pad;
     u32 currSw;
@@ -95,29 +123,7 @@ void keyConvert() {
         }
 
         pad = &io_w.data[i];
-        pad->state = flpad_adr[0][i].state;
-        pad->anstate = flpad_adr[0][i].anstate;
-        pad->kind = flpad_adr[0][i].kind;
-        pad->sw = flpad_adr[0][i].sw;
-        pad->sw_old = flpad_adr[0][i].sw_old;
-        pad->sw_new = flpad_adr[0][i].sw_new;
-        pad->sw_off = flpad_adr[0][i].sw_off;
-        pad->sw_chg = flpad_adr[0][i].sw_chg;
-        pad->sw_repeat = flpad_adr[0][i].sw_repeat;
-        pad->stick[0] = flpad_adr[0][i].stick[0];
-        pad->stick[1] = flpad_adr[0][i].stick[1];
-
-        if (mpp_w.useAnalogStickData) {
-            merge_analog_direction(pad, i, 16);
-
-            merge_analog_direction(pad, i, 20);
-        }
-
-        if (pad->kind == 0 || pad->kind == 0x8000) {
-            Interface_Type[i] = 0;
-        } else {
-            Interface_Type[i] = 2;
-        }
+        copy_pad_state(pad, i);
 
         io_w.sw[i] = 0;
         currSw = pad->sw;
