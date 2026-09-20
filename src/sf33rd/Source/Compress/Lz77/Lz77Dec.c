@@ -55,11 +55,97 @@ static u8* copy_from_dictionary_stepped(u8* dst, const u8* dic, u8 step, s32 loo
     return dst;
 }
 
-s32 decLZ77withSizeCheck(u8* src, u8* dst, s32 size) {
+/* The literal and fill opcodes: the six ways a run is written out rather than
+ * copied from the dictionary. Returns how many output bytes the opcode
+ * produced, which is what the caller takes off the remaining size. An opcode
+ * this switch does not name produces none and leaves size alone, exactly as
+ * before. */
+static s32 lz77_write_run(u8** srcp, u8** dstp, u16 offset) {
+    u8* src = *srcp;
+    u8* dst = *dstp;
+    s32 loop = 0;
     s32 j;
+    u8 num;
+    u8 step;
+
+    switch (offset & 0x3F) {
+    case 1:
+        loop = *src++;
+
+        loop = whole_loop_if_zero(loop, 0x100);
+
+        for (j = 0; j < loop; j++) {
+            *dst++ = *src++;
+        }
+
+        break;
+
+    case 2:
+        loop = (src[0] << 8) | src[1];
+        src += 2;
+
+        loop = whole_loop_if_zero(loop, 0x10000);
+
+        for (j = 0; j < loop; j++) {
+            *dst++ = *src++;
+        }
+
+        break;
+
+    case 3:
+        num = *src++;
+        loop = *src++;
+
+        loop = whole_loop_if_zero(loop, 0x100);
+
+        dst = fill_bytes(dst, num, loop);
+
+        break;
+
+    case 4:
+        num = *src++;
+        loop = (src[0] << 8) | src[1];
+        src += 2;
+
+        loop = whole_loop_if_zero(loop, 0x10000);
+
+        dst = fill_bytes(dst, num, loop);
+
+        break;
+
+    case 5:
+        num = *src++;
+        step = *src++;
+        loop = *src++;
+
+        loop = whole_loop_if_zero(loop, 0x100);
+
+        dst = fill_ramp(dst, num, step, loop);
+
+        break;
+
+    case 6:
+        num = *src++;
+        step = *src++;
+        loop = (src[0] << 8) | src[1];
+        src += 2;
+
+        loop = whole_loop_if_zero(loop, 0x10000);
+
+        dst = fill_ramp(dst, num, step, loop);
+
+        break;
+    }
+
+    *srcp = src;
+    *dstp = dst;
+
+    return loop;
+}
+
+s32 decLZ77withSizeCheck(u8* src, u8* dst, s32 size) {
     s32 loop;
     u8* dic;
-    u8 num;
     u8 step;
     u16 offset;
 
@@ -96,80 +182,7 @@ s32 decLZ77withSizeCheck(u8* src, u8* dst, s32 size) {
 
                 size -= loop;
             } else {
-                switch (offset & 0x3F) {
-                case 1:
-                    loop = *src++;
-
-                    loop = whole_loop_if_zero(loop, 0x100);
-
-                    for (j = 0; j < loop; j++) {
-                        *dst++ = *src++;
-                    }
-
-                    size -= loop;
-                    break;
-
-                case 2:
-                    loop = (src[0] << 8) | src[1];
-                    src += 2;
-
-                    loop = whole_loop_if_zero(loop, 0x10000);
-
-                    for (j = 0; j < loop; j++) {
-                        *dst++ = *src++;
-                    }
-
-                    size -= loop;
-                    break;
-
-                case 3:
-                    num = *src++;
-                    loop = *src++;
-
-                    loop = whole_loop_if_zero(loop, 0x100);
-
-                    dst = fill_bytes(dst, num, loop);
-
-                    size -= loop;
-                    break;
-
-                case 4:
-                    num = *src++;
-                    loop = (src[0] << 8) | src[1];
-                    src += 2;
-
-                    loop = whole_loop_if_zero(loop, 0x10000);
-
-                    dst = fill_bytes(dst, num, loop);
-
-                    size -= loop;
-                    break;
-
-                case 5:
-                    num = *src++;
-                    step = *src++;
-                    loop = *src++;
-
-                    loop = whole_loop_if_zero(loop, 0x100);
-
-                    dst = fill_ramp(dst, num, step, loop);
-
-                    size -= loop;
-                    break;
-
-                case 6:
-                    num = *src++;
-                    step = *src++;
-                    loop = (src[0] << 8) | src[1];
-                    src += 2;
-
-                    loop = whole_loop_if_zero(loop, 0x10000);
-
-                    dst = fill_ramp(dst, num, step, loop);
-
-                    size -= loop;
-                    break;
-                }
+                size -= lz77_write_run(&src, &dst, offset);
             }
         } else {
             offset = (offset << 8) | *src++;
