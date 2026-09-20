@@ -491,6 +491,16 @@ void SSPutStrTexInputB2(f32 x, f32 y, s8 str) {
     scrscrntex[1].y = scrscrntex[3].y = (8.0f + y);
 }
 
+/* The four corner colours a text sprite is drawn in. Three of this file's
+ * drawing functions wrote the same three lines. */
+static void set_scrscrntex_colours(u8 gr) {
+    u8 i;
+
+    for (i = 0; i < 4; i++) {
+        scrscrntex[i].col = bigger_col_tbl[gr][i];
+    }
+}
+
 void SSPutStr_Bigger(const ScStrBig* s, f32 sc, u8 gr, u16 priority) {
     u16 x = s->x;
     u16 y = s->y;
@@ -508,9 +518,7 @@ void SSPutStr_Bigger(const ScStrBig* s, f32 sc, u8 gr, u16 priority) {
     ppgSetupCurrentDataList(&ppgScrList);
     njColorBlendingMode(0, 1);
 
-    for (i = 0; i < 4; i++) {
-        scrscrntex[i].col = bigger_col_tbl[gr][i];
-    }
+    set_scrscrntex_colours(gr);
 
     scrscrntex[0].z = scrscrntex[1].z = scrscrntex[2].z = scrscrntex[3].z = PrioBase[priority];
     njSetPaletteBankNumG(1, atr & 0x3F);
@@ -619,9 +627,7 @@ void SSPutDec3(const ScDec3* d, u8 size, u8 gr, u16 priority) {
     ppgSetupCurrentDataList(&ppgScrList);
     njColorBlendingMode(0, 1);
 
-    for (i = 0; i < 4; i++) {
-        scrscrntex[i].col = bigger_col_tbl[gr][i];
-    }
+    set_scrscrntex_colours(gr);
 
     scrscrntex[0].z = scrscrntex[1].z = scrscrntex[2].z = scrscrntex[3].z = PrioBase[priority];
     njSetPaletteBankNumG(1, atr & 0x3F);
@@ -836,9 +842,7 @@ void scfont_sqput3(const ScFontSquareWide* c, u8 gr, u16 priority) {
     ppgSetupCurrentDataList(&ppgScrList);
     njColorBlendingMode(0, 1);
 
-    for (i = 0; i < 4; i++) {
-        scrscrntex[i].col = bigger_col_tbl[gr][i];
-    }
+    set_scrscrntex_colours(gr);
 
     scrscrntex[0].z = scrscrntex[1].z = scrscrntex[2].z = scrscrntex[3].z = PrioBase[priority];
     njSetPaletteBankNumG(page, atr & 0x3F);
