@@ -1103,28 +1103,37 @@ void Check_Store_Lv(PLW* wk) {
     }
 }
 
+static void Store_LR_Facing_Left(PLW* wk) {
+    if (Lever_Buff[wk->wu.id] & 8) {
+        Lever_Store[wk->wu.id][1]++;
+        Lever_Store[wk->wu.id][2] = 0;
+    }
+
+    if (Lever_Buff[wk->wu.id] & 4) {
+        Lever_Store[wk->wu.id][1] = 0;
+        Lever_Store[wk->wu.id][2]++;
+    }
+}
+
+static void Store_LR_Facing_Right(PLW* wk) {
+    if (Lever_Buff[wk->wu.id] & 4) {
+        Lever_Store[wk->wu.id][1]++;
+        Lever_Store[wk->wu.id][2] = 0;
+    }
+
+    if (Lever_Buff[wk->wu.id] & 8) {
+        Lever_Store[wk->wu.id][1] = 0;
+        Lever_Store[wk->wu.id][2]++;
+    }
+}
+
 void Store_LR_Sub(PLW* wk) {
     if (wk->wu.rl_waza) {
-        if (Lever_Buff[wk->wu.id] & 8) {
-            Lever_Store[wk->wu.id][1]++;
-            Lever_Store[wk->wu.id][2] = 0;
-        }
-
-        if (Lever_Buff[wk->wu.id] & 4) {
-            Lever_Store[wk->wu.id][1] = 0;
-            Lever_Store[wk->wu.id][2]++;
-        }
-    } else {
-        if (Lever_Buff[wk->wu.id] & 4) {
-            Lever_Store[wk->wu.id][1]++;
-            Lever_Store[wk->wu.id][2] = 0;
-        }
-
-        if (Lever_Buff[wk->wu.id] & 8) {
-            Lever_Store[wk->wu.id][1] = 0;
-            Lever_Store[wk->wu.id][2]++;
-        }
+        Store_LR_Facing_Left(wk);
+        return;
     }
+
+    Store_LR_Facing_Right(wk);
 }
 
 void Setup_Bullet_Counter(PLW* wk) {
