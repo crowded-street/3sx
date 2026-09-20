@@ -372,6 +372,20 @@ void Fistbump_HandleSTART(const char* line) {
     state = FISTBUMP_GAME_START;
 }
 
+/* The second half of the command chain, reached when none of the first four
+ * prefixes matched. */
+static void Fistbump_ParseMatchCommand(const char* line) {
+    if (strncmp(line, "PROFILE ", 8) == 0) {
+        Fistbump_HandlePROFILE(line);
+    } else if (strncmp(line, "MATCH ", 6) == 0) {
+        Fistbump_HandleMATCH(line);
+    } else if (strncmp(line, "CANCEL ", 7) == 0) {
+        Fistbump_HandleCANCEL(line);
+    } else if (strncmp(line, "START ", 6) == 0) {
+        Fistbump_HandleSTART(line);
+    }
+}
+
 void Fistbump_ParseCommand(const char* line) {
     if (strncmp(line, "SESSION ", 8) == 0) {
         Fistbump_HandleSESSION(line);
@@ -381,14 +395,8 @@ void Fistbump_ParseCommand(const char* line) {
         Fistbump_HandleUDP(line);
     } else if (strncmp(line, "TOKEN ", 6) == 0) {
         Fistbump_HandleTOKEN(line);
-    } else if (strncmp(line, "PROFILE ", 8) == 0) {
-        Fistbump_HandlePROFILE(line);
-    } else if (strncmp(line, "MATCH ", 6) == 0) {
-        Fistbump_HandleMATCH(line);
-    } else if (strncmp(line, "CANCEL ", 7) == 0) {
-        Fistbump_HandleCANCEL(line);
-    } else if (strncmp(line, "START ", 6) == 0) {
-        Fistbump_HandleSTART(line);
+    } else {
+        Fistbump_ParseMatchCommand(line);
     }
 }
 
