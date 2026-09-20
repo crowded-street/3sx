@@ -20,6 +20,48 @@ const u8 hnc_color_tbl[88] = { 21, 2, 22, 1, 21, 2, 20, 18, 21, 2, 22, 1, 21, 2,
                                21, 2, 20, 4, 21, 2, 22, 1,  21, 2, 20, 4, 21, 2, 22, 1,  21, 2, 20, 4, 21, 2,
                                22, 1, 21, 2, 20, 4, 21, 2,  22, 1, 21, 2, 20, 4, 21, 2,  22, 1, 21, 2, 20, 255 };
 
+/* The bars opening at the fixed colour, and then running through the colour
+ * table. The second returns 0 where its arm returned - skipping the timer at
+ * the end of the mover - and 1 where it broke out of the switch. */
+static void effect_A2_open_bars(WORK_Other* ewk) {
+    if ((Game_pause & 0x80) != 0) {
+        hnc_set(ewk->wu.direction, 20);
+        return;
+    }
+
+    hnc_set(ewk->wu.direction, 20);
+
+    if (ewk->wu.direction < 23) {
+        ewk->wu.direction++;
+    }
+
+    if (ewk->wu.direction == 18) {
+        ewk->wu.routine_no[0]++;
+        hnc_pointer = hnc_color_tbl;
+        hnc_col = *hnc_pointer++;
+        hnc_timer = *hnc_pointer++;
+    }
+}
+
+static s32 effect_A2_colour_bars(WORK_Other* ewk) {
+    if (Game_pause & 0x80) {
+        hnc_set(ewk->wu.direction, hnc_col);
+        return 0;
+    }
+
+    hnc_set(ewk->wu.direction, hnc_col);
+
+    if (ewk->wu.direction < 23) {
+        ewk->wu.direction++;
+    }
+
+    if (ewk->wu.direction == 23) {
+        ewk->wu.routine_no[0]++;
+    }
+
+    return 1;
+}
+
 void effect_A2_move(WORK_Other* ewk) {
     if (!(Game_pause & 0x80)) {
         hnc_end_timer++;
@@ -31,40 +73,12 @@ void effect_A2_move(WORK_Other* ewk) {
         ewk->wu.routine_no[0]++;
 
     case 1:
-        if ((Game_pause & 0x80) != 0) {
-            hnc_set(ewk->wu.direction, 20);
-            return;
-        }
-
-        hnc_set(ewk->wu.direction, 20);
-
-        if (ewk->wu.direction < 23) {
-            ewk->wu.direction++;
-        }
-
-        if (ewk->wu.direction == 18) {
-            ewk->wu.routine_no[0]++;
-            hnc_pointer = hnc_color_tbl;
-            hnc_col = *hnc_pointer++;
-            hnc_timer = *hnc_pointer++;
-        }
-
+        effect_A2_open_bars(ewk);
         return;
 
     case 2:
-        if (Game_pause & 0x80) {
-            hnc_set(ewk->wu.direction, hnc_col);
+        if (!effect_A2_colour_bars(ewk)) {
             return;
-        }
-
-        hnc_set(ewk->wu.direction, hnc_col);
-
-        if (ewk->wu.direction < 23) {
-            ewk->wu.direction++;
-        }
-
-        if (ewk->wu.direction == 23) {
-            ewk->wu.routine_no[0]++;
         }
 
         break;
