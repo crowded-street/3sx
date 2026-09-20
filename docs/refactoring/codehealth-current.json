@@ -5,8 +5,8 @@
  "bands": {
   "red": 0,
   "yellow": 46,
-  "green": 86,
-  "optimal": 527
+  "green": 83,
+  "optimal": 530
  },
  "scores": [
   {
@@ -266,10 +266,6 @@
    "score": 9.09
   },
   {
-   "path": "src/sf33rd/Source/Game/effect/efff6.c",
-   "score": 9.09
-  },
-  {
    "path": "src/sf33rd/Source/Game/ending/end_04.c",
    "score": 9.09
   },
@@ -294,24 +290,16 @@
    "score": 9.13
   },
   {
+   "path": "src/sf33rd/Source/Game/effect/efff6.c",
+   "score": 9.14
+  },
+  {
    "path": "src/sf33rd/Source/Game/engine/cmd_main_checks.c",
    "score": 9.16
   },
   {
-   "path": "src/port/io/afs.c",
-   "score": 9.24
-  },
-  {
    "path": "src/sf33rd/Source/Common/MemMan.c",
    "score": 9.24
-  },
-  {
-   "path": "src/sf33rd/AcrSDK/ps2/ps2PAD.c",
-   "score": 9.29
-  },
-  {
-   "path": "src/port/sound/adx.c",
-   "score": 9.31
   },
   {
    "path": "src/sf33rd/Source/Common/PPGFile.c",
@@ -379,10 +367,6 @@
   },
   {
    "path": "src/sf33rd/Source/Game/effect/effa9.c",
-   "score": 9.38
-  },
-  {
-   "path": "src/sf33rd/Source/Game/effect/effect.c",
    "score": 9.38
   },
   {
@@ -470,14 +454,6 @@
    "score": 9.5
   },
   {
-   "path": "src/arcade/arcade_char_data.c",
-   "score": 9.53
-  },
-  {
-   "path": "src/sf33rd/Source/Game/effect/effm2.c",
-   "score": 9.53
-  },
-  {
    "path": "src/sf33rd/Source/Game/effect/eff78.c",
    "score": 9.55
   },
@@ -486,12 +462,12 @@
    "score": 9.58
   },
   {
-   "path": "src/sf33rd/Source/Game/init3rd.c",
-   "score": 9.58
-  },
-  {
    "path": "src/sf33rd/Source/Game/ending/end_01.c",
    "score": 9.6
+  },
+  {
+   "path": "src/arcade/arcade_char_data.c",
+   "score": 9.61
   },
   {
    "path": "src/platform/netplay/fistbump.c",
@@ -522,7 +498,19 @@
    "score": 9.68
   },
   {
+   "path": "src/sf33rd/Source/Game/effect/effect.c",
+   "score": 9.76
+  },
+  {
    "path": "src/sf33rd/AcrSDK/ps2/flps2etc.c",
+   "score": 9.84
+  },
+  {
+   "path": "src/sf33rd/AcrSDK/ps2/ps2PAD.c",
+   "score": 9.84
+  },
+  {
+   "path": "src/sf33rd/Source/Game/effect/effm2.c",
    "score": 9.84
   },
   {
@@ -634,6 +622,10 @@
    "score": 10.0
   },
   {
+   "path": "src/port/io/afs.c",
+   "score": 10.0
+  },
+  {
    "path": "src/port/paths.c",
    "score": 10.0
   },
@@ -647,6 +639,10 @@
   },
   {
    "path": "src/port/sdl/netstats_renderer.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/port/sound/adx.c",
    "score": 10.0
   },
   {
@@ -2307,6 +2303,10 @@
   },
   {
    "path": "src/sf33rd/Source/Game/game_round.c",
+   "score": 10.0
+  },
+  {
+   "path": "src/sf33rd/Source/Game/init3rd.c",
    "score": 10.0
   },
   {

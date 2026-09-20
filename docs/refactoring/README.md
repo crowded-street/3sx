@@ -18,8 +18,8 @@ Measured across every first-party `.c` and `.cpp` file. Vendored code (`src/imgu
 | --- | --- | --- | --- | --- | --- |
 | **Red** - severe debt | 1.0 - 3.9 | **19** | **0** | **0** | **0** |
 | **Yellow** - problematic debt | 4.0 - 8.9 | **207** | 93 | 62 | 46 |
-| Green | 9.0 - 9.9 | 158 | 91 | 101 | 86 |
-| Optimal | 10.0 | 98 | 475 | 496 | **527** |
+| Green | 9.0 - 9.9 | 158 | 91 | 101 | 83 |
+| Optimal | 10.0 | 98 | 475 | 496 | **530** |
 | **Total scored** | | **482** | 659 | 659 | **659** |
 | Mean | | | 9.66 | 9.75 | **9.80** |
 
@@ -32,7 +32,7 @@ The file count rises because the campaign splits files.
 > JSON, not from this table** - the JSON is written by `codehealth_sweep.py` and the table
 > is typed by hand.
 
-The green count falls between the last two columns because thirty-one files left it
+The green count falls between the last two columns because thirty-four files left it
 upwards: the 2026-09-20 afternoon pass took the platform layer, the AcrSDK, the port
 shims and the scene flow, and most of what it touched went to 10.00 rather than stopping
 in the green band. See *The platform, SDK and shim sweep* in
