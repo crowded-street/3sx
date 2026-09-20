@@ -170,17 +170,23 @@ static void start_appear_01000_pose(PLW* wk, s16 work) {
     }
 }
 
-void Appear_01000(PLW* wk) {
+/* The first frame of the posed entry: the pose is picked at random. */
+static void begin_appear_01000(PLW* wk) {
     s16 work;
+
+    wk->wu.routine_no[3]++;
+    wk->wu.disp_flag = 1;
+    bg_app_stop = 1;
+    work = random_16();
+
+    start_appear_01000_pose(wk, work);
+}
+
+void Appear_01000(PLW* wk) {
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        wk->wu.routine_no[3]++;
-        wk->wu.disp_flag = 1;
-        bg_app_stop = 1;
-        work = random_16();
-
-        start_appear_01000_pose(wk, work);
+        begin_appear_01000(wk);
         break;
 
     case 1:
