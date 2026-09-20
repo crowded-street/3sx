@@ -199,15 +199,25 @@ void end_1600_2000() {
     }
 }
 
-void end_1600_3000() {
+/* 3000 resets the colour limits as it opens; 3100 leaves them where they are,
+ * which the empty function says. */
+static void set_end_1600_3000_limits(void) {
+    bgw_ptr->l_limit2 = 2;
+    bgw_ptr->l_limit = 0;
+}
+
+static void keep_end_1600_limits(void) {}
+
+/* The message scene end_1600_3000 and end_1600_3100 share: open, spawn the
+ * scene's effect, put up its message, and start the colour change. */
+static void run_end_16_message_scene(u8 effect_id, u16 message, void (*set_limits)(void), u8 kakikae) {
     switch (bgw_ptr->r_no_1) {
     case 0:
         end_16_open_scene();
-        effect_E6_init(0x56);
-        Rewrite_End_Message(3);
-        bgw_ptr->l_limit2 = 2;
-        bgw_ptr->l_limit = 0;
-        c_kakikae = 1;
+        effect_E6_init(effect_id);
+        Rewrite_End_Message(message);
+        set_limits();
+        c_kakikae = kakikae;
         break;
 
     case 1:
@@ -216,19 +226,12 @@ void end_1600_3000() {
     }
 }
 
-void end_1600_3100() {
-    switch (bgw_ptr->r_no_1) {
-    case 0:
-        end_16_open_scene();
-        effect_E6_init(0x57);
-        Rewrite_End_Message(4);
-        c_kakikae = 2;
-        break;
+void end_1600_3000() {
+    run_end_16_message_scene(0x56, 3, set_end_1600_3000_limits, 1);
+}
 
-    case 1:
-        end_16_col_change();
-        break;
-    }
+void end_1600_3100() {
+    run_end_16_message_scene(0x57, 4, keep_end_1600_limits, 2);
 }
 
 void end_1600_5000() {
