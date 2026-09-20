@@ -29,18 +29,42 @@ static bool is_first_available_pattern_slot(PatternState* mc, s32 free_index) {
     return (mc->cs.code == -1) && (free_index < 0);
 }
 
-static s32 claim_mltbuf16_slot(MultiTexture* mt, s32 b, u32 code, u32 palt) {
+/* One of the two pattern caches, as the claim sees it: where it starts, how many
+ * slots it has, the time stamp a fresh slot is given, and what the log says when
+ * there is no slot to give. */
+typedef struct {
+    MultiTexture* mt;
+    PatternState* cache;
+    s32 count;
+    s32 time;
+    const char* full_message;
+} MltbufClaimBank;
+
+/* Claiming the free slot the search found, for either cache. The bank's count
+ * and time are read at the call site, where the originals read mt->mltnum and
+ * mt->mltcshtime inside the branch; nothing runs in between. */
+static s32 claim_mltbuf_slot(const MltbufClaimBank* bank, s32 b, u32 code, u32 palt) {
     if (b >= 0) {
-        b = mt->mltnum16 - b;
-        mt->mltcsh16[b].time = mt->mltcshtime16;
-        mt->mltcsh16[b].state = palt;
-        mt->mltcsh16[b].cs.code = code;
+        b = bank->count - b;
+        bank->cache[b].time = bank->time;
+        bank->cache[b].state = palt;
+        bank->cache[b].cs.code = code;
         return b;
     }
 
-    // CG cache is full. 16x16: %d\n
-    flLogOut("ＣＧキャッシュが一杯になりました。１６×１６ : %d\n", mt->id);
+    flLogOut(bank->full_message, bank->mt->id);
     while (1) {}
+}
+
+static s32 claim_mltbuf16_slot(MultiTexture* mt, s32 b, u32 code, u32 palt) {
+    // CG cache is full. 16x16: %d\n
+    return claim_mltbuf_slot(
+        &(MltbufClaimBank) {
+            mt, mt->mltcsh16, mt->mltnum16, mt->mltcshtime16, "ＣＧキャッシュが一杯になりました。１６×１６ : %d\n" },
+        b,
+        code,
+        palt
+    );
 }
 
 /* One of the two multi-texture pattern caches, with everything the search needs
@@ -98,21 +122,15 @@ s32 get_mltbuf16(MultiTexture* mt, u32 code, u32 palt, s32* ret) {
     );
 }
 
-// The tail of get_mltbuf32's scan: take the slot the scan set aside, or hang if
-// it found none. It returns the slot rather than writing it, because the other
-// exit never comes back.
 static s32 claim_mltbuf32_slot(MultiTexture* mt, s32 b, u32 code, u32 palt) {
-    if (b >= 0) {
-        b = mt->mltnum32 - b;
-        mt->mltcsh32[b].time = mt->mltcshtime32;
-        mt->mltcsh32[b].state = palt;
-        mt->mltcsh32[b].cs.code = code;
-        return b;
-    }
-
     // CG cache is full. 32x32 : %d\n
-    flLogOut("ＣＧキャッシュが一杯になりました。３２×３２ : %d\n", mt->id);
-    while (1) {}
+    return claim_mltbuf_slot(
+        &(MltbufClaimBank) {
+            mt, mt->mltcsh32, mt->mltnum32, mt->mltcshtime32, "ＣＧキャッシュが一杯になりました。３２×３２ : %d\n" },
+        b,
+        code,
+        palt
+    );
 }
 
 s32 get_mltbuf32(MultiTexture* mt, u32 code, u32 palt, s32* ret) {
