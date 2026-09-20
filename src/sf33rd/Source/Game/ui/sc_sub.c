@@ -606,6 +606,22 @@ void SSPutDec(const ScDec* d, u8 size) {
     put_dec_high_digits(x, y, str, size);
 }
 
+/* The three decimal digits the value splits into. */
+static void split_dec3_digits(s16 dec, s8* str) {
+    s16 work;
+    u8 num;
+    u8 i;
+
+    work = 100;
+
+    for (i = 0; i < 3; i++) {
+        for (num = 0; dec + 1 > work; dec = dec - work, num++) {}
+
+        str[i] = num;
+        work = work / 10;
+    }
+}
+
 void SSPutDec3(const ScDec3* d, u8 size, u8 gr, u16 priority) {
     u16 x = d->x;
     u16 y = d->y;
@@ -613,9 +629,6 @@ void SSPutDec3(const ScDec3* d, u8 size, u8 gr, u16 priority) {
     s16 dec = d->dec;
 
     s8 str[3];
-    s16 work;
-    u8 num;
-    u8 i;
     u8 zero_sw;
     f32 xx;
     f32 yy;
@@ -634,19 +647,12 @@ void SSPutDec3(const ScDec3* d, u8 size, u8 gr, u16 priority) {
 
     xx = x;
     yy = y;
-    zero_sw = 0;
-    work = 100;
-
-    for (i = 0; i < 3; i++) {
-        for (num = 0; dec + 1 > work; dec = dec - work, num++) {}
-
-        str[i] = num;
-        work = work / 10;
-    }
+    split_dec3_digits(dec, str);
 
     SSPutStrTexInputB2(xx, yy, str[2]);
     njDrawTexture(scrscrntex, 4, 4, 1);
 
+    zero_sw = 0;
     if (size == 0) {
         return;
     }
