@@ -489,7 +489,10 @@ void Normal_13000(PLW* wk) { // 🔵
     run_simple_normal_state(wk, 50);
 }
 
-void Normal_16000(PLW* wk) { // 🟢
+/* The two air-guard states: put the player in front, take the guard flag, clear
+ * the extra jump and run the pattern. They differ in one value, the pattern
+ * index. */
+static void run_guard_extra_jump_state(PLW* wk, s16 index) {
     raise_z_when_mirrored(wk);
 
     wk->guard_flag = 3;
@@ -498,7 +501,7 @@ void Normal_16000(PLW* wk) { // 🟢
     case 0:
         wk->wu.routine_no[3]++;
         wk->extra_jump = 0;
-        set_char_move_init(&wk->wu, 0, 12);
+        set_char_move_init(&wk->wu, 0, index);
         break;
 
     case 1:
@@ -507,22 +510,12 @@ void Normal_16000(PLW* wk) { // 🟢
     }
 }
 
+void Normal_16000(PLW* wk) { // 🟢
+    run_guard_extra_jump_state(wk, 12);
+}
+
 void Normal_17000(PLW* wk) { // 🟢
-    raise_z_when_mirrored(wk);
-
-    wk->guard_flag = 3;
-
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        wk->extra_jump = 0;
-        set_char_move_init(&wk->wu, 0, 13);
-        break;
-
-    case 1:
-        char_move(&wk->wu);
-        break;
-    }
+    run_guard_extra_jump_state(wk, 13);
 }
 
 void Normal_18000(PLW* wk) { // 🟢
