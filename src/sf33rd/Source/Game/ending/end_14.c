@@ -212,7 +212,18 @@ void end_e00_0000() {
 
 const u8 end_e00_0000_col_tbl[12] = { 0, 1, 2, 3, 4, 5, 6, 5, 6, 5, 6, 6 };
 
-s16 end_e00_0000_col_sub() {
+/* What end_e00_0000_col_sub does when the limit advances, and what
+ * end_e00_0000_col_sub2 does instead, which is nothing. */
+static void end_e00_0000_col_set(void) {
+    *g_number = end_e00_0000_col_tbl[bgw_ptr->l_limit];
+}
+
+static void end_e00_0000_col_keep(void) {}
+
+/* The colour step the two e00 subs share: count the dwell down, advance the
+ * limit when it runs out, and report when the limit is spent. The only thing
+ * they disagree on is what happens on an advance that is not the last. */
+static s16 end_e00_0000_col_step(void (*on_advance)(void)) {
     bgw_ptr->free--;
 
     if (bgw_ptr->free <= 0) {
@@ -223,25 +234,18 @@ s16 end_e00_0000_col_sub() {
             return 1;
         }
 
-        *g_number = end_e00_0000_col_tbl[bgw_ptr->l_limit];
+        on_advance();
     }
 
     return 0;
 }
 
+s16 end_e00_0000_col_sub() {
+    return end_e00_0000_col_step(end_e00_0000_col_set);
+}
+
 s16 end_e00_0000_col_sub2() {
-    bgw_ptr->free--;
-
-    if (bgw_ptr->free <= 0) {
-        bgw_ptr->free = 7;
-        bgw_ptr->l_limit++;
-
-        if (bgw_ptr->l_limit >= 12) {
-            return 1;
-        }
-    }
-
-    return 0;
+    return end_e00_0000_col_step(end_e00_0000_col_keep);
 }
 
 const u8 end_e00_1000_col_tbl[8] = { 0, 0, 1, 2, 3, 4, 5, 6 };
