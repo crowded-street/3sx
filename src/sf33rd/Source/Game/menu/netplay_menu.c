@@ -94,6 +94,15 @@ void Setup_Netplay_Menu(struct _TASK* task_ptr) {
     }
 }
 
+/* The exit the menu leaves on: the cancel button, or confirm on the EXIT row
+ * of a page that has one, while the connection is idle or still waiting on a
+ * login. */
+static bool netplay_menu_exit_pressed(FistbumpState fs) {
+    return (IO_Result == SWK_EAST ||
+            (IO_Result == SWK_SOUTH && Menu_Cursor_Y[0] == Menu_Max && Menu_Page != NETPLAY_PAGE_LOGGED_OUT)) &&
+           (fs == FISTBUMP_IDLE || fs == FISTBUMP_AWAITING_LOGIN);
+}
+
 /* The menu page's own input frame: the cursor moves, the exits and the two
  * confirm paths. Every `break` that left the menu's switch is a return here;
  * the cursor switch keeps its own. */
@@ -110,9 +119,7 @@ static void run_netplay_menu_input(struct _TASK* task_ptr, FistbumpState fs) {
         SE_cursor_move();
     }
 
-    if ((IO_Result == SWK_EAST ||
-         (IO_Result == SWK_SOUTH && Menu_Cursor_Y[0] == Menu_Max && Menu_Page != NETPLAY_PAGE_LOGGED_OUT)) &&
-        (fs == FISTBUMP_IDLE || fs == FISTBUMP_AWAITING_LOGIN)) {
+    if (netplay_menu_exit_pressed(fs)) {
         Menu_Suicide[0] = 0;
         Menu_Suicide[1] = 1;
         Menu_Suicide[2] = 1;
