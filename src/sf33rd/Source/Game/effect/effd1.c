@@ -15,6 +15,24 @@
 #include "sf33rd/Source/Game/rendering/texcash.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
 
+/* Where the fall lands when the effect faces right: the clamp on the gap
+ * between the players, and the target it gives. Only this arm is lifted -
+ * lifting the facing-left one as well pairs the two and measures 9.38 against
+ * 10.00. */
+static void fall_data_set_right(WORK_Other* ewk, WORK_Other* oya_ef, s16 pos_work) {
+    ewk->wu.xyz[0].disp.pos += 32;
+
+    if (pos_work > 0) {
+        pos_work = 32;
+    } else if (pos_work > -32) {
+        pos_work = 32;
+    } else {
+        pos_work = -pos_work;
+    }
+
+    ewk->wu.old_rno[1] = oya_ef->wu.xyz[0].disp.pos + pos_work;
+}
+
 void fall_data_set(WORK_Other* ewk);
 
 static s32 should_end_effect_d1(const WORK_Other* ewk) {
@@ -127,17 +145,7 @@ void fall_data_set(WORK_Other* ewk) {
     ewk->wu.old_rno[2] = -8;
 
     if (ewk->wu.rl_flag) {
-        ewk->wu.xyz[0].disp.pos += 32;
-
-        if (pos_work > 0) {
-            pos_work = 32;
-        } else if (pos_work > -32) {
-            pos_work = 32;
-        } else {
-            pos_work = -pos_work;
-        }
-
-        ewk->wu.old_rno[1] = oya_ef->wu.xyz[0].disp.pos + pos_work;
+        fall_data_set_right(ewk, oya_ef, pos_work);
     } else {
         ewk->wu.xyz[0].disp.pos -= 32;
 
