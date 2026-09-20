@@ -114,12 +114,40 @@ static u8* plmem_find_gap_upward(MEM_MGR* memmgr, u32 size, MEM_BLOCK* now_block
     return NULL;
 }
 
+/* The downward mirror of plmem_find_gap_upward: the list runs the other way, so
+ * the gap is measured from the current block down to the aligned start of the
+ * next one, and the address to claim sits size below the current block. Returns
+ * NULL where the list ran out, on the same terms. */
+static u8* plmem_find_gap_downward(MEM_MGR* memmgr, u32 size, MEM_BLOCK* now_block) {
+    size_t len2;
+    MEM_BLOCK* next_block;
+    u8* data_ptr;
+
+    while (now_block->next != MEM_NULL_HANDLE) {
+        next_block = memmgr->block + now_block->next;
+        data_ptr = (u8*)ALIGN(next_block->ptr, next_block->len, memmgr->memalign);
+        len2 = now_block->ptr - data_ptr;
+
+        if (size <= len2) {
+            return now_block->ptr - size;
+        }
+
+        now_block = next_block;
+    }
+
+    len2 = now_block->ptr - memmgr->memnow;
+
+    if (size <= len2) {
+        return now_block->ptr - size;
+    }
+
+    return NULL;
+}
+
 u32 plmemRegisterS(MEM_MGR* memmgr, s32 len) {
     u32 han;
-    size_t len2;
     u32 size;
     MEM_BLOCK* now_block;
-    MEM_BLOCK* next_block;
     u8* data_ptr;
 
     size = ALIGN(NULL, len, memmgr->memalign);
@@ -137,28 +165,12 @@ u32 plmemRegisterS(MEM_MGR* memmgr, s32 len) {
 
     if (memmgr->direction != 0) {
         data_ptr = plmem_find_gap_upward(memmgr, size, now_block);
-
-        if (data_ptr != NULL) {
-            return plmem_claim_block(memmgr, han, len, data_ptr);
-        }
     } else {
-        while (now_block->next != MEM_NULL_HANDLE) {
-            next_block = memmgr->block + now_block->next;
-            data_ptr = (u8*)ALIGN(next_block->ptr, next_block->len, memmgr->memalign);
-            len2 = now_block->ptr - data_ptr;
+        data_ptr = plmem_find_gap_downward(memmgr, size, now_block);
+    }
 
-            if (size <= len2) {
-                return plmem_claim_block(memmgr, han, len, now_block->ptr - size);
-            }
-
-            now_block = next_block;
-        }
-
-        len2 = now_block->ptr - memmgr->memnow;
-
-        if (size <= len2) {
-            return plmem_claim_block(memmgr, han, len, now_block->ptr - size);
-        }
+    if (data_ptr != NULL) {
+        return plmem_claim_block(memmgr, han, len, data_ptr);
     }
 
     return plmemRegister(memmgr, len);
