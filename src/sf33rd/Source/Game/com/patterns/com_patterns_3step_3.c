@@ -10,9 +10,9 @@
  * its calls taken as parameters and written out in full at each call site.
  */
 
-#include "sf33rd/Source/Game/com/patterns/com_patterns.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
+#include "sf33rd/Source/Game/com/patterns/com_patterns.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 
 void pattern_lever_on_em_term_j_command_attack(
@@ -204,11 +204,11 @@ void pattern_normal_attack_j_command_attack_com_random_select_2(PLW* wk) {
         break;
 
     case 1:
-        J_Command_Attack(wk, &(Command_Attack_Args){8, 0x1C, 0xA, -1});
+        J_Command_Attack(wk, &(Command_Attack_Args) { 8, 0x1C, 0xA, -1 });
         break;
 
     case 2:
-        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x2D, 0xFF, 0xFF, 0xFF}, 2);
+        Com_Random_Select(wk, &(Branch_Menu_Args) { 6, 0x2D, 0xFF, 0xFF, 0xFF }, 2);
         break;
 
     default:
@@ -248,7 +248,7 @@ void pattern_normal_attack_sa_term_com_random_select(PLW* wk, s16 reaction, cons
         break;
 
     case 2:
-        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x37, 0x37, 0x27, 0x27}, 0);
+        Com_Random_Select(wk, &(Branch_Menu_Args) { 6, 0x37, 0x37, 0x27, 0x27 }, 0);
         break;
 
     default:
@@ -392,7 +392,7 @@ void pattern_pierce_on_command_attack_normal_attack_3(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, &(Command_Attack_Args){0xC, 0, 0xB, -1});
+        Command_Attack(wk, &(Command_Attack_Args) { 0xC, 0, 0xB, -1 });
         break;
 
     case 2:
@@ -468,7 +468,7 @@ void pattern_provoke_sa_term_com_random_select(PLW* wk, const SA_Term_Args* p, c
 void pattern_sa_term_approach_walk_jump_attack(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        SA_Term(wk, &(SA_Term_Args){0xFFFF, 0xFFFF, 0x30, 0});
+        SA_Term(wk, &(SA_Term_Args) { 0xFFFF, 0xFFFF, 0x30, 0 });
         break;
 
     case 1:
@@ -476,7 +476,7 @@ void pattern_sa_term_approach_walk_jump_attack(PLW* wk) {
         break;
 
     case 2:
-        Jump_Attack(wk, &(Jump_Attack_Args){8, 0xC, 0x42, 0});
+        Jump_Attack(wk, &(Jump_Attack_Args) { 8, 0xC, 0x42, 0 });
         break;
 
     default:
@@ -594,7 +594,7 @@ void pattern_wait_em_term_j_command_attack(PLW* wk, const Command_Attack_Args* p
         break;
 
     case 1:
-        EM_Term(wk, &(EM_Term_Params){-0x7F98, -1, 0, 1, -1});
+        EM_Term(wk, &(EM_Term_Params) { -0x7F98, -1, 0, 1, -1 });
         break;
 
     case 2:
@@ -634,7 +634,7 @@ void pattern_wait_get_up_branch_wait_area_command_attack(PLW* wk, const Command_
         break;
 
     case 1:
-        Branch_Wait_Area(wk, &(Branch_Wait_Args){0x14, 0xF, 5, 1});
+        Branch_Wait_Area(wk, &(Branch_Wait_Args) { 0x14, 0xF, 5, 1 });
         break;
 
     case 2:
@@ -676,11 +676,11 @@ void pattern_wait_get_up_command_attack_em_term(PLW* wk) {
         break;
 
     case 1:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0, 0xB, -1});
+        Command_Attack(wk, &(Command_Attack_Args) { 8, 0, 0xB, -1 });
         break;
 
     case 2:
-        EM_Term(wk, &(EM_Term_Params){0x7FFF, -1, 1, 1, -1});
+        EM_Term(wk, &(EM_Term_Params) { 0x7FFF, -1, 1, 1, -1 });
         break;
 
     default:

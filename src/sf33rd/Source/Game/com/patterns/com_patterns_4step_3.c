@@ -10,9 +10,9 @@
  * its calls taken as parameters and written out in full at each call site.
  */
 
-#include "sf33rd/Source/Game/com/patterns/com_patterns.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
+#include "sf33rd/Source/Game/com/patterns/com_patterns.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 
 void pattern_sa_term_approach_walk_sa_term(
@@ -44,19 +44,19 @@ void pattern_sa_term_approach_walk_sa_term(
 void pattern_sa_term_em_term_sa_term(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        SA_Term(wk, &(SA_Term_Args){0xFFFF, 0xFFFF, 0x30, 0});
+        SA_Term(wk, &(SA_Term_Args) { 0xFFFF, 0xFFFF, 0x30, 0 });
         break;
 
     case 1:
-        EM_Term(wk, &(EM_Term_Params){-1, -0x7FC8, 6, 1, -1});
+        EM_Term(wk, &(EM_Term_Params) { -1, -0x7FC8, 6, 1, -1 });
         break;
 
     case 2:
-        SA_Term(wk, &(SA_Term_Args){0x2E, 0x2F, 0xFFFF, 0});
+        SA_Term(wk, &(SA_Term_Args) { 0x2E, 0x2F, 0xFFFF, 0 });
         break;
 
     case 3:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0x1E, 9, -1});
+        Command_Attack(wk, &(Command_Attack_Args) { 8, 0x1E, 9, -1 });
         break;
 
     default:
@@ -104,7 +104,7 @@ void pattern_search_back_term_pierce_on_command_attack_2(
         break;
 
     case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 1, -1, -1});
+        Command_Attack(wk, &(Command_Attack_Args) { 8, 1, -1, -1 });
         break;
 
     case 3:
@@ -128,7 +128,7 @@ void pattern_search_back_term_pierce_on_command_attack_3(PLW* wk, const Command_
         break;
 
     case 2:
-        Command_Attack(wk, &(Command_Attack_Args){8, 1, 0xB, -1});
+        Command_Attack(wk, &(Command_Attack_Args) { 8, 1, 0xB, -1 });
         break;
 
     case 3:
@@ -152,7 +152,7 @@ void pattern_search_back_term_walk_em_term(PLW* wk, const Command_Attack_Args* p
         break;
 
     case 2:
-        EM_Term(wk, &(EM_Term_Params){-1, -0x7FB0, 6, 1, -1});
+        EM_Term(wk, &(EM_Term_Params) { -1, -0x7FB0, 6, 1, -1 });
         break;
 
     case 3:
@@ -172,7 +172,7 @@ void pattern_wait_command_attack_wait_from_step_6(PLW* wk) {
         break;
 
     case 7:
-        Command_Attack(wk, &(Command_Attack_Args){0xe, 0x1e, 0xb, 0x70});
+        Command_Attack(wk, &(Command_Attack_Args) { 0xe, 0x1e, 0xb, 0x70 });
         break;
 
     case 8:
@@ -180,7 +180,7 @@ void pattern_wait_command_attack_wait_from_step_6(PLW* wk) {
         break;
 
     case 9:
-        Command_Attack(wk, &(Command_Attack_Args){0xe, 0x1e, 0xb, 0x70});
+        Command_Attack(wk, &(Command_Attack_Args) { 0xe, 0x1e, 0xb, 0x70 });
         break;
 
     default:

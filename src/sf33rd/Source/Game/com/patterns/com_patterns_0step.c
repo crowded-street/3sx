@@ -10,9 +10,9 @@
  * its calls taken as parameters and written out in full at each call site.
  */
 
-#include "sf33rd/Source/Game/com/patterns/com_patterns.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
+#include "sf33rd/Source/Game/com/patterns/com_patterns.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 
 void active_pattern_(PLW* wk) {
@@ -28,7 +28,7 @@ void active_pattern_approach_walk_lever_attack(PLW* wk, s16 target_pos, u16 leve
 }
 
 void active_pattern_command_attack_branch_unit_area(PLW* wk, const Command_Attack_Args* p) {
-    pattern_command_attack_branch_unit_area(wk, p, &(Branch_Menu_Args){2, 0x31, 0x32, 0x33, 1});
+    pattern_command_attack_branch_unit_area(wk, p, &(Branch_Menu_Args) { 2, 0x31, 0x32, 0x33, 1 });
 }
 
 void active_pattern_jump(PLW* wk) {
@@ -41,10 +41,7 @@ void active_pattern_jump_attack_term_normal_attack(PLW* wk, const Jump_Term_Args
 
 void active_pattern_jump_attack_term_normal_attack_j_command_attack_2(PLW* wk, const Command_Attack_Args* p) {
     pattern_jump_attack_term_normal_attack_j_command_attack_2(
-        wk,
-        &(Jump_Term_Args){-0x7FA0, -0x7FC0, 9, 0x40, 0, -0x7FB0, -1, 0x200},
-        0x40,
-        p
+        wk, &(Jump_Term_Args) { -0x7FA0, -0x7FC0, 9, 0x40, 0, -0x7FB0, -1, 0x200 }, 0x40, p
     );
 }
 
@@ -61,7 +58,7 @@ void active_pattern_normal_attack_4(PLW* wk, u16 lever_data, u16 lever_data_b) {
 }
 
 void active_pattern_pierce_on_command_attack_j_command_attack(PLW* wk, const Command_Attack_Args* p) {
-    pattern_pierce_on_command_attack_j_command_attack(wk, &(Command_Attack_Args){0xC, 0, -1, -1}, p);
+    pattern_pierce_on_command_attack_j_command_attack(wk, &(Command_Attack_Args) { 0xC, 0, -1, -1 }, p);
 }
 
 void active_pattern_provoke(PLW* wk) {
@@ -69,7 +66,7 @@ void active_pattern_provoke(PLW* wk) {
 }
 
 void active_pattern_sa_term_branch_unit_area(PLW* wk, const SA_Term_Args* p) {
-    pattern_sa_term_branch_unit_area(wk, p, &(Branch_Menu_Args){2, 0x41, 0x41, 0x42, 0x43});
+    pattern_sa_term_branch_unit_area(wk, p, &(Branch_Menu_Args) { 2, 0x41, 0x41, 0x42, 0x43 });
 }
 
 void active_pattern_sa_term_com_random_select(PLW* wk, const SA_Term_Args* p, const Branch_Menu_Args* p_b) {
@@ -77,7 +74,7 @@ void active_pattern_sa_term_com_random_select(PLW* wk, const SA_Term_Args* p, co
 }
 
 void active_pattern_sa_term_command_attack_2(PLW* wk, const SA_Term_Args* p, const Command_Attack_Args* p_b) {
-    pattern_sa_term_command_attack_2(wk, &(SA_Term_Args){0x35, -1, -1, 0x9F}, p, p_b);
+    pattern_sa_term_command_attack_2(wk, &(SA_Term_Args) { 0x35, -1, -1, 0x9F }, p, p_b);
 }
 
 void active_pattern_walk_com_random_select(PLW* wk, const Branch_Menu_Args* p) {
@@ -141,12 +138,10 @@ void pattern_normal_attack_branch_unit_area_2(PLW* wk, s16 reaction, const Branc
 }
 
 void pattern_normal_attack_com_random_select_3(PLW* wk, u16 lever_data) {
-    pattern_normal_attack_com_random_select(wk, lever_data, &(Branch_Menu_Args){6, 1, 1, 0xC0, 0xC0}, 4);
+    pattern_normal_attack_com_random_select(wk, lever_data, &(Branch_Menu_Args) { 6, 1, 1, 0xC0, 0xC0 }, 4);
 }
 
-void pattern_normal_attack_command_attack_2(
-    PLW* wk, s16 reaction, u16 lever_data, const Command_Attack_Args* p
-) {
+void pattern_normal_attack_command_attack_2(PLW* wk, s16 reaction, u16 lever_data, const Command_Attack_Args* p) {
     active_pattern_normal_attack_command_attack(wk, reaction, lever_data, p);
 }
 

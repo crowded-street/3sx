@@ -10,9 +10,9 @@
  * its calls taken as parameters and written out in full at each call site.
  */
 
-#include "sf33rd/Source/Game/com/patterns/com_patterns.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
+#include "sf33rd/Source/Game/com/patterns/com_patterns.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 
 void pattern_j_command_attack(PLW* wk, const Command_Attack_Args* p) {
@@ -90,7 +90,7 @@ void active_pattern_command_attack(PLW* wk, const Command_Attack_Args* p) {
 void active_pattern_hi_jump_attack(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Hi_Jump_Attack(wk, &(Jump_Attack_Args){8, 0xA, 0x400, 2});
+        Hi_Jump_Attack(wk, &(Jump_Attack_Args) { 8, 0xA, 0x400, 2 });
         break;
 
     default:
@@ -136,11 +136,11 @@ void active_pattern_j_command_attack(PLW* wk, const Command_Attack_Args* p) {
 }
 
 void active_pattern_j_command_attack_from_step_6(PLW* wk) {
-    pattern_j_command_attack(wk, &(Command_Attack_Args){8, 0x1e, 8, -1});
+    pattern_j_command_attack(wk, &(Command_Attack_Args) { 8, 0x1e, 8, -1 });
 }
 
 void active_pattern_j_command_attack_from_step_6_2(PLW* wk) {
-    pattern_j_command_attack(wk, &(Command_Attack_Args){8, 0x1e, 10, -1});
+    pattern_j_command_attack(wk, &(Command_Attack_Args) { 8, 0x1e, 10, -1 });
 }
 
 void active_pattern_jump_attack(PLW* wk, const Jump_Attack_Args* a) {
@@ -314,7 +314,7 @@ void pattern_adjust_attack(PLW* wk, u16 lever_data) {
 void pattern_com_random_select_from_step_6(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 6:
-        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x37, 0x37, 0x27, 0x27}, 0);
+        Com_Random_Select(wk, &(Branch_Menu_Args) { 6, 0x37, 0x37, 0x27, 0x27 }, 0);
         break;
 
     default:
@@ -324,11 +324,11 @@ void pattern_com_random_select_from_step_6(PLW* wk) {
 }
 
 void pattern_command_attack_from_step_6(PLW* wk) {
-    pattern_command_attack_3(wk, &(Command_Attack_Args){8, 0x1C, 10, -1});
+    pattern_command_attack_3(wk, &(Command_Attack_Args) { 8, 0x1C, 10, -1 });
 }
 
 void pattern_command_attack_from_step_6_2(PLW* wk) {
-    pattern_command_attack_3(wk, &(Command_Attack_Args){8, 1, 10, -1});
+    pattern_command_attack_3(wk, &(Command_Attack_Args) { 8, 1, 10, -1 });
 }
 
 void pattern_forced_guard(PLW* wk, s16 guard_type) {
@@ -356,7 +356,7 @@ void pattern_hi_jump(PLW* wk, s16 pl_number) {
 }
 
 void pattern_j_command_attack_from_step_6(PLW* wk) {
-    pattern_j_command_attack(wk, &(Command_Attack_Args){8, 0x1E, 8, -1});
+    pattern_j_command_attack(wk, &(Command_Attack_Args) { 8, 0x1E, 8, -1 });
 }
 
 void pattern_jump(PLW* wk, s16 time) {
@@ -386,7 +386,7 @@ void pattern_keep_status(PLW* wk, s16 option_data) {
 void pattern_lever_attack_sp(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Lever_Attack_SP(wk, &(Lever_Attack_SP_Args){8, 0, 0x400, 0x12});
+        Lever_Attack_SP(wk, &(Lever_Attack_SP_Args) { 8, 0, 0x400, 0x12 });
         break;
 
     default:
@@ -446,7 +446,7 @@ void pattern_provoke(PLW* wk, s16 lever) {
 void pattern_sa_term_from_step_6(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 6:
-        SA_Term(wk, &(SA_Term_Args){0x2F, 0x30, 0x31, 0x7F});
+        SA_Term(wk, &(SA_Term_Args) { 0x2F, 0x30, 0x31, 0x7F });
         break;
 
     default:
@@ -458,7 +458,7 @@ void pattern_sa_term_from_step_6(PLW* wk) {
 void pattern_short_range_attack(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Short_Range_Attack(wk, &(Short_Range_Args){8, 0x40, 6, 0x1D});
+        Short_Range_Attack(wk, &(Short_Range_Args) { 8, 0x40, 6, 0x1D });
         break;
 
     default:

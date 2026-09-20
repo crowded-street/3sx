@@ -10,9 +10,9 @@
  * its calls taken as parameters and written out in full at each call site.
  */
 
-#include "sf33rd/Source/Game/com/patterns/com_patterns.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
+#include "sf33rd/Source/Game/com/patterns/com_patterns.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 
 void pattern_approach_walk_normal_attack_4(PLW* wk, s16 target_pos, s16 reaction, u16 lever_data) {
@@ -320,7 +320,7 @@ void active_pattern_command_attack_lever_attack(PLW* wk, const Command_Attack_Ar
 void active_pattern_command_attack_look(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Command_Attack(wk, &(Command_Attack_Args){8, 0, 0xB, -1});
+        Command_Attack(wk, &(Command_Attack_Args) { 8, 0, 0xB, -1 });
         break;
 
     case 1:
@@ -472,11 +472,11 @@ void active_pattern_etc_term_provoke(PLW* wk, u32 next_action, u16 next_menu) {
 void active_pattern_hi_jump_attack_term_com_random_select(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-0x7FA0, -0x7FC0, 8, 0x20, 0, -0x7FA0, 8, 0x200});
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args) { -0x7FA0, -0x7FC0, 8, 0x20, 0, -0x7FA0, 8, 0x200 });
         break;
 
     case 1:
-        Com_Random_Select(wk, &(Branch_Menu_Args){2, 0x18, 0x18, 0x11, 0x11}, 0);
+        Com_Random_Select(wk, &(Branch_Menu_Args) { 2, 0x18, 0x18, 0x11, 0x11 }, 0);
         break;
 
     default:
@@ -698,11 +698,11 @@ void active_pattern_sa_term_command_attack(PLW* wk, const SA_Term_Args* p, const
 void active_pattern_sa_term_hi_jump_attack_term(PLW* wk) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        SA_Term(wk, &(SA_Term_Args){0xFFFF, 0xFFFF, 0x30, 0});
+        SA_Term(wk, &(SA_Term_Args) { 0xFFFF, 0xFFFF, 0x30, 0 });
         break;
 
     case 1:
-        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args){-0x7FB0, 8, 8, 0x8400, 0, -0x7FA0, 8, 0x20});
+        Hi_Jump_Attack_Term(wk, &(Hi_Jump_Term_Args) { -0x7FB0, 8, 8, 0x8400, 0, -0x7FA0, 8, 0x20 });
         break;
 
     default:
@@ -914,7 +914,9 @@ void pattern_check_store_lever_command_attack(
 ) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        Check_Store_Lever(wk, check_store_lever->Tech_Number, check_store_lever->Next_Action, check_store_lever->Next_Menu);
+        Check_Store_Lever(
+            wk, check_store_lever->Tech_Number, check_store_lever->Next_Action, check_store_lever->Next_Menu
+        );
         break;
 
     case 1:
@@ -962,7 +964,7 @@ void pattern_shell_term_jump_attack_term(PLW* wk, const Shell_Term_Params* p, co
 void pattern_shell_term_command_attack(PLW* wk, const Command_Attack_Args* p) {
     switch (CP_Index[wk->wu.id][0]) {
     case 0:
-        SHELL_Term(wk, &(Shell_Term_Params){3, 2, 1, -1, -1});
+        SHELL_Term(wk, &(Shell_Term_Params) { 3, 2, 1, -1, -1 });
         break;
 
     case 1:

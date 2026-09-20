@@ -10,9 +10,9 @@
  * its calls taken as parameters and written out in full at each call site.
  */
 
-#include "sf33rd/Source/Game/com/patterns/com_patterns.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
+#include "sf33rd/Source/Game/com/patterns/com_patterns.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 
 void pattern_walk_com_random_select(PLW* wk, s16 time, const Branch_Menu_Args* p, s16 rnd_type) {
@@ -38,7 +38,7 @@ void pattern_walk_com_random_select_2(PLW* wk) {
         break;
 
     case 1:
-        Com_Random_Select(wk, &(Branch_Menu_Args){6, 0x59, 0x59, 0x59, 0x5A}, 0);
+        Com_Random_Select(wk, &(Branch_Menu_Args) { 6, 0x59, 0x59, 0x59, 0x5A }, 0);
         break;
 
     default:
