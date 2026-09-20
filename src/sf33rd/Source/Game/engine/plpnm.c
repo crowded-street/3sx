@@ -635,14 +635,24 @@ void Normal_39000(PLW* wk) { // 🟢
     set_char_move_init(&wk->wu, 0, 23);
 }
 
-void Normal_40000(PLW* wk) { // 🟡
-    wk->wu.next_z = 38;
+/* 40000's own version of the test 41000 spells alive_and_not_in_first_pattern. */
+static s32 not_in_first_pattern(const PLW* wk) {
+    return wk->wu.now_koc != 0 || (wk->wu.char_index != 0);
+}
 
-    // Port training modes intentionally bypass CPS3's win sequence.
+/* The round-end state Normal_40000 and Normal_41000 share. Outside training
+ * they hand straight to the win or the loss sequence; inside it they take the
+ * port's bypass, which resets the pattern when the fighter is not already at the
+ * start of one and parks the routine at 9.
+ *
+ * Port training modes intentionally bypass CPS3's win and loss sequences. */
+static void run_nm_round_end_state(PLW* wk, s16 next_z, s32 (*needs_reset)(const PLW* wk), void (*round_end)(PLW* wk)) {
+    wk->wu.next_z = next_z;
+
     if ((Mode_Type == MODE_NORMAL_TRAINING) || (Mode_Type == MODE_PARRY_TRAINING)) {
         switch (wk->wu.routine_no[3]) {
         case 0:
-            if (wk->wu.now_koc != 0 || (wk->wu.char_index != 0)) {
+            if (needs_reset(wk)) {
                 set_char_move_init(&wk->wu, 0, 0);
             }
 
@@ -654,29 +664,15 @@ void Normal_40000(PLW* wk) { // 🟡
         return;
     }
 
-    win_player(wk);
+    round_end(wk);
+}
+
+void Normal_40000(PLW* wk) { // 🟡
+    run_nm_round_end_state(wk, 38, not_in_first_pattern, win_player);
 }
 
 void Normal_41000(PLW* wk) { // 🟡
-    wk->wu.next_z = 34;
-
-    // Port training modes intentionally bypass CPS3's loss sequence.
-    if ((Mode_Type == MODE_NORMAL_TRAINING) || (Mode_Type == MODE_PARRY_TRAINING)) {
-        switch (wk->wu.routine_no[3]) {
-        case 0:
-            if (alive_and_not_in_first_pattern(wk)) {
-                set_char_move_init(&wk->wu, 0, 0);
-            }
-
-            wk->wu.routine_no[3] = 9;
-            break;
-        }
-
-        char_move(&wk->wu);
-        return;
-    }
-
-    lose_player(wk);
+    run_nm_round_end_state(wk, 34, alive_and_not_in_first_pattern, lose_player);
 }
 
 /* Both parry states put the player in front unless the opponent's pattern
