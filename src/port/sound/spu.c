@@ -114,12 +114,22 @@ static void SPU_VoiceCacheADSR(struct SPU_Voice* v) {
     }
 }
 
+/* The two compound tests the ADSR step makes, each copied character for
+ * character from the condition it stood in. */
+static bool adsr_is_slowing_rise(const struct AdsrParamCache* pc, const struct SPU_Voice* v) {
+    return pc->exp && !pc->decr && v->envx >= 0x6000;
+}
+
+static bool adsr_target_reached(const struct AdsrParamCache* pc, const struct SPU_Voice* v) {
+    return (!pc->decr && v->envx >= pc->target) || ((pc->decr && v->envx <= pc->target));
+}
+
 static void SPU_VoiceRunADSR(struct SPU_Voice* v) {
     struct AdsrParamCache* pc = &v->adsr_param;
     u32 counter_inc = 0x8000 >> max(0, pc->shift - 11);
     s32 level_inc = pc->step << max(0, 11 - pc->shift);
 
-    if (pc->exp && !pc->decr && v->envx >= 0x6000) {
+    if (adsr_is_slowing_rise(pc, v)) {
         if (pc->shift < 10) {
             level_inc >>= 2;
         } else if (pc->shift >= 11) {
@@ -146,7 +156,7 @@ static void SPU_VoiceRunADSR(struct SPU_Voice* v) {
         return;
     }
 
-    if ((!pc->decr && v->envx >= pc->target) || ((pc->decr && v->envx <= pc->target))) {
+    if (adsr_target_reached(pc, v)) {
         v->adsr_phase++;
         SPU_VoiceCacheADSR(v);
     }
