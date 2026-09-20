@@ -3262,3 +3262,35 @@ result from every one of them on code that was wrong:
 None of this is an argument for fewer gates. It is an argument for reading the
 function you just wrote, which is the only check that covers all six rows.
 
+### The guard is a per-commit tool, not a per-session one
+
+*Added 2026-09-20, after running it across a hundred commits and getting eleven
+FAILs on work that was clean.*
+
+`refactor_guard.py --base <session start> --all` looks like a good final check.
+It is not one, and it reported **FAIL - a constant was substituted** on eleven
+files at the end of a session in which every individual commit had passed.
+
+Two separate reasons, both worth knowing:
+
+- **It aggregates recipes whose fingerprints move in opposite directions.**
+  `pltim2.c` had five commits: Recipe D removed duplicate copies of literals,
+  Recipe X added a `switch` subscript. Each is legal and each passed on its own -
+  one as "counts only dropped", the other as "literals added, none removed".
+  Summed, some counts fell while others rose, which is exactly the shape the tool
+  is built to call a substitution. Checked properly - every literal *value*
+  present before the session against every value present after - `pltim2.c` lost
+  nothing and gained nothing.
+- **It is a per-file view of a change that crossed files.** The ten `shell*.c`
+  files genuinely lost `num 3`, `num 9` and `num 32704`, because those values
+  moved into the skeletons in `Game/com/patterns` when the folder was folded.
+  Over the two folders as one group the multiset is intact: no value present
+  before is absent after, and the counts drop only where duplicate copies were
+  collapsed.
+
+So: run the guard **per commit**, and over the group the commit touches. If you
+want a session-wide sanity check, compare the *set* of literal values rather
+than their counts - `set(literals(old)) - set(literals(new))` over every changed
+file, with files that share moved code taken together. That is a dozen lines and
+it answers the question the FAIL only pretends to.
+
