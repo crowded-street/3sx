@@ -38,6 +38,42 @@ static void advance_display_state(FistbumpState fs) {
     }
 }
 
+/* The states from a match being found onwards, reached from the status
+ * switch's new default. Every case label is the original one, and between
+ * them the two switches still name every FistbumpState. */
+static void render_match_status() {
+    switch (display_state) {
+    case FISTBUMP_AWAITING_MATCH:
+        SSPutStrPro(&(ScStrPro){ 1, 384, 140, 9, 0xFFFFFFFF, "Finding match..." });
+        SSPutStrPro(&(ScStrPro){ 1, 384, 160, 9, 0xFFFFFFFF, "Press      to cancel search." });
+        dispButtonImage2(&(ButtonImage){ 143, 157, 0x18, 0x13, 0xF, 0, 5, 0 });
+        break;
+
+    case FISTBUMP_MATCHED:
+        MatchResult* match = Fistbump_GetResult();
+
+        SSPutStrPro(&(ScStrPro){ 1, 384, 130, 9, 0xFFFFFFFF, "Matched with:" });
+        SSPutStrPro(&(ScStrPro){ 1, 384, 140, 9, 0xFFFFFFFF, match->opponent_name });
+
+        SSPutStrPro(&(ScStrPro){ 1, 384, 160, 9, 0xFFFFFFFF, "      ACCEPT      DECLINE" });
+        dispButtonImage2(&(ButtonImage){ 121, 157, 0x19, 0x13, 0xF, 0, 4, 0 });
+        dispButtonImage2(&(ButtonImage){ 193, 157, 0x19, 0x13, 0xF, 0, 5, 0 });
+
+        break;
+
+    case FISTBUMP_SENDING_UDP:
+        SSPutStrPro(&(ScStrPro){ 1, 384, 140, 9, 0xFFFFFFFF, "Starting match..." });
+        break;
+
+    case FISTBUMP_GAME_START:
+    case FISTBUMP_ERROR:
+        break;
+
+    default:
+        break;
+    }
+}
+
 /* The status text matchmaking shows at the top of the screen, and the hold
  * that keeps one message up for a few frames before the next. */
 static void render_matchmaking_status(FistbumpState fs) {
@@ -69,30 +105,8 @@ static void render_matchmaking_status(FistbumpState fs) {
 
         break;
 
-    case FISTBUMP_AWAITING_MATCH:
-        SSPutStrPro(&(ScStrPro){ 1, 384, 140, 9, 0xFFFFFFFF, "Finding match..." });
-        SSPutStrPro(&(ScStrPro){ 1, 384, 160, 9, 0xFFFFFFFF, "Press      to cancel search." });
-        dispButtonImage2(&(ButtonImage){ 143, 157, 0x18, 0x13, 0xF, 0, 5, 0 });
-        break;
-
-    case FISTBUMP_MATCHED:
-        MatchResult* match = Fistbump_GetResult();
-
-        SSPutStrPro(&(ScStrPro){ 1, 384, 130, 9, 0xFFFFFFFF, "Matched with:" });
-        SSPutStrPro(&(ScStrPro){ 1, 384, 140, 9, 0xFFFFFFFF, match->opponent_name });
-
-        SSPutStrPro(&(ScStrPro){ 1, 384, 160, 9, 0xFFFFFFFF, "      ACCEPT      DECLINE" });
-        dispButtonImage2(&(ButtonImage){ 121, 157, 0x19, 0x13, 0xF, 0, 4, 0 });
-        dispButtonImage2(&(ButtonImage){ 193, 157, 0x19, 0x13, 0xF, 0, 5, 0 });
-
-        break;
-
-    case FISTBUMP_SENDING_UDP:
-        SSPutStrPro(&(ScStrPro){ 1, 384, 140, 9, 0xFFFFFFFF, "Starting match..." });
-        break;
-
-    case FISTBUMP_GAME_START:
-    case FISTBUMP_ERROR:
+    default:
+        render_match_status();
         break;
     }
 }
