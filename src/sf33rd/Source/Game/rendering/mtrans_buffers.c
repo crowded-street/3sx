@@ -6,11 +6,11 @@
  * MultiTexture it is given, so the cut needed no file-scope state to move.
  */
 
-#include "sf33rd/Source/Game/rendering/mtrans.h"
-#include "sf33rd/Source/Game/rendering/mtrans_internal.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/ps2/flps2render.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
+#include "sf33rd/Source/Game/rendering/mtrans.h"
+#include "sf33rd/Source/Game/rendering/mtrans_internal.h"
 #include "sf33rd/Source/Game/rendering/texcash.h"
 #include "sf33rd/Source/Game/rendering/texgroup.h"
 #include "structs.h"
@@ -43,17 +43,38 @@ static s32 claim_mltbuf16_slot(MultiTexture* mt, s32 b, u32 code, u32 palt) {
     while (1) {}
 }
 
-s32 get_mltbuf16(MultiTexture* mt, u32 code, u32 palt, s32* ret) {
+/* One of the two multi-texture pattern caches, with everything the search needs
+ * to work it: where the cache starts, how many slots it has, the time stamp a
+ * hit refreshes to, and how a miss claims a slot. The two halves read these
+ * from mt themselves; holding them here keeps the search at four arguments. */
+typedef struct {
+    MultiTexture* mt;
+    PatternState* cache;
+    s32 count;
+    s32 time;
+    s32 (*claim_slot)(MultiTexture* mt, s32 b, u32 code, u32 palt);
+} MltbufBank;
+
+/* The search get_mltbuf16 and get_mltbuf32 share: walk the cache down from its
+ * last slot, return on a hit, remember the first free slot on the way, and
+ * claim one when the walk runs out.
+ *
+ * The bank's count and time are read once at the call site where the originals
+ * read mt->mltnum and mt->mltcshtime on each pass. Nothing between those reads
+ * writes either field - the loop calls only is_cached_pattern_state and
+ * is_first_available_pattern_slot, and the claim happens on the way out - so
+ * every read still sees the same value it saw before. */
+static s32 get_mltbuf(const MltbufBank* bank, u32 code, u32 palt, s32* ret) {
     s32 i;
     s32 b = -1;
-    PatternState* mc = mt->mltcsh16;
+    PatternState* mc = bank->cache;
 
-    i = mt->mltnum16;
+    i = bank->count;
 
     while (1) {
         if (is_cached_pattern_state(mc, code, palt)) {
-            mc->time = mt->mltcshtime16;
-            *ret = mt->mltnum16 - i;
+            mc->time = bank->time;
+            *ret = bank->count - i;
             return 0;
         }
 
@@ -65,10 +86,16 @@ s32 get_mltbuf16(MultiTexture* mt, u32 code, u32 palt, s32* ret) {
         i -= 1;
 
         if (i <= 0) {
-            *ret = claim_mltbuf16_slot(mt, b, code, palt);
+            *ret = bank->claim_slot(bank->mt, b, code, palt);
             return 1;
         }
     }
+}
+
+s32 get_mltbuf16(MultiTexture* mt, u32 code, u32 palt, s32* ret) {
+    return get_mltbuf(
+        &(MltbufBank) { mt, mt->mltcsh16, mt->mltnum16, mt->mltcshtime16, claim_mltbuf16_slot }, code, palt, ret
+    );
 }
 
 // The tail of get_mltbuf32's scan: take the slot the scan set aside, or hang if
@@ -89,31 +116,9 @@ static s32 claim_mltbuf32_slot(MultiTexture* mt, s32 b, u32 code, u32 palt) {
 }
 
 s32 get_mltbuf32(MultiTexture* mt, u32 code, u32 palt, s32* ret) {
-    s32 i;
-    s32 b = -1;
-    PatternState* mc = mt->mltcsh32;
-
-    i = mt->mltnum32;
-
-    while (1) {
-        if (is_cached_pattern_state(mc, code, palt)) {
-            mc->time = mt->mltcshtime32;
-            *ret = mt->mltnum32 - i;
-            return 0;
-        }
-
-        if (is_first_available_pattern_slot(mc, b)) {
-            b = i;
-        }
-
-        mc++;
-        i -= 1;
-
-        if (i <= 0) {
-            *ret = claim_mltbuf32_slot(mt, b, code, palt);
-            return 1;
-        }
-    }
+    return get_mltbuf(
+        &(MltbufBank) { mt, mt->mltcsh32, mt->mltnum32, mt->mltcshtime32, claim_mltbuf32_slot }, code, palt, ret
+    );
 }
 
 // Take the next free 16x16 slot, record the pattern in it, and note it in the
@@ -259,11 +264,6 @@ u16 x32_mapping_set(PatternMap* map, s32 code) {
 
     return flg;
 }
-
-
-
-
-
 
 s16 check_patcash_ex_trans(PatternCollection* padr, u32 cg) {
     s16 rnum = -1;
