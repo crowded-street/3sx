@@ -228,32 +228,42 @@ s32 get_mltbuf32_ext_2(const MltbufExtLookup* look) {
     while (1) {}
 }
 
-s32 get_mltbuf16_ext(MultiTexture* mt, u32 code, u32 palt) {
-    PatternState* mc = mt->mltcsh16;
+/* One of the two extended caches, as the lookup sees it: where it starts, how
+ * many slots the pool has in use, which slots those are, and what the log says
+ * when the pattern is not among them.
+ *
+ * The count is a pointer, not a value, because the originals re-read
+ * tpu_free->x16 on every pass of the loop. */
+typedef struct {
+    PatternState* cache;
+    const s32* count;
+    const u16* used;
+    const char* missing_message;
+} MltbufExtBank;
+
+static s32 get_mltbuf_ext(const MltbufExtBank* bank, u32 code, u32 palt) {
     s32 i;
 
-    for (i = 0; i < tpu_free->x16; i++) {
-        if ((code == mc[tpu_free->x16_used[i]].cs.code) && (palt == mc[tpu_free->x16_used[i]].state)) {
-            return tpu_free->x16_used[i];
+    for (i = 0; i < *bank->count; i++) {
+        if ((code == bank->cache[bank->used[i]].cs.code) && (palt == bank->cache[bank->used[i]].state)) {
+            return bank->used[i];
         }
     }
 
-    flLogOut("ＣＧ展開エラー　１６×１６\n");
+    flLogOut(bank->missing_message);
     while (1) {}
 }
 
+s32 get_mltbuf16_ext(MultiTexture* mt, u32 code, u32 palt) {
+    return get_mltbuf_ext(
+        &(MltbufExtBank) { mt->mltcsh16, &tpu_free->x16, tpu_free->x16_used, "ＣＧ展開エラー　１６×１６\n" }, code, palt
+    );
+}
+
 s32 get_mltbuf32_ext(MultiTexture* mt, u32 code, u32 palt) {
-    PatternState* mc = mt->mltcsh32;
-    s32 i;
-
-    for (i = 0; i < tpu_free->x32; i++) {
-        if ((code == mc[tpu_free->x32_used[i]].cs.code) && (palt == mc[tpu_free->x32_used[i]].state)) {
-            return tpu_free->x32_used[i];
-        }
-    }
-
-    flLogOut("ＣＧ展開エラー　３２×３２\n");
-    while (1) {}
+    return get_mltbuf_ext(
+        &(MltbufExtBank) { mt->mltcsh32, &tpu_free->x32, tpu_free->x32_used, "ＣＧ展開エラー　３２×３２\n" }, code, palt
+    );
 }
 
 u16 x16_mapping_set(PatternMap* map, s32 code) {
