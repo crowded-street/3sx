@@ -338,15 +338,15 @@ static s32 Check_Shell_Flip(PLW* wk) {
         return 2;
     }
 
-    if (Flip_Counter[wk->wu.id] < emGetMaxBlocking()) {
-        if (res == 0) {
-            return 1;
-        }
-
-        return Shell_Flip_Delay_Result(wk, xx);
+    if (Flip_Counter[wk->wu.id] >= emGetMaxBlocking()) {
+        return 0;
     }
 
-    return 0;
+    if (res == 0) {
+        return 1;
+    }
+
+    return Shell_Flip_Delay_Result(wk, xx);
 }
 
 s32 Check_Flip(PLW* wk) {
