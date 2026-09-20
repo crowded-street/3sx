@@ -24,87 +24,79 @@ static bool skip_rendering() {
 }
 #endif
 
-void Renderer_CreateTexture(unsigned int th) {
+/* The seven handle entry points are one dispatch written seven times: the
+ * backend call this build has, behind the skip the SDL backend checks. They
+ * differ only in the name they call, which is written out at each call site.
+ * The pointer type is declared per configuration because the two backends
+ * spell the handle differently - Uint32 against unsigned int - and casting a
+ * function pointer to make two signatures fit is forbidden. */
 #if CRS_VIDEO_DRIVER_SDL_GENERIC
+static void renderer_handle_op(Uint32 handle, void (*op)(Uint32)) {
     if (skip_rendering()) {
         return;
     }
 
-    SDLGenericRenderer_CreateTexture(th);
+    op(handle);
+}
 #elif CRS_VIDEO_DRIVER_PSP
-    PSPRenderer_CreateTexture(th);
+static void renderer_handle_op(unsigned int handle, void (*op)(unsigned int)) {
+    op(handle);
+}
+#endif
+
+void Renderer_CreateTexture(unsigned int th) {
+#if CRS_VIDEO_DRIVER_SDL_GENERIC
+    renderer_handle_op(th, SDLGenericRenderer_CreateTexture);
+#elif CRS_VIDEO_DRIVER_PSP
+    renderer_handle_op(th, PSPRenderer_CreateTexture);
 #endif
 }
 
 void Renderer_DestroyTexture(unsigned int texture_handle) {
 #if CRS_VIDEO_DRIVER_SDL_GENERIC
-    if (skip_rendering()) {
-        return;
-    }
-
-    SDLGenericRenderer_DestroyTexture(texture_handle);
+    renderer_handle_op(texture_handle, SDLGenericRenderer_DestroyTexture);
 #elif CRS_VIDEO_DRIVER_PSP
-    PSPRenderer_DestroyTexture(texture_handle);
+    renderer_handle_op(texture_handle, PSPRenderer_DestroyTexture);
 #endif
 }
 
 void Renderer_UnlockTexture(unsigned int th) {
 #if CRS_VIDEO_DRIVER_SDL_GENERIC
-    if (skip_rendering()) {
-        return;
-    }
-
-    SDLGenericRenderer_UnlockTexture(th);
+    renderer_handle_op(th, SDLGenericRenderer_UnlockTexture);
 #elif CRS_VIDEO_DRIVER_PSP
-    PSPRenderer_UnlockTexture(th);
+    renderer_handle_op(th, PSPRenderer_UnlockTexture);
 #endif
 }
 
 void Renderer_CreatePalette(unsigned int ph) {
 #if CRS_VIDEO_DRIVER_SDL_GENERIC
-    if (skip_rendering()) {
-        return;
-    }
-
-    SDLGenericRenderer_CreatePalette(ph);
+    renderer_handle_op(ph, SDLGenericRenderer_CreatePalette);
 #elif CRS_VIDEO_DRIVER_PSP
-    PSPRenderer_CreatePalette(ph);
+    renderer_handle_op(ph, PSPRenderer_CreatePalette);
 #endif
 }
 
 void Renderer_DestroyPalette(unsigned int palette_handle) {
 #if CRS_VIDEO_DRIVER_SDL_GENERIC
-    if (skip_rendering()) {
-        return;
-    }
-
-    SDLGenericRenderer_DestroyPalette(palette_handle);
+    renderer_handle_op(palette_handle, SDLGenericRenderer_DestroyPalette);
 #elif CRS_VIDEO_DRIVER_PSP
-    PSPRenderer_DestroyPalette(palette_handle);
+    renderer_handle_op(palette_handle, PSPRenderer_DestroyPalette);
 #endif
 }
 
 void Renderer_UnlockPalette(unsigned int th) {
 #if CRS_VIDEO_DRIVER_SDL_GENERIC
-    if (skip_rendering()) {
-        return;
-    }
-
-    SDLGenericRenderer_UnlockPalette(th);
+    renderer_handle_op(th, SDLGenericRenderer_UnlockPalette);
 #elif CRS_VIDEO_DRIVER_PSP
-    PSPRenderer_UnlockPalette(th);
+    renderer_handle_op(th, PSPRenderer_UnlockPalette);
 #endif
 }
 
 void Renderer_SetTexture(unsigned int th) {
 #if CRS_VIDEO_DRIVER_SDL_GENERIC
-    if (skip_rendering()) {
-        return;
-    }
-
-    SDLGenericRenderer_SetTexture(th);
+    renderer_handle_op(th, SDLGenericRenderer_SetTexture);
 #elif CRS_VIDEO_DRIVER_PSP
-    PSPRenderer_SetTexture(th);
+    renderer_handle_op(th, PSPRenderer_SetTexture);
 #endif
 }
 
