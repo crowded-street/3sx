@@ -4,12 +4,12 @@
  */
 
 #include "sf33rd/Source/Game/effect/eff09.h"
-#include "sf33rd/Source/Game/effect/eff09_animation.h"
-#include "sf33rd/Source/Game/effect/eff09_endgame.h"
-#include "sf33rd/Source/Game/effect/eff09_late.h"
 #include "bin2obj/char_table.h"
 #include "common.h"
 #include "sf33rd/Source/Game/animation/appear.h"
+#include "sf33rd/Source/Game/effect/eff09_animation.h"
+#include "sf33rd/Source/Game/effect/eff09_endgame.h"
+#include "sf33rd/Source/Game/effect/eff09_late.h"
 #include "sf33rd/Source/Game/effect/effb4.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/caldir.h"
@@ -86,11 +86,33 @@ static s32 eff09_0000_animation_updates_enabled(const WORK_Other* ewk) {
     return !EXE_flag && !Game_pause && ewk->wu.hit_stop;
 }
 
-void eff09_0000(WORK_Other* ewk) {
-    if (obr_no_disp_check()) {
-        return;
-    }
+/* eff09_8000 asks only for the hit stop, where eff09_0000 also refuses while the
+ * game is paused. */
+static s32 eff09_8000_animation_updates_enabled(const WORK_Other* ewk) {
+    return ewk->wu.hit_stop;
+}
 
+/* The two balls disagree on what counts as the animation having ended:
+ * eff09_0000 takes any non-zero cg_type, eff09_8000 only 0xFF. */
+static s32 eff09_0000_animation_ended(const WORK_Other* ewk) {
+    return ewk->wu.cg_type;
+}
+
+static s32 eff09_8000_animation_ended(const WORK_Other* ewk) {
+    return ewk->wu.cg_type == 0xFF;
+}
+
+/* What eff09_0000 and eff09_8000 do not share: the two tests in case 1 and the
+ * transfer entry it posts. Three more parameters would put the helper over the
+ * argument-count threshold, so they travel together. */
+typedef struct {
+    s32 (*updates_enabled)(const WORK_Other* ewk);
+    s32 (*animation_ended)(const WORK_Other* ewk);
+    void (*disp_pos_trans_entry)(WORK_Other* ewk);
+} Eff09_Ball_Ops;
+
+/* The ball state machine both eff09_0000 and eff09_8000 run. */
+static void run_eff09_ball_state(WORK_Other* ewk, const Eff09_Ball_Ops* ops) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
         ewk->wu.routine_no[1]++;
@@ -100,16 +122,16 @@ void eff09_0000(WORK_Other* ewk) {
         break;
 
     case 1:
-        if (eff09_0000_animation_updates_enabled(ewk)) {
+        if (ops->updates_enabled(ewk)) {
             char_move(&ewk->wu);
 
-            if (ewk->wu.cg_type) {
+            if (ops->animation_ended(ewk)) {
                 ewk->wu.routine_no[1]++;
                 ewk->wu.disp_flag = 0;
             }
         }
 
-        disp_pos_trans_entry_rs(ewk);
+        ops->disp_pos_trans_entry(ewk);
         break;
 
     case 2:
@@ -120,6 +142,17 @@ void eff09_0000(WORK_Other* ewk) {
         push_effect_work(&ewk->wu);
         break;
     }
+}
+
+void eff09_0000(WORK_Other* ewk) {
+    if (obr_no_disp_check()) {
+        return;
+    }
+
+    run_eff09_ball_state(
+        ewk,
+        &(Eff09_Ball_Ops) { eff09_0000_animation_updates_enabled, eff09_0000_animation_ended, disp_pos_trans_entry_rs }
+    );
 }
 
 static s32 eff09_1000_updates_enabled() {
@@ -231,8 +264,7 @@ static s32 eff09_2000_is_outside_horizontal_bounds(const WORK_Other* ewk) {
 }
 
 static s32 eff09_2000_is_outside_bounds(const WORK_Other* ewk) {
-    return (ewk->wu.xyz[0].disp.pos >= 785 || ewk->wu.xyz[0].disp.pos < 240) ||
-           ewk->wu.xyz[1].disp.pos < -56;
+    return (ewk->wu.xyz[0].disp.pos >= 785 || ewk->wu.xyz[0].disp.pos < 240) || ewk->wu.xyz[1].disp.pos < -56;
 }
 
 static void handle_eff09_2000_horizontal_exit(WORK_Other* ewk) {
@@ -345,7 +377,8 @@ void eff09_2000(WORK_Other* ewk) {
                 work = random_16();
                 work &= 7;
                 add_super_arts_gauge(
-                    plw[ewk->master_id].sa, plw[ewk->master_id].wu.id, 1, plw[ewk->master_id].metamorphose);
+                    plw[ewk->master_id].sa, plw[ewk->master_id].wu.id, 1, plw[ewk->master_id].metamorphose
+                );
                 break;
             }
 
@@ -704,35 +737,10 @@ void eff09_7000(WORK_Other* ewk) {
 }
 
 void eff09_8000(WORK_Other* ewk) {
-    switch (ewk->wu.routine_no[1]) {
-    case 0:
-        ewk->wu.routine_no[1]++;
-        ewk->wu.disp_flag = 1;
-        ewk->wu.dead_f = 1;
-        set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
-        break;
-
-    case 1:
-        if (ewk->wu.hit_stop) {
-            char_move(&ewk->wu);
-
-            if (ewk->wu.cg_type == 0xFF) {
-                ewk->wu.routine_no[1]++;
-                ewk->wu.disp_flag = 0;
-            }
-        }
-
-        disp_pos_trans_entry_s(ewk);
-        break;
-
-    case 2:
-        ewk->wu.routine_no[1]++;
-        break;
-
-    default:
-        push_effect_work(&ewk->wu);
-        break;
-    }
+    run_eff09_ball_state(
+        ewk,
+        &(Eff09_Ball_Ops) { eff09_8000_animation_updates_enabled, eff09_8000_animation_ended, disp_pos_trans_entry_s }
+    );
 }
 
 static void initialize_eff09_11000(WORK_Other* ewk, const WORK* oya_ptr) {
