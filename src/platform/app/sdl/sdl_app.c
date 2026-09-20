@@ -250,6 +250,22 @@ static void hide_cursor_if_needed() {
     }
 }
 
+/* The events that are not input, reached from handle_event's new default.
+ * Both case labels are the original ones, handle_event had no default of its
+ * own, and returning true is what falling out of its switch meant. */
+static bool handle_window_event(const SDL_Event* event) {
+    switch (event->type) {
+    case SDL_EVENT_MOUSE_MOTION:
+        handle_mouse_motion();
+        break;
+
+    case SDL_EVENT_QUIT:
+        return false;
+    }
+
+    return true;
+}
+
 static bool handle_event(const SDL_Event* event) {
 #if DEBUG && IMGUI
     ImGuiW_ProcessEvent(event);
@@ -272,12 +288,8 @@ static bool handle_event(const SDL_Event* event) {
         handle_fullscreen_toggle(&event->key);
         break;
 
-    case SDL_EVENT_MOUSE_MOTION:
-        handle_mouse_motion();
-        break;
-
-    case SDL_EVENT_QUIT:
-        return false;
+    default:
+        return handle_window_event(event);
     }
 
     return true;
