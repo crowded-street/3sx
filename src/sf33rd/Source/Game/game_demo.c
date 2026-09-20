@@ -94,34 +94,10 @@ static void enter_demo_loop() {
     Reset_Bootrom = 0;
 }
 
-/* The attract sequence's later stages, reached from the demo loop's new
- * default. Every case keeps its original label, and the original default -
- * the cover timer - is the default here. */
-static void run_demo_attract_stage(u8 stage) {
+/* The second half of the attract sequence, reached from the first half's
+ * default; the cover timer stays the default arm. */
+static void run_demo_ranking_stage(u8 stage) {
     switch (stage) {
-    case 3:
-        if (Play_Demo() != 0) {
-            Switch_Screen(1);
-            Loop_Demo_Sub();
-            Rank_Type = 0;
-            Demo_Type = 0;
-            SsAllNoteOff();
-            return;
-        }
-
-        break;
-
-    case 4:
-        Basic_Sub();
-
-        if (Ranking() != 0) {
-            Switch_Screen(1);
-            Loop_Demo_Sub();
-            return;
-        }
-
-        break;
-
     case 5:
         if (Play_Demo() != 0) {
             Loop_Demo_Sub();
@@ -157,6 +133,40 @@ static void run_demo_attract_stage(u8 stage) {
             Next_Demo_Loop();
         }
 
+        break;
+    }
+}
+
+/* The attract sequence's later stages, reached from the demo loop's new
+ * default. Every case keeps its original label, and the original default -
+ * the cover timer - is the default here. */
+static void run_demo_attract_stage(u8 stage) {
+    switch (stage) {
+    case 3:
+        if (Play_Demo() != 0) {
+            Switch_Screen(1);
+            Loop_Demo_Sub();
+            Rank_Type = 0;
+            Demo_Type = 0;
+            SsAllNoteOff();
+            return;
+        }
+
+        break;
+
+    case 4:
+        Basic_Sub();
+
+        if (Ranking() != 0) {
+            Switch_Screen(1);
+            Loop_Demo_Sub();
+            return;
+        }
+
+        break;
+
+    default:
+        run_demo_ranking_stage(stage);
         break;
     }
 }
