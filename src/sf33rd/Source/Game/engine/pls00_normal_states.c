@@ -58,24 +58,58 @@ void nm_00000(PLW* /* unused */) { // 🟢
     // Do nothing
 }
 
+/* Defined below, next to the states that share them. */
+static bool run_common_nm_attack_checks(PLW* wk);
+static bool run_common_nm_attack_checks_no_turn(PLW* wk);
+
+/* A check that may take over the normal state, as the check lists see it. Every
+ * one of these functions was already being called in a boolean context; the
+ * adapters below carry the narrower types - and the one guarded call - into this
+ * one, so nothing is converted that was not already tested. */
+typedef s32 (*NmStateCheck)(PLW* wk);
+
+/* Run a list of checks in order and stop at the first that takes. Reports
+ * whether one did, for the lists whose callers ask. */
+static s32 run_nm_state_checks(PLW* wk, const NmStateCheck* checks) {
+    s32 i;
+
+    for (i = 0; checks[i] != NULL; i++) {
+        if (checks[i](wk)) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+/* The adapters. Each returns the value its own `if` tested. */
+static s32 nm_check_common_attacks(PLW* wk) {
+    return run_common_nm_attack_checks(wk);
+}
+
+static s32 nm_check_common_attacks_no_turn(PLW* wk) {
+    return run_common_nm_attack_checks_no_turn(wk);
+}
+
+static s32 nm_check_f_r_walk(PLW* wk) {
+    return check_F_R_walk(wk);
+}
+
+/* nm_09000 guards its walk start on the arcade balance being on, and does
+ * nothing at all when it is off. */
+static s32 nm_check_arcade_walk_start(PLW* wk) {
+    if (ArcadeBalance_IsEnabled()) {
+        return check_arcade_walk_start(wk);
+    }
+
+    return 0;
+}
+
 void nm_01000(PLW* wk) { // 🟡
-    if (setup_kuzureochi(wk)) {
-        return;
-    }
+    static const NmStateCheck checks[] = { setup_kuzureochi,    nm_check_common_attacks, check_bend_myself,
+                                           check_defense_lever, nm_check_f_r_walk,       NULL };
 
-    if (run_common_nm_attack_checks(wk)) {
-        return;
-    }
-
-    if (check_bend_myself(wk)) {
-        return;
-    }
-
-    if (check_defense_lever(wk)) {
-        return;
-    }
-
-    check_F_R_walk(wk);
+    run_nm_state_checks(wk, checks);
 }
 
 /* The three checks every attack path tries first: both full-gauge attacks and
@@ -218,23 +252,10 @@ void nm_05000(PLW* wk) { // 🟢
 }
 
 void nm_07000(PLW* wk) { // 🟡
-    if (animation_ended_to_nm_01000(wk)) {
-        return;
-    }
+    static const NmStateCheck checks[] = { animation_ended_to_nm_01000, nm_check_common_attacks, check_defense_lever,
+                                           nm_check_f_r_walk,           check_bend_myself,       NULL };
 
-    if (run_common_nm_attack_checks(wk)) {
-        return;
-    }
-
-    if (check_defense_lever(wk)) {
-        return;
-    }
-
-    if (check_F_R_walk(wk)) {
-        return;
-    }
-
-    check_bend_myself(wk);
+    run_nm_state_checks(wk, checks);
 }
 
 void nm_08000(PLW* wk) { // 🟡
@@ -263,41 +284,18 @@ void nm_08000(PLW* wk) { // 🟡
 }
 
 void nm_09000(PLW* wk) { // 🟡
-    if (setup_kuzureochi(wk)) {
-        return;
-    }
+    static const NmStateCheck checks[] = { setup_kuzureochi,    nm_check_common_attacks,    check_stand_up,
+                                           check_defense_lever, nm_check_arcade_walk_start, NULL };
 
-    if (run_common_nm_attack_checks(wk)) {
-        return;
-    }
-
-    if (check_stand_up(wk)) {
-        return;
-    }
-
-    if (check_defense_lever(wk)) {
-        return;
-    }
-
-    if (ArcadeBalance_IsEnabled()) {
-        check_arcade_walk_start(wk);
-    }
+    run_nm_state_checks(wk, checks);
 }
 
 void nm_10000(PLW* wk) { // 🟡
-    if (animation_ended_to_nm_09000(wk)) {
-        return;
-    }
+    static const NmStateCheck checks[] = {
+        animation_ended_to_nm_09000, nm_check_common_attacks_no_turn, check_defense_lever, check_stand_up, NULL
+    };
 
-    if (run_common_nm_attack_checks_no_turn(wk)) {
-        return;
-    }
-
-    if (check_defense_lever(wk)) {
-        return;
-    }
-
-    check_stand_up(wk);
+    run_nm_state_checks(wk, checks);
 }
 
 void nm_11000(PLW* wk) { // 🔵
