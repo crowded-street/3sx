@@ -67,108 +67,66 @@ void ppgWorkInitializeApprication() {
     col3rd_w.palDC.be = col3rd_w.palCP3.be = 0;
 }
 
+/* Releasing one texture or palette, where it is loaded. The purge switch wrote
+ * that same `if` over and over, differing in nothing but the object, which
+ * travels to the helper as its address. */
+static void purge_texture_if_loaded(Texture* tex) {
+    if (tex->be) {
+        ppgPurgeTextureFromVRAM(tex);
+    }
+}
+
+static void purge_palette_if_loaded(Palette* pal) {
+    if (pal->be) {
+        ppgPurgePaletteFromVRAM(pal);
+    }
+}
+
 void ppgPurgeFromVRAM(s32 type) {
     s32 i;
 
     switch (type) {
     case 0:
-        if (ppgScrTex.be) {
-            ppgPurgeTextureFromVRAM(&ppgScrTex);
-        }
-
-        if (ppgScrPal.be) {
-            ppgPurgePaletteFromVRAM(&ppgScrPal);
-        }
-
-        if (ppgScrPalFace.be) {
-            ppgPurgePaletteFromVRAM(&ppgScrPalFace);
-        }
-
-        if (ppgScrPalShot.be) {
-            ppgPurgePaletteFromVRAM(&ppgScrPalShot);
-        }
-
-        if (ppgScrPalOpt.be) {
-            ppgPurgePaletteFromVRAM(&ppgScrPalOpt);
-        }
+        purge_texture_if_loaded(&ppgScrTex);
+        purge_palette_if_loaded(&ppgScrPal);
+        purge_palette_if_loaded(&ppgScrPalFace);
+        purge_palette_if_loaded(&ppgScrPalShot);
+        purge_palette_if_loaded(&ppgScrPalOpt);
 
         break;
 
     case 1:
-        if (ppgWarTex.be) {
-            ppgPurgeTextureFromVRAM(&ppgWarTex);
-        }
-
-        if (ppgWarPal.be) {
-            ppgPurgePaletteFromVRAM(&ppgWarPal);
-        }
-
-        if (ppgAdxPal.be) {
-            ppgPurgePaletteFromVRAM(&ppgAdxPal);
-        }
+        purge_texture_if_loaded(&ppgWarTex);
+        purge_palette_if_loaded(&ppgWarPal);
+        purge_palette_if_loaded(&ppgAdxPal);
 
         break;
 
     case 2:
-        if (ppgOpnBgTex.be) {
-            ppgPurgeTextureFromVRAM(&ppgOpnBgTex);
-        }
-
-        if (ppgCapLogoTex.be) {
-            ppgPurgeTextureFromVRAM(&ppgCapLogoTex);
-        }
-
-        if (ppgCapLogoPal.be) {
-            ppgPurgePaletteFromVRAM(&ppgCapLogoPal);
-        }
-
-        if (col3rd_w.palDC.be) {
-            ppgPurgePaletteFromVRAM(&col3rd_w.palDC);
-        }
-
-        if (col3rd_w.palCP3.be) {
-            ppgPurgePaletteFromVRAM(&col3rd_w.palCP3);
-        }
+        purge_texture_if_loaded(&ppgOpnBgTex);
+        purge_texture_if_loaded(&ppgCapLogoTex);
+        purge_palette_if_loaded(&ppgCapLogoPal);
+        purge_palette_if_loaded(&col3rd_w.palDC);
+        purge_palette_if_loaded(&col3rd_w.palCP3);
 
         break;
 
     case 3:
-        if (ppgTitleTex.be) {
-            ppgPurgeTextureFromVRAM(&ppgTitleTex);
-        }
+        purge_texture_if_loaded(&ppgTitleTex);
 
         break;
 
     case 4:
         for (i = 0; i < 4; i++) {
-            if (ppgBgTex[i].be) {
-                ppgPurgeTextureFromVRAM(&ppgBgTex[i]);
-            }
+            purge_texture_if_loaded(&ppgBgTex[i]);
         }
 
-        if (col3rd_w.palDC.be) {
-            ppgPurgePaletteFromVRAM(&col3rd_w.palDC);
-        }
-
-        if (col3rd_w.palCP3.be) {
-            ppgPurgePaletteFromVRAM(&col3rd_w.palCP3);
-        }
-
-        if (ppgAkeTex.be) {
-            ppgPurgeTextureFromVRAM(&ppgAkeTex);
-        }
-
-        if (ppgAkaneTex.be) {
-            ppgPurgeTextureFromVRAM(&ppgAkaneTex);
-        }
-
-        if (ppgAkePal.be) {
-            ppgPurgePaletteFromVRAM(&ppgAkePal);
-        }
-
-        if (ppgAkanePal.be) {
-            ppgPurgePaletteFromVRAM(&ppgAkanePal);
-        }
+        purge_palette_if_loaded(&col3rd_w.palDC);
+        purge_palette_if_loaded(&col3rd_w.palCP3);
+        purge_texture_if_loaded(&ppgAkeTex);
+        purge_texture_if_loaded(&ppgAkaneTex);
+        purge_palette_if_loaded(&ppgAkePal);
+        purge_palette_if_loaded(&ppgAkanePal);
 
         break;
 
@@ -179,13 +137,8 @@ void ppgPurgeFromVRAM(s32 type) {
             }
         }
 
-        if (col3rd_w.palDC.be) {
-            ppgPurgePaletteFromVRAM(&col3rd_w.palDC);
-        }
-
-        if (col3rd_w.palCP3.be) {
-            ppgPurgePaletteFromVRAM(&col3rd_w.palCP3);
-        }
+        purge_palette_if_loaded(&col3rd_w.palDC);
+        purge_palette_if_loaded(&col3rd_w.palCP3);
 
         break;
     }
