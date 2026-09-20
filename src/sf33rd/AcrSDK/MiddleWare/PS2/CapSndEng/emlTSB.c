@@ -103,7 +103,7 @@ s32 mlTsbRequest(u16 bank, u16 code, s32* aRtpc) {
             break;
 
         case 5:
-            mlSeSetLfo(&reqp, pTSB->param0, pTSB->param1, pTSB->param2, pTSB->param3);
+            mlSeSetLfo(&reqp, &(CSE_LFO_PARAMS){ pTSB->param0, pTSB->param1, pTSB->param2, pTSB->param3 });
             break;
         }
 

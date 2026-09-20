@@ -24,15 +24,15 @@ s32 mlSysSetBankVolume(s32 bank, s32 vol) {
     return 0;
 }
 
-s32 mlSeSetLfo(CSE_REQP* pReqp, u16 pmd_speed, u16 pmd_depth, u16 amd_speed, u16 amd_depth) {
+s32 mlSeSetLfo(CSE_REQP* pReqp, const CSE_LFO_PARAMS* a) {
     CSE_SYS_PARAM_LFO param = {};
 
     param.cmd = 0x10000004;
     param.reqp = *pReqp;
-    param.pmd_speed = pmd_speed;
-    param.pmd_depth = pmd_depth;
-    param.amd_speed = amd_speed;
-    param.amd_depth = amd_depth;
+    param.pmd_speed = a->pmd_speed;
+    param.pmd_depth = a->pmd_depth;
+    param.amd_speed = a->amd_speed;
+    param.amd_depth = a->amd_depth;
 
     emlShimSeSetLfo(&param);
     return 0;

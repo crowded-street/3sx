@@ -36,7 +36,16 @@ typedef struct {
 
 s32 mlSysSetMasterVolume(s32 vol);
 s32 mlSysSetBankVolume(s32 bank, s32 vol);
-s32 mlSeSetLfo(CSE_REQP* pReqp, u16 pmd_speed, u16 pmd_depth, u16 amd_speed, u16 amd_depth);
+/* The four LFO settings mlSeSetLfo takes, in the order its parameter list had
+ * them. */
+typedef struct {
+    u16 pmd_speed;
+    u16 pmd_depth;
+    u16 amd_speed;
+    u16 amd_depth;
+} CSE_LFO_PARAMS;
+
+s32 mlSeSetLfo(CSE_REQP* pReqp, const CSE_LFO_PARAMS* a);
 s32 mlSeStop(CSE_REQP* pReqp);
 s32 mlSeKeyoff(CSE_REQP* pReqp);
 s32 mlSeStopAll();
