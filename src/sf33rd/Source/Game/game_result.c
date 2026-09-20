@@ -211,33 +211,12 @@ if (!Check_LDREQ_Queue_BG(bg_w.stage)) {
 }
 }
 
-void Game09() {
+/* Game09 from its fourth step on, reached from the first three's default. The
+ * case labels are the original ones and the switch is on the same expression;
+ * the group carries the original `default`, so a step matching none of the
+ * labels still reaches it. */
+static void game09_from_step_3() {
     switch (G_No[2]) {
-    case 0:
-        begin_bonus_game();
-
-        break;
-
-    case 1:
-        BG_Draw_System();
-        Switch_Screen(1);
-
-        if (--G_Timer == 0) {
-            load_bonus_stage();
-        }
-
-        break;
-
-    case 2:
-        Bonus_Sub();
-
-        if (Switch_Screen_Revival(1) != 0) {
-            G_No[2] += 1;
-            Forbid_Break = 0;
-        }
-
-        break;
-
     case 3:
         if (Bonus_Sub()) {
             G_No[2] += 1;
@@ -278,6 +257,39 @@ void Game09() {
             E_No[3] = 0;
         }
 
+        break;
+    }
+}
+
+void Game09() {
+    switch (G_No[2]) {
+    case 0:
+        begin_bonus_game();
+
+        break;
+
+    case 1:
+        BG_Draw_System();
+        Switch_Screen(1);
+
+        if (--G_Timer == 0) {
+            load_bonus_stage();
+        }
+
+        break;
+
+    case 2:
+        Bonus_Sub();
+
+        if (Switch_Screen_Revival(1) != 0) {
+            G_No[2] += 1;
+            Forbid_Break = 0;
+        }
+
+        break;
+
+    default:
+        game09_from_step_3();
         break;
     }
 
