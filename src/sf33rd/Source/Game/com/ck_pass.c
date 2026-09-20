@@ -6,12 +6,12 @@
 
 #include "sf33rd/Source/Game/com/ck_pass.h"
 #include "common.h"
+#include "sf33rd/Source/Game/com/ck_pass_internal.h"
 #include "sf33rd/Source/Game/com/com_data.h"
 #include "sf33rd/Source/Game/com/com_sub.h"
 #include "sf33rd/Source/Game/engine/pls02.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
-#include "sf33rd/Source/Game/com/ck_pass_internal.h"
 
 static s32 Check_PL_Unit_AS(PLW* wk);
 static s32 Check_PL_Unit_A(PLW* wk);
@@ -97,11 +97,11 @@ static s32 attacks_in_area_6(PLW* wk, WORK* em) {
         return 1;
     }
 
-    if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args){12, 32, 3, 0})) {
+    if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args) { 12, 32, 3, 0 })) {
         return 1;
     }
 
-    if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args){7, 32, 5, 0})) {
+    if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args) { 7, 32, 5, 0 })) {
         return 1;
     }
 
@@ -129,15 +129,15 @@ static s32 attacks_in_area_with_unit(PLW* wk, WORK* em, s32 (*unit_check)(PLW*))
         return 1;
     }
 
-    if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args){12, 32, 3, 0})) {
+    if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args) { 12, 32, 3, 0 })) {
         return 1;
     }
 
-    if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args){7, 32, 5, 0})) {
+    if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args) { 7, 32, 5, 0 })) {
         return 1;
     }
 
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){15, 0, 33, 1, -1})) {
+    if (Check_Special_Technique(wk, em, &(SP_Tech_Args) { 15, 0, 33, 1, -1 })) {
         return 1;
     }
 
@@ -157,7 +157,7 @@ static s32 defends_in_area_with_unit(PLW* wk, WORK* em, s32 (*unit_check)(PLW*))
         return 1;
     }
 
-    if (Check_VS_Squat(wk, em, &(VS_Squat_Args){29, 33, 32})) {
+    if (Check_VS_Squat(wk, em, &(VS_Squat_Args) { 29, 33, 32 })) {
         return 1;
     }
 
@@ -185,7 +185,7 @@ static s32 hugo_attacks_in_area_6(PLW* wk, WORK* em) {
         return 1;
     }
 
-    if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args){7, 32, 3, 0})) {
+    if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args) { 7, 32, 3, 0 })) {
         return 1;
     }
 
@@ -197,11 +197,11 @@ static s32 hugo_attacks_in_area_with_unit(PLW* wk, WORK* em, s32 (*unit_check)(P
         return 1;
     }
 
-    if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args){7, 32, 3, 0})) {
+    if (Check_Limited_Attack(wk, em, &(Limited_Attack_Args) { 7, 32, 3, 0 })) {
         return 1;
     }
 
-    if (Check_Special_Technique(wk, em, &(SP_Tech_Args){15, 0, 33, 1, -1})) {
+    if (Check_Special_Technique(wk, em, &(SP_Tech_Args) { 15, 0, 33, 1, -1 })) {
         return 1;
     }
 
@@ -445,7 +445,7 @@ static void gill_vs_from_area_6(PLW* wk, WORK* em) {
             break;
         }
 
-        Check_VS_Squat(wk, em, &(VS_Squat_Args){7, 33, 32});
+        Check_VS_Squat(wk, em, &(VS_Squat_Args) { 7, 33, 32 });
         break;
     }
 }
