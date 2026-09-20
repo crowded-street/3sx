@@ -319,9 +319,47 @@ void Damage_6th(PLW* wk) {
     }
 }
 
-void Damage_7th(PLW* wk) {
+static void Damage_7th_Set_Guard_Type(PLW* wk) {
+    switch (CP_No[wk->wu.id][1]) {
+    case 6:
+        Guard_Type[wk->wu.id] = 0;
+        break;
+
+    case 7:
+        Guard_Type[wk->wu.id] = 1;
+        break;
+
+    default:
+        Guard_Type[wk->wu.id] = 2;
+        break;
+    }
+}
+
+static void Damage_7th_Check_Exit(PLW* wk) {
     WORK* em;
 
+    em = (WORK*)wk->wu.target_adrs;
+    Check_Guard_Type(wk, em);
+
+    if (wk->wu.cg_type != 0x40 && wk->wu.routine_no[1] != 0) {
+        return;
+    }
+
+    if (Attack_Flag[wk->wu.id] != 0) {
+        return;
+    }
+
+    if (Attack_Flag[wk->wu.id] == 0) {
+        Exit_Damage_Sub(wk);
+        return;
+    }
+
+    if (wk->tsukamarenai_flag == 0) {
+        Exit_Damage_Sub(wk);
+    }
+}
+
+void Damage_7th(PLW* wk) {
     switch (CP_No[wk->wu.id][2]) {
     case 0:
         if (wk->wu.routine_no[1] != 1) {
@@ -330,44 +368,11 @@ void Damage_7th(PLW* wk) {
         }
 
         CP_No[wk->wu.id][2]++;
-
-        switch (CP_No[wk->wu.id][1]) {
-        case 6:
-            Guard_Type[wk->wu.id] = 0;
-            break;
-
-        case 7:
-            Guard_Type[wk->wu.id] = 1;
-            break;
-
-        default:
-            Guard_Type[wk->wu.id] = 2;
-            break;
-        }
-
+        Damage_7th_Set_Guard_Type(wk);
         break;
 
     default:
-        em = (WORK*)wk->wu.target_adrs;
-        Check_Guard_Type(wk, em);
-
-        if (wk->wu.cg_type != 0x40 && wk->wu.routine_no[1] != 0) {
-            break;
-        }
-
-        if (Attack_Flag[wk->wu.id] != 0) {
-            break;
-        }
-
-        if (Attack_Flag[wk->wu.id] == 0) {
-            Exit_Damage_Sub(wk);
-            break;
-        }
-
-        if (wk->tsukamarenai_flag == 0) {
-            Exit_Damage_Sub(wk);
-        }
-
+        Damage_7th_Check_Exit(wk);
         break;
     }
 }
