@@ -172,12 +172,14 @@ void end_1800_0005() {
     }
 }
 
-void end_1800_0006() {
+/* Two of the scenes are one skeleton, byte for byte apart from the effect id
+ * and the message index; both are written out at their own call site. */
+static void end_18_scene_step(s16 effect_id, s16 message_index) {
     switch (bgw_ptr->r_no_1) {
     case 0:
         end_18_open_scene();
-        effect_E6_init(0x76);
-        Rewrite_End_Message(6);
+        effect_E6_init(effect_id);
+        Rewrite_End_Message(message_index);
         break;
 
     case 1:
@@ -187,19 +189,12 @@ void end_1800_0006() {
     }
 }
 
+void end_1800_0006() {
+    end_18_scene_step(0x76, 6);
+}
+
 void end_1800_0008() {
-    switch (bgw_ptr->r_no_1) {
-    case 0:
-        end_18_open_scene();
-        effect_E6_init(0x78);
-        Rewrite_End_Message(5);
-        break;
-
-    case 1:
-        end_18_toggle_frame();
-
-        break;
-    }
+    end_18_scene_step(0x78, 5);
 }
 
 void end_1800_0009() {
