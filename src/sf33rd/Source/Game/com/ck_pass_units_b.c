@@ -125,21 +125,42 @@ s32 VS_ORO_BS(PLW* wk) {
     return check_one_special(wk, &(SP_Tech_Args) { 23, 8, 39, -1, 0 });
 }
 
-s32 VS_KEN_BS(PLW* wk) {
-    if (check_three_specials(
-            wk,
-            &(SP_Tech_Args) { 11, 8, 0, 1, -1 },
-            &(SP_Tech_Args) { 23, 8, 1, -1, 0 },
-            &(SP_Tech_Args) { 24, 8, 2, -1, -1 }
-        )) {
+/* The three specials a check_three_specials test names, and the two a
+ * check_two_specials test names. Named members rather than an array, so no
+ * subscript integers enter a file whose option lists never wrote them. */
+typedef struct {
+    SP_Tech_Args a;
+    SP_Tech_Args b;
+    SP_Tech_Args c;
+} Three_Specials;
+
+typedef struct {
+    SP_Tech_Args a;
+    SP_Tech_Args b;
+} Two_Specials;
+
+/* VS_KEN_BS, VS_GOUKI_BS and VS_GOUKI_B are the same option list: a
+ * three-special test, then a two-special test, then nothing. Only the specials
+ * differ, and there are twenty-five of their values, so they travel as the
+ * SP_Tech_Args the calls already take. */
+static s32 check_three_then_two_specials(PLW* wk, const Three_Specials* t, const Two_Specials* u) {
+    if (check_three_specials(wk, &t->a, &t->b, &t->c)) {
         return 1;
     }
 
-    if (check_two_specials(wk, &(SP_Tech_Args) { 23, 32, 8, -1, -1 }, &(SP_Tech_Args) { 23, 32, 6, -1, -1 })) {
+    if (check_two_specials(wk, &u->a, &u->b)) {
         return 1;
     }
 
     return 0;
+}
+
+s32 VS_KEN_BS(PLW* wk) {
+    return check_three_then_two_specials(
+        wk,
+        &(Three_Specials) { { 11, 8, 0, 1, -1 }, { 23, 8, 1, -1, 0 }, { 24, 8, 2, -1, -1 } },
+        &(Two_Specials) { { 23, 32, 8, -1, -1 }, { 23, 32, 6, -1, -1 } }
+    );
 }
 
 s32 VS_SEAN_BS(PLW* wk) {
@@ -151,20 +172,11 @@ s32 VS_URIEN_BS(PLW* wk) {
 }
 
 s32 VS_GOUKI_BS(PLW* wk) {
-    if (check_three_specials(
-            wk,
-            &(SP_Tech_Args) { 23, 8, 1, -1, 0 },
-            &(SP_Tech_Args) { 11, 8, 0, 1, -1 },
-            &(SP_Tech_Args) { 24, 8, 2, -1, -1 }
-        )) {
-        return 1;
-    }
-
-    if (check_two_specials(wk, &(SP_Tech_Args) { 16, 32, 4, -1, -1 }, &(SP_Tech_Args) { 23, 32, 69, -1, -1 })) {
-        return 1;
-    }
-
-    return 0;
+    return check_three_then_two_specials(
+        wk,
+        &(Three_Specials) { { 23, 8, 1, -1, 0 }, { 11, 8, 0, 1, -1 }, { 24, 8, 2, -1, -1 } },
+        &(Two_Specials) { { 16, 32, 4, -1, -1 }, { 23, 32, 69, -1, -1 } }
+    );
 }
 
 s32 VS_CHUN_LI_BS(PLW* wk) {
@@ -353,20 +365,11 @@ s32 VS_URIEN_B(PLW* wk) {
 }
 
 s32 VS_GOUKI_B(PLW* wk) {
-    if (check_three_specials(
-            wk,
-            &(SP_Tech_Args) { 11, 8, 0, 1, -1 },
-            &(SP_Tech_Args) { 24, 8, 2, 1, -1 },
-            &(SP_Tech_Args) { 16, 32, 4, 1, -1 }
-        )) {
-        return 1;
-    }
-
-    if (check_two_specials(wk, &(SP_Tech_Args) { 16, 32, 5, 1, -1 }, &(SP_Tech_Args) { 13, 64, 47, 1, -1 })) {
-        return 1;
-    }
-
-    return 0;
+    return check_three_then_two_specials(
+        wk,
+        &(Three_Specials) { { 11, 8, 0, 1, -1 }, { 24, 8, 2, 1, -1 }, { 16, 32, 4, 1, -1 } },
+        &(Two_Specials) { { 16, 32, 5, 1, -1 }, { 13, 64, 47, 1, -1 } }
+    );
 }
 
 s32 VS_CHUN_LI_B(PLW* wk) {
