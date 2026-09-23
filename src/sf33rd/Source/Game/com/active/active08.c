@@ -8,7 +8,7 @@
 #include "sf33rd/Source/Game/com/com_sub.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 
-void (*const Pattern08_Tbl[71])();
+void (*const Pattern08_Tbl[71])(PLW*);
 
 void Computer08(PLW* wk) {
     Pattern08_Tbl[(s16)Pattern_Index[wk->wu.id]](wk);

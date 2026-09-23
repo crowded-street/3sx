@@ -35,8 +35,8 @@ void Setup_Char_76(WORK_Other* ewk);
 s16 Check_Range_Out(WORK_Other* ewk);
 void Setup_Color_76(WORK_Other* ewk);
 
-void (*const EFF76_Jmp_Tbl[8])() = { EFF76_WAIT, EFF76_SLIDE_IN, EFF76_SLIDE_OUT,       EFF76_SUDDENLY,
-                                     EFF57_KILL, EFF76_SHIFT,    EFF76_WAIT_BREAK_INTO, EFF76_BEFORE };
+void (*const EFF76_Jmp_Tbl[8])(WORK_Other*) = { EFF76_WAIT, EFF76_SLIDE_IN, EFF76_SLIDE_OUT,       EFF76_SUDDENLY,
+                                                EFF57_KILL, EFF76_SHIFT,    EFF76_WAIT_BREAK_INTO, EFF76_BEFORE };
 
 void effect_76_move(WORK_Other* ewk) {
     EFF76_Jmp_Tbl[ewk->wu.routine_no[0]](ewk);

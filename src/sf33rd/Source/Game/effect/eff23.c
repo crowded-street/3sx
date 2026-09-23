@@ -59,7 +59,7 @@ const char* Letter_Data_23[4][12] = { { "L.PUNCH",
                                         "EXIT",
                                         "PLAYER 2" } };
 
-void (*const EFF23_Jmp_Tbl[4])() = { EFF23_WAIT, EFF23_SLIDE_IN, EFF23_CHAR_CHANGE, EFF23_SUDDENLY };
+void (*const EFF23_Jmp_Tbl[4])(WORK_Other_CONN*) = { EFF23_WAIT, EFF23_SLIDE_IN, EFF23_CHAR_CHANGE, EFF23_SUDDENLY };
 
 void effect_23_move(WORK_Other_CONN* ewk) {
     if (Check_Die_61((WORK_Other*)ewk)) {

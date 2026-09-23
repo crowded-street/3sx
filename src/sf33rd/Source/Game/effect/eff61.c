@@ -89,7 +89,7 @@ const char* Menu_Letter_Data[67] = { "ARCADE",
                                      "FIND MATCH",
                                      "EXIT" };
 
-void (*const EFF61_Jmp_Tbl[4])() = { EFF61_WAIT, EFF61_SLIDE_IN, EFF61_SLIDE_OUT, EFF61_SUDDENLY };
+void (*const EFF61_Jmp_Tbl[4])(WORK_Other_CONN*) = { EFF61_WAIT, EFF61_SLIDE_IN, EFF61_SLIDE_OUT, EFF61_SUDDENLY };
 
 void effect_61_move(WORK_Other_CONN* ewk) {
     if (Check_Die_61((WORK_Other*)ewk)) {

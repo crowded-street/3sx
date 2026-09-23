@@ -26,7 +26,7 @@ static s32 cat07_running_check(WORK* wk);
 void catch_cg_type_check(PLW* wk);
 void set_char_move_init_ca(PLW* wk, s16 koc, s16 index);
 
-void (*const plpca_lv_00[9])();
+void (*const plpca_lv_00[9])(PLW*);
 
 void Player_catch(PLW* wk) { // 🟡
     wk->wu.next_z = wk->wu.my_priority;
@@ -474,8 +474,6 @@ void catch_cg_type_check(PLW* wk) { // 🟡
         set_catch_hit_mark_pos(&wk->wu, &emwk->wu);
         effect_02_init(&wk->wu, 0, 1, wk->wu.rl_flag);
 
-        // Port-only controller feedback; CPS3 omits these calls.
-        pp_pulpara_remake_at_hit(wk);
         pp_pulpara_hit(&wk->wu);
         pp_pulpara_remake_dm_all(&emwk->wu);
 

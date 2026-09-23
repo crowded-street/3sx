@@ -226,7 +226,7 @@ const s16 k2_kidou[83][4] = {
     { 512, 0, 1280, -96 },    { 768, 0, 768, -96 },    { 128, 0, 1536, -96 }
 };
 
-void (*const effK2_main_process[9])();
+void (*const effK2_main_process[9])(WORK_Other*, DADD*);
 
 void effect_K2_move(WORK_Other* ewk) {
     DADD* hahen = (DADD*)ewk->wu.target_adrs;
@@ -744,6 +744,8 @@ void illegal_setup_effK2(WORK* wk, s16 ix) {
     }
 }
 
-void (*const effK2_main_process[9])() = { effK2_parts_move_type_0, effK2_parts_move_type_1, effK2_parts_move_type_2,
-                                          effK2_parts_move_type_3, effK2_parts_move_type_4, effK2_parts_move_type_5,
-                                          effK2_parts_move_type_6, effK2_parts_move_type_7, effK2_parts_move_type_8 };
+void (*const effK2_main_process[9])(WORK_Other*, DADD*) = { effK2_parts_move_type_0, effK2_parts_move_type_1,
+                                                            effK2_parts_move_type_2, effK2_parts_move_type_3,
+                                                            effK2_parts_move_type_4, effK2_parts_move_type_5,
+                                                            effK2_parts_move_type_6, effK2_parts_move_type_7,
+                                                            effK2_parts_move_type_8 };

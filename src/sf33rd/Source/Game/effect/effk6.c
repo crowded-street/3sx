@@ -29,9 +29,8 @@ s16 Get_PosK6(WORK_Other* ewk, s16 Who, s16 Get_Type, s16 Play_Style);
 void Setup_CharK6(WORK_Other* ewk, s16 dm_vital);
 s16 Setup_K6_Index(WORK_Other* ewk);
 
-void (*const EFFK6_Jmp_Tbl[6])() = {
-    EFFK6_WAIT, EFFK6_SLIDE_IN, EFFK6_SLIDE_OUT, EFFK6_SUDDENLY, EFFK6_MOVE, EFFK6_KILL
-};
+void (*const EFFK6_Jmp_Tbl[6])(WORK_Other*) = { EFFK6_WAIT,     EFFK6_SLIDE_IN, EFFK6_SLIDE_OUT,
+                                                EFFK6_SUDDENLY, EFFK6_MOVE,     EFFK6_KILL };
 
 void effect_K6_move(WORK_Other* ewk) {
     EFFK6_Jmp_Tbl[ewk->wu.routine_no[0]](ewk);

@@ -221,7 +221,7 @@ void effect_dummy_move() {
     // Do nothing
 }
 
-const void (*effmovejptbl[229])() = {
+const void (*effmovejptbl[229])(WORK*) = {
     effect_00_move,    effect_01_move,    effect_02_move,    effect_03_move,    effect_04_move,    effect_05_move,
     effect_06_move,    effect_07_move,    effect_08_move,    effect_09_move,    effect_10_move,    effect_11_move,
     effect_12_move,    effect_13_move,    effect_14_move,    effect_15_move,    effect_16_move,    effect_17_move,
@@ -263,7 +263,7 @@ const void (*effmovejptbl[229])() = {
     effect_M8_move,
 };
 
-const s32 (*effinitjptbl[59])() = {
+const s32 (*effinitjptbl[59])(WORK*, u8) = {
     NULL,
     effect_03_init,
     effect_13_init,

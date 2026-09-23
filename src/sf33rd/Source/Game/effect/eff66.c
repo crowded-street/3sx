@@ -33,7 +33,7 @@ const s16 EFF66_Half_OBJ_Data[15][7] = {
     { -184, 368, -40, 156, 1, 77, 1 }, { -184, 368, -54, 160, 1, 64, 1 }, { -176, 352, -32, 192, 1, 77, 1 }
 };
 
-void (*const EFF66_Jmp_Tbl[7])();
+void (*const EFF66_Jmp_Tbl[7])(WORK_Other*);
 
 void effect_66_move(WORK_Other* ewk) {
     if (Menu_Suicide[ewk->master_player]) {
@@ -292,5 +292,5 @@ s32 effect_66_init(s16 order_index, s16 id, s16 master_player, s16 target_bg, s1
     return 0;
 }
 
-void (*const EFF66_Jmp_Tbl[7])() = { EFF66_WAIT, EFF66_SLIDE_IN, EFF66_BOWAN, EFF66_SUDDENLY,
-                                     EFF57_KILL, EFF66_SUSPEND,  EFF66_FLASH };
+void (*const EFF66_Jmp_Tbl[7])(WORK_Other*) = { EFF66_WAIT, EFF66_SLIDE_IN, EFF66_BOWAN, EFF66_SUDDENLY,
+                                                EFF57_KILL, EFF66_SUSPEND,  EFF66_FLASH };

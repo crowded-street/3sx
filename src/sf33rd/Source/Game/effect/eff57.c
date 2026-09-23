@@ -15,7 +15,7 @@
 #include "sf33rd/Source/Game/rendering/texcash.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 
-void (*const EFF57_Jmp_Tbl[6])();
+void (*const EFF57_Jmp_Tbl[6])(WORK_Other*);
 
 void effect_57_move(WORK_Other* ewk) {
     if (ewk->wu.routine_no[0] != Order[ewk->wu.dir_old]) {
@@ -187,5 +187,5 @@ s32 effect_57_init(s16 dir_old, MenuHeader ID, s16 Target_BG, s16 char_ix, s16 o
     return 0;
 }
 
-void (*const EFF57_Jmp_Tbl[6])() = { EFF57_WAIT,     EFF57_SLIDE_IN, EFF57_CHAR_CHANGE,
-                                     EFF57_SUDDENLY, EFF57_KILL,     EFF57_WALL };
+void (*const EFF57_Jmp_Tbl[6])(WORK_Other*) = { EFF57_WAIT,     EFF57_SLIDE_IN, EFF57_CHAR_CHANGE,
+                                                EFF57_SUDDENLY, EFF57_KILL,     EFF57_WALL };

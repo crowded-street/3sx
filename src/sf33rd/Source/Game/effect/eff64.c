@@ -68,7 +68,7 @@ const char* Letter_Data_64[15][16] = {
     { " STOP(B) BUTTON-", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
 };
 
-void (*const EFF64_Jmp_Tbl[4])() = { EFF64_WAIT, EFF64_SLIDE_IN, EFF64_CHAR_CHANGE, EFF64_SUDDENLY };
+void (*const EFF64_Jmp_Tbl[4])(WORK_Other_CONN*) = { EFF64_WAIT, EFF64_SLIDE_IN, EFF64_CHAR_CHANGE, EFF64_SUDDENLY };
 
 void effect_64_move(WORK_Other_CONN* ewk) {
     if (Check_Die_61((WORK_Other*)ewk)) {
@@ -149,8 +149,10 @@ void EFF64_CHAR_CHANGE(WORK_Other_CONN* /* unused */) {}
 
 void EFF64_SUDDENLY(WORK_Other_CONN* /* unused */) {}
 
-s32 effect_64_init(u8 dir_old, s16 sync_bg, s16 master_player, s16 letter_type, s16 cursor_index, u16 char_offset,
-                   s16 pos_index, s16 convert_id, s16 convert_id2) {
+s32 effect_64_init(
+    u8 dir_old, s16 sync_bg, s16 master_player, s16 letter_type, s16 cursor_index, u16 char_offset, s16 pos_index,
+    s16 convert_id, s16 convert_id2
+) {
     WORK_Other_CONN* ewk;
     s16 ix;
 

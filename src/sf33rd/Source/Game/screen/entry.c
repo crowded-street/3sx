@@ -1348,7 +1348,7 @@ void Break_Into_04(s16 /* unused */) {
     E_Number[New_Challenger][1] = 0;
     E_Number[New_Challenger][2] = 0;
     E_Number[New_Challenger][3] = 0;
-    effect_A2_init(0);
+    effect_A2_init();
     sound_all_off();
     Sound_SE(0xB6);
     Request_LDREQ_Break();
@@ -1379,7 +1379,7 @@ void Break_Into_05(s16 PL_id) {
             Score[Champion][0] = Stage_Stock_Score[Champion];
         }
 
-        effect_A2_init(0);
+        effect_A2_init();
         sound_all_off();
         Sound_SE(0xB6);
         Request_LDREQ_Break();

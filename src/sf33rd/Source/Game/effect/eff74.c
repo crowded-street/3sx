@@ -17,7 +17,7 @@ const s16 EFF74_Pos_Data[3][2][2] = { { { 0, 148 }, { 0, 116 } },
                                       { { -48, 104 }, { 48, 104 } },
                                       { { -48, 80 }, { 48, 80 } } };
 
-void (*const EFF74_Jmp_Tbl[5])();
+void (*const EFF74_Jmp_Tbl[5])(WORK_Other*);
 
 void effect_74_move(WORK_Other* ewk) {
     if (Menu_Suicide[ewk->master_player]) {
@@ -92,4 +92,6 @@ void EFF74_SUDDENLY(WORK_Other* ewk) {
     }
 }
 
-void (*const EFF74_Jmp_Tbl[5])() = { EFF74_WAIT, EFF74_SUDDENLY, EFF74_SUDDENLY, EFF74_SUDDENLY, EFF57_KILL };
+void (*const EFF74_Jmp_Tbl[5])(WORK_Other*) = {
+    EFF74_WAIT, EFF74_SUDDENLY, EFF74_SUDDENLY, EFF74_SUDDENLY, EFF57_KILL
+};

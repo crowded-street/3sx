@@ -22,7 +22,7 @@ void Convert_16_10_2(WORK_Other_CONN* ewk, u16 target);
 
 MessageData Message_Data[4];
 
-void (*const EFF45_Jmp_Tbl[3])() = { EFF45_DISP, EFF45_CHANGE, EFF45_SUSPEND };
+void (*const EFF45_Jmp_Tbl[3])(WORK_Other_CONN*) = { EFF45_DISP, EFF45_CHANGE, EFF45_SUSPEND };
 
 void effect_45_move(WORK_Other_CONN* ewk) {
     if (Check_Die_61((WORK_Other*)ewk) != 0 || Message_Data[ewk->wu.dir_old].order == 3) {

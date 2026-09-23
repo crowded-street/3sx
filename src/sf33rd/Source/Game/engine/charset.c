@@ -28,8 +28,8 @@
 
 u16 att_req = 0;
 
-extern s32 (*const decode_chcmd[125])();
-extern s32 (*const decode_if_lever[16])();
+extern s32 (*const decode_chcmd[125])(WORK*, UNK11*);
+extern s32 (*const decode_if_lever[16])(WORK*, UNK11*);
 extern const s16 jphos_table[16];
 extern const s16 kezuri_pow_table[5];
 
@@ -93,7 +93,6 @@ void set_char_move_init(WORK* wk, s16 koc, s16 index) {
         }
 
         ((PLW*)wk)->ja_nmj_rno = 0; // TODO: Confirm CPS3 match
-        pp_pulpara_remake_at_init(wk);
     }
 
     wk->K5_init_flag = 1; // TODO: Confirm CPS3 match
@@ -2853,7 +2852,7 @@ s32 comm_axjmp(WORK*, UNK11*);
 s32 comm_ayjmp(WORK*, UNK11*);
 s32 comm_ifs3(WORK*, UNK11*);
 
-s32 (*const decode_chcmd[125])() = {
+s32 (*const decode_chcmd[125])(WORK*, UNK11*) = {
     comm_dummy, comm_roa,   comm_end,   comm_jmp,   comm_jpss,  comm_jsr,   comm_ret,   comm_sps,   comm_setr,
     comm_addr,  comm_if_l,  comm_djmp,  comm_for,   comm_nex,   comm_for2,  comm_nex2,  comm_rja,   comm_uja,
     comm_rja2,  comm_uja2,  comm_rja3,  comm_uja3,  comm_rja4,  comm_uja4,  comm_rja5,  comm_uja5,  comm_rja6,
@@ -2870,9 +2869,9 @@ s32 (*const decode_chcmd[125])() = {
     comm_s_chg, comm_schg2, comm_rhsja, comm_uhsja, comm_ifcom, comm_axjmp, comm_ayjmp, comm_ifs3
 };
 
-s32 (*const decode_if_lever[16])() = { comm_dummy, comm_ret,  comm_uja,   comm_uja2, comm_uja3, comm_uja4,
-                                       comm_uja5,  comm_uja6, comm_uja7,  comm_umja, comm_back, comm_nex,
-                                       comm_nex2,  comm_wca,  comm_retmj, comm_abbak };
+s32 (*const decode_if_lever[16])(WORK*, UNK11*) = { comm_dummy, comm_ret,  comm_uja,   comm_uja2, comm_uja3, comm_uja4,
+                                                    comm_uja5,  comm_uja6, comm_uja7,  comm_umja, comm_back, comm_nex,
+                                                    comm_nex2,  comm_wca,  comm_retmj, comm_abbak };
 
 const u16 acatkoa_table[65] = { 4,   4,   8,   8,   8,   8,   8,   8,   16,  16,  16,  16,  16,  16,  16,  16,  32,
                                 32,  32,  32,  32,  32,  32,  32,  64,  64,  64,  64,  64,  64,  64,  64,  128, 128,
