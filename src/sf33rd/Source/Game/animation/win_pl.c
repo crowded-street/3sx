@@ -180,7 +180,7 @@ void jijii_nebukuro(PLW* wk) {
             char_move(&wk->wu);
         }
 
-        add_y_sub((WORK_Other*)wk);
+        add_y_sub(&wk->wu);
 
         if (wk->wu.xyz[1].disp.pos > 256) {
             win_rno[1]++;
@@ -230,8 +230,8 @@ void jijii_jump(PLW* wk) {
             char_move(&wk->wu);
         }
 
-        add_x_sub((WORK_Other*)wk);
-        add_y_sub((WORK_Other*)wk);
+        add_x_sub(&wk->wu);
+        add_y_sub(&wk->wu);
 
         if (wk->wu.rl_flag) {
             if (wk->wu.xyz[0].disp.pos > bg_w.bgw[1].xy[0].disp.pos + 320) {
@@ -277,7 +277,7 @@ void jijii_jump(PLW* wk) {
         /* fallthrough */
 
     case 4:
-        add_x_sub((WORK_Other*)wk);
+        add_x_sub(&wk->wu);
         char_move(&wk->wu);
 
         break;
@@ -552,8 +552,8 @@ void Win_05000(PLW* wk) {
         switch (win_rno[1]) {
         case 0:
             char_move(&wk->wu);
-            add_x_sub((WORK_Other*)wk);
-            add_y_sub((WORK_Other*)wk);
+            add_x_sub(&wk->wu);
+            add_y_sub(&wk->wu);
 
             if (wk->wu.xyz[1].disp.pos < 0) {
                 win_rno[1]++;
@@ -977,7 +977,7 @@ void q_keeping_action(PLW* wk) {
 
     case 3:
         char_move(&wk->wu);
-        add_x_sub((WORK_Other*)wk);
+        add_x_sub(&wk->wu);
 
         if (!q_em_distance_chk(wk)) {
             break;
@@ -1042,7 +1042,7 @@ void q_leave_after_action(PLW* wk) {
 
     case 3:
         char_move(&wk->wu);
-        add_x_sub((WORK_Other*)wk);
+        add_x_sub(&wk->wu);
 
         if (q_em_distance_chk(wk)) {
             win_rno[1]++;
@@ -1075,7 +1075,7 @@ void q_leave_after_action(PLW* wk) {
 
     case 5:
         char_move(&wk->wu);
-        add_x_sub((WORK_Other*)wk);
+        add_x_sub(&wk->wu);
 
         if (wk->wu.rl_flag) {
             work = bg_w.bgw[1].wxy[0].disp.pos + bg_w.pos_offset;
@@ -1176,7 +1176,7 @@ void twelve_win_away(PLW* wk) {
         break;
 
     case 1:
-        add_y_sub((WORK_Other*)wk);
+        add_y_sub(&wk->wu);
         char_move(&wk->wu);
 
         if (wk->wu.cg_type != 2) {
@@ -1197,8 +1197,8 @@ void twelve_win_away(PLW* wk) {
         break;
 
     case 2:
-        add_x_sub((WORK_Other*)wk);
-        add_y_sub((WORK_Other*)wk);
+        add_x_sub(&wk->wu);
+        add_y_sub(&wk->wu);
 
         if (!range_x_check3((WORK_Other*)wk, 208)) {
             win_rno[1]++;
@@ -1235,8 +1235,8 @@ void twelve_win_backjump(PLW* wk) {
         break;
 
     case 1:
-        add_y_sub((WORK_Other*)wk);
-        add_x_sub((WORK_Other*)wk);
+        add_y_sub(&wk->wu);
+        add_x_sub(&wk->wu);
         char_move(&wk->wu);
 
         if (wk->wu.cg_type == 2) {

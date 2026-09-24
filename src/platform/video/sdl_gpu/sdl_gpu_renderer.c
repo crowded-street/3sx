@@ -201,7 +201,7 @@ static SDL_GPUShader* create_shader(
         }
     );
 
-    SDL_free(code);
+    SDL_free((void*)code);
     return shader;
 }
 

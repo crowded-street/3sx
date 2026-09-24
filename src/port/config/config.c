@@ -52,7 +52,7 @@ static bool is_int(const char* string) {
     return true;
 }
 
-static ConfigEntry* find_entry_in_array(const char* key, const ConfigEntry* array, size_t size) {
+static const ConfigEntry* find_entry_in_array(const char* key, const ConfigEntry* array, size_t size) {
     for (int i = 0; i < size; i++) {
         const ConfigEntry* entry = &array[i];
 
@@ -64,9 +64,9 @@ static ConfigEntry* find_entry_in_array(const char* key, const ConfigEntry* arra
     return NULL;
 }
 
-static ConfigEntry* find_entry(const char* key) {
-    ConfigEntry* default_entry = find_entry_in_array(key, default_entries, SDL_arraysize(default_entries));
-    ConfigEntry* read_entry = find_entry_in_array(key, entries, entry_count);
+static const ConfigEntry* find_entry(const char* key) {
+    const ConfigEntry* default_entry = find_entry_in_array(key, default_entries, SDL_arraysize(default_entries));
+    const ConfigEntry* read_entry = find_entry_in_array(key, entries, entry_count);
 
     if (read_entry != NULL) {
         if (default_entry != NULL && read_entry->type != default_entry->type) {
@@ -164,7 +164,7 @@ void Config_Init() {
 void Config_Destroy() {
     for (int i = 0; i < entry_count; i++) {
         ConfigEntry* entry = &entries[i];
-        SDL_free(entry->key);
+        SDL_free((void*)entry->key);
 
         if (entry->type == CFG_STRING) {
             SDL_free(entry->value.s);

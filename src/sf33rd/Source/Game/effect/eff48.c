@@ -98,7 +98,7 @@ void eff48_1000(WORK_Other* ewk) {
                 }
             }
         } else {
-            add_y_sub(ewk);
+            add_y_sub(&ewk->wu);
         }
 
         /* fallthrough */

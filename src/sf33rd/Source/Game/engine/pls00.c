@@ -615,7 +615,7 @@ void nm_11000(PLW* wk) { // 🔵
 
 void nm_13000(PLW* wk) { // 🔵
     if (wk->wu.cg_type == 0xFF) {
-        TO_nm_01000(wk);
+        TO_nm_01000(&wk->wu);
     }
 }
 

@@ -12,7 +12,7 @@
 // Internal
 
 void SDLPad_Init();
-void SDLPad_HandleGamepadDeviceEvent(SDL_GamepadDeviceEvent* event);
+void SDLPad_HandleGamepadDeviceEvent(const SDL_GamepadDeviceEvent* event);
 
 // Public
 

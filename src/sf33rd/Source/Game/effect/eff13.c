@@ -1874,7 +1874,7 @@ s32 effect_13_init(WORK* wk, u8 data) {
 
     ewk->wu.xyz[0] = wk->xyz[0];
     ewk->wu.xyz[1] = wk->xyz[1];
-    ewk->wu.my_effadrs = &tama_data[data];
+    ewk->wu.my_effadrs = (void*)&tama_data[data];
 
     if (wk->work_id == 1) {
         ewk->wu.floor = ((PLW*)wk)->metamorphose;

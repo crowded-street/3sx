@@ -200,14 +200,14 @@ static void cleanup() {
 }
 
 #if DEBUG && IMGUI
-static void toggle_debug_window_visibility(SDL_KeyboardEvent* event) {
+static void toggle_debug_window_visibility(const SDL_KeyboardEvent* event) {
     if ((event->key == SDLK_GRAVE) && event->down && !event->repeat) {
         ImGuiW_ToggleVisivility();
     }
 }
 #endif
 
-static void handle_fullscreen_toggle(SDL_KeyboardEvent* event) {
+static void handle_fullscreen_toggle(const SDL_KeyboardEvent* event) {
     const bool is_alt_enter = (event->key == SDLK_RETURN) && (event->mod & SDL_KMOD_ALT);
     const bool is_f11 = (event->key == SDLK_F11);
     const bool correct_key = (is_alt_enter || is_f11);
@@ -417,7 +417,7 @@ static void set_netplay_params() {
 SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
     (void)appstate;
     SDLFileLogger_Configure();
-    init_args(argc, argv);
+    init_args(argc, (const char**)argv);
 
 #if NETPLAY_ENABLED
     set_netplay_params();

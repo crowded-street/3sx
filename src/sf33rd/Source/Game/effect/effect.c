@@ -35,7 +35,7 @@ void move_effect_work(s16 index) {
 
         if (c_addr->timing != exec_tm[index]) {
             c_addr->timing = exec_tm[index];
-            effmovejptbl[c_addr->id](c_addr);
+            effmovejptbl[c_addr->id]((WORK_Other*)c_addr);
         }
     }
 }

@@ -509,7 +509,7 @@ void sync_values(SDL_IOStream* io) {
         // CPS3's partial cmd_init clear preserves these entries across the transition. Rebuild their local
         // command pointers, then synchronize the serialized parser state captured before the first round.
 
-        intptr_t* commands = (intptr_t*)ArcadeCommandData_Get(character);
+        const intptr_t* commands = ArcadeCommandData_Get(character);
 
         for (int j = 48; j < pl_cmd_num[character][6]; j++) {
             waza_compel_init(i, j, commands);

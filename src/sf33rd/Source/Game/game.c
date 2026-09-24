@@ -64,7 +64,6 @@
 
 void Wait_Auto_Load(struct _TASK* /* unused */);
 void Loop_Demo(struct _TASK* /* unused */);
-void Game();
 void Game00();
 void Game01();
 void Game02();
@@ -136,7 +135,7 @@ void Game_Task(struct _TASK* task_ptr) {
     Check_LDREQ_Queue();
 }
 
-void Game() {
+void Game(struct _TASK* /* unused */) {
     void (*Game_Jmp_Tbl[13])() = { Game00, Game01, Game02, Game03, Game04, Game05, Game06,
                                    Game07, Game08, Game09, Game10, Game11, Game12 };
 

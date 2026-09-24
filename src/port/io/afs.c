@@ -15,14 +15,14 @@
 #define AFS_MAX_NAME_LENGTH 32
 
 typedef struct AFSEntry {
-    size_t offset;
-    size_t size;
+    Uint32 offset;
+    Uint32 size;
     char name[AFS_MAX_NAME_LENGTH];
 } AFSEntry;
 
 typedef struct AFS {
     const char* file_path;
-    size_t entry_count;
+    Uint32 entry_count;
     AFSEntry* entries;
 } AFS;
 
@@ -52,8 +52,9 @@ static void _log(const char* fmt, ...) {
     va_end(args);
 }
 
-static bool is_valid_attribute_data(Uint32 attributes_offset, Uint32 attributes_size, Sint64 file_size,
-                                    Uint32 entries_end_offset, Uint32 entry_count) {
+static bool is_valid_attribute_data(
+    Uint32 attributes_offset, Uint32 attributes_size, Sint64 file_size, Uint32 entries_end_offset, Uint32 entry_count
+) {
     if ((attributes_offset == 0) || (attributes_size == 0)) {
         return false;
     }
@@ -136,7 +137,8 @@ static bool init_afs(const char* file_path) {
     SDL_ReadU32LE(io, &attributes_size);
 
     if (is_valid_attribute_data(
-            attributes_offset, attributes_size, SDL_GetIOSize(io), entries_end_offset, afs.entry_count)) {
+            attributes_offset, attributes_size, SDL_GetIOSize(io), entries_end_offset, afs.entry_count
+        )) {
         has_attributes = true;
     } else {
         SDL_SeekIO(io, entries_start_offset - AFS_ATTRIBUTE_HEADER_SIZE, SDL_IO_SEEK_SET);
@@ -145,7 +147,8 @@ static bool init_afs(const char* file_path) {
         SDL_ReadU32LE(io, &attributes_size);
 
         if (is_valid_attribute_data(
-                attributes_offset, attributes_size, SDL_GetIOSize(io), entries_end_offset, afs.entry_count)) {
+                attributes_offset, attributes_size, SDL_GetIOSize(io), entries_end_offset, afs.entry_count
+            )) {
             has_attributes = true;
         }
     }
@@ -179,7 +182,7 @@ bool AFS_Init(const char* file_path, size_t read_chunk_size) {
 void AFS_Finish() {
     SDL_CloseIO(stream);
     stream = NULL;
-    SDL_free(afs.file_path);
+    SDL_free((void*)afs.file_path);
     SDL_free(afs.entries);
     SDL_zero(afs);
     arrfree(requests);

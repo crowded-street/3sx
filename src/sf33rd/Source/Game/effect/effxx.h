@@ -1,9 +1,12 @@
 #ifndef EFFXX_H
 #define EFFXX_H
 
-#include "types.h"
+#include "structs.h"
 
-extern const void (*effmovejptbl[])(WORK*);
-extern const s32 (*effinitjptbl[])(WORK*, u8);
+typedef void (*EffectMoveCallback)(WORK_Other*);
+typedef s32 (*EffectInitCallback)(WORK*, u8);
+
+extern EffectMoveCallback const effmovejptbl[];
+extern EffectInitCallback const effinitjptbl[];
 
 #endif

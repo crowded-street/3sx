@@ -109,7 +109,7 @@ static Uint16 remap_cg_number(Uint16 value, Character character) {
     return adjusted;
 }
 
-static const void* read_char_table(SDL_IOStream* rom, Location location, Character character) {
+static void* read_char_table(SDL_IOStream* rom, Location location, Character character) {
     void* result = SDL_malloc(location.size);
     SDL_memset(result, 0, location.size);
 
@@ -141,6 +141,7 @@ static const void* read_char_table(SDL_IOStream* rom, Location location, Charact
     for (int i = 0; i < offset_count; i++) {
         const Uint32 start_offset = script_offsets[i] - 8;
         const Uint32 end_offset = (i == (offset_count - 1)) ? location.size : script_offsets[i + 1] - 8;
+        SDL_assert((start_offset & 1) == 0);
 
         SDL_SeekIO(rom, location.offset + start_offset, SDL_IO_SEEK_SET);
         Uint8* p = (Uint8*)result + start_offset;
@@ -166,7 +167,7 @@ static const void* read_char_table(SDL_IOStream* rom, Location location, Charact
                 p += 2;
 
                 for (int i = 0; i < 3; i++) {
-                    SDL_ReadS16BE(rom, p); // koc ... pat
+                    SDL_ReadS16BE(rom, (Sint16*)p); // koc ... pat
                     p += 2;
                 }
 
@@ -180,7 +181,7 @@ static const void* read_char_table(SDL_IOStream* rom, Location location, Charact
                 *p++ = cg_ctr;
 
                 for (int i = 0; i < 2; i++) {
-                    SDL_ReadU16BE(rom, p); // cg_se ... cg_olc_ix
+                    SDL_ReadU16BE(rom, (Uint16*)p); // cg_se ... cg_olc_ix
                     p += 2;
                 }
 
@@ -209,7 +210,7 @@ static const void* read_char_table(SDL_IOStream* rom, Location location, Charact
 
                 if (cgd_type == 6) {
                     for (int i = 0; i < 3; i++) {
-                        SDL_ReadU16BE(rom, p); // cg_zoom ... cg_add_xy
+                        SDL_ReadU16BE(rom, (Uint16*)p); // cg_zoom ... cg_add_xy
                         p += 2;
                     }
 
@@ -228,14 +229,14 @@ static const void* read_char_table(SDL_IOStream* rom, Location location, Charact
     return result;
 }
 
-static const void* read_u8_array(SDL_IOStream* rom, Location location) {
+static void* read_u8_array(SDL_IOStream* rom, Location location) {
     SDL_SeekIO(rom, location.offset, SDL_IO_SEEK_SET);
     void* result = SDL_malloc(location.size);
     SDL_ReadIO(rom, result, location.size);
     return result;
 }
 
-static const void* read_s16_array(SDL_IOStream* rom, Location location) {
+static void* read_s16_array(SDL_IOStream* rom, Location location) {
     SDL_SeekIO(rom, location.offset, SDL_IO_SEEK_SET);
     void* result = SDL_malloc(location.size);
     Sint16* values = result;
@@ -248,7 +249,7 @@ static const void* read_s16_array(SDL_IOStream* rom, Location location) {
     return result;
 }
 
-static const void* read_u16_array(SDL_IOStream* rom, Location location) {
+static void* read_u16_array(SDL_IOStream* rom, Location location) {
     SDL_SeekIO(rom, location.offset, SDL_IO_SEEK_SET);
     void* result = SDL_malloc(location.size);
     Uint16* values = result;
@@ -344,7 +345,7 @@ static void update_table_pointers(CharDataImage* image) {
     dst->prot = image->spans[CHAR_DATA_PROT].data;
 }
 
-static const void* read_sernd(SDL_IOStream* rom, Location location) {
+static void* read_sernd(SDL_IOStream* rom, Location location) {
     SDL_SeekIO(rom, location.offset, SDL_IO_SEEK_SET);
 
     void* result = SDL_malloc(location.size);
@@ -357,7 +358,7 @@ static const void* read_sernd(SDL_IOStream* rom, Location location) {
         offsets++;
     }
 
-    Uint16* values = offsets;
+    Uint16* values = (Uint16*)offsets;
     const int value_count = offset_count * 16;
 
     for (int i = 0; i < value_count; i++) {
@@ -368,7 +369,7 @@ static const void* read_sernd(SDL_IOStream* rom, Location location) {
     return result;
 }
 
-static const void* read_ovct(SDL_IOStream* rom, Location location) {
+static OverlapPart* read_ovct(SDL_IOStream* rom, Location location) {
     SDL_SeekIO(rom, location.offset, SDL_IO_SEEK_SET);
 
     OverlapPart* result = SDL_malloc(location.size);
@@ -392,7 +393,7 @@ static const void* read_ovct(SDL_IOStream* rom, Location location) {
     return result;
 }
 
-static const void* read_catch_table(SDL_IOStream* rom, Location location) {
+static void* read_catch_table(SDL_IOStream* rom, Location location) {
     SDL_SeekIO(rom, location.offset, SDL_IO_SEEK_SET);
 
     CatchTable* result = SDL_malloc(location.size);
@@ -455,8 +456,8 @@ static void dump_data(CharInitData* data, Character character) {
 void ArcadeCharData_Init() {
     const char* rom_path = Resources_GetPath("sfiii3nr1.zip");
     size_t rom_size = 0;
-    const void* rom = Rom_Load(rom_path, &rom_size);
-    SDL_free(rom_path);
+    void* rom = Rom_Load(rom_path, &rom_size);
+    SDL_free((void*)rom_path);
 
     if (rom == NULL) {
         return;
@@ -482,7 +483,7 @@ void ArcadeCharData_Init() {
         dst->mvxy = read_s16_array(io, locations->mvxy);
         dst->sernd = read_sernd(io, locations->sernd);
         dst->ovct = read_ovct(io, locations->ovct);
-        dst->ovix = read_s16_array(io, locations->ovix);
+        dst->ovix = (OverlapSelection*)read_s16_array(io, locations->ovix);
         dst->rict = read_catch_table(io, locations->rict);
         dst->hiit = read_u16_array(io, locations->hiit);
         dst->boda = read_s16_array(io, locations->boda);

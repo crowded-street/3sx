@@ -462,7 +462,7 @@ static void gather_state(State* dst) {
     es->frwctr_min = frwctr_min;
 }
 
-static void save_state(GekkoGameEvent* event) {
+static void save_state(const GekkoGameEvent* event) {
     *event->data.save.state_len = sizeof(State);
     State* dst = (State*)event->data.save.state;
 
@@ -502,7 +502,7 @@ static void load_state(const State* src) {
     frwctr_min = es->frwctr_min;
 }
 
-static void load_state_from_event(GekkoGameEvent* event) {
+static void load_state_from_event(const GekkoGameEvent* event) {
     const State* src = (State*)event->data.load.state;
     load_state(src);
 
@@ -548,7 +548,7 @@ static void step_game(bool render) {
     seqsAfterProcess();
 }
 
-static void advance_game(GekkoGameEvent* event, bool render) {
+static void advance_game(const GekkoGameEvent* event, bool render) {
     const u16* inputs = (u16*)event->data.adv.inputs;
     const int frame = event->data.adv.frame;
 

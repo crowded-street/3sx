@@ -12,7 +12,7 @@
 
 #include <SDL3/SDL.h>
 
-static SDLRenderBackend* backend_candidates[] = {
+static const SDLRenderBackend* backend_candidates[] = {
 #if CRS_VIDEO_DRIVER_SDL_GPU
     &sdl_gpu_render_backend,
 #endif
@@ -21,7 +21,7 @@ static SDLRenderBackend* backend_candidates[] = {
 #endif
 };
 
-static SDLRenderBackend* chosen_backend = NULL;
+static const SDLRenderBackend* chosen_backend = NULL;
 
 // Public
 
