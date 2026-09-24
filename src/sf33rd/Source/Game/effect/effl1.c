@@ -33,7 +33,7 @@ void effL1_suuchi_bunkai_sub(WORK_Other_CONN* ewk, u32 tsc);
 
 const u32 bunkai_table_l1[8] = { 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000 };
 
-void (*const effL1_item_init[20])() = {
+void (*const effL1_item_init[20])(WORK_Other_CONN*) = {
     effL1_w_win_init,    effL1_w_grade_init,  effL1_w_score_init,   effL1_w_graph_init,   effL1_w_graph_init,
     effL1_w_graph_init,  effL1_w_graph_init,  effL1_f_stage_p_init, effL1_f_stage_r_init, effL1_f_grade_init,
     effL1_f_mk_spp_init, effL1_f_mk_all_init, effL1_f_kz_cont_init, effL1_f_kz_spp_init,  effL1_f_score_init,

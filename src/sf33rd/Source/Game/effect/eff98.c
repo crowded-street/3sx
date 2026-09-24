@@ -15,7 +15,7 @@
 #include "sf33rd/Source/Game/screen/sel_data.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 
-void (*const EFF98_Jmp_Tbl[5])();
+void (*const EFF98_Jmp_Tbl[5])(WORK_Other*);
 
 void effect_98_move(WORK_Other* ewk) {
     EFF98_Jmp_Tbl[ewk->wu.routine_no[0]](ewk);
@@ -147,4 +147,6 @@ s32 effect_98_init(s16 PL_id, s16 dir_old, s16 master_player, s16 Target_BG) {
     return 0;
 }
 
-void (*const EFF98_Jmp_Tbl[5])() = { EFF98_WAIT, EFF98_SLIDE_IN, EFF98_SLIDE_OUT, EFF98_SUDDENLY, EFF98_KILL };
+void (*const EFF98_Jmp_Tbl[5])(WORK_Other*) = {
+    EFF98_WAIT, EFF98_SLIDE_IN, EFF98_SLIDE_OUT, EFF98_SUDDENLY, EFF98_KILL
+};

@@ -489,22 +489,6 @@ s32 pp_conv_kow(u8 num) {
     return dokidoki_ix_change_table[ix];
 }
 
-void pp_pulpara_remake_at_init() {
-    // do nothing
-}
-
-void pp_pulpara_remake_at_init2() {
-    // do nothing
-}
-
-void pp_pulpara_remake_at_hit() {
-    // do nothing
-}
-
-void pp_pulpara_remake_at() {
-    // do nothing
-}
-
 void pp_pulpara_remake_dm_all(WORK* wk) {
     s16 ix;
 

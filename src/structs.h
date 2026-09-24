@@ -44,7 +44,7 @@ typedef struct {
 } MPP;
 
 struct _TASK {
-    void (*func_adrs)();
+    void (*func_adrs)(struct _TASK*);
     u8 r_no[4];
     u16 condition;
     s16 timer;

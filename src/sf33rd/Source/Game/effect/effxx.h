@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-extern const void (*effmovejptbl[])();
-extern const s32 (*effinitjptbl[])();
+extern const void (*effmovejptbl[])(WORK*);
+extern const s32 (*effinitjptbl[])(WORK*, u8);
 
 #endif

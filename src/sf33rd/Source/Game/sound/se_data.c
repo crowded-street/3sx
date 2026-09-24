@@ -3,6 +3,7 @@
  * Sound Effect Data and Dispatch Table
  */
 
+#include "sf33rd/Source/Game/sound/se_data.h"
 #include "common.h"
 #include "sf33rd/Source/Game/sound/se.h"
 #include "structs.h"
@@ -83,8 +84,6 @@ const u16 sdcode_conv[1024] = {
     0x7000, 0x7000, 0x7000, 0x7000, 0x7000, 0x7000, 0x7000, 0x7000, 0x7000, 0x7000, 0x7000, 0x7000, 0x7000, 0x7000,
     0x7000, 0x7000
 };
-
-typedef void (*se_request)(WORK_Other* ewk, u16 Code);
 
 const se_request sound_effect_request[1024] = {
     Call_Se,       Call_Se,       Call_Se,       Call_Se,       Call_Se,   Call_Se,       Call_Se,       Call_Se,

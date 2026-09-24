@@ -99,8 +99,8 @@ void After_Title(struct _TASK* task_ptr);
 void In_Game(struct _TASK* task_ptr);
 void Wait_Load_Save(struct _TASK* task_ptr);
 void Wait_Replay_Check(struct _TASK* task_ptr);
-void Suspend_Menu();
-void Wait_Replay_Load();
+void Suspend_Menu(struct _TASK* task_ptr);
+void Wait_Replay_Load(struct _TASK* task_ptr);
 void Training_Menu(struct _TASK* task_ptr);
 void After_Replay(struct _TASK* task_ptr);
 void Wait_Pause_in_Tr(struct _TASK* task_ptr);
@@ -221,16 +221,16 @@ void Setup_Pad_or_Stick() {
 }
 
 void After_Title(struct _TASK* task_ptr) {
-    void (*AT_Jmp_Tbl[19])() = { Menu_Init,     Mode_Select,      Option_Select, Option_Select,
-                                 Training_Mode, System_Direction,
+    void (*AT_Jmp_Tbl[19])(struct _TASK*) = { Menu_Init,     Mode_Select,      Option_Select, Option_Select,
+                                              Training_Mode, System_Direction,
 #if NETPLAY_ENABLED
-                                 Netplay_Menu,
+                                              Netplay_Menu,
 #else
-                                 Load_Replay,
+                                              Load_Replay,
 #endif
-                                 Option_Select, toSelectGame,     Game_Option,   Button_Config,
-                                 Screen_Adjust, Sound_Test,       Option_Select, Extra_Option,
-                                 Option_Select, VS_Result,        Save_Replay,   Direction_Menu };
+                                              Option_Select, toSelectGame,     Game_Option,   Button_Config,
+                                              Screen_Adjust, Sound_Test,       Option_Select, Extra_Option,
+                                              Option_Select, VS_Result,        Save_Replay,   Direction_Menu };
 
     AT_Jmp_Tbl[task_ptr->r_no[1]](task_ptr);
 }
@@ -2291,7 +2291,8 @@ void Sound_Test(struct _TASK* task_ptr) {
 
         if (se_level != (s16)Convert_Buff[3][1][1]) {
             se_level = Convert_Buff[3][1][1];
-            setSeVolume(save_w[Present_Mode].SE_Level = Convert_Buff[3][1][1]);
+            save_w[Present_Mode].SE_Level = Convert_Buff[3][1][1];
+            setSeVolume();
         }
 
         save_w[Present_Mode].BgmType = Convert_Buff[3][1][2];
@@ -2628,7 +2629,10 @@ void Suspend_Menu(struct _TASK* /* unused */) {
 }
 
 void In_Game(struct _TASK* task_ptr) {
-    void (*In_Game_Jmp_Tbl[5])() = { Menu_Init, Menu_Select, Button_Config_in_Game, Character_Change, Pad_Come_Out };
+    void (*In_Game_Jmp_Tbl[5])(struct _TASK*) = {
+        Menu_Init, Menu_Select, Button_Config_in_Game, Character_Change, Pad_Come_Out
+    };
+
     In_Game_Jmp_Tbl[task_ptr->r_no[1]](task_ptr);
 }
 
@@ -3967,8 +3971,9 @@ void Reset_Replay(struct _TASK* task_ptr) {
 }
 
 void Training_Menu(struct _TASK* task_ptr) {
-    void (*Training_Jmp_Tbl[8])() = { Training_Init,   Normal_Training,  Blocking_Training, Dummy_Setting,
-                                      Training_Option, Button_Config_Tr, Character_Change,  Blocking_Tr_Option };
+    void (*Training_Jmp_Tbl[8])(struct _TASK*) = { Training_Init,    Normal_Training,   Blocking_Training,
+                                                   Dummy_Setting,    Training_Option,   Button_Config_Tr,
+                                                   Character_Change, Blocking_Tr_Option };
     Training_Jmp_Tbl[task_ptr->r_no[1]](task_ptr);
     Akaobi();
     ToneDown(0xAA, 2);
@@ -4840,7 +4845,9 @@ void Default_Training_Option() {
     Disp_Attack_Data = 0;
 }
 
-void Wait_Replay_Load(struct _TASK* task_ptr) {}
+void Wait_Replay_Load(struct _TASK* task_ptr) {
+    // Do nothing
+}
 
 void After_Replay(struct _TASK* task_ptr) {
     s16 ix;

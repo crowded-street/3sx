@@ -15,7 +15,7 @@ endif()
 # Options and platform setup
 # ======================================
 
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
 if(NOT PSP)
@@ -104,7 +104,6 @@ if(CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_C_COMPILER_ID STREQUAL "AppleCl
         -Wpointer-to-int-cast
         -Wno-deprecated-non-prototype
         -Wno-tautological-overlap-compare
-        -Wno-c2x-extensions
         -Wno-incompatible-pointer-types
     )
 elseif(CMAKE_C_COMPILER_ID STREQUAL "GNU")

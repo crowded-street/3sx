@@ -4,15 +4,15 @@
 #include "structs.h"
 #include "types.h"
 
-extern void (*const Passive_jmp_tbl[21])();
-extern s32 (*const Passive_AS_tbl[20])();
-extern s32 (*const Passive_A_tbl[20])();
-extern s32 (*const Passive_BS_tbl[20])();
-extern s32 (*const Passive_B_tbl[20])();
-extern s32 (*const Passive_CS_tbl[20])();
-extern s32 (*const Passive_C_tbl[20])();
-extern s32 (*const Passive_DS_tbl[20])();
-extern s32 (*const Passive_D_tbl[20])();
+extern void (*const Passive_jmp_tbl[21])(PLW*);
+extern s32 (*const Passive_AS_tbl[20])(PLW*);
+extern s32 (*const Passive_A_tbl[20])(PLW*);
+extern s32 (*const Passive_BS_tbl[20])(PLW*);
+extern s32 (*const Passive_B_tbl[20])(PLW*);
+extern s32 (*const Passive_CS_tbl[20])(PLW*);
+extern s32 (*const Passive_C_tbl[20])(PLW*);
+extern s32 (*const Passive_DS_tbl[20])(PLW*);
+extern s32 (*const Passive_D_tbl[20])(PLW*);
 
 extern s8 PASSIVE_X;
 
@@ -20,8 +20,9 @@ s32 Ck_Passive_Term(PLW* wk);
 void KEN_vs(PLW* wk);
 void HUGO_vs(PLW* wk);
 void GILL_vs(PLW* wk);
-s32 Check_Special_Technique(PLW* wk, WORK* em, s16 VS_Technique, u8 Kind_of_Tech, u8 SP_Tech_ID, s16 Option,
-                            s16 Option2);
+s32 Check_Special_Technique(
+    PLW* wk, WORK* em, s16 VS_Technique, u8 Kind_of_Tech, u8 SP_Tech_ID, s16 Option, s16 Option2
+);
 s32 Check_Attack_Direction(PLW* wk, WORK* em);
 s32 Check_VS_Jump(PLW* wk, PLW* em, s16 Height);
 s32 Check_Rolling(PLW* wk, WORK* em);

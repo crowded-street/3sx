@@ -18,7 +18,7 @@ void EFF40_EXIT(WORK_Other* ewk);
 void EFF40_BACK(WORK_Other* ewk);
 void EFF40_ARROW(WORK_Other* ewk);
 
-void (*const EFF40_Jmp_Tbl[4])() = { EFF40_EXIT, EFF40_BACK, EFF40_ARROW, EFF40_ARROW };
+void (*const EFF40_Jmp_Tbl[4])(WORK_Other*) = { EFF40_EXIT, EFF40_BACK, EFF40_ARROW, EFF40_ARROW };
 
 const s16 Pos_Data_40[4][3] = { { 0, 77, 70 }, { 0, 77, 72 }, { 0, 77, 68 }, { 0, 77, 68 } };
 

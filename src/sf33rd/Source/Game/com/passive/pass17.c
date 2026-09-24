@@ -8,7 +8,7 @@
 #include "sf33rd/Source/Game/com/com_sub.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 
-void (*const Passive17_Tbl[182])();
+void (*const Passive17_Tbl[182])(PLW*);
 
 void Passive17(PLW* wk) {
     Passive17_Tbl[(s16)Pattern_Index[wk->wu.id]](wk);

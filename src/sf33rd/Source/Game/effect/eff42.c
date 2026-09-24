@@ -22,7 +22,7 @@ void EFF42_KILL(WORK_Other* ewk);
 void EFF42_MOVE(WORK_Other* ewk);
 void Setup_Char_Index(WORK_Other* ewk);
 
-void (*const EFF42_Jmp_Tbl[5])();
+void (*const EFF42_Jmp_Tbl[5])(WORK_Other*);
 
 void effect_42_move(WORK_Other* ewk) {
     EFF42_Jmp_Tbl[Order[ewk->wu.dir_old]](ewk);
@@ -285,4 +285,6 @@ s32 effect_42_init(s16 type) {
     return 0;
 }
 
-void (*const EFF42_Jmp_Tbl[5])() = { EFF42_SUDDENLY, EFF42_SLIDE_IN, EFF42_SLIDE_OUT, EFF42_MOVE, EFF42_KILL };
+void (*const EFF42_Jmp_Tbl[5])(WORK_Other*) = {
+    EFF42_SUDDENLY, EFF42_SLIDE_IN, EFF42_SLIDE_OUT, EFF42_MOVE, EFF42_KILL
+};
