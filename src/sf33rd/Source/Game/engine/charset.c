@@ -28,8 +28,10 @@
 
 u16 att_req = 0;
 
-extern s32 (*const decode_chcmd[125])(WORK*, UNK11*);
-extern s32 (*const decode_if_lever[16])(WORK*, UNK11*);
+typedef s32 (*CharCommandCallback)(WORK*, UNK11*);
+
+extern CharCommandCallback const decode_chcmd[125];
+extern CharCommandCallback const decode_if_lever[16];
 extern const s16 jphos_table[16];
 extern const s16 kezuri_pow_table[5];
 
@@ -375,7 +377,7 @@ s32 char_move_cmms3(PLW* wk) {
             break;
         }
 
-        if (decode_chcmd[cpc->code](wk, cpc) != 0) {
+        if (decode_chcmd[cpc->code](&wk->wu, cpc) != 0) {
             wk->wu.cg_ix += wk->wu.cgd_type;
         } else if (wk->meoshi_jump_flag != 0) {
             break;
@@ -434,7 +436,7 @@ void check_cm_extended_code(WORK* wk) {
             break;
         }
 
-        if (decode_chcmd[cpc->code](wk, cpc) == 0) {
+        if (decode_chcmd[cpc->code]((WORK*)wk, cpc) == 0) {
             break;
         }
 
@@ -2146,7 +2148,7 @@ s32 comm_sse(WORK* wk, UNK11* ctc) {
     }
 
     if (wk->cg_se) {
-        sound_effect_request[wk->cg_se](wk, check_xcopy_filter_se_req(wk));
+        sound_effect_request[wk->cg_se]((WORK_Other*)wk, check_xcopy_filter_se_req(wk));
     }
 
     return 1;
@@ -2457,7 +2459,7 @@ void check_cgd_patdat(WORK* wk) {
     }
 
     if (wk->cg_se) {
-        sound_effect_request[wk->cg_se](wk, check_xcopy_filter_se_req(wk));
+        sound_effect_request[wk->cg_se]((WORK_Other*)wk, check_xcopy_filter_se_req(wk));
     }
 
     if (wk->work_id == 1) {
@@ -2852,26 +2854,140 @@ s32 comm_axjmp(WORK*, UNK11*);
 s32 comm_ayjmp(WORK*, UNK11*);
 s32 comm_ifs3(WORK*, UNK11*);
 
-s32 (*const decode_chcmd[125])(WORK*, UNK11*) = {
-    comm_dummy, comm_roa,   comm_end,   comm_jmp,   comm_jpss,  comm_jsr,   comm_ret,   comm_sps,   comm_setr,
-    comm_addr,  comm_if_l,  comm_djmp,  comm_for,   comm_nex,   comm_for2,  comm_nex2,  comm_rja,   comm_uja,
-    comm_rja2,  comm_uja2,  comm_rja3,  comm_uja3,  comm_rja4,  comm_uja4,  comm_rja5,  comm_uja5,  comm_rja6,
-    comm_uja6,  comm_rja7,  comm_uja7,  comm_rmja,  comm_umja,  comm_mdat,  comm_ydat,  comm_mpos,  comm_cafr,
-    comm_care,  comm_psxy,  comm_ps_x,  comm_ps_y,  comm_paxy,  comm_pa_x,  comm_pa_y,  comm_exec,  comm_rngc,
-    comm_mxyt,  comm_pjmp,  comm_hjmp,  comm_hclr,  comm_ixfw,  comm_ixbw,  comm_quax,  comm_quay,  comm_if_s,
-    comm_rapp,  comm_rapk,  comm_gets,  comm_s123,  comm_s456,  comm_a123,  comm_a456,  comm_stop,  comm_smhf,
-    comm_ngme,  comm_ngem,  comm_iflb,  comm_asxy,  comm_schx,  comm_schy,  comm_back,  comm_mvix,  comm_sajp,
-    comm_ccch,  comm_wset,  comm_wswk,  comm_wadd,  comm_wceq,  comm_wcne,  comm_wcgt,  comm_wclt,  comm_wadd2,
-    comm_wceq2, comm_wcne2, comm_wcgt2, comm_wclt2, comm_rapp2, comm_rapk2, comm_iflg,  comm_mpcy,  comm_epcy,
-    comm_imgs,  comm_imgc,  comm_rvxy,  comm_rv_x,  comm_rv_y,  comm_ccfl,  comm_myhp,  comm_emhp,  comm_exbgs,
-    comm_exbgc, comm_atmf,  comm_chkwf, comm_retmj, comm_sstx,  comm_ssty,  comm_ngda,  comm_flip,  comm_kage,
-    comm_dspf,  comm_ifrlf, comm_srlf,  comm_bgrlf, comm_scmd,  comm_rljmp, comm_ifs2,  comm_abbak, comm_sse,
-    comm_s_chg, comm_schg2, comm_rhsja, comm_uhsja, comm_ifcom, comm_axjmp, comm_ayjmp, comm_ifs3
+CharCommandCallback const decode_chcmd[125] = {
+    comm_dummy,
+    comm_roa,
+    comm_end,
+    comm_jmp,
+    comm_jpss,
+    comm_jsr,
+    comm_ret,
+    comm_sps,
+    comm_setr,
+    comm_addr,
+    comm_if_l,
+    comm_djmp,
+    comm_for,
+    comm_nex,
+    comm_for2,
+    comm_nex2,
+    comm_rja,
+    comm_uja,
+    comm_rja2,
+    comm_uja2,
+    comm_rja3,
+    comm_uja3,
+    comm_rja4,
+    comm_uja4,
+    comm_rja5,
+    comm_uja5,
+    comm_rja6,
+    comm_uja6,
+    comm_rja7,
+    comm_uja7,
+    comm_rmja,
+    comm_umja,
+    comm_mdat,
+    comm_ydat,
+    comm_mpos,
+    comm_cafr,
+    comm_care,
+    comm_psxy,
+    comm_ps_x,
+    comm_ps_y,
+    comm_paxy,
+    comm_pa_x,
+    comm_pa_y,
+    comm_exec,
+    comm_rngc,
+    comm_mxyt,
+    comm_pjmp,
+    comm_hjmp,
+    comm_hclr,
+    comm_ixfw,
+    comm_ixbw,
+    comm_quax,
+    comm_quay,
+    comm_if_s,
+    comm_rapp,
+    comm_rapk,
+    comm_gets,
+    comm_s123,
+    comm_s456,
+    comm_a123,
+    comm_a456,
+    (CharCommandCallback)comm_stop,
+    comm_smhf,
+    comm_ngme,
+    comm_ngem,
+    comm_iflb,
+    comm_asxy,
+    comm_schx,
+    comm_schy,
+    comm_back,
+    comm_mvix,
+    comm_sajp,
+    comm_ccch,
+    comm_wset,
+    comm_wswk,
+    comm_wadd,
+    comm_wceq,
+    comm_wcne,
+    comm_wcgt,
+    comm_wclt,
+    comm_wadd2,
+    comm_wceq2,
+    comm_wcne2,
+    comm_wcgt2,
+    comm_wclt2,
+    comm_rapp2,
+    comm_rapk2,
+    comm_iflg,
+    comm_mpcy,
+    comm_epcy,
+    (CharCommandCallback)comm_imgs,
+    (CharCommandCallback)comm_imgc,
+    comm_rvxy,
+    comm_rv_x,
+    comm_rv_y,
+    (CharCommandCallback)comm_ccfl,
+    comm_myhp,
+    comm_emhp,
+    comm_exbgs,
+    comm_exbgc,
+    (CharCommandCallback)comm_atmf,
+    (CharCommandCallback)comm_chkwf,
+    (CharCommandCallback)comm_retmj,
+    comm_sstx,
+    comm_ssty,
+    comm_ngda,
+    comm_flip,
+    comm_kage,
+    comm_dspf,
+    comm_ifrlf,
+    comm_srlf,
+    comm_bgrlf,
+    (CharCommandCallback)comm_scmd,
+    comm_rljmp,
+    comm_ifs2,
+    comm_abbak,
+    comm_sse,
+    comm_s_chg,
+    comm_schg2,
+    (CharCommandCallback)comm_rhsja,
+    (CharCommandCallback)comm_uhsja,
+    comm_ifcom,
+    comm_axjmp,
+    comm_ayjmp,
+    comm_ifs3,
 };
 
-s32 (*const decode_if_lever[16])(WORK*, UNK11*) = { comm_dummy, comm_ret,  comm_uja,   comm_uja2, comm_uja3, comm_uja4,
-                                                    comm_uja5,  comm_uja6, comm_uja7,  comm_umja, comm_back, comm_nex,
-                                                    comm_nex2,  comm_wca,  comm_retmj, comm_abbak };
+CharCommandCallback const decode_if_lever[16] = {
+    comm_dummy, comm_ret,  comm_uja,  comm_uja2, comm_uja3,
+    comm_uja4,  comm_uja5, comm_uja6, comm_uja7, comm_umja,
+    comm_back,  comm_nex,  comm_nex2, comm_wca,  (CharCommandCallback)comm_retmj,
+    comm_abbak,
+};
 
 const u16 acatkoa_table[65] = { 4,   4,   8,   8,   8,   8,   8,   8,   16,  16,  16,  16,  16,  16,  16,  16,  32,
                                 32,  32,  32,  32,  32,  32,  32,  64,  64,  64,  64,  64,  64,  64,  64,  128, 128,

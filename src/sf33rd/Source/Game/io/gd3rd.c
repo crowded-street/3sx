@@ -178,7 +178,7 @@ bool LDREQ_GetResultFlag(u8* result, LoadRequestID id) {
     return (bool)(*result & mask);
 }
 
-void LDREQ_SetResultFlag(LoadRequest* request, bool flag) {
+void LDREQ_SetResultFlag(const LoadRequest* request, bool flag) {
     const u8 mask = 1 << request->id;
 
     if (flag) {

@@ -657,13 +657,13 @@ void ppgChangeDataEndian(u8* adrs, s32 size, s32 dendL, s32 col4, s32 depth) {
     }
 
     if (col4 != 0) {
-        u32* c4 = adrs;
+        u32* c4 = (u32*)adrs;
 
         for (int i = 0; i < size / 4; i++) {
             c4[i] = SDL_Swap32BE(c4[i]);
         }
     } else {
-        u16* c2 = adrs;
+        u16* c2 = (u16*)adrs;
 
         for (int i = 0; i < size / 2; i++) {
             c2[i] = SDL_Swap16BE(c2[i]);

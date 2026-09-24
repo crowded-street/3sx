@@ -3,7 +3,7 @@
 
 #include "structs.h"
 
-void Game();
+void Game(struct _TASK* /* unused */);
 void Game01();
 void Game02();
 void Before_Select_Sub();

@@ -99,7 +99,7 @@ void cmd_init(PLW* pl) { // 🟡
     waza_compel_all_init(pl);
 }
 
-static const void* get_commands(s16 char_num) { // 🔴
+static const intptr_t* get_commands(s16 char_num) { // 🔴
     if (ArcadeBalance_IsEnabled()) {
         return ArcadeCommandData_Get(char_num);
     } else if (cmd_sel[cmd_id]) {
@@ -111,7 +111,7 @@ static const void* get_commands(s16 char_num) { // 🔴
 
 void cmd_move() { // 🟢
     s16 j;
-    intptr_t* adrs;
+    const intptr_t* adrs;
 
     cmd_id = cmd_pl->wu.id;
     adrs = get_commands(cmd_pl->player_number);
@@ -150,7 +150,7 @@ void check_init() { // 🟢
 }
 
 void check_next() { // 🟢
-    s16* next_ptr = waza_ptr->w_ptr;
+    const s16* next_ptr = waza_ptr->w_ptr;
 
     waza_ptr->w_type = *next_ptr++;
     waza_ptr->w_int = *next_ptr++;
@@ -1754,29 +1754,29 @@ void sw_pick_up() { // 🟢
 }
 
 void dash_flag_clear(s16 pl_id) { // 🟢
-    intptr_t* adrs = get_commands(plw[pl_id].player_number);
+    const intptr_t* adrs = get_commands(plw[pl_id].player_number);
 
     waza_compel_init(pl_id, 0, adrs);
     waza_compel_init(pl_id, 1, adrs);
 }
 
 void hi_jump_flag_clear(s16 pl_id) { // 🟢
-    intptr_t* adrs = get_commands(plw[pl_id].player_number);
+    const intptr_t* adrs = get_commands(plw[pl_id].player_number);
 
     waza_compel_init(pl_id, 2, adrs);
 }
 
 void waza_flag_clear_only_1(s16 pl_id, s16 wznum) { // 🟢
-    intptr_t* adrs = get_commands(plw[pl_id].player_number);
+    const intptr_t* adrs = get_commands(plw[pl_id].player_number);
 
     waza_compel_init(pl_id, wznum, adrs);
 }
 
-void waza_compel_init(s16 pl_id, s16 num, intptr_t* adrs) { // 🟢
+void waza_compel_init(s16 pl_id, s16 num, const intptr_t* adrs) { // 🟢
     WAZA_WORK* w_ptr;
-    s16* ptr;
+    const s16* ptr;
 
-    ptr = (s16*)adrs[num];
+    ptr = (const s16*)adrs[num];
     ptr += 12;
     w_ptr = &waza_work[pl_id][num];
     w_ptr->w_type = *ptr++;
@@ -1795,7 +1795,7 @@ void waza_compel_init(s16 pl_id, s16 num, intptr_t* adrs) { // 🟢
 
 void waza_compel_all_init(PLW* pl) { // 🟢
     s16 i;
-    intptr_t* adrs = get_commands(pl->player_number);
+    const intptr_t* adrs = get_commands(pl->player_number);
 
     for (i = 0; i < pl_cmd_num[pl->player_number][0]; i++) {
         cmd_tbl_ptr = (s16*)adrs[i];

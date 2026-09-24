@@ -110,7 +110,7 @@ void eff19_quake_sub(WORK_Other* ewk) {
         break;
 
     case 2:
-        add_y_sub(ewk);
+        add_y_sub(&ewk->wu);
 
         if (ewk->wu.xyz[1].disp.pos < 66) {
             ewk->wu.routine_no[1]++;

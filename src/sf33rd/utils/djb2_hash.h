@@ -18,7 +18,7 @@ static inline uint32_t djb2_update_mem(uint32_t hash, const uint8_t* data, size_
 }
 
 #define djb2_update(hash, v) djb2_update_mem(hash, &v, sizeof(v))
-#define djb2_updatep(hash, p) djb2_update_mem(hash, p, sizeof(*p))
+#define djb2_updatep(hash, p) djb2_update_mem(hash, (const uint8_t*)(p), sizeof(*p))
 #define djb2_updatea(hash, a) djb2_update_mem(hash, a, sizeof(a))
 
 #endif

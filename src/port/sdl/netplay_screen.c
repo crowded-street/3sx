@@ -78,7 +78,7 @@ void NetplayScreen_Render() {
             break;
 
         case FISTBUMP_MATCHED:
-            MatchResult* match = Fistbump_GetResult();
+            const MatchResult* match = Fistbump_GetResult();
 
             SSPutStrPro(1, 384, 130, 9, 0xFFFFFFFF, "Matched with:");
             SSPutStrPro(1, 384, 140, 9, 0xFFFFFFFF, match->opponent_name);

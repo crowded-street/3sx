@@ -21,7 +21,7 @@ void effect_L8_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
         ewk->wu.routine_no[0] += 1;
-        ewk->wu.hit_adrs = pl17_0_00;
+        ewk->wu.hit_adrs = (void*)pl17_0_00;
         ewk->wu.step_xy_table = (s16*)ColorRAM[(ewk->master_id == 1) * 16];
         ewk->wu.move_xy_table = ewk->wu.step_xy_table + 512;
         save_old_color_data(save_old_col_ptr, ewk->wu.step_xy_table);

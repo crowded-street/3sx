@@ -290,7 +290,7 @@ static s32 check_shortcut() {
 }
 
 void set_credit_string(s32 t, s32 x, s32 y, s32 a, const char* s) {
-    char* su;
+    const char* su;
     s16 xu;
     s16 yu;
     s16 mojisuu;

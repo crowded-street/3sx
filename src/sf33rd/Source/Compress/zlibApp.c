@@ -16,7 +16,7 @@ typedef struct {
 
 ZLIB zlib;
 
-void* zlib_Malloc(void*, u32, u32);
+voidpf zlib_Malloc(voidpf, uInt, uInt);
 void zlib_Free(void*, void*);
 
 void zlib_Initialize(void* tempAdrs, s32 tempSize) {
@@ -31,7 +31,7 @@ void zlib_Initialize(void* tempAdrs, s32 tempSize) {
     zlib.info.opaque = NULL;
 }
 
-void* zlib_Malloc(void* opaque, u32 items, u32 size) {
+voidpf zlib_Malloc(voidpf opaque, uInt items, uInt size) {
     return mmAlloc(&zlib.mobj, size * items, 0);
 }
 

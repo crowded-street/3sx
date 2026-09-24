@@ -107,6 +107,6 @@ void Push_LDREQ_Queue_BG(s16 ix);
 /// @param ix Background index
 bool Check_LDREQ_Queue_BG(s16 ix);
 
-void LDREQ_SetResultFlag(LoadRequest* request, bool flag);
+void LDREQ_SetResultFlag(const LoadRequest* request, bool flag);
 
 #endif

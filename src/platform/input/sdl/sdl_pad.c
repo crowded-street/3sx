@@ -89,7 +89,7 @@ static void remove_keyboard() {
     }
 }
 
-static void handle_gamepad_added_event(SDL_GamepadDeviceEvent* event) {
+static void handle_gamepad_added_event(const SDL_GamepadDeviceEvent* event) {
     // Remove keyboard to potentially make space for the new gamepad
     remove_keyboard();
 
@@ -97,7 +97,7 @@ static void handle_gamepad_added_event(SDL_GamepadDeviceEvent* event) {
         return;
     }
 
-    const SDL_Gamepad* gamepad = SDL_OpenGamepad(event->which);
+    SDL_Gamepad* gamepad = SDL_OpenGamepad(event->which);
 
     for (int i = 0; i < INPUT_SOURCES_MAX; i++) {
         SDLPad_InputSource* input_source = &input_sources[i];
@@ -117,7 +117,7 @@ static void handle_gamepad_added_event(SDL_GamepadDeviceEvent* event) {
     setup_keyboard();
 }
 
-static void handle_gamepad_removed_event(SDL_GamepadDeviceEvent* event) {
+static void handle_gamepad_removed_event(const SDL_GamepadDeviceEvent* event) {
     const int index = input_source_index_from_joystick_id(event->which);
 
     if (index < 0) {
@@ -178,7 +178,7 @@ static void get_keyboard_state(Input_ButtonState* state) {
 }
 
 static void get_gamepad_state(int id, Input_ButtonState* state) {
-    const SDL_Gamepad* pad = input_sources[id].gamepad.gamepad;
+    SDL_Gamepad* pad = input_sources[id].gamepad.gamepad;
 
     state->dpad_up = SDL_GetGamepadButton(pad, SDL_GAMEPAD_BUTTON_DPAD_UP);
     state->dpad_left = SDL_GetGamepadButton(pad, SDL_GAMEPAD_BUTTON_DPAD_LEFT);
@@ -219,7 +219,7 @@ void SDLPad_Init() {
     setup_keyboard();
 }
 
-void SDLPad_HandleGamepadDeviceEvent(SDL_GamepadDeviceEvent* event) {
+void SDLPad_HandleGamepadDeviceEvent(const SDL_GamepadDeviceEvent* event) {
     switch (event->type) {
     case SDL_EVENT_GAMEPAD_ADDED:
         handle_gamepad_added_event(event);

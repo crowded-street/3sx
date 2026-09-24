@@ -1306,7 +1306,7 @@ void buttobi_add_y_check(PLW* wk) {
 }
 
 void setup_smoke_type(PLW* wk) {
-    s8* step_tbl;
+    const s8* step_tbl;
     u8 ix;
     s16 i;
     s16 total;

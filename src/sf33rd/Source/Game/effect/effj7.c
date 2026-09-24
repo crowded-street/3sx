@@ -395,8 +395,8 @@ void effect_J7_move(WORK_Other* ewk) {
         }
 
         ewk->wu.routine_no[0]++;
-        ewk->wu.hit_adrs = pl00_cctbl[ewk->wu.type][0];
-        ewk->wu.dmg_adrs = pl00_cctbl[ewk->wu.type][1];
+        ewk->wu.hit_adrs = (void*)pl00_cctbl[ewk->wu.type][0];
+        ewk->wu.dmg_adrs = (void*)pl00_cctbl[ewk->wu.type][1];
         ewk->wu.step_xy_table = (s16*)ColorRAM[ewk->master_id * 16];
         ewk->wu.move_xy_table = (s16*)ColorRAM[(ewk->master_id * 16) + 8];
         ewk->wu.dir_timer = 0;

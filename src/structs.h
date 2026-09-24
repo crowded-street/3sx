@@ -687,7 +687,7 @@ typedef struct {
 
 typedef struct {
     WORK wu;
-    u32* my_master;
+    void* my_master;
     s16 master_work_id;
     s16 master_id;
     s16 master_player;
@@ -699,7 +699,7 @@ typedef struct {
 
 typedef struct {
     WORK wu;
-    u32* my_master;
+    void* my_master;
     s16 master_work_id;
     s16 master_id;
     s16 master_player;
@@ -929,7 +929,7 @@ struct _SAVE_W {
 };
 
 typedef struct {
-    s8*** msgAdr;
+    char*** msgAdr;
     s8* msgNum;
 } MessageTable;
 
@@ -1969,7 +1969,7 @@ typedef struct {
     s16 w_int;
     s16 free1;
     s16 w_lvr;
-    s16* w_ptr;
+    const s16* w_ptr;
     s16 free2;
     s16 w_dead;
     s16 w_dead2;

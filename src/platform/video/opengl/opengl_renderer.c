@@ -72,7 +72,7 @@ typedef struct GLQuad {
 } GLQuad;
 
 static SDL_Window* window = NULL;
-static SDL_GLContext* gl_context = NULL;
+static SDL_GLContext gl_context = NULL;
 
 static GLuint canvas_fbo = 0;
 static GLuint canvas_color_tex = 0;

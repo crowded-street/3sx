@@ -66,7 +66,7 @@ static SDL_EnumerationResult enumerate_callback(void* userdata, const char* dirn
         state->oldest_create_time = path_info.create_time;
 
         if (state->oldest_fname != NULL) {
-            SDL_free(state->oldest_fname);
+            SDL_free((void*)state->oldest_fname);
         }
 
         state->oldest_fname = SDL_strdup(fname);
@@ -89,7 +89,7 @@ static void cleanup_stale_logs(const char* logs_path) {
     }
 
     if (state.oldest_fname != NULL) {
-        SDL_free(state.oldest_fname);
+        SDL_free((void*)state.oldest_fname);
     }
 }
 
@@ -105,7 +105,7 @@ void SDLFileLogger_Configure() {
     const size_t buffer_size = SDL_strlen(logs_path) + LOG_FILENAME_MAX + 1;
     char* path = SDL_malloc(buffer_size);
     SDL_strlcpy(path, logs_path, buffer_size);
-    SDL_free(logs_path);
+    SDL_free((void*)logs_path);
 
     const size_t current_length = SDL_strlen(path);
     make_log_filename(path + current_length, buffer_size - current_length);

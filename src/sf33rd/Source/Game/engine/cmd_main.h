@@ -45,7 +45,7 @@ void sw_pick_up();
 void dash_flag_clear(s16 pl_id);
 void hi_jump_flag_clear(s16 pl_id);
 void waza_flag_clear_only_1(s16 pl_id, s16 wznum);
-void waza_compel_init(s16 pl_id, s16 num, intptr_t* adrs);
+void waza_compel_init(s16 pl_id, s16 num, const intptr_t* adrs);
 void waza_compel_all_init(PLW* pl);
 void waza_compel_all_init2(PLW* pl);
 u16 processed_lvbt(u16 lv_data);
