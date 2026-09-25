@@ -22,12 +22,33 @@
 #include "arcade/arcade_char_data.h"
 #endif
 
+#if ARCADE_ROM && ARCADE_ROM_TEXTURES
+#include "arcade/arcade_texture.h"
+#endif
+
 #include <SDL3/SDL.h>
 
 #include <stdlib.h>
 
 u8 omSelObjNowOnMemoryType = 0xFF;
 TEX_GRP_LD texgrplds[100];
+
+#if ARCADE_ROM && ARCADE_ROM_TEXTURES
+static ArcadeTextureGroup arcade_texture_groups[100];
+
+static void use_arcade_texture_group(int group, Character character, TEX_GRP_LD* destination) {
+    ArcadeTextureGroup built;
+
+    if (!ArcadeTexture_BuildGroup(group, character, &built)) {
+        fatal_error("Could not build CPS3 ROM textures for character group %d", group);
+    }
+
+    ArcadeTexture_FreeGroup(&arcade_texture_groups[group]);
+    arcade_texture_groups[group] = built;
+    destination->trans_table = built.trans_table;
+    destination->texture_table = built.texture_table;
+}
+#endif
 
 // forward decls
 s32 load_any_texture_grpnum(u8 grp, u8 kokey);
@@ -214,6 +235,12 @@ void q_ldreq_texture_group(LoadRequest* curr) {
                 }
 
                 parabora_own_table[character_id] = dst->prot;
+
+#if ARCADE_ROM && ARCADE_ROM_TEXTURES
+                if (ArcadeBalance_IsEnabled()) {
+                    use_arcade_texture_group(curr->ix, character_id, curr->lds);
+                }
+#endif
             }
 
             LDREQ_SetResultFlag(curr, true);
@@ -237,6 +264,12 @@ void q_ldreq_texture_group(LoadRequest* curr) {
 }
 
 void Init_texgrplds_work() {
+#if ARCADE_ROM && ARCADE_ROM_TEXTURES
+    for (int i = 0; i < SDL_arraysize(arcade_texture_groups); i++) {
+        ArcadeTexture_FreeGroup(&arcade_texture_groups[i]);
+    }
+#endif
+
     SDL_zeroa(texgrplds);
 }
 
@@ -289,6 +322,10 @@ void purge_texture_group(u8 grp) {
     if (texgrplds[grp].ok != 0) {
         texgrplds[grp].ok = 0;
         Push_ramcnt_key(texgrplds[grp].key);
+
+#if ARCADE_ROM && ARCADE_ROM_TEXTURES
+        ArcadeTexture_FreeGroup(&arcade_texture_groups[grp]);
+#endif
     }
 }
 
@@ -340,5 +377,12 @@ s32 load_any_texture_grpnum(u8 grp, u8 kokey) {
     lds->texture_table = (u8*)ldadr + bsd->to_tex;
     lds->trans_table = ldadr;
     lds->ok = 1;
+
+#if ARCADE_ROM && ARCADE_ROM_TEXTURES
+    if (grp >= 1 && grp <= 20 && ArcadeBalance_IsEnabled()) {
+        use_arcade_texture_group(grp, (Character)(grp - 1), lds);
+    }
+#endif
+
     return 1;
 }

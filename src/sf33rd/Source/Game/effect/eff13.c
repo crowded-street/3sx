@@ -131,7 +131,14 @@ void effect_13_move(WORK_Other* ewk) {
 
         if (tama->kind_of_tama == 11) {
             ewk->wu.next_z = 71;
+
+#if ARCADE_ROM_TEXTURES
+            // Oro's SA2 ROM spheres don't need the PS2 2x scaling
+            ewk->wu.my_mr_flag = 0;
+#else
             ewk->wu.my_mr_flag = 1;
+#endif
+
             ewk->wu.my_mr.size.x = 127;
             ewk->wu.my_mr.size.y = 127;
         }

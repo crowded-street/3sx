@@ -4,5 +4,6 @@
 #include <SDL3/SDL.h>
 
 Uint32 cps3_decrypt(Uint8 b0, Uint8 b1, Uint8 b2, Uint8 b3, Uint32 i);
+Uint32 cps3_decrypt_at(Uint8 b0, Uint8 b1, Uint8 b2, Uint8 b3, Uint32 address);
 
 #endif
