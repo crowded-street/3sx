@@ -997,77 +997,103 @@ static void SDLGPURenderer_RenderFrame(SDL_Rect viewport) {
             SDL_GPU_INDEXELEMENTSIZE_16BIT
         );
 
+        // state tracking variables for batching
+        SDL_GPUGraphicsPipeline* current_pipeline = NULL;
+        SDL_GPUTexture* current_texture = NULL;
+        SDL_GPUTexture* current_palette = NULL;
+
+        int batch_start_index = 0;
+        int batch_quad_count = 0;
+
         for (int i = 0; i < arrlen(quads); i++) {
             const _Quad* quad = &quads[i];
 
+            SDL_GPUGraphicsPipeline* req_pipeline = solid_pipeline;
+            SDL_GPUTexture* req_texture = NULL;
+            SDL_GPUTexture* req_palette = NULL;
+
             if (quad->texture_index == -1) {
-                SDL_BindGPUGraphicsPipeline(canvas_pass, solid_pipeline);
+                req_pipeline = solid_pipeline;
             } else {
                 const _Texture* texture = &textures[quad->texture_index];
 
+                req_texture = texture->handle;
+
                 switch (texture->palette_type) {
-                case PALETTE_NONE:
-                    SDL_BindGPUGraphicsPipeline(canvas_pass, direct_pipeline);
-
-                    SDL_BindGPUFragmentSamplers(
-                        canvas_pass,
-                        0,
-                        (SDL_GPUTextureSamplerBinding[]) {
-                            {
-                                .texture = texture->handle,
-                                .sampler = sampler,
-                            },
-                        },
-                        1
-                    );
-
-                    break;
-
-                case PALETTE_4:
-                    SDL_BindGPUGraphicsPipeline(canvas_pass, palette_4_pipeline);
-
-                    SDL_BindGPUFragmentSamplers(
-                        canvas_pass,
-                        0,
-                        (SDL_GPUTextureSamplerBinding[]) {
-                            {
-                                .texture = texture->handle,
-                                .sampler = sampler,
-                            },
-                            {
-                                .texture = palettes[quad->palette_index],
-                                .sampler = sampler,
-                            },
-                        },
-                        2
-                    );
-
-                    break;
-
-                case PALETTE_8:
-                    SDL_BindGPUGraphicsPipeline(canvas_pass, palette_8_pipeline);
-
-                    SDL_BindGPUFragmentSamplers(
-                        canvas_pass,
-                        0,
-                        (SDL_GPUTextureSamplerBinding[]) {
-                            {
-                                .texture = texture->handle,
-                                .sampler = sampler,
-                            },
-                            {
-                                .texture = palettes[quad->palette_index],
-                                .sampler = sampler,
-                            },
-                        },
-                        2
-                    );
-
-                    break;
+                    case PALETTE_NONE:
+                        req_pipeline = direct_pipeline;
+                        break;
+                    case PALETTE_4:
+                        req_pipeline = palette_4_pipeline;
+                        req_palette = palettes[quad->palette_index];
+                        break;
+                    case PALETTE_8:
+                        req_pipeline = palette_8_pipeline;
+                        req_palette = palettes[quad->palette_index];
+                        break;
+                    default:
+                        req_pipeline = current_pipeline != NULL ? current_pipeline : direct_pipeline; 
+                        break;
                 }
             }
 
-            SDL_DrawGPUIndexedPrimitives(canvas_pass, 6, 1, i * 6, 0, 0);
+            // if a paletted pipeline was requested but the palette pointer is NULL, downgrade it.
+            if ((req_pipeline == palette_4_pipeline || req_pipeline == palette_8_pipeline) && req_palette == NULL) {
+                req_pipeline = direct_pipeline;
+            }
+            
+            // if any textured pipeline was requested but the texture pointer is NULL, downgrade to solid.
+            if (req_pipeline != solid_pipeline && req_texture == NULL) {
+                req_pipeline = solid_pipeline;
+            }
+
+            bool state_changed = (req_pipeline != current_pipeline) ||
+                                 (req_texture != current_texture) ||
+                                 (req_palette != current_palette);
+
+            if(state_changed) {
+                if(batch_quad_count > 0) {
+                    SDL_DrawGPUIndexedPrimitives(canvas_pass, batch_quad_count * 6, 1, batch_start_index * 6, 0, 0);
+                }
+
+                // update tracker variables to new state
+                current_pipeline = req_pipeline;
+                current_texture = req_texture;
+                current_palette = req_palette;
+
+                SDL_BindGPUGraphicsPipeline(canvas_pass, current_pipeline);
+
+                if(current_pipeline == direct_pipeline) {
+                    SDL_BindGPUFragmentSamplers(
+                        canvas_pass,
+                        0,
+                        (SDL_GPUTextureSamplerBinding[]) {
+                            { .texture = current_texture, .sampler = sampler },
+                        },
+                        1
+                    );
+                } else if (current_pipeline == palette_4_pipeline || current_pipeline == palette_8_pipeline) {
+                    SDL_BindGPUFragmentSamplers(
+                        canvas_pass,
+                        0,
+                        (SDL_GPUTextureSamplerBinding[]) {
+                            { .texture = current_texture, .sampler = sampler },
+                            { .texture = current_palette, .sampler = sampler },
+                        },
+                        2
+                    );
+                }
+
+                batch_start_index = i;
+                batch_quad_count = 1;
+            } else {
+                batch_quad_count++;
+            }
+        }
+
+        // flush any remaining quads at the end of the array
+        if (batch_quad_count > 0) {
+            SDL_DrawGPUIndexedPrimitives(canvas_pass, batch_quad_count * 6, 1, batch_start_index * 6, 0, 0);
         }
 
         SDL_EndGPURenderPass(canvas_pass);
