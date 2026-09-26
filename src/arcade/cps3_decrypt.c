@@ -30,8 +30,12 @@ static Uint32 cps3_mask(Uint32 address, Uint32 key1, Uint32 key2) {
     return val | (val << 16);
 }
 
-Uint32 cps3_decrypt(Uint8 b0, Uint8 b1, Uint8 b2, Uint8 b3, Uint32 i) {
+Uint32 cps3_decrypt_at(Uint8 b0, Uint8 b1, Uint8 b2, Uint8 b3, Uint32 address) {
     const Uint32 cur_data = (b0 << 24) | (b1 << 16) | (b2 << 8) | b3;
-    const Uint32 masked = cps3_mask(BASE_OFFSET + (i * 4), KEY_1, KEY_2);
+    const Uint32 masked = cps3_mask(address, KEY_1, KEY_2);
     return SDL_Swap32BE(cur_data ^ masked);
+}
+
+Uint32 cps3_decrypt(Uint8 b0, Uint8 b1, Uint8 b2, Uint8 b3, Uint32 i) {
+    return cps3_decrypt_at(b0, b1, b2, b3, BASE_OFFSET + i * 4);
 }

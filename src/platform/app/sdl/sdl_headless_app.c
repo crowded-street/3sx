@@ -2,6 +2,9 @@
 
 #include "platform/app/sdl/sdl_headless_app.h"
 #include "arcade/arcade_balance.h"
+#if ARCADE_ROM && ARCADE_ROM_TEXTURES
+#include "arcade/arcade_texture.h"
+#endif
 #include "main.h"
 #include "port/config/config.h"
 #include "port/io/afs.h"
@@ -38,6 +41,10 @@ static bool init() {
 }
 
 static void cleanup() {
+#if ARCADE_ROM && ARCADE_ROM_TEXTURES
+    ArcadeTexture_Finish();
+#endif
+
     AFS_Finish();
     Config_Destroy();
     TestRunner_Destroy();

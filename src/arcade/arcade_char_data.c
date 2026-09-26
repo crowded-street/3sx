@@ -4,6 +4,7 @@
 #include "arcade/rom_load.h"
 #include "constants.h"
 #include "port/resources.h"
+#include "sf33rd/Source/Game/rendering/texgroup_data.h"
 #include "structs.h"
 
 #include <SDL3/SDL.h>
@@ -83,30 +84,53 @@ static int SDLCALL compare_u32(const void* lhs, const void* rhs) {
     }
 }
 
-static Uint16 remap_cg_number(Uint16 value, Character character) {
-    if (value < 0x400) {
-        return value;
+Uint16 ArcadeCharData_RemapCgNumber(Uint16 number, Character character) {
+    if (number < 0x400) {
+        return number;
     }
 
-    const CharacterCgMap* map = &cg_maps[character];
-    Sint32 delta = map->default_delta;
+    // Ordinary ROM CGs are arranged in 0x600-number character blocks.
+    const int default_owner = number / 0x600;
+    Sint32 default_adjusted = -1;
 
-    for (size_t i = 0; i < map->range_count; i++) {
-        const CgRemapRange* range = &map->ranges[i];
+    if (default_owner < NUM_CHARS) {
+        const Sint32 adjusted = number + cg_maps[default_owner].default_delta;
 
-        if (value >= range->first && value <= range->last) {
-            delta = range->delta;
-            break;
+        if (adjusted >= texgrpdat[default_owner + 1].num_of_1st &&
+            adjusted < texgrpdat[default_owner + 2].num_of_1st) {
+            default_adjusted = adjusted;
         }
     }
 
-    const Sint32 adjusted = value + delta;
+    // A character script may use another character's CG. Give its own special
+    // ranges priority. Ordinary CGs below 0x7000 belong to their ROM block.
+    for (int pass = 0; pass < 2; pass++) {
+        if (pass == 1 && number < 0x7000 && default_adjusted >= 0) {
+            return default_adjusted;
+        }
 
-    if (adjusted < 0 || adjusted > UINT16_MAX) {
-        return value;
+        for (int owner = 0; owner < NUM_CHARS; owner++) {
+            if ((pass == 0) != (owner == character)) {
+                continue;
+            }
+
+            const CharacterCgMap* map = &cg_maps[owner];
+
+            for (size_t i = 0; i < map->range_count; i++) {
+                const CgRemapRange* range = &map->ranges[i];
+
+                if (number >= range->first && number <= range->last) {
+                    const Sint32 adjusted = number + range->delta;
+
+                    if (adjusted >= 0 && adjusted <= UINT16_MAX) {
+                        return adjusted;
+                    }
+                }
+            }
+        }
     }
 
-    return adjusted;
+    return default_adjusted >= 0 ? (Uint16)default_adjusted : number;
 }
 
 static void* read_char_table(SDL_IOStream* rom, Location location, Character character) {
@@ -187,7 +211,7 @@ static void* read_char_table(SDL_IOStream* rom, Location location, Character cha
 
                 Uint16 cg_number = 0;
                 SDL_ReadU16BE(rom, &cg_number);
-                cg_number = remap_cg_number(cg_number, character);
+                cg_number = ArcadeCharData_RemapCgNumber(cg_number, character);
                 *(Uint16*)p = cg_number;
                 p += 2;
 
@@ -623,11 +647,13 @@ static const CgRemapRange alex_cg_ranges[] = {
 };
 
 static const CgRemapRange ryu_cg_ranges[] = {
-    { .first = 0x7082, .last = 0x7090, .delta = -0x62C6 },
+    { .first = 0x7086, .last = 0x7090, .delta = -0x62C6 },
 };
 
 static const CgRemapRange yun_cg_ranges[] = {
     { .first = 0x7091, .last = 0x709B, .delta = -0x5D20 },
+    { .first = 0x3F8D, .last = 0x3F93, .delta = -0x2CA8 },
+    { .first = 0x9080, .last = 0x908A, .delta = -0x7DA8 },
 };
 
 static const CgRemapRange dudley_cg_ranges[] = {
@@ -644,17 +670,22 @@ static const CgRemapRange hugo_cg_ranges[] = {
 
 static const CgRemapRange ibuki_cg_ranges[] = {
     { .first = 0x70BD, .last = 0x70C7, .delta = -18692 },
-    { .first = 0x9BA8, .last = 0x9C6F, .delta = -29904 },
+    { .first = 0x9660, .last = 0x96D7, .delta = -0x6FFF },
+    { .first = 0x9BA8, .last = 0x9C87, .delta = -0x74CF },
 };
 
 static const CgRemapRange elena_cg_ranges[] = {
     { .first = 0x70C8, .last = 0x70D2, .delta = -0x42E5 },
-    { .first = 0x9D22, .last = 0x9D24, .delta = -0x6F42 },
+    { .first = 0x9CFC, .last = 0x9D24, .delta = -0x6F42 },
     { .first = 0x9C88, .last = 0x9CC1, .delta = -0x6F08 },
 };
 
 static const CgRemapRange oro_cg_ranges[] = {
     { .first = 0x70D3, .last = 0x70DD, .delta = -0x3D5A },
+    { .first = 0x9A60, .last = 0x9B07, .delta = -0x6790 },
+    { .first = 0x9B09, .last = 0x9B0E, .delta = -0x683F },
+    { .first = 0x9B20, .last = 0x9B37, .delta = -0x679C },
+    { .first = 0x9B44, .last = 0x9B77, .delta = -0x67A8 },
 };
 
 static const CgRemapRange yang_cg_ranges[] = {
@@ -667,6 +698,8 @@ static const CgRemapRange ken_cg_ranges[] = {
 
 static const CgRemapRange sean_cg_ranges[] = {
     { .first = 0x70F4, .last = 0x70FF, .delta = -0x2F74 },
+    // Basketball water splash: paired frames in _plef_char_table[141].
+    { .first = 0xB404, .last = 0xB40A, .delta = -0x728B },
 };
 
 static const CgRemapRange urien_cg_ranges[] = {
@@ -679,15 +712,17 @@ static const CgRemapRange akuma_cg_ranges[] = {
 
 static const CgRemapRange chunli_cg_ranges[] = {
     { .first = 0x7115, .last = 0x711F, .delta = -0x1EB4 },
+    { .first = 0x99BB, .last = 0x9A1B, .delta = -0x47BB },
 };
 
 static const CgRemapRange makoto_cg_ranges[] = {
     { .first = 0x7120, .last = 0x712A, .delta = -0x1760 },
-    { .first = 0xA000, .last = UINT16_MAX, .delta = -0x5378 },
+    { .first = 0xABF8, .last = 0xAD37, .delta = -0x5378 },
 };
 
 static const CgRemapRange q_cg_ranges[] = {
     { .first = 0x712B, .last = 0x7135, .delta = -0x123A },
+    { .first = 0xBCAA, .last = 0xBD1D, .delta = -0x5DAE },
 };
 
 static const CgRemapRange twelve_cg_ranges[] = {

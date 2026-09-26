@@ -20,6 +20,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 if(NOT PSP)
     option(THREESX_STATCHECK "Build with replay statcheck support" OFF)
+    option(THREESX_ARCADE_ROM_TEXTURES "Build experimental character textures from CPS3 ROM at runtime" OFF)
 endif()
 
 # ======================================
@@ -86,6 +87,7 @@ else()
         $<$<BOOL:${THREESX_STATCHECK}>:CRS_INPUT_DRIVER_STATCHECK>
 
         ARCADE_ROM
+        $<$<BOOL:${THREESX_ARCADE_ROM_TEXTURES}>:ARCADE_ROM_TEXTURES>
         SOUND_ENABLED
         $<$<CONFIG:Debug>:IMGUI>
 

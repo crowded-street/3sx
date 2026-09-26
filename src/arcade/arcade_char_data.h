@@ -9,6 +9,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include <SDL3/SDL.h>
+
 typedef enum CharDataSection {
     CHAR_DATA_NMCA,
     CHAR_DATA_DMCA,
@@ -51,6 +53,7 @@ typedef struct CharDataImage {
 
 void ArcadeCharData_Init();
 const CharInitData* ArcadeCharData_Get(Character character);
+Uint16 ArcadeCharData_RemapCgNumber(Uint16 number, Character character);
 bool ArcadeCharData_Apply3SXRenderingConventions(Character character, const void* ps2_data, size_t ps2_size);
 
 #endif

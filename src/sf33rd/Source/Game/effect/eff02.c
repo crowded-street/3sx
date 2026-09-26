@@ -247,7 +247,13 @@ void effect_02_move(WORK_Other* ewk) {
         }
 
         if (ewk->wu.char_index == 0x4B) {
+#if ARCADE_ROM_TEXTURES
+            // Q's SA3 ROM fire sprites don't need the PS2 2x horizontal scaling
+            ewk->wu.my_mr_flag = 0;
+#else
             ewk->wu.my_mr_flag = 1;
+#endif
+
             ewk->wu.my_mr.size.x = 127;
             ewk->wu.my_mr.size.y = 63;
             ewk->wu.my_col_code |= (ewk->master_id == 1) * 16;
