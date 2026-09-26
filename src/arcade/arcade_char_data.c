@@ -1,5 +1,3 @@
-#if ARCADE_ROM
-
 #include "arcade/arcade_char_data.h"
 #include "arcade/rom_load.h"
 #include "constants.h"
@@ -1344,5 +1342,3 @@ static const LocationData location_data[NUM_CHARS] = {
         .prot = { .offset = 0x46DD74, .size = 0x570 },
     },
 };
-
-#endif // ARCADE_ROM

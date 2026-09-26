@@ -86,7 +86,6 @@ else()
         $<$<NOT:$<BOOL:${THREESX_STATCHECK}>>:CRS_INPUT_DRIVER_SDL>
         $<$<BOOL:${THREESX_STATCHECK}>:CRS_INPUT_DRIVER_STATCHECK>
 
-        ARCADE_ROM
         $<$<BOOL:${THREESX_ARCADE_ROM_TEXTURES}>:ARCADE_ROM_TEXTURES>
         SOUND_ENABLED
         $<$<CONFIG:Debug>:IMGUI>
@@ -200,6 +199,7 @@ if(PSP)
     target_link_libraries(3sx PRIVATE
         m
         "${SDL3_ROOT}/lib/libSDL3.a"
+        "${MINIZIP_NG_ROOT}/lib/libminizip-ng.a"
         GL
         ZLIB::ZLIB
         pspdebug

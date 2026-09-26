@@ -1,7 +1,7 @@
 #ifndef ARCADE_TEXTURE_H
 #define ARCADE_TEXTURE_H
 
-#if ARCADE_ROM && ARCADE_ROM_TEXTURES
+#if ARCADE_ROM_TEXTURES
 
 #include "constants.h"
 

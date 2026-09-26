@@ -1,5 +1,3 @@
-#if ARCADE_ROM
-
 #ifndef ROM_LOAD_H
 #define ROM_LOAD_H
 
@@ -11,5 +9,3 @@
 void* Rom_Load(const char* path, size_t* size);
 
 #endif
-
-#endif // ARCADE_ROM
