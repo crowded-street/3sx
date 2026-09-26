@@ -43,6 +43,7 @@ file(GLOB_RECURSE GAME_SRC CONFIGURE_DEPENDS src/*.c)
 
 add_executable(3sx MACOSX_BUNDLE
     ${GAME_SRC}
+    src/stb/stb_image.h
 )
 
 if(NOT PSP)
