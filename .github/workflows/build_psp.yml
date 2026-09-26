@@ -27,6 +27,16 @@ jobs:
                     sh -lc './tools/psp/build-sdl.sh' 2>&1 | tee build-psp-sdl.log
             shell: bash
 
+          - name: Build minizip-ng for PSP
+            run: |
+                set -o pipefail
+                docker run --rm \
+                    -v "$PWD":/work \
+                    -w /work \
+                    3sx-psp-env \
+                    sh -lc './tools/psp/build-minizip.sh' 2>&1 | tee build-psp-minizip.log
+            shell: bash
+
           - name: Build PSP target
             run: |
                 set -o pipefail
@@ -44,4 +54,5 @@ jobs:
                 name: build-log-psp
                 path: |
                     build-psp-sdl.log
+                    build-psp-minizip.log
                     build-psp.log

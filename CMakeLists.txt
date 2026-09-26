@@ -199,6 +199,7 @@ if(PSP)
     target_link_libraries(3sx PRIVATE
         m
         "${SDL3_ROOT}/lib/libSDL3.a"
+        "${MINIZIP_NG_ROOT}/lib/libminizip-ng.a"
         GL
         ZLIB::ZLIB
         pspdebug
