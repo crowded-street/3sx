@@ -5,6 +5,7 @@
 
 #include "sf33rd/Source/Game/rendering/texgroup.h"
 #include "arcade/arcade_balance.h"
+#include "arcade/arcade_char_data.h"
 #include "common.h"
 #include "main.h"
 #include "port/config/config.h"
@@ -18,11 +19,7 @@
 #include "sf33rd/Source/Game/system/ramcnt.h"
 #include "structs.h"
 
-#if ARCADE_ROM
-#include "arcade/arcade_char_data.h"
-#endif
-
-#if ARCADE_ROM && ARCADE_ROM_TEXTURES
+#if ARCADE_ROM_TEXTURES
 #include "arcade/arcade_texture.h"
 #endif
 
@@ -33,7 +30,7 @@
 u8 omSelObjNowOnMemoryType = 0xFF;
 TEX_GRP_LD texgrplds[100];
 
-#if ARCADE_ROM && ARCADE_ROM_TEXTURES
+#if ARCADE_ROM_TEXTURES
 static ArcadeTextureGroup arcade_texture_groups[100];
 
 static void use_arcade_texture_group(int group, Character character, TEX_GRP_LD* destination) {
@@ -186,7 +183,6 @@ void q_ldreq_texture_group(LoadRequest* curr) {
                 CharInitData* dst = &char_init_data[plid_data[character_id]];
 
                 if (ArcadeBalance_IsEnabled()) {
-#if ARCADE_ROM
                     const size_t ps2_char_data_size = curr->size - bsd->to_chd;
                     const bool adapted =
                         ArcadeCharData_Apply3SXRenderingConventions(character_id, ldchd, ps2_char_data_size);
@@ -204,7 +200,6 @@ void q_ldreq_texture_group(LoadRequest* curr) {
                     }
 
                     SDL_copyp(dst, arcade_data);
-#endif
                 } else {
                     for (int i = 0; i < 25; i++) {
                         ((uintptr_t*)dst)[i] = (uintptr_t)ldchd + ((u32*)ldchd)[i];
@@ -236,7 +231,7 @@ void q_ldreq_texture_group(LoadRequest* curr) {
 
                 parabora_own_table[character_id] = dst->prot;
 
-#if ARCADE_ROM && ARCADE_ROM_TEXTURES
+#if ARCADE_ROM_TEXTURES
                 if (ArcadeBalance_IsEnabled()) {
                     use_arcade_texture_group(curr->ix, character_id, curr->lds);
                 }
@@ -264,7 +259,7 @@ void q_ldreq_texture_group(LoadRequest* curr) {
 }
 
 void Init_texgrplds_work() {
-#if ARCADE_ROM && ARCADE_ROM_TEXTURES
+#if ARCADE_ROM_TEXTURES
     for (int i = 0; i < SDL_arraysize(arcade_texture_groups); i++) {
         ArcadeTexture_FreeGroup(&arcade_texture_groups[i]);
     }
@@ -323,7 +318,7 @@ void purge_texture_group(u8 grp) {
         texgrplds[grp].ok = 0;
         Push_ramcnt_key(texgrplds[grp].key);
 
-#if ARCADE_ROM && ARCADE_ROM_TEXTURES
+#if ARCADE_ROM_TEXTURES
         ArcadeTexture_FreeGroup(&arcade_texture_groups[grp]);
 #endif
     }
@@ -378,7 +373,7 @@ s32 load_any_texture_grpnum(u8 grp, u8 kokey) {
     lds->trans_table = ldadr;
     lds->ok = 1;
 
-#if ARCADE_ROM && ARCADE_ROM_TEXTURES
+#if ARCADE_ROM_TEXTURES
     if (grp >= 1 && grp <= 20 && ArcadeBalance_IsEnabled()) {
         use_arcade_texture_group(grp, (Character)(grp - 1), lds);
     }

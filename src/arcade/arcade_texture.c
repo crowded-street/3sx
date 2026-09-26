@@ -1,4 +1,4 @@
-#if ARCADE_ROM && ARCADE_ROM_TEXTURES
+#if ARCADE_ROM_TEXTURES
 
 #include "arcade/arcade_texture.h"
 

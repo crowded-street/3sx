@@ -2,7 +2,7 @@
 
 #include "platform/app/sdl/sdl_app.h"
 #include "arcade/arcade_balance.h"
-#if ARCADE_ROM && ARCADE_ROM_TEXTURES
+#if ARCADE_ROM_TEXTURES
 #include "arcade/arcade_texture.h"
 #endif
 #include "args.h"
@@ -197,7 +197,7 @@ static bool full_init() {
 }
 
 static void cleanup() {
-#if ARCADE_ROM && ARCADE_ROM_TEXTURES
+#if ARCADE_ROM_TEXTURES
     ArcadeTexture_Finish();
 #endif
 

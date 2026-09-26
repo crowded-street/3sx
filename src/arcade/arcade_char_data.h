@@ -1,5 +1,3 @@
-#if ARCADE_ROM
-
 #ifndef ARCADE_CHAR_DATA_H
 #define ARCADE_CHAR_DATA_H
 
@@ -57,5 +55,3 @@ Uint16 ArcadeCharData_RemapCgNumber(Uint16 number, Character character);
 bool ArcadeCharData_Apply3SXRenderingConventions(Character character, const void* ps2_data, size_t ps2_size);
 
 #endif
-
-#endif // ARCADE_ROM
