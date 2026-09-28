@@ -1,16 +1,13 @@
 #if CRS_APP_DRIVER_SDL && STATCHECK
 
 #include "platform/app/sdl/sdl_headless_app.h"
-#include "arcade/arcade_balance.h"
-#if ARCADE_ROM_TEXTURES
-#include "arcade/arcade_texture.h"
-#endif
+#include "arcade/arcade.h"
+#include "args.h"
 #include "main.h"
 #include "port/config/config.h"
 #include "port/io/afs.h"
 #include "port/resources.h"
 #include "test/test_runner.h"
-#include "args.h"
 
 #include <SDL3/SDL.h>
 
@@ -24,7 +21,7 @@ static bool init() {
         return false;
     }
 
-    ArcadeBalance_Init();
+    Arcade_Init();
 
     if (!AFS_Init(Resources_GetAFSPath(), 256 * 1024)) {
         SDL_Log("Couldn't initialize AFS: %s", Resources_GetAFSPath());
@@ -41,10 +38,7 @@ static bool init() {
 }
 
 static void cleanup() {
-#if ARCADE_ROM_TEXTURES
-    ArcadeTexture_Finish();
-#endif
-
+    Arcade_Finish();
     AFS_Finish();
     Config_Destroy();
     TestRunner_Destroy();

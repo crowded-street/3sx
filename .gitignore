@@ -20,7 +20,7 @@ build
 temp
 third_party
 states
-rom
+/rom
 dump
 *.AFS
 
