@@ -1,6 +1,7 @@
 #ifndef ARCADE_CHAR_DATA_H
 #define ARCADE_CHAR_DATA_H
 
+#include "arcade/rom/rom.h"
 #include "constants.h"
 #include "structs.h"
 
@@ -49,7 +50,7 @@ typedef struct CharDataImage {
     CharDataSpan spans[CHAR_DATA_SECTION_COUNT];
 } CharDataImage;
 
-void ArcadeCharData_Init();
+void ArcadeCharData_Init(const Rom* rom);
 const CharInitData* ArcadeCharData_Get(Character character);
 Uint16 ArcadeCharData_RemapCgNumber(Uint16 number, Character character);
 bool ArcadeCharData_Apply3SXRenderingConventions(Character character, const void* ps2_data, size_t ps2_size);

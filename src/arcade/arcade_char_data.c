@@ -1,13 +1,10 @@
 #include "arcade/arcade_char_data.h"
-#include "arcade/rom_load.h"
+#include "arcade/rom/rom.h"
 #include "constants.h"
-#include "port/resources.h"
 #include "sf33rd/Source/Game/rendering/texgroup_data.h"
 #include "structs.h"
 
 #include <SDL3/SDL.h>
-
-#define BASE_OFFSET 0x6000000
 
 // Uncomment to enable parsed char data dumping to dump folder
 // #define DUMP_CHAR_DATA
@@ -149,7 +146,7 @@ static void* read_char_table(SDL_IOStream* rom, Location location, Character cha
             break;
         }
 
-        offsets[offset_count] = value - BASE_OFFSET - location.offset;
+        offsets[offset_count] = value - ROM_PROGRAM_BASE - location.offset;
     }
 
     // Calculate script sizes
@@ -376,7 +373,7 @@ static void* read_sernd(SDL_IOStream* rom, Location location) {
 
     for (int i = 0; i < offset_count; i++) {
         SDL_ReadU32BE(rom, offsets);
-        *offsets -= (BASE_OFFSET + location.offset);
+        *offsets -= (ROM_PROGRAM_BASE + location.offset);
         offsets++;
     }
 
@@ -475,17 +472,10 @@ static void dump_data(CharInitData* data, Character character) {
 }
 #endif
 
-void ArcadeCharData_Init() {
-    const char* rom_path = Resources_GetPath("sfiii3nr1.zip");
-    size_t rom_size = 0;
-    void* rom = Rom_Load(rom_path, &rom_size);
-    SDL_free((void*)rom_path);
-
-    if (rom == NULL) {
-        return;
-    }
-
-    SDL_IOStream* io = SDL_IOFromConstMem(rom, rom_size);
+void ArcadeCharData_Init(const Rom* rom) {
+    size_t program_size = 0;
+    const Uint8* program = Rom_GetProgram(rom, &program_size);
+    SDL_IOStream* io = SDL_IOFromConstMem(program, program_size);
 
     for (int character = 0; character < NUM_CHARS; character++) {
         const LocationData* locations = &location_data[character];
@@ -545,7 +535,6 @@ void ArcadeCharData_Init() {
 
     initialized = true;
     SDL_CloseIO(io);
-    SDL_free(rom);
 }
 
 const CharInitData* ArcadeCharData_Get(Character character) {
