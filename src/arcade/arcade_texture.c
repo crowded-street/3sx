@@ -3,21 +3,12 @@
 #include "arcade/arcade_texture.h"
 
 #include "arcade/arcade_char_data.h"
-#include "arcade/cps3_decrypt.h"
-#include "port/resources.h"
 #include "sf33rd/Source/Common/PPGFile.h"
 #include "sf33rd/Source/Game/rendering/texgroup_data.h"
 #include "structs.h"
 
 #include <SDL3/SDL.h>
-#include <minizip-ng/mz.h>
-#include <minizip-ng/mz_strm.h>
-#include <minizip-ng/mz_strm_os.h>
-#include <minizip-ng/mz_zip.h>
 
-#define CHIP_BYTES 0x200000
-#define PROGRAM_BYTES 0x800000
-#define GRAPHICS_BYTES 0x4000000
 #define CG_COUNT 0x10000
 #define CG_TABLE_BYTES (CG_COUNT * 8)
 #define SIMM2_BASE 0x06800000
@@ -36,9 +27,11 @@ typedef struct CgDescriptor {
     Uint32 dictionary;
 } CgDescriptor;
 
-static Uint8* program = NULL;
-static Uint8* graphics = NULL;
-static bool load_attempted = false;
+// SIMM2, which starts with the CG table
+static const Uint8* program = NULL;
+static size_t program_size = 0;
+static const Uint8* graphics = NULL;
+static size_t graphics_size = 0;
 
 static Uint16 be16(const Uint8* p) {
     return ((Uint16)p[0] << 8) | p[1];
@@ -91,146 +84,10 @@ static bool append(ByteBuffer* buffer, const void* bytes, size_t size) {
     return true;
 }
 
-static bool read_chip(void* zip, Uint8** destination) {
-    mz_zip_file* info = NULL;
-
-    if (mz_zip_entry_get_info(zip, &info) != MZ_OK || info == NULL || info->uncompressed_size != CHIP_BYTES) {
-        return false;
-    }
-
-    Uint8* chip = SDL_malloc(CHIP_BYTES);
-
-    if (chip == NULL || mz_zip_entry_read_open(zip, false, NULL) != MZ_OK) {
-        SDL_free(chip);
-        return false;
-    }
-
-    size_t read = 0;
-
-    while (read < CHIP_BYTES) {
-        int32_t count = mz_zip_entry_read(zip, chip + read, (int32_t)(CHIP_BYTES - read));
-
-        if (count <= 0) {
-            break;
-        }
-
-        read += (size_t)count;
-    }
-
-    mz_zip_entry_close(zip);
-
-    if (read != CHIP_BYTES) {
-        SDL_free(chip);
-        return false;
-    }
-
-    *destination = chip;
-    return true;
-}
-
-static bool load_rom() {
-    Uint8* chips[7][8] = { 0 };
-    const char* path = Resources_GetPath("sfiii3nr1.zip");
-    void* stream = mz_stream_os_create();
-    void* zip = mz_zip_create();
-    bool success = false;
-
-    if (path != NULL && stream != NULL && zip != NULL && mz_stream_open(stream, path, MZ_OPEN_MODE_READ) == MZ_OK &&
-        mz_zip_open(zip, stream, MZ_OPEN_MODE_READ) == MZ_OK) {
-        for (int32_t status = mz_zip_goto_first_entry(zip); status == MZ_OK; status = mz_zip_goto_next_entry(zip)) {
-            mz_zip_file* info = NULL;
-
-            if (mz_zip_entry_get_info(zip, &info) != MZ_OK || info == NULL) {
-                break;
-            }
-
-            const char* name = SDL_strrchr(info->filename, '/');
-            name = name != NULL ? name + 1 : info->filename;
-            int bank = 0;
-            int chip = 0;
-            int consumed = 0;
-
-            if (SDL_sscanf(name, "sfiii3-simm%d.%d%n", &bank, &chip, &consumed) == 2 && name[consumed] == '\0' &&
-                bank >= 2 && bank <= 6 && chip >= 0 && chip < (bank == 2 ? 4 : 8) && chips[bank][chip] == NULL) {
-                if (!read_chip(zip, &chips[bank][chip])) {
-                    break;
-                }
-            }
-        }
-
-        success = true;
-
-        for (int bank = 2; bank <= 6; bank++) {
-            for (int chip = 0; chip < (bank == 2 ? 4 : 8); chip++) {
-                if (chips[bank][chip] == NULL) {
-                    success = false;
-                }
-            }
-        }
-
-        if (success) {
-            program = SDL_malloc(PROGRAM_BYTES);
-            graphics = SDL_malloc(GRAPHICS_BYTES);
-            success = program != NULL && graphics != NULL;
-        }
-
-        if (success) {
-            for (int i = 0; i < CHIP_BYTES; i++) {
-                Uint32 word =
-                    cps3_decrypt_at(chips[2][0][i], chips[2][1][i], chips[2][2][i], chips[2][3][i], SIMM2_BASE + i * 4);
-                SDL_memcpy(program + i * 4, &word, 4);
-            }
-
-            // Graphics SIMMs use pairs of 16-bit lanes, unlike the four program byte lanes.
-            for (int bank = 3; bank <= 6; bank++) {
-                Uint8* bank_start = graphics + (bank - 3) * 0x1000000;
-
-                for (int pair = 0; pair < 4; pair++) {
-                    Uint8* dst = bank_start + pair * 0x400000;
-                    const Uint8* even = chips[bank][pair * 2];
-                    const Uint8* odd = chips[bank][pair * 2 + 1];
-
-                    for (int i = 0; i < CHIP_BYTES / 2; i++) {
-                        dst[i * 4] = even[i * 2];
-                        dst[i * 4 + 1] = odd[i * 2];
-                        dst[i * 4 + 2] = even[i * 2 + 1];
-                        dst[i * 4 + 3] = odd[i * 2 + 1];
-                    }
-                }
-            }
-        }
-    }
-
-    for (int bank = 2; bank <= 6; bank++) {
-        for (int chip = 0; chip < 8; chip++) {
-            SDL_free(chips[bank][chip]);
-        }
-    }
-
-    if (zip != NULL) {
-        mz_zip_close(zip);
-        mz_zip_delete(&zip);
-    }
-
-    if (stream != NULL) {
-        mz_stream_os_delete(&stream);
-    }
-
-    SDL_free((void*)path);
-
-    if (!success) {
-        SDL_free(program);
-        SDL_free(graphics);
-        program = graphics = NULL;
-    }
-
-    return success;
-}
-
 static bool descriptor_for(Uint16 cg, CgDescriptor* result) {
     const Uint32 address = be32(program + (Uint32)cg * 8 + 4);
 
-    if (address < SIMM2_BASE + CG_TABLE_BYTES || address >= SIMM2_BASE + PROGRAM_BYTES - 12) {
+    if (address < SIMM2_BASE + CG_TABLE_BYTES || address >= SIMM2_BASE + program_size - 12) {
         return false;
     }
 
@@ -240,7 +97,7 @@ static bool descriptor_for(Uint16 cg, CgDescriptor* result) {
     const Uint16 parts = be16(p + 6);
 
     if (!spans || spans > 0x400 || parts > 0x400 ||
-        (Uint64)offset + 12 + (Uint64)spans * 8 + (Uint64)parts * 8 > PROGRAM_BYTES) {
+        (Uint64)offset + 12 + (Uint64)spans * 8 + (Uint64)parts * 8 > program_size) {
         return false;
     }
 
@@ -254,7 +111,7 @@ static bool descriptor_for(Uint16 cg, CgDescriptor* result) {
 static bool graphics_offset(Uint32 dma_word, size_t* offset) {
     const Uint64 byte_address = (Uint64)dma_word * 2;
 
-    if (byte_address < 0x400000 || byte_address - 0x400000 >= GRAPHICS_BYTES) {
+    if (byte_address < 0x400000 || byte_address - 0x400000 >= graphics_size) {
         return false;
     }
 
@@ -283,7 +140,7 @@ static bool decode_dma(size_t source, size_t dictionary, Uint8* dst, size_t leng
     Uint8 previous = 0;
 
     while (written < length) {
-        if (source >= GRAPHICS_BYTES) {
+        if (source >= graphics_size) {
             return false;
         }
 
@@ -293,7 +150,7 @@ static bool decode_dma(size_t source, size_t dictionary, Uint8* dst, size_t leng
         if (control & 0x80) {
             size_t entry = dictionary + (control & 0x7f) * 2;
 
-            if (entry + 1 >= GRAPHICS_BYTES) {
+            if (entry + 1 >= graphics_size) {
                 return false;
             }
 
@@ -457,14 +314,6 @@ bool ArcadeTexture_BuildGroup(int group, Character character, ArcadeTextureGroup
         return false;
     }
 
-    if (!load_attempted) {
-        load_attempted = true;
-
-        if (!load_rom()) {
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not load CPS3 texture SIMMs");
-        }
-    }
-
     if (program == NULL || graphics == NULL) {
         return false;
     }
@@ -555,12 +404,16 @@ void ArcadeTexture_FreeGroup(ArcadeTextureGroup* group) {
     SDL_zero(*group);
 }
 
+void ArcadeTexture_Init(const Rom* rom) {
+    program = Rom_GetSimm(rom, 2, &program_size);
+    graphics = Rom_GetGraphics(rom, &graphics_size);
+}
+
 void ArcadeTexture_Finish() {
-    SDL_free(program);
-    SDL_free(graphics);
     program = NULL;
+    program_size = 0;
     graphics = NULL;
-    load_attempted = false;
+    graphics_size = 0;
 }
 
 #endif

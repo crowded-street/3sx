@@ -32,15 +32,27 @@ void Arcade_Init() {
     bool needed[ROM_GAME_COUNT] = { 0 };
     needed[ROM_GAME_SFIII3] = ArcadeBalance_IsEnabled();
 
+#if ARCADE_ROM_TEXTURES
+    needed[ROM_GAME_SFIII3] = true;
+#endif
+
     for (int game = 0; game < ROM_GAME_COUNT; game++) {
         if (needed[game]) {
             roms[game] = load_rom(game);
         }
     }
 
-    if (roms[ROM_GAME_SFIII3] != NULL) {
-        ArcadeCharData_Init(roms[ROM_GAME_SFIII3]);
+    const Rom* sfiii3 = roms[ROM_GAME_SFIII3];
+
+    if (sfiii3 != NULL && ArcadeBalance_IsEnabled()) {
+        ArcadeCharData_Init(sfiii3);
     }
+
+#if ARCADE_ROM_TEXTURES
+    if (sfiii3 != NULL) {
+        ArcadeTexture_Init(sfiii3);
+    }
+#endif
 }
 
 void Arcade_Finish() {
