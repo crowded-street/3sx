@@ -23,3 +23,7 @@ states
 rom
 dump
 *.AFS
+
+# LLMs
+
+.mcp.json
