@@ -590,12 +590,12 @@ void Game2_2() {
     TATE00();
 
     for (i = 0; i < 3; i++) {
-        if (stage_bgw_number[bg_w.stage][i] > 0) {
+        if (stage_bgw_number[bg_w.bg_index][i] > 0) {
             Bg_On_R(1 << i);
         }
     }
 
-    if (bg_w.stage == 7) {
+    if (bg_w.bg_index == AREA_3S_IBUKI) {
         Bg_On_R(4);
     }
 
@@ -1318,7 +1318,7 @@ void Game09() {
                 G_No[2] += 1;
                 Clear_Flash_No();
 
-                if (Bonus_Type == 0x15) {
+                if (Bonus_Type == STAGE_3S_BONUS_BALLS) {
                     makeup_bonus_game_level(COM_id);
                     effect_35_init(0x3C, 5);
                     effect_J2_init(0x78);
@@ -1408,7 +1408,7 @@ s16 Bonus_Sub() {
     set_EXE_flag();
     Time_Control();
 
-    if (Bonus_Type == 0x15) {
+    if (Bonus_Type == STAGE_3S_BONUS_BALLS) {
         Bonus_Game_Complete = Player_control_bonus();
     } else {
         Bonus_Game_Complete = Player_control_bonus2();

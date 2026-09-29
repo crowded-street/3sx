@@ -1029,7 +1029,7 @@ void kotp_07000(WORK_Other* ewk, TAMA* twk) {
         cal_mvxy_speed(&ewk->wu);
         char_move(&ewk->wu);
 
-        if (bg_w.stage == 20) {
+        if (bg_w.stage == STAGE_3S_BONUS_CAR) {
             ewk->wu.vs_id = 7;
         }
 

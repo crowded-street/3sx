@@ -63,7 +63,7 @@ void effect_77_move(WORK_Other* ewk) {
 
         ewk->wu.routine_no[0]++;
         sa_pa_flag = 1;
-        bg = ake_bg_off[bg_w.stage];
+        bg = ake_bg_off[bg_w.bg_index];
         mask = 1;
 
         for (i = 0; i < 4; i++, assign1 = mask *= 2) {
@@ -84,7 +84,7 @@ void effect_77_move(WORK_Other* ewk) {
         }
 
         ewk->wu.routine_no[0]++;
-        bg = ake_bg_off[bg_w.stage];
+        bg = ake_bg_off[bg_w.bg_index];
         mask = 1;
 
         for (i = 0; i < 4; i++, assign2 = mask *= 2) {
@@ -110,7 +110,7 @@ void effect_77_move(WORK_Other* ewk) {
                 plw[0].wu.disp_flag = 1;
                 plw[1].wu.disp_flag = 1;
                 overwrite_panel(eff77_col_tbl[ewk->wu.old_rno[1]], 0x46);
-                bg = ake_bg_off[bg_w.stage];
+                bg = ake_bg_off[bg_w.bg_index];
                 mask = 1;
 
                 for (i = 0; i < 4; i++, assign3 = mask *= 2) {

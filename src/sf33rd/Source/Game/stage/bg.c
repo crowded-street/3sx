@@ -74,8 +74,8 @@ void Bg_Kakikae_Set() {
     const bgrw_data_tbl_elem* rwtbl_ptr;
     s8 rw;
 
-    switch (bg_w.stage) {
-    case 3:
+    switch (bg_w.bg_index) {
+    case AREA_3S_YUN:
         tokusyu_stage = 1;
         stage_flash = 0;
         stage_ftimer = 0;
@@ -89,7 +89,7 @@ void Bg_Kakikae_Set() {
         rw3col_ptr = (u32*)rw30col;
 
         for (i = 0; i < 4; i++) {
-            rw = bgrw_on[bg_w.stage][i];
+            rw = bgrw_on[bg_w.bg_index][i];
 
             rwtbl_ptr = &bgrw_data_tbl[rw];
             rw_dat[i + 1].bg_num = rwtbl_ptr->bg_num;
@@ -100,14 +100,14 @@ void Bg_Kakikae_Set() {
         }
         break;
 
-    case 10:
+    case AREA_3S_YANG:
         tokusyu_stage = 2;
         yang_ix = 0;
         yang_ix_plus = 0;
         yang_timer = 4;
         break;
 
-    case 19:
+    case AREA_3S_REMY:
         tokusyu_stage = 3;
         stage_flash = 0;
         stage_ftimer = 2;
@@ -118,7 +118,7 @@ void Bg_Kakikae_Set() {
             rw_gbix[i] = stage19rw_data_tbl[i];
         }
 
-        rw = bgrw_on[bg_w.stage][0];
+        rw = bgrw_on[bg_w.bg_index][0];
 
         rwtbl_ptr = &bgrw_data_tbl[rw];
         rw_dat[1].bg_num = rwtbl_ptr->bg_num;
@@ -129,7 +129,7 @@ void Bg_Kakikae_Set() {
         break;
 
     default:
-        if (bg_w.stage == 7) {
+        if (bg_w.bg_index == AREA_3S_IBUKI) {
             tokusyu_stage = 4;
         } else {
             tokusyu_stage = 0;
@@ -142,7 +142,7 @@ void Bg_Kakikae_Set() {
         }
 
         for (i = 0; i < 8; i++) {
-            rw = bgrw_on[bg_w.stage][i];
+            rw = bgrw_on[bg_w.bg_index][i];
 
             if (rw == -1) {
                 break;
@@ -263,22 +263,22 @@ void Bg_Texture_Load_EX() {
     ending_flag = 0;
 
     for (stg = 0; stg < 3; stg++) {
-        if (stage_bgw_number[bg_w.stage][stg] != 0) {
+        if (stage_bgw_number[bg_w.bg_index][stg] != 0) {
             break;
         }
     }
 
-    for (i = 0; i < use_real_scr[bg_w.stage]; i++) {
-        scr_bcm[stg + i] = bg_map_tbl[bg_w.stage][i];
+    for (i = 0; i < use_real_scr[bg_w.bg_index]; i++) {
+        scr_bcm[stg + i] = bg_map_tbl[bg_w.bg_index][i];
     }
 
     for (i = 0; i < 3; i++) {
-        if (stage_bgw_number[bg_w.stage][i] > 0) {
+        if (stage_bgw_number[bg_w.bg_index][i] > 0) {
             Bg_On_R(1 << i);
         }
     }
 
-    if (bg_w.stage == 7) {
+    if (bg_w.bg_index == AREA_3S_IBUKI) {
         Bg_On_R(4);
     }
 
@@ -289,7 +289,7 @@ void Bg_Texture_Load_EX() {
     shift = 0x18;
 
     for (j = 0; j < 3; j++, shift -= 8, assign1 = pmask >>= 8) {
-        prio = stage_priority[bg_w.stage];
+        prio = stage_priority[bg_w.bg_index];
         prio &= pmask;
         prio >>= shift;
         bg_priority[j] = prio;
@@ -299,7 +299,7 @@ void Bg_Texture_Load_EX() {
     accnum = 0;
 
     for (j = 0; j < bg_w.scrno; j++, assign3 = stg++) {
-        tgbix = bgtex_stage_gbix[bg_w.stage][j];
+        tgbix = bgtex_stage_gbix[bg_w.bg_index][j];
         mask = 0x80000000;
         ppgSetupCurrentDataList(&ppgBgList[stg]);
         ppgSetupTexChunk_1st(NULL, loadAdrs, loadSize, (stg * 64) + 0x84, 32, 0, 0);
@@ -313,7 +313,7 @@ void Bg_Texture_Load_EX() {
         }
     }
 
-    x = rewrite_scr[bg_w.stage];
+    x = rewrite_scr[bg_w.bg_index];
 
     if (x) {
         ppgSetupCurrentDataList(&ppgRwBgList);
@@ -326,7 +326,7 @@ void Bg_Texture_Load_EX() {
         }
     }
 
-    if (bg_w.stage == 7) {
+    if (bg_w.bg_index == AREA_3S_IBUKI) {
         ppgSetupCurrentDataList(&ppgAkaneList);
         ppgSetupPalChunk(NULL, loadAdrs, loadSize, 0, 0, 1);
         ppgSetupTexChunk_1st(NULL, loadAdrs, loadSize, 0, 3, 0, 0);
@@ -340,7 +340,7 @@ void Bg_Texture_Load_EX() {
         ppgSourceDataReleased(&ppgAkaneList);
     }
 
-    if (bg_w.stage != 20 && bg_w.stage != 21) {
+    if (bg_w.stage != STAGE_3S_BONUS_CAR && bg_w.stage != STAGE_3S_BONUS_BALLS) {
         akeKey = Search_ramcnt_type(0x1F);
         akeSize = Get_size_data_ramcnt_key(akeKey);
         akeAdrs = Get_ramcnt_pointer(akeKey);
@@ -1387,7 +1387,7 @@ void Family_Move() {
     u8 i;
     u8 mask;
 
-    fam_ix = use_family[bg_w.stage];
+    fam_ix = use_family[bg_w.bg_index];
     mask = 0x80;
 
     for (i = 0; i < 8; i++, assign = mask >>= 1) {

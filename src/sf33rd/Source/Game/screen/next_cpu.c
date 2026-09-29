@@ -1481,8 +1481,8 @@ s8 Check_Bonus_Stage() {
     bg_w.stage = Bonus_Type;
     bg_w.area = 0;
 
-    if (Bonus_Type == 21) {
-        My_char[COM_id] = 0xC;
+    if (Bonus_Type == STAGE_3S_BONUS_BALLS) {
+        My_char[COM_id] = CHAR_SEAN;
     } else {
         My_char[COM_id] = My_char[Player_id];
     }
@@ -1499,12 +1499,12 @@ s8 Check_Bonus_Type() {
     if (debug_config.bonus_stage_override != 0) {
         if (debug_config.bonus_stage_override == 1) {
             Completion_Bonus[Player_id][0] = 0;
-            return 20;
+            return STAGE_3S_BONUS_CAR;
         }
 
         if (debug_config.bonus_stage_override == 2) {
             Completion_Bonus[Player_id][1] = 0;
-            return 21;
+            return STAGE_3S_BONUS_BALLS;
         }
 
         return 0;
@@ -1520,7 +1520,7 @@ s8 Check_Bonus_Type() {
             return 0;
         }
 
-        return 21;
+        return STAGE_3S_BONUS_BALLS;
     }
 
     if (VS_Index[Player_id] >= 3) {
@@ -1528,7 +1528,7 @@ s8 Check_Bonus_Type() {
             return 0;
         }
 
-        return 20;
+        return STAGE_3S_BONUS_CAR;
     }
 
     return 0;

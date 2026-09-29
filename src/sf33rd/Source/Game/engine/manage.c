@@ -169,7 +169,7 @@ void Game_Manage_1st() {
     Switch_Screen(0);
     EXE_obroll = 0;
 
-    if (bg_w.stage == 21 || bg_w.stage == 20) {
+    if (bg_w.stage == STAGE_3S_BONUS_BALLS || bg_w.stage == STAGE_3S_BONUS_CAR) {
         C_No[0] = 11;
     } else {
         C_No[0] = 1;
@@ -1914,7 +1914,7 @@ void Game_Manage_12th() {
 
     SC12_Jmp_Tbl[C_No[1]]();
 
-    if (Bonus_Type == 20) {
+    if (Bonus_Type == STAGE_3S_BONUS_CAR) {
         bcounter_write();
     }
 }
@@ -1959,7 +1959,7 @@ void Game_Manage_12_0() {
 
     Stock_Score[Player_id] = Score[Player_id][0];
 
-    if (Bonus_Type == 20) {
+    if (Bonus_Type == STAGE_3S_BONUS_CAR) {
         C_No[1] = 6;
         Time_Stop = 1;
         Time_Over = false;
@@ -2455,7 +2455,7 @@ s32 Bonus_Cut_Sub() {
             effect_08_init(7, 0, 1, 15, 0);
         }
 
-        if (Bonus_Type == 21) {
+        if (Bonus_Type == STAGE_3S_BONUS_BALLS) {
             if (Disp_Bonus_Contents == 0) {
                 Disp_Score_Buff[0] = Stock_Bonus_Game_Result * 1000;
                 effect_14_init(0, 35, 11, 15);

@@ -112,7 +112,7 @@ void Win_01000(PLW* wk) {
                 break;
             }
 
-            if (bg_w.stage == 9) {
+            if (bg_w.stage == STAGE_3S_ORO) {
                 set_char_move_init(&wk->wu, 9, 41);
                 win_rno[0] = 1;
                 break;
@@ -316,7 +316,12 @@ void jijii_full(PLW* wk) {
     }
 }
 
-const s16 win_2000_tbl[18] = { 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1 };
+const s16 win_2000_tbl[18] = {
+    [AREA_3S_GILL] = 0,   [AREA_3S_ALEX] = 0,   [AREA_3S_RYU] = 1,   [AREA_3S_YUN] = 1,   [AREA_3S_DUDLEY] = 1,
+    [AREA_3S_NECRO] = 1,  [AREA_3S_HUGO] = 0,   [AREA_3S_IBUKI] = 1, [AREA_3S_ELENA] = 1, [AREA_3S_ORO] = 1,
+    [AREA_3S_YANG] = 1,   [AREA_3S_KEN] = 0,    [AREA_3S_SEAN] = 1,  [AREA_3S_URIEN] = 1, [AREA_3S_AKUMA] = 1,
+    [AREA_3S_CHUNLI] = 1, [AREA_3S_MAKOTO] = 1, [AREA_3S_Q] = 1,
+};
 
 void Win_02000(PLW* wk) {
     s16 work;
@@ -376,7 +381,7 @@ void Win_03000(PLW* wk) {
 
         if (Round_num >= (save_w[Present_Mode].Battle_Number[Play_Type] * 2) ||
             PL_Wins[wk->wu.id] >= save_w[Present_Mode].Battle_Number[Play_Type] + 1) {
-            if (bg_w.stage == 7) {
+            if (bg_w.stage == STAGE_3S_IBUKI) {
                 set_char_move_init(&wk->wu, 9, 43);
                 break;
             }

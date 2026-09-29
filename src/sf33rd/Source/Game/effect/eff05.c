@@ -14,7 +14,13 @@
 #include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
 
-const s16 scr_obj_num[22] = { 0, 2, 0, 0, 0, 2, 1, 0, 3, 1, 0, 1, 1, 1, 1, 2, 2, 0, 2, 4, 1, 4 };
+const s16 scr_obj_num[AREA_COUNT] = {
+    [AREA_3S_GILL] = 0,      [AREA_3S_ALEX] = 2,        [AREA_3S_RYU] = 0,   [AREA_3S_YUN] = 0,    [AREA_3S_DUDLEY] = 0,
+    [AREA_3S_NECRO] = 2,     [AREA_3S_HUGO] = 1,        [AREA_3S_IBUKI] = 0, [AREA_3S_ELENA] = 3,  [AREA_3S_ORO] = 1,
+    [AREA_3S_YANG] = 0,      [AREA_3S_KEN] = 1,         [AREA_3S_SEAN] = 1,  [AREA_3S_URIEN] = 1,  [AREA_3S_AKUMA] = 1,
+    [AREA_3S_CHUNLI] = 2,    [AREA_3S_MAKOTO] = 2,      [AREA_3S_Q] = 0,     [AREA_3S_TWELVE] = 2, [AREA_3S_REMY] = 4,
+    [AREA_3S_BONUS_CAR] = 1, [AREA_3S_BONUS_BALLS] = 4,
+};
 
 const s16 stg_dum_data_tbl[1] = { 0 };
 
@@ -58,18 +64,30 @@ const s16 stg1500_data_tbl[8] = { 0, 2, 300, 445, 48, 10, 0, 0 };
 const s16 stg1600_data_tbl[32] = { 0, 2, 300, 624, 0, 10, 2, 0, 0, 2, 8492, 511, 0,  12, 3,  0,
                                    0, 2, 300, 511, 0, 80, 4, 0, 0, 2, 300,  608, 48, 77, 11, 0 };
 
-u32* char_add[22] = { _fnl_char_table, _usa_char_table, _j10_char_table, _hkg_char_table, _eng_char_table,
-                      _rca_char_table, _grm_char_table, _j11_char_table, _afc_char_table, _brz_char_table,
-                      _hkg_char_table, _usa_char_table, _brz_char_table, _orm_char_table, _jp2_char_table,
-                      _chn_char_table, _jp3_char_table, _usa_char_table, _rca_char_table, _frc_char_table,
-                      _bns_char_table, _bns_char_table };
+u32* char_add[AREA_COUNT] = {
+    [AREA_3S_GILL] = _fnl_char_table,        [AREA_3S_ALEX] = _usa_char_table,   [AREA_3S_RYU] = _j10_char_table,
+    [AREA_3S_YUN] = _hkg_char_table,         [AREA_3S_DUDLEY] = _eng_char_table, [AREA_3S_NECRO] = _rca_char_table,
+    [AREA_3S_HUGO] = _grm_char_table,        [AREA_3S_IBUKI] = _j11_char_table,  [AREA_3S_ELENA] = _afc_char_table,
+    [AREA_3S_ORO] = _brz_char_table,         [AREA_3S_YANG] = _hkg_char_table,   [AREA_3S_KEN] = _usa_char_table,
+    [AREA_3S_SEAN] = _brz_char_table,        [AREA_3S_URIEN] = _orm_char_table,  [AREA_3S_AKUMA] = _jp2_char_table,
+    [AREA_3S_CHUNLI] = _chn_char_table,      [AREA_3S_MAKOTO] = _jp3_char_table, [AREA_3S_Q] = _usa_char_table,
+    [AREA_3S_TWELVE] = _rca_char_table,      [AREA_3S_REMY] = _frc_char_table,   [AREA_3S_BONUS_CAR] = _bns_char_table,
+    [AREA_3S_BONUS_BALLS] = _bns_char_table,
+};
 
-const s16* scr_obj_data[22] = { stg_dum_data_tbl, stg0100_data_tbl, stg_dum_data_tbl, stg_dum_data_tbl,
-                                stg_dum_data_tbl, stg0500_data_tbl, stg0600_data_tbl, stg0700_data_tbl,
-                                stg0800_data_tbl, stg0900_data_tbl, stg0A00_data_tbl, stg0100_data_tbl,
-                                stg0c00_data_tbl, stg0d00_data_tbl, stg0e00_data_tbl, stg1000_data_tbl,
-                                stg1100_data_tbl, stg_dum_data_tbl, stg1300_data_tbl, stg1400_data_tbl,
-                                stg1500_data_tbl, stg1600_data_tbl };
+const s16* scr_obj_data[AREA_COUNT] = {
+    [AREA_3S_GILL] = stg_dum_data_tbl,      [AREA_3S_ALEX] = stg0100_data_tbl,
+    [AREA_3S_RYU] = stg_dum_data_tbl,       [AREA_3S_YUN] = stg_dum_data_tbl,
+    [AREA_3S_DUDLEY] = stg_dum_data_tbl,    [AREA_3S_NECRO] = stg0500_data_tbl,
+    [AREA_3S_HUGO] = stg0600_data_tbl,      [AREA_3S_IBUKI] = stg0700_data_tbl,
+    [AREA_3S_ELENA] = stg0800_data_tbl,     [AREA_3S_ORO] = stg0900_data_tbl,
+    [AREA_3S_YANG] = stg0A00_data_tbl,      [AREA_3S_KEN] = stg0100_data_tbl,
+    [AREA_3S_SEAN] = stg0c00_data_tbl,      [AREA_3S_URIEN] = stg0d00_data_tbl,
+    [AREA_3S_AKUMA] = stg0e00_data_tbl,     [AREA_3S_CHUNLI] = stg1000_data_tbl,
+    [AREA_3S_MAKOTO] = stg1100_data_tbl,    [AREA_3S_Q] = stg_dum_data_tbl,
+    [AREA_3S_TWELVE] = stg1300_data_tbl,    [AREA_3S_REMY] = stg1400_data_tbl,
+    [AREA_3S_BONUS_CAR] = stg1500_data_tbl, [AREA_3S_BONUS_BALLS] = stg1600_data_tbl,
+};
 
 void effect_05_move(WORK_Other* ewk) {
     if (obr_no_disp_check() == 0) {

@@ -62,6 +62,61 @@ typedef enum Character : uint16_t {
 #define CHAR_3SX_TO_ARCADE(c) ((c) > CHAR_AKUMA ? (c) + 1 : (c))
 #define CHAR_ARCADE_TO_3SX(c) ((c) > CHAR_AKUMA ? (c) - 1 : (c))
 
+/// Overarching stage
+typedef enum Stage {
+    STAGE_3S_GILL = 0,
+    STAGE_3S_ALEX = 1,
+    STAGE_3S_RYU = 2,
+    STAGE_3S_YUN = 3,
+    STAGE_3S_DUDLEY = 4,
+    STAGE_3S_NECRO = 5,
+    STAGE_3S_HUGO = 6,
+    STAGE_3S_IBUKI = 7,
+    STAGE_3S_ELENA = 8,
+    STAGE_3S_ORO = 9,
+    STAGE_3S_YANG = 10,
+    STAGE_3S_KEN = 11,
+    STAGE_3S_SEAN = 12,
+    STAGE_3S_URIEN = 13,
+    STAGE_3S_AKUMA = 14,
+    STAGE_3S_CHUNLI = 15,
+    STAGE_3S_MAKOTO = 16,
+    STAGE_3S_Q = 17,
+    STAGE_3S_TWELVE = 18,
+    STAGE_3S_REMY = 19,
+    STAGE_3S_BONUS_CAR = 20,
+    STAGE_3S_BONUS_BALLS = 21,
+    STAGE_COUNT,
+} Stage;
+
+/// Concrete background. A stage is made up of one or more areas (e.g. one per round).
+/// 3S uses the same area for all rounds; Q's stage reuses Dudley's area.
+typedef enum Area {
+    AREA_3S_GILL = 0,
+    AREA_3S_ALEX = 1,
+    AREA_3S_RYU = 2,
+    AREA_3S_YUN = 3,
+    AREA_3S_DUDLEY = 4,
+    AREA_3S_NECRO = 5,
+    AREA_3S_HUGO = 6,
+    AREA_3S_IBUKI = 7,
+    AREA_3S_ELENA = 8,
+    AREA_3S_ORO = 9,
+    AREA_3S_YANG = 10,
+    AREA_3S_KEN = 11,
+    AREA_3S_SEAN = 12,
+    AREA_3S_URIEN = 13,
+    AREA_3S_AKUMA = 14,
+    AREA_3S_CHUNLI = 15,
+    AREA_3S_MAKOTO = 16,
+    AREA_3S_Q = 17,
+    AREA_3S_TWELVE = 18,
+    AREA_3S_REMY = 19,
+    AREA_3S_BONUS_CAR = 20,
+    AREA_3S_BONUS_BALLS = 21,
+    AREA_COUNT,
+} Area;
+
 typedef enum JumpDir : uint8_t {
     JUMP_DIR_NEUTRAL = 0,
     JUMP_DIR_FORWARD = 1,
