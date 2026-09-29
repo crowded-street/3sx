@@ -1,7 +1,6 @@
 #if CRS_APP_DRIVER_SDL
 
 #include "platform/app/sdl/sdl_app.h"
-#include "arcade/arcade.h"
 #include "args.h"
 #include "common.h"
 #include "main.h"
@@ -179,7 +178,6 @@ static bool full_init() {
     init_windows_console();
 #endif
 
-    Arcade_Init();
     AFS_Init(Resources_GetAFSPath(), 256 * 1024);
 
 #if STATCHECK
@@ -194,7 +192,7 @@ static bool full_init() {
 }
 
 static void cleanup() {
-    Arcade_Finish();
+    Main_Finish();
     AFS_Finish();
     Config_Destroy();
     SDLGenericRenderer_Quit();

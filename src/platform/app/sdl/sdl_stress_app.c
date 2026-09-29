@@ -1,7 +1,6 @@
 #if CRS_APP_DRIVER_SDL && NETPLAY_ENABLED
 
 #include "platform/app/sdl/sdl_stress_app.h"
-#include "arcade/arcade.h"
 #include "args.h"
 #include "main.h"
 #include "platform/netplay/netplay_stress.h"
@@ -21,8 +20,6 @@ static bool init() {
         return false;
     }
 
-    Arcade_Init();
-
     if (!AFS_Init(Resources_GetAFSPath(), 256 * 1024)) {
         SDL_Log("Couldn't initialize AFS: %s", Resources_GetAFSPath());
         return false;
@@ -33,7 +30,7 @@ static bool init() {
 }
 
 static void cleanup() {
-    Arcade_Finish();
+    Main_Finish();
     AFS_Finish();
     Config_Destroy();
 }

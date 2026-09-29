@@ -85,6 +85,7 @@ int main() {
         Main_FinishFrame();
     }
 
+    Main_Finish();
     return 0;
 }
 

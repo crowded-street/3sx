@@ -1,4 +1,5 @@
 #include "main.h"
+#include "arcade/arcade.h"
 #include "common.h"
 #if NETPLAY_ENABLED
 #include "platform/netplay/netplay.h"
@@ -116,6 +117,7 @@ static void distributeScratchPadAddress() {
 }
 
 void Main_Init() {
+    Arcade_Init();
     flInitialize();
     flSetRenderState(FLRENDER_BACKCOLOR, 0);
     system_init_level = 0;
@@ -126,6 +128,10 @@ void Main_Init() {
     palCreateGhost();
     ppgMakeConvTableTexDC();
     appSetupBasePriority();
+}
+
+void Main_Finish() {
+    Arcade_Finish();
 }
 
 // Iteration
