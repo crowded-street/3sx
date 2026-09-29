@@ -24,7 +24,7 @@ void effect_56_move(WORK_Other* ewk) {
     case 0:
         ewk->wu.routine_no[0]++;
 
-        if (Bonus_Game_Flag && bg_w.stage == 20) {
+        if (Bonus_Game_Flag && bg_w.stage == STAGE_3S_BONUS_CAR) {
             ci_pointer = bonus_ci_color_tbl;
             ci_col = *ci_pointer++;
             ci_timer = *ci_pointer++;

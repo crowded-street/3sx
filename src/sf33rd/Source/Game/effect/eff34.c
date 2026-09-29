@@ -127,7 +127,7 @@ s32 effect_34_init(WORK* wk, s32 /* unused */) {
     ewk->wu.position_z = ewk->wu.my_priority - 12;
     ewk->wu.char_table[0] = _etc3_char_table;
     ewk->wu.sync_suzi = 0;
-    ewk->wu.char_index = bg_w.stage == 6 ? 4 : 8;
+    ewk->wu.char_index = bg_w.stage == STAGE_3S_HUGO ? 4 : 8;
 
     if (wk->rl_flag) {
         ewk->wu.old_rno[1] = bg_w.bgw[1].wxy[0].disp.pos - (bg_w.pos_offset + 32);

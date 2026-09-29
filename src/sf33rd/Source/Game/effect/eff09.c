@@ -1780,7 +1780,7 @@ s32 effect_09_init2(WORK* wk, u8 data) {
     s16 ix;
     const s16* data_ptr;
 
-    if (data == 0x1F && bg_w.stage == 0xA) {
+    if (data == 0x1F && bg_w.stage == STAGE_3S_YANG) {
         return 0;
     }
 

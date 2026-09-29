@@ -1,6 +1,7 @@
 #ifndef BG_H
 #define BG_H
 
+#include "constants.h"
 #include "structs.h"
 #include "types.h"
 

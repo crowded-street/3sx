@@ -900,7 +900,7 @@ static bool bg_layer_disabled(int i) {
     }
 
     // Rain on Yang's stage
-    if ((bg_w.bg_index == 10) && (i == 1)) {
+    if ((bg_w.bg_index == AREA_3S_YANG) && (i == 1)) {
         return true;
     }
 

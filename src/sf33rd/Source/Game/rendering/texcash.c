@@ -33,7 +33,7 @@ TexturePoolUsed* tpu_free;
 s16 mts_ob_curr_stage;
 
 // forward decls
-extern const s16 mts_OB_page[22][2];
+extern const s16 mts_OB_page[STAGE_COUNT][2];
 extern const MTSBase mts_base[24];
 void clear_texcash_work(s16 ix);
 
@@ -363,6 +363,13 @@ const MTSBase mts_base[24] = {
     { .p16 = 1, .p32 = 1, .gix = 1100, .life16 = 0, .life32 = 0, .type = 8, .mode = 4116, .attribute = 1 }
 };
 
-const s16 mts_OB_page[22][2] = { { 1, 1 }, { 1, 3 }, { 1, 2 }, { 1, 1 }, { 1, 2 }, { 1, 1 }, { 1, 2 }, { 1, 2 },
-                                 { 1, 2 }, { 1, 1 }, { 1, 1 }, { 1, 2 }, { 1, 1 }, { 1, 1 }, { 1, 1 }, { 1, 2 },
-                                 { 1, 2 }, { 1, 4 }, { 1, 2 }, { 1, 4 }, { 1, 1 }, { 1, 2 } };
+const s16 mts_OB_page[STAGE_COUNT][2] = {
+    [STAGE_3S_GILL] = { 1, 1 },        [STAGE_3S_ALEX] = { 1, 3 },   [STAGE_3S_RYU] = { 1, 2 },
+    [STAGE_3S_YUN] = { 1, 1 },         [STAGE_3S_DUDLEY] = { 1, 2 }, [STAGE_3S_NECRO] = { 1, 1 },
+    [STAGE_3S_HUGO] = { 1, 2 },        [STAGE_3S_IBUKI] = { 1, 2 },  [STAGE_3S_ELENA] = { 1, 2 },
+    [STAGE_3S_ORO] = { 1, 1 },         [STAGE_3S_YANG] = { 1, 1 },   [STAGE_3S_KEN] = { 1, 2 },
+    [STAGE_3S_SEAN] = { 1, 1 },        [STAGE_3S_URIEN] = { 1, 1 },  [STAGE_3S_AKUMA] = { 1, 1 },
+    [STAGE_3S_CHUNLI] = { 1, 2 },      [STAGE_3S_MAKOTO] = { 1, 2 }, [STAGE_3S_Q] = { 1, 4 },
+    [STAGE_3S_TWELVE] = { 1, 2 },      [STAGE_3S_REMY] = { 1, 4 },   [STAGE_3S_BONUS_CAR] = { 1, 1 },
+    [STAGE_3S_BONUS_BALLS] = { 1, 2 },
+};

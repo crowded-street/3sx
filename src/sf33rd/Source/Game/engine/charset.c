@@ -789,7 +789,7 @@ s32 comm_ps_y(WORK* wk, UNK11* ctc) {
         switch (ctc->koc) {
         case 0:
             // CPS3 compares to 21 here
-            if (bg_w.stage == 20 && ((PLW*)wk)->bs2_on_car && ctc->pat < bs2_floor[2]) {
+            if (bg_w.stage == STAGE_3S_BONUS_CAR && ((PLW*)wk)->bs2_on_car && ctc->pat < bs2_floor[2]) {
                 wk->xyz[1].disp.pos = bs2_floor[2];
             } else {
                 wk->xyz[1].disp.pos = ctc->pat;

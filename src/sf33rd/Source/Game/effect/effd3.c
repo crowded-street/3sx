@@ -48,7 +48,7 @@ void akebono_finish(WORK_Other* ewk) {
         ewk->wu.old_rno[1] = 0;
         ewk->wu.dir_timer = ake_timer_tbl[0];
         ewk->wu.disp_flag = 0;
-        bg = ake_bg_off[bg_w.stage];
+        bg = ake_bg_off[bg_w.bg_index];
         mask = 1 & 0xFFFF;
 
         for (i = 0; i < 4; i++, assign1 = mask *= 2) {
@@ -106,7 +106,7 @@ void akebono_finish(WORK_Other* ewk) {
         ewk->wu.dir_timer -= 1;
 
         if (ewk->wu.dir_timer == 0) {
-            bg = ake_bg_off[bg_w.stage];
+            bg = ake_bg_off[bg_w.bg_index];
             mask = 1;
 
             for (i = 0; i < 4; i++, assign2 = mask *= 2) {
@@ -148,7 +148,7 @@ void syungoku_finish(WORK_Other* ewk) {
         plw[0].wu.disp_flag = 0;
         plw[1].wu.disp_flag = 0;
         Pause_Hit_Marks = 1;
-        bg = ake_bg_off[bg_w.stage];
+        bg = ake_bg_off[bg_w.bg_index];
         mask = 1 & 0xFFFF;
 
         for (i = 0; i < 4; i++, assign1 = mask *= 2) {
@@ -188,7 +188,7 @@ void syungoku_finish(WORK_Other* ewk) {
             plw[0].wu.disp_flag = 1;
             plw[1].wu.disp_flag = 1;
             Pause_Hit_Marks = 0;
-            bg = ake_bg_off[bg_w.stage];
+            bg = ake_bg_off[bg_w.bg_index];
             mask = 1 & 0xFFFF;
 
             for (i = 0; i < 4; i++, assign2 = mask *= 2) {

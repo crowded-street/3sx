@@ -1105,11 +1105,11 @@ void bg_initialize() {
     Family_Init();
     Scrn_Pos_Init();
     Zoomf_Init();
-    bg_w.bg_opaque = stage_opaque[bg_w.stage];
     Screen_Switch = 0;
     Screen_Switch_Buffer = 0;
     bg_disp_off = 0;
     bg_w.bg_index = bg_index_tbl[bg_w.stage][bg_w.area];
+    bg_w.bg_opaque = stage_opaque[bg_w.bg_index];
     bg_w.scno = use_scr[bg_w.bg_index];
     bg_w.scrno = use_real_scr[bg_w.bg_index];
     y_sitei_flag = 0;
@@ -1164,13 +1164,13 @@ void bg_initialize() {
         bg_w.bgw[i].max_x_limit = bg_w.bgw[i].speed_x * bg_w.max_x;
     }
 
-    if (bg_w.stage != 4) {
+    if (bg_w.stage != STAGE_3S_DUDLEY) {
         base_y_pos = 0x28;
     } else {
         base_y_pos = 0x30;
     }
 
-    if (bg_w.stage > 19) {
+    if (bg_w.stage == STAGE_3S_BONUS_CAR || bg_w.stage == STAGE_3S_BONUS_BALLS) {
         bg_pos_hosei_sub3(2);
         Bg_Family_Set_appoint(2);
     }
