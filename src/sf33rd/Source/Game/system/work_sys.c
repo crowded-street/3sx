@@ -4,6 +4,7 @@
  */
 
 #include "common.h"
+#include "sf33rd/Source/Game/stage/bg.h"
 #include "structs.h"
 
 struct _SYSTEM_W sys_w;
@@ -34,12 +35,12 @@ u16 p4sw_buff;
 u32 Interrupt_Timer;
 s8 Gill_Appear_Flag;
 u16 PLsw[2][2];
-BG_POS bg_pos[8];
-FM_POS fm_pos[8];
-BackgroundParameters bg_prm[8];
+BG_POS bg_pos[BG_SCROLL_SPACE_COUNT];
+FM_POS fm_pos[BG_SCROLL_SPACE_COUNT];
+BackgroundParameters bg_prm[BG_SCROLL_SPACE_COUNT];
 f32 scr_sc;
 
-MTX BgMATRIX[9];
+MTX BgMATRIX[BG_SCROLL_SPACE_COUNT + 1];
 struct _TASK task[11];
 struct _REP_GAME_INFOR Rep_Game_Infor[11];
 _REPLAY_W Replay_w;

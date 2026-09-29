@@ -4,6 +4,8 @@
 #include "structs.h"
 #include "types.h"
 
+#define BG_SCROLL_SPACE_COUNT 8
+
 typedef struct {
     s8 be_flag;
     s8 disp_flag;
@@ -61,8 +63,8 @@ typedef struct {
     s8 compel_flag;
     s32 scroll_cg_adr;
     s32 ake_cg_adr;
-    u8 scno;
-    u8 scrno;
+    u8 scno;  /// How many layers the background scrolls
+    u8 scrno; /// How many layers have graphics to load and draw
     s16 bg2_sp_x;
     s16 bg2_sp_y;
     s16 scr_stop;

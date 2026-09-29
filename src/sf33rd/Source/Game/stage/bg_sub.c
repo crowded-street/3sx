@@ -1101,7 +1101,7 @@ void bg_initialize() {
     const s16* ptr;
     u8 i;
 
-    Bg_Off_R(7);
+    Bg_Off_R(0b111);
     Family_Init();
     Scrn_Pos_Init();
     Zoomf_Init();
