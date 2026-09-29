@@ -79,7 +79,7 @@ void GlyphRenderer_DrawDigit(Uint8 digit) {
 }
 
 void GlyphRenderer_DrawChar(char c) {
-    char* punc_ptr = NULL;
+    const char* punc_ptr = NULL;
 
     if (SDL_isalpha(c)) {
         GlyphRenderer_DrawGlyph(alpha_to_position(c));
