@@ -338,7 +338,10 @@ typedef struct {
     s16 my_col_mode;
     s16 my_col_code;
     s16 my_priority;
+
+    /// Scroll space that this object is attached to. Object's own position is added to the base offset of its "family"
     s16 my_family;
+
     s16 my_ext_pri;
     s16 my_bright_type;
     s16 my_bright_level;

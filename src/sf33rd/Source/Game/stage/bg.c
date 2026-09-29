@@ -1297,9 +1297,7 @@ void Frame_Adgjust(u16 pos_x, u16 pos_y) {
 }
 
 void Scrn_Pos_Init() {
-    u8 i;
-
-    for (i = 0; i < 8; i++) {
+    for (int i = 0; i < BG_SCROLL_SPACE_COUNT; i++) {
         bg_pos[i].scr_x.long_pos = 0;
         bg_pos[i].scr_x_buff.long_pos = 0;
         bg_pos[i].scr_y.long_pos = 0;
@@ -1317,9 +1315,7 @@ void Scrn_Move_Set(s8 bgnm, s16 x, s16 y) {
 }
 
 void Family_Init() {
-    u8 i;
-
-    for (i = 0; i < 8; i++) {
+    for (int i = 0; i < BG_SCROLL_SPACE_COUNT; i++) {
         fm_pos[i].family_x.long_pos = 0;
         fm_pos[i].family_y.long_pos = 0;
         fm_pos[i].family_x_buff.long_pos = 0;
@@ -1368,9 +1364,7 @@ void Scrn_Renew() {
 }
 
 void Irl_Family() {
-    u8 i;
-
-    for (i = 0; i < 8; i++) {
+    for (int i = 0; i < BG_SCROLL_SPACE_COUNT; i++) {
         fm_pos[i].family_x_buff.long_pos = fm_pos[i].family_x.long_pos;
         fm_pos[i].family_y_buff.long_pos = fm_pos[i].family_y.long_pos;
         bg_pos[i].scr_x_buff.long_pos = bg_pos[i].scr_x.long_pos;
@@ -1379,9 +1373,7 @@ void Irl_Family() {
 }
 
 void Irl_Scrn() {
-    s8 i;
-
-    for (i = 0; i < 8; i++) {
+    for (int i = 0; i < BG_SCROLL_SPACE_COUNT; i++) {
         bg_prm[i].bg_h_shift = scrn_adgjust_x + bg_pos[i].scr_x_buff.word_pos.h;
         end_prm[i].bg_h_shift = scrn_adgjust_x + fm_pos[i].family_x_buff.word_pos.h;
         bg_prm[i].bg_v_shift = bg_pos[i].scr_y_buff.word_pos.h - scrn_adgjust_y;
