@@ -14,6 +14,7 @@ void Cps3_DecodeProgramSimm(
 );
 
 /// Merges the 16-bit lanes of a graphics SIMM. Graphics SIMMs are not encrypted.
+/// Bytes are laid out in the order the sound chip reads them, same as MAME.
 /// @param dst Destination buffer, `chip_size * 8` bytes.
 /// @param chips Chips 0–7 of the SIMM, `chip_size` bytes each. Even and odd chips form lane pairs.
 void Cps3_DecodeGraphicsSimm(Uint8* dst, const Uint8* const chips[8], size_t chip_size);

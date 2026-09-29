@@ -144,7 +144,7 @@ static bool decode_dma(size_t source, size_t dictionary, Uint8* dst, size_t leng
             return false;
         }
 
-        Uint8 control = graphics[source];
+        Uint8 control = graphics[source ^ 1];
         source += 1;
 
         if (control & 0x80) {
@@ -154,8 +154,8 @@ static bool decode_dma(size_t source, size_t dictionary, Uint8* dst, size_t leng
                 return false;
             }
 
-            emit_dma_byte(graphics[entry], dst, length, &written, &previous);
-            emit_dma_byte(graphics[entry + 1], dst, length, &written, &previous);
+            emit_dma_byte(graphics[entry ^ 1], dst, length, &written, &previous);
+            emit_dma_byte(graphics[(entry + 1) ^ 1], dst, length, &written, &previous);
         } else {
             emit_dma_byte(control, dst, length, &written, &previous);
         }
