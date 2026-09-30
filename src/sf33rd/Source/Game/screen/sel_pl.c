@@ -4,6 +4,7 @@
  */
 
 #include "sf33rd/Source/Game/screen/sel_pl.h"
+#include "arcade/arcade_stage.h"
 #include "common.h"
 #include "constants.h"
 #include "sf33rd/AcrSDK/common/pad.h"
@@ -1921,6 +1922,19 @@ void Handicap_Stage_Select(s16 PL_id) {
     Handicap_Stage_Move_Sub(IO_Result);
 }
 
+/// Q's stage is never offered. Shin Akuma's is offered only when it's available.
+static bool Is_VS_Stage_Selectable(s8 stage) {
+    if (stage == STAGE_3S_Q) {
+        return false;
+    }
+
+    if (stage == STAGE_3S_SHIN_AKUMA) {
+        return ArcadeStage_IsShinAkumaStageAvailable();
+    }
+
+    return true;
+}
+
 void Handicap_Stage_Move_Sub(u16 sw) {
     switch (sw) {
     case SWK_LEFT:
@@ -1928,7 +1942,7 @@ void Handicap_Stage_Move_Sub(u16 sw) {
             VS_Stage = VS_STAGE_RANDOM;
         }
 
-        if (VS_Stage == STAGE_3S_Q || VS_Stage == STAGE_3S_SHIN_AKUMA) {
+        if (!Is_VS_Stage_Selectable(VS_Stage)) {
             VS_Stage -= 1;
         }
 
@@ -1940,7 +1954,7 @@ void Handicap_Stage_Move_Sub(u16 sw) {
             VS_Stage = 0;
         }
 
-        if (VS_Stage == STAGE_3S_Q || VS_Stage == STAGE_3S_SHIN_AKUMA) {
+        if (!Is_VS_Stage_Selectable(VS_Stage)) {
             VS_Stage += 1;
         }
 
@@ -1994,26 +2008,40 @@ s32 Check_Boss(s16 PL_id) {
     return Break_Into_CPU = 0;
 }
 
+Stage Resolve_Akuma_Stage(Stage stage) {
+    // Peers may differ in ROM availability, so netplay sticks to Akuma's stage to keep RNG and state in sync
+    if (!ArcadeStage_IsShinAkumaStageAvailable() || Mode_Type == MODE_NETWORK) {
+        return stage;
+    }
+
+    if (stage == STAGE_3S_AKUMA && (random_32() & 1)) {
+        return STAGE_3S_SHIN_AKUMA;
+    }
+
+    return stage;
+}
+
 u8 Setup_Battle_Country() {
     s16 Rnd32;
 
     if (Mode_Type == MODE_VERSUS) {
         if (VS_Stage == VS_STAGE_RANDOM) {
             Rnd32 = random_32();
-            return Random_Stage_Data[1][Rnd32];
+            return Resolve_Akuma_Stage(Random_Stage_Data[1][Rnd32]);
         }
 
+        // An explicitly chosen stage is kept as is
         return VS_Stage;
     }
 
     if (My_char[0] == 17 && My_char[1] == 17) {
         Rnd32 = random_32();
-        return Random_Stage_Data[0][Rnd32];
+        return Resolve_Akuma_Stage(Random_Stage_Data[0][Rnd32]);
     }
 
     if (My_char[New_Challenger] == 17) {
-        return STAGE_OF_CHAR(My_char[Champion]);
+        return Resolve_Akuma_Stage(STAGE_OF_CHAR(My_char[Champion]));
     }
 
-    return STAGE_OF_CHAR(My_char[New_Challenger]);
+    return Resolve_Akuma_Stage(STAGE_OF_CHAR(My_char[New_Challenger]));
 }

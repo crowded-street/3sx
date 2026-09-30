@@ -1,6 +1,7 @@
 #include "arcade/arcade.h"
 #include "arcade/arcade_balance.h"
 #include "arcade/arcade_char_data.h"
+#include "arcade/arcade_stage.h"
 #include "arcade/rom/rom.h"
 #include "port/resources.h"
 
@@ -29,12 +30,8 @@ static Rom* load_rom(RomGame game) {
 void Arcade_Init() {
     ArcadeBalance_Init();
 
-    bool needed[ROM_GAME_COUNT] = { 0 };
-    needed[ROM_GAME_SFIII3] = ArcadeBalance_IsEnabled();
-
-#if ARCADE_ROM_TEXTURES
+    bool needed[ROM_GAME_COUNT] = { false };
     needed[ROM_GAME_SFIII3] = true;
-#endif
 
     for (int game = 0; game < ROM_GAME_COUNT; game++) {
         if (needed[game]) {
@@ -48,6 +45,10 @@ void Arcade_Init() {
         ArcadeCharData_Init(sfiii3);
     }
 
+    if (sfiii3 != NULL) {
+        ArcadeStage_Init(sfiii3);
+    }
+
 #if ARCADE_ROM_TEXTURES
     if (sfiii3 != NULL) {
         ArcadeTexture_Init(sfiii3);
@@ -56,6 +57,8 @@ void Arcade_Init() {
 }
 
 void Arcade_Finish() {
+    ArcadeStage_Finish();
+
 #if ARCADE_ROM_TEXTURES
     ArcadeTexture_Finish();
 #endif

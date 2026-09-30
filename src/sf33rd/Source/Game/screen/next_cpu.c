@@ -29,6 +29,7 @@
 #include "sf33rd/Source/Game/io/gd3rd.h"
 #include "sf33rd/Source/Game/rendering/mmtmcnt.h"
 #include "sf33rd/Source/Game/screen/sel_data.h"
+#include "sf33rd/Source/Game/screen/sel_pl.h"
 #include "sf33rd/Source/Game/sound/se.h"
 #include "sf33rd/Source/Game/sound/sound3rd.h"
 #include "sf33rd/Source/Game/stage/bg.h"
@@ -1122,6 +1123,8 @@ void Setup_Next_Fighter() {
         if (My_char[Player_id] == 0 && EM_id == 1) {
             Battle_Country = STAGE_3S_GILL;
         }
+
+        Battle_Country = Resolve_Akuma_Stage(Battle_Country);
 
         bg_w.stage = Battle_Country;
     }

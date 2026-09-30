@@ -1,6 +1,7 @@
 #if DEBUG && IMGUI
 
 #include "imgui/imgui_wrapper.h"
+#include "arcade/arcade_stage.h"
 #include "platform/app/sdl/sdl_app.h"
 #include "port/paths.h"
 #include "sf33rd/Source/Game/debug/debug_config.h"
@@ -40,6 +41,32 @@ static void plot(const char* label, const float* values, int value_count, int va
     );
 }
 
+static void build_stage_override_combo() {
+    if (!ImGui_BeginCombo("##stage_override", stage_names[debug_config.stage_override], 0)) {
+        return;
+    }
+
+    for (int i = 0; i < SDL_arraysize(stage_names); i++) {
+        const bool selected = (i == debug_config.stage_override);
+        const bool available = (i - 1 != STAGE_3S_SHIN_AKUMA) || ArcadeStage_IsShinAkumaStageAvailable();
+        const ImGuiSelectableFlags flags = available ? 0 : ImGuiSelectableFlags_Disabled;
+
+        ImGui_PushIDInt(i);
+
+        if (ImGui_SelectableEx(stage_names[i], selected, flags, (ImVec2) { 0, 0 })) {
+            debug_config.stage_override = i;
+        }
+
+        ImGui_PopID();
+
+        if (selected) {
+            ImGui_SetItemDefaultFocus();
+        }
+    }
+
+    ImGui_EndCombo();
+}
+
 static void build_debug_config() {
     if (ImGui_CollapsingHeader("Debug config", 0)) {
         ImGui_AlignTextToFramePadding();
@@ -67,7 +94,7 @@ static void build_debug_config() {
 
         ImGui_AlignTextToFramePadding();
         ImGui_Text("Stage override:");
-        ImGui_ComboChar("##stage_override", &debug_config.stage_override, stage_names, SDL_arraysize(stage_names));
+        build_stage_override_combo();
 
         ImGui_AlignTextToFramePadding();
         ImGui_Text("Bonus stage override:");

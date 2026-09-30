@@ -4,6 +4,7 @@
  */
 
 #include "sf33rd/Source/Game/rendering/color3rd.h"
+#include "arcade/arcade_stage.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/cse.h"
 #include "sf33rd/AcrSDK/MiddleWare/PS2/CapSndEng/emlMemMap.h"
@@ -16,6 +17,7 @@
 #include "sf33rd/Source/Game/rendering/dc_ghost.h"
 #include "sf33rd/Source/Game/rendering/meta_col.h"
 #include "sf33rd/Source/Game/sound/sound3rd.h"
+#include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/system/ramcnt.h"
 
 #include <SDL3/SDL.h>
@@ -261,6 +263,16 @@ void init_trans_color_ram(s16 id, s16 key, u8 type, u16 data) {
         size = size / 2;
         tradrs = Get_ramcnt_pointer(key);
         ldadrs = (u16*)&ColorRAM[data];
+
+        // FIXME: Temporary shim for testing. Shin Akuma's stage loads Akuma's PS2 files, so swap in its ROM palette.
+        if (data == 0x12C && bg_w.stage == STAGE_3S_SHIN_AKUMA) {
+            size_t shin_count;
+            const u16* shin_palette = ArcadeStage_GetPalette(STAGE_3S_SHIN_AKUMA, &shin_count);
+
+            if (shin_palette != NULL && shin_count == size) {
+                tradrs = (u16*)shin_palette;
+            }
+        }
 
         for (i = 0; i < size; i++) {
             ldadrs[i] = palConvSrcToRam(tradrs[i]);

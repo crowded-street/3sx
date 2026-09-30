@@ -254,12 +254,22 @@ void Demo01() {
     }
 }
 
-const s8 Demo_PL_Play_Data[4][2] = { { 15, 19 }, { 11, 18 }, { 2, 16 }, { 12, 8 } };
+const s8 Demo_PL_Play_Data[4][2] = {
+    { CHAR_CHUNLI, CHAR_REMY },
+    { CHAR_KEN, CHAR_TWELVE },
+    { CHAR_RYU, CHAR_MAKOTO },
+    { CHAR_SEAN, CHAR_ELENA },
+};
+
 const u8 Arts_Rnd_Demo_Data[8] = { 0, 0, 0, 1, 1, 1, 2, 2 };
-const s8 Demo_Stage_Play_Data[4][2] = { { STAGE_3S_CHUNLI, STAGE_3S_REMY },
-                                        { STAGE_3S_KEN, STAGE_3S_TWELVE },
-                                        { STAGE_3S_RYU, STAGE_3S_MAKOTO },
-                                        { STAGE_3S_SEAN, STAGE_3S_ELENA } };
+
+const s8 Demo_Stage_Play_Data[4][2] = {
+    { STAGE_3S_CHUNLI, STAGE_3S_REMY },
+    { STAGE_3S_KEN, STAGE_3S_TWELVE },
+    { STAGE_3S_RYU, STAGE_3S_MAKOTO },
+    { STAGE_3S_SEAN, STAGE_3S_ELENA },
+};
+
 const s8 Demo_PL_Data[4] = { 0, 1, 0, 1 };
 
 void Setup_Demo_PL() {
