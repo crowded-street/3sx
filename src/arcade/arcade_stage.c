@@ -63,6 +63,10 @@ void ArcadeStage_Finish() {
     }
 }
 
+bool ArcadeStage_IsShinAkumaStageAvailable() {
+    return palettes[STAGE_3S_SHIN_AKUMA] != NULL;
+}
+
 const Uint16* ArcadeStage_GetPalette(Stage stage, size_t* count) {
     if (palettes[stage] == NULL) {
         return NULL;

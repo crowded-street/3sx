@@ -4,6 +4,7 @@
  */
 
 #include "sf33rd/Source/Game/screen/next_cpu.h"
+#include "arcade/arcade_stage.h"
 #include "common.h"
 #include "constants.h"
 #include "sf33rd/AcrSDK/common/pad.h"
@@ -29,6 +30,7 @@
 #include "sf33rd/Source/Game/io/gd3rd.h"
 #include "sf33rd/Source/Game/rendering/mmtmcnt.h"
 #include "sf33rd/Source/Game/screen/sel_data.h"
+#include "sf33rd/Source/Game/screen/sel_pl.h"
 #include "sf33rd/Source/Game/sound/se.h"
 #include "sf33rd/Source/Game/sound/sound3rd.h"
 #include "sf33rd/Source/Game/stage/bg.h"
@@ -1123,12 +1125,18 @@ void Setup_Next_Fighter() {
             Battle_Country = STAGE_3S_GILL;
         }
 
+        Battle_Country = Resolve_Akuma_Stage(Battle_Country);
+
         bg_w.stage = Battle_Country;
     }
 
 #if DEBUG
     if (debug_config.stage_override) {
         Battle_Country = bg_w.stage = debug_config.stage_override - 1;
+
+        if (bg_w.stage == STAGE_3S_SHIN_AKUMA && !ArcadeStage_IsShinAkumaStageAvailable()) {
+            Battle_Country = bg_w.stage = STAGE_3S_AKUMA;
+        }
     }
 #endif
 
