@@ -93,10 +93,6 @@ void Win_01000(PLW* wk) {
 
     bg_app_stop = 1;
 
-    if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1)) {
-        set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
-    }
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         win_rno[0] = win_rno[1] = 0;
