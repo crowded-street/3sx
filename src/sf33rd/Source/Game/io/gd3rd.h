@@ -101,11 +101,11 @@ void Push_LDREQ_Queue_Direct(s16 ix, LoadRequestID id);
 
 bool Check_LDREQ_Queue_Direct(s16 ix);
 
-void Push_LDREQ_Queue_BG(s16 ix);
+void Push_LDREQ_Queue_BG(Stage stage);
 
 /// Check if all load requests for background have been processed
 /// @param ix Background index
-bool Check_LDREQ_Queue_BG(s16 ix);
+bool Check_LDREQ_Queue_BG(Stage stage);
 
 void LDREQ_SetResultFlag(const LoadRequest* request, bool flag);
 

@@ -23,7 +23,14 @@ s16 bgm_selectorDC[8] = { 0, 1, 2, 1, 2, 1, 2, 1 };
 s16 bgm_selectorAC[8] = { 0, 1, 0, 1, 0, 1, 0, 1 };
 s16* bgm_selector[2] = { bgm_selectorDC, bgm_selectorAC };
 
-const u16 BGM_Stage_Data[22] = { 46, 1, 13, 34, 31, 4, 7, 16, 25, 28, 34, 1, 28, 43, 22, 10, 19, 40, 4, 37, 61, 62 };
+const u16 BGM_Stage_Data[STAGE_COUNT] = {
+    [STAGE_3S_GILL] = 46,   [STAGE_3S_ALEX] = 1,       [STAGE_3S_RYU] = 13,         [STAGE_3S_YUN] = 34,
+    [STAGE_3S_DUDLEY] = 31, [STAGE_3S_NECRO] = 4,      [STAGE_3S_HUGO] = 7,         [STAGE_3S_IBUKI] = 16,
+    [STAGE_3S_ELENA] = 25,  [STAGE_3S_ORO] = 28,       [STAGE_3S_YANG] = 34,        [STAGE_3S_KEN] = 1,
+    [STAGE_3S_SEAN] = 28,   [STAGE_3S_URIEN] = 43,     [STAGE_3S_AKUMA] = 22,       [STAGE_3S_SHIN_AKUMA] = 22,
+    [STAGE_3S_CHUNLI] = 10, [STAGE_3S_MAKOTO] = 19,    [STAGE_3S_Q] = 40,           [STAGE_3S_TWELVE] = 4,
+    [STAGE_3S_REMY] = 37,   [STAGE_3S_BONUS_CAR] = 61, [STAGE_3S_BONUS_BALLS] = 62,
+};
 const s16 SE_Shock_Data[7] = { 285, 286, 287, 288, 289, 305, 306 };
 const s16 Finish_SE_Data[2][7] = { { 305, 306, 285, 286, 287, 288, 272 }, { 292, 293, 290, 291, 287, 288, 272 } };
 
@@ -31,7 +38,7 @@ void Stage_BGM(u16 Stage_Number, u16 Round_Number) {
     u16 code;
 
     if (Mode_Type == MODE_ARCADE && Play_Type == 0 && My_char[COM_id] == 17 && Bonus_Game_Flag == 0) {
-        code = BGM_Stage_Data[17] + bgm_selector[sys_w.bgm_type][Round_Number & 7];
+        code = BGM_Stage_Data[STAGE_3S_Q] + bgm_selector[sys_w.bgm_type][Round_Number & 7];
     } else {
         code = BGM_Stage_Data[Stage_Number] + bgm_selector[sys_w.bgm_type][Round_Number & 7];
     }
@@ -271,7 +278,7 @@ u16 Get_Position(PLW* wk) {
 }
 
 u16 Check_Bonus_SE(u16 Code) {
-    if ((Bonus_Game_Flag == 0) || (Bonus_Type != 20)) {
+    if ((Bonus_Game_Flag == 0) || (Bonus_Type != STAGE_3S_BONUS_CAR)) {
         return Code;
     }
 

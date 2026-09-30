@@ -290,8 +290,19 @@ static void Push_LDREQ_Queue_Metamor() {
     }
 }
 
-void Push_LDREQ_Queue_BG(s16 ix) {
-    Push_LDREQ_Queue_Union(ix + 20);
+/// Converts a stage to its index in `spans`. PS2 data has no resources for Shin Akuma's stage, so it reuses Akuma's.
+static s16 bg_span_index(Stage stage) {
+    if (stage == STAGE_3S_SHIN_AKUMA) {
+        stage = STAGE_3S_AKUMA;
+    } else if (stage > STAGE_3S_SHIN_AKUMA) {
+        stage -= 1;
+    }
+
+    return stage + 20;
+}
+
+void Push_LDREQ_Queue_BG(Stage stage) {
+    Push_LDREQ_Queue_Union(bg_span_index(stage));
     Push_LDREQ_Queue_Metamor();
 }
 
@@ -354,8 +365,8 @@ bool Check_LDREQ_Queue_Player(u8 id) {
     return Check_LDREQ_Queue_Union(plt_req[id], ldreq_id_from_player_id(id));
 }
 
-bool Check_LDREQ_Queue_BG(s16 ix) {
-    return Check_LDREQ_Queue_Union(ix + 20, LDREQ_ID_SHARED);
+bool Check_LDREQ_Queue_BG(Stage stage) {
+    return Check_LDREQ_Queue_Union(bg_span_index(stage), LDREQ_ID_SHARED);
 }
 
 bool Check_LDREQ_Queue_Direct(s16 ix) {

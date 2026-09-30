@@ -39,7 +39,7 @@ void Att_PL18_NINGENBAKUDAN(PLW* wk) {
             wk->wu.dm_vital = 0;
             wk->sa->gauge.i = wk->sa->dtm * wk->sa->dtm_mul;
 
-            if (Bonus_Game_Flag == 20) {
+            if (Bonus_Game_Flag == STAGE_3S_BONUS_CAR) {
                 wk->wu.dm_rl = (wk->wu.rl_flag + 1) & 1;
             } else {
                 wk->wu.dm_rl = ((PLW*)wk->wu.target_adrs)->wu.rl_flag;

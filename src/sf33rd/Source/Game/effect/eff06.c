@@ -16,11 +16,12 @@
 #include "sf33rd/Source/Game/stage/ta_sub.h"
 
 const s16 scr_obj_num6[AREA_COUNT] = {
-    [AREA_3S_GILL] = 1,      [AREA_3S_ALEX] = 6,        [AREA_3S_RYU] = 4,   [AREA_3S_YUN] = 0,    [AREA_3S_DUDLEY] = 3,
-    [AREA_3S_NECRO] = 1,     [AREA_3S_HUGO] = 0,        [AREA_3S_IBUKI] = 2, [AREA_3S_ELENA] = 8,  [AREA_3S_ORO] = 3,
-    [AREA_3S_YANG] = 0,      [AREA_3S_KEN] = 4,         [AREA_3S_SEAN] = 3,  [AREA_3S_URIEN] = 0,  [AREA_3S_AKUMA] = 1,
-    [AREA_3S_CHUNLI] = 1,    [AREA_3S_MAKOTO] = 4,      [AREA_3S_Q] = 0,     [AREA_3S_TWELVE] = 1, [AREA_3S_REMY] = 1,
-    [AREA_3S_BONUS_CAR] = 0, [AREA_3S_BONUS_BALLS] = 0,
+    [AREA_3S_GILL] = 1,   [AREA_3S_ALEX] = 6,      [AREA_3S_RYU] = 4,         [AREA_3S_YUN] = 0,
+    [AREA_3S_DUDLEY] = 3, [AREA_3S_NECRO] = 1,     [AREA_3S_HUGO] = 0,        [AREA_3S_IBUKI] = 2,
+    [AREA_3S_ELENA] = 8,  [AREA_3S_ORO] = 3,       [AREA_3S_YANG] = 0,        [AREA_3S_KEN] = 4,
+    [AREA_3S_SEAN] = 3,   [AREA_3S_URIEN] = 0,     [AREA_3S_AKUMA] = 1,       [AREA_3S_SHIN_AKUMA] = 1,
+    [AREA_3S_CHUNLI] = 1, [AREA_3S_MAKOTO] = 4,    [AREA_3S_Q] = 0,           [AREA_3S_TWELVE] = 1,
+    [AREA_3S_REMY] = 1,   [AREA_3S_BONUS_CAR] = 0, [AREA_3S_BONUS_BALLS] = 0,
 };
 
 const s16 st0000_data_tbl[8] = { 0, 2, 8492, 640, 48, 82, 0, 0 };
@@ -75,17 +76,29 @@ const s16 st1100_data_tbl[32] = { 0, 1, 8492, 256, 64,  90, 0, 0, 0, 1, 8492, 38
 const s16 st1400_data_tbl[8] = { 0, 3, 300, 496, 64, 88, 4, 0 };
 
 const s16* scr_obj_data6[AREA_COUNT] = {
-    [AREA_3S_GILL] = st0000_data_tbl,       [AREA_3S_ALEX] = st0100_data_tbl,
-    [AREA_3S_RYU] = st0200_data_tbl,        [AREA_3S_YUN] = stg_dum_data_tbl,
-    [AREA_3S_DUDLEY] = st0400_data_tbl,     [AREA_3S_NECRO] = st0500_data_tbl,
-    [AREA_3S_HUGO] = stg_dum_data_tbl,      [AREA_3S_IBUKI] = st0700_data_tbl,
-    [AREA_3S_ELENA] = st0800_data_tbl,      [AREA_3S_ORO] = st0900_data_tbl,
-    [AREA_3S_YANG] = st0A00_data_tbl,       [AREA_3S_KEN] = st0B00_data_tbl,
-    [AREA_3S_SEAN] = st0c00_data_tbl,       [AREA_3S_URIEN] = st0100_data_tbl,
-    [AREA_3S_AKUMA] = st0e00_data_tbl,      [AREA_3S_CHUNLI] = st1000_data_tbl,
-    [AREA_3S_MAKOTO] = st1100_data_tbl,     [AREA_3S_Q] = st0500_data_tbl,
-    [AREA_3S_TWELVE] = st1300_data_tbl,     [AREA_3S_REMY] = st1400_data_tbl,
-    [AREA_3S_BONUS_CAR] = stg_dum_data_tbl, [AREA_3S_BONUS_BALLS] = stg_dum_data_tbl,
+    [AREA_3S_GILL] = st0000_data_tbl,
+    [AREA_3S_ALEX] = st0100_data_tbl,
+    [AREA_3S_RYU] = st0200_data_tbl,
+    [AREA_3S_YUN] = stg_dum_data_tbl,
+    [AREA_3S_DUDLEY] = st0400_data_tbl,
+    [AREA_3S_NECRO] = st0500_data_tbl,
+    [AREA_3S_HUGO] = stg_dum_data_tbl,
+    [AREA_3S_IBUKI] = st0700_data_tbl,
+    [AREA_3S_ELENA] = st0800_data_tbl,
+    [AREA_3S_ORO] = st0900_data_tbl,
+    [AREA_3S_YANG] = st0A00_data_tbl,
+    [AREA_3S_KEN] = st0B00_data_tbl,
+    [AREA_3S_SEAN] = st0c00_data_tbl,
+    [AREA_3S_URIEN] = st0100_data_tbl,
+    [AREA_3S_AKUMA] = st0e00_data_tbl,
+    [AREA_3S_SHIN_AKUMA] = st0e00_data_tbl,
+    [AREA_3S_CHUNLI] = st1000_data_tbl,
+    [AREA_3S_MAKOTO] = st1100_data_tbl,
+    [AREA_3S_Q] = st0500_data_tbl,
+    [AREA_3S_TWELVE] = st1300_data_tbl,
+    [AREA_3S_REMY] = st1400_data_tbl,
+    [AREA_3S_BONUS_CAR] = stg_dum_data_tbl,
+    [AREA_3S_BONUS_BALLS] = stg_dum_data_tbl,
 };
 
 void effect_06_move(WORK_Other* ewk) {
@@ -129,7 +142,7 @@ s32 effect_06_init() {
 
     if (Config_GetBool(CFG_DRAW_PLAYERS_ABOVE_HUD)) {
         switch (bg_w.bg_index) {
-        case 16:         // Makoto's stage
+        case AREA_3S_MAKOTO:
             lp_cnt -= 1; // Remove large tree on the right
             break;
         }

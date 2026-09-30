@@ -895,7 +895,7 @@ void Next_Bonus_2nd() {
 void Next_Bonus_3rd() {
     switch (SC_No[1]) {
     case 0:
-        My_char[COM_id] = Bonus_Type;
+        My_char[COM_id] = CHAR_ARCADE_TO_3SX(Bonus_Type);
         Next_CPU_4th_0_Sub();
         break;
 
@@ -1117,10 +1117,10 @@ void Setup_Next_Fighter() {
         Battle_Country = Q_Country;
         bg_w.stage = Q_Country;
     } else {
-        Battle_Country = EM_id;
+        Battle_Country = STAGE_OF_CHAR(EM_id);
 
         if (My_char[Player_id] == 0 && EM_id == 1) {
-            Battle_Country = 0;
+            Battle_Country = STAGE_3S_GILL;
         }
 
         bg_w.stage = Battle_Country;
@@ -1491,7 +1491,7 @@ s8 Check_Bonus_Stage() {
     Setup_PL_Color(COM_id, Com_Color_Shot);
     Push_LDREQ_Queue_Player(COM_id, My_char[COM_id]);
     Push_LDREQ_Queue_BG(Bonus_Type);
-    return Completion_Bonus[Player_id][Bonus_Type - 20] = 1;
+    return Completion_Bonus[Player_id][Bonus_Type - STAGE_3S_BONUS_CAR] = 1;
 }
 
 s8 Check_Bonus_Type() {

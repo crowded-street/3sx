@@ -1,10 +1,14 @@
 #ifndef WORKUSER_H
 #define WORKUSER_H
 
+#include "constants.h"
 #include "sf33rd/Source/Game/engine/cmd_data.h"
 #include "types.h"
 
 #include <stdbool.h>
+
+/// Value of `VS_Stage` that picks a random stage
+#define VS_STAGE_RANDOM (STAGE_3S_REMY + 1)
 
 typedef enum ModeType {
     MODE_ARCADE,

@@ -1283,11 +1283,12 @@ void Appear_25000(PLW* wk) {
 }
 
 const s16 smoke_check[AREA_COUNT] = {
-    [AREA_3S_GILL] = 0,      [AREA_3S_ALEX] = 0,        [AREA_3S_RYU] = 1,   [AREA_3S_YUN] = 1,    [AREA_3S_DUDLEY] = 1,
-    [AREA_3S_NECRO] = 0,     [AREA_3S_HUGO] = 0,        [AREA_3S_IBUKI] = 1, [AREA_3S_ELENA] = 0,  [AREA_3S_ORO] = 1,
-    [AREA_3S_YANG] = 0,      [AREA_3S_KEN] = 0,         [AREA_3S_SEAN] = 1,  [AREA_3S_URIEN] = 1,  [AREA_3S_AKUMA] = 0,
-    [AREA_3S_CHUNLI] = 0,    [AREA_3S_MAKOTO] = 0,      [AREA_3S_Q] = 1,     [AREA_3S_TWELVE] = 1, [AREA_3S_REMY] = 0,
-    [AREA_3S_BONUS_CAR] = 0, [AREA_3S_BONUS_BALLS] = 0,
+    [AREA_3S_GILL] = 0,   [AREA_3S_ALEX] = 0,      [AREA_3S_RYU] = 1,         [AREA_3S_YUN] = 1,
+    [AREA_3S_DUDLEY] = 1, [AREA_3S_NECRO] = 0,     [AREA_3S_HUGO] = 0,        [AREA_3S_IBUKI] = 1,
+    [AREA_3S_ELENA] = 0,  [AREA_3S_ORO] = 1,       [AREA_3S_YANG] = 0,        [AREA_3S_KEN] = 0,
+    [AREA_3S_SEAN] = 1,   [AREA_3S_URIEN] = 1,     [AREA_3S_AKUMA] = 0,       [AREA_3S_SHIN_AKUMA] = 0,
+    [AREA_3S_CHUNLI] = 0, [AREA_3S_MAKOTO] = 0,    [AREA_3S_Q] = 1,           [AREA_3S_TWELVE] = 1,
+    [AREA_3S_REMY] = 0,   [AREA_3S_BONUS_CAR] = 0, [AREA_3S_BONUS_BALLS] = 0,
 };
 
 void Appear_26000(PLW* wk) {

@@ -22,26 +22,38 @@
 #include "sf33rd/Source/Game/stage/bg120.h"
 #include "sf33rd/Source/Game/stage/bg130.h"
 #include "sf33rd/Source/Game/stage/bg140.h"
-#include "sf33rd/Source/Game/stage/bg150.h"
 #include "sf33rd/Source/Game/stage/bg160.h"
-#include "sf33rd/Source/Game/stage/bg180.h"
+#include "sf33rd/Source/Game/stage/bg170.h"
 #include "sf33rd/Source/Game/stage/bg190.h"
+#include "sf33rd/Source/Game/stage/bg200.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "sf33rd/Source/Game/stage/bns_bg2.h"
 #include "sf33rd/Source/Game/stage/bonus_bg.h"
 
 void (*ta_move_tbl[AREA_COUNT])() = {
-    [AREA_3S_GILL] = BG000,         [AREA_3S_ALEX] = BG010,
-    [AREA_3S_RYU] = BG020,          [AREA_3S_YUN] = BG030,
-    [AREA_3S_DUDLEY] = BG040,       [AREA_3S_NECRO] = BG050,
-    [AREA_3S_HUGO] = BG060,         [AREA_3S_IBUKI] = BG070,
-    [AREA_3S_ELENA] = BG080,        [AREA_3S_ORO] = BG090,
-    [AREA_3S_YANG] = BG100,         [AREA_3S_KEN] = BG010,
-    [AREA_3S_SEAN] = BG120,         [AREA_3S_URIEN] = BG130,
-    [AREA_3S_AKUMA] = BG140,        [AREA_3S_CHUNLI] = BG150,
-    [AREA_3S_MAKOTO] = BG160,       [AREA_3S_Q] = BG180,
-    [AREA_3S_TWELVE] = BG180,       [AREA_3S_REMY] = BG190,
-    [AREA_3S_BONUS_CAR] = Bonus_bg, [AREA_3S_BONUS_BALLS] = Bonus_bg2,
+    [AREA_3S_GILL] = BG000,
+    [AREA_3S_ALEX] = BG010,
+    [AREA_3S_RYU] = BG020,
+    [AREA_3S_YUN] = BG030,
+    [AREA_3S_DUDLEY] = BG040,
+    [AREA_3S_NECRO] = BG050,
+    [AREA_3S_HUGO] = BG060,
+    [AREA_3S_IBUKI] = BG070,
+    [AREA_3S_ELENA] = BG080,
+    [AREA_3S_ORO] = BG090,
+    [AREA_3S_YANG] = BG100,
+    [AREA_3S_KEN] = BG010,
+    [AREA_3S_SEAN] = BG120,
+    [AREA_3S_URIEN] = BG130,
+    [AREA_3S_AKUMA] = BG140,
+    [AREA_3S_SHIN_AKUMA] = BG140,
+    [AREA_3S_CHUNLI] = BG160,
+    [AREA_3S_MAKOTO] = BG170,
+    [AREA_3S_Q] = BG190,
+    [AREA_3S_TWELVE] = BG190,
+    [AREA_3S_REMY] = BG200,
+    [AREA_3S_BONUS_CAR] = Bonus_bg,
+    [AREA_3S_BONUS_BALLS] = Bonus_bg2,
 };
 
 void ta0_init00();

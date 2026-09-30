@@ -5,11 +5,14 @@
 #include "types.h"
 
 void BG190();
-void Bonus_bg();
 void bg1901();
 void bg1901_init00();
+void bg1901_move();
 void bg1902();
 void bg1902_init00();
-void sync_bg14_common();
+void bg1902_move();
+void bg190_sync_common();
+void bg190_sync_init();
+void bg190_sync_move();
 
 #endif

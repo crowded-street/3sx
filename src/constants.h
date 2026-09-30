@@ -79,13 +79,14 @@ typedef enum Stage {
     STAGE_3S_SEAN = 12,
     STAGE_3S_URIEN = 13,
     STAGE_3S_AKUMA = 14,
-    STAGE_3S_CHUNLI = 15,
-    STAGE_3S_MAKOTO = 16,
-    STAGE_3S_Q = 17,
-    STAGE_3S_TWELVE = 18,
-    STAGE_3S_REMY = 19,
-    STAGE_3S_BONUS_CAR = 20,
-    STAGE_3S_BONUS_BALLS = 21,
+    STAGE_3S_SHIN_AKUMA = 15,
+    STAGE_3S_CHUNLI = 16,
+    STAGE_3S_MAKOTO = 17,
+    STAGE_3S_Q = 18,
+    STAGE_3S_TWELVE = 19,
+    STAGE_3S_REMY = 20,
+    STAGE_3S_BONUS_CAR = 21,
+    STAGE_3S_BONUS_BALLS = 22,
     STAGE_COUNT,
 } Stage;
 
@@ -107,15 +108,19 @@ typedef enum Area {
     AREA_3S_SEAN = 12,
     AREA_3S_URIEN = 13,
     AREA_3S_AKUMA = 14,
-    AREA_3S_CHUNLI = 15,
-    AREA_3S_MAKOTO = 16,
-    AREA_3S_Q = 17,
-    AREA_3S_TWELVE = 18,
-    AREA_3S_REMY = 19,
-    AREA_3S_BONUS_CAR = 20,
-    AREA_3S_BONUS_BALLS = 21,
+    AREA_3S_SHIN_AKUMA = 15,
+    AREA_3S_CHUNLI = 16,
+    AREA_3S_MAKOTO = 17,
+    AREA_3S_Q = 18,
+    AREA_3S_TWELVE = 19,
+    AREA_3S_REMY = 20,
+    AREA_3S_BONUS_CAR = 21,
+    AREA_3S_BONUS_BALLS = 22,
     AREA_COUNT,
 } Area;
+
+/// A character's home stage has the same number as the character in the arcade version
+#define STAGE_OF_CHAR(c) ((Stage)CHAR_3SX_TO_ARCADE(c))
 
 typedef enum JumpDir : uint8_t {
     JUMP_DIR_NEUTRAL = 0,

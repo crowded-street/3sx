@@ -310,7 +310,7 @@ s32 check_ball_mizushibuki(s16 xx, s16 yy) {
         return 2;
     }
 
-    if (Bonus_Game_Flag != 21) {
+    if (Bonus_Game_Flag != STAGE_3S_BONUS_BALLS) {
         return 0;
     }
 

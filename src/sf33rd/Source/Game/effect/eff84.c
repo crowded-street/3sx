@@ -48,7 +48,7 @@ void effect_84_move(WORK_Other* ewk) {
                 Game_pause = 1;
                 ewk->wu.routine_no[1]++;
 
-                if (Bonus_Game_Flag == 20 && bg_w.stage == STAGE_3S_BONUS_CAR) {
+                if (Bonus_Game_Flag == STAGE_3S_BONUS_CAR && bg_w.stage == STAGE_3S_BONUS_CAR) {
                     ewk->wu.dir_timer = 90;
                 }
 

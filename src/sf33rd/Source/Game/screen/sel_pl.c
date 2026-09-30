@@ -1925,23 +1925,23 @@ void Handicap_Stage_Move_Sub(u16 sw) {
     switch (sw) {
     case SWK_LEFT:
         if ((VS_Stage -= 1) < 0) {
-            VS_Stage = 20;
+            VS_Stage = VS_STAGE_RANDOM;
         }
 
-        if (VS_Stage == 17) {
-            VS_Stage = 16;
+        if (VS_Stage == STAGE_3S_Q || VS_Stage == STAGE_3S_SHIN_AKUMA) {
+            VS_Stage -= 1;
         }
 
         SE_dir_cursor_move();
         break;
 
     case SWK_RIGHT:
-        if ((VS_Stage += 1) > 20) {
+        if ((VS_Stage += 1) > VS_STAGE_RANDOM) {
             VS_Stage = 0;
         }
 
-        if (VS_Stage == 17) {
-            VS_Stage = 18;
+        if (VS_Stage == STAGE_3S_Q || VS_Stage == STAGE_3S_SHIN_AKUMA) {
+            VS_Stage += 1;
         }
 
         SE_dir_cursor_move();
@@ -1998,7 +1998,7 @@ u8 Setup_Battle_Country() {
     s16 Rnd32;
 
     if (Mode_Type == MODE_VERSUS) {
-        if (VS_Stage == 20) {
+        if (VS_Stage == VS_STAGE_RANDOM) {
             Rnd32 = random_32();
             return Random_Stage_Data[1][Rnd32];
         }
@@ -2012,8 +2012,8 @@ u8 Setup_Battle_Country() {
     }
 
     if (My_char[New_Challenger] == 17) {
-        return My_char[Champion];
+        return STAGE_OF_CHAR(My_char[Champion]);
     }
 
-    return My_char[New_Challenger];
+    return STAGE_OF_CHAR(My_char[New_Challenger]);
 }

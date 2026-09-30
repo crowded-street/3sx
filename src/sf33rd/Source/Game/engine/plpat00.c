@@ -199,7 +199,7 @@ void Att_JYOUKA(PLW* wk) {
 
     switch (wk->wu.routine_no[3]) {
     case 0:
-        if (Bonus_Game_Flag == 20) {
+        if (Bonus_Game_Flag == STAGE_3S_BONUS_CAR) {
             wk->wu.routine_no[3] = 10;
             wk->wu.rl_flag = wk->wu.rl_waza;
             set_char_move_init(&wk->wu, 5, wk->as->char_ix);

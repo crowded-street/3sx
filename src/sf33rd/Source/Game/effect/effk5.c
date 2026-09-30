@@ -451,7 +451,7 @@ s32 effect_K5_init(PLW* wk) {
     WORK_Other* ewk;
     s16 ix;
 
-    if (Bonus_Game_Flag == 0x14) {
+    if (Bonus_Game_Flag == STAGE_3S_BONUS_CAR) {
         return -1;
     }
 

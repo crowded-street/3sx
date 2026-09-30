@@ -492,8 +492,8 @@ void grade_makeup_stage_parameter(s16 ix) {
 
     if (Play_Type == 0) {
         switch (bg_w.stage) {
-        case 21:
-        case 20:
+        case STAGE_3S_BONUS_BALLS:
+        case STAGE_3S_BONUS_CAR:
             bs = 1;
             break;
 
@@ -563,11 +563,11 @@ void grade_makeup_stage_para_com(s16 ix) {
 void grade_makeup_bonus_parameter(s16 ix) {
     if (Round_Operator[ix] != 0) {
         switch (bg_w.stage) {
-        case 21:
+        case STAGE_3S_BONUS_BALLS:
             judge_final[ix][Play_Type].vs_cpu_grade[13] = (Bonus_Game_result == 20) + (Bonus_Game_ex_result == 20) * 2;
             break;
 
-        case 20:
+        case STAGE_3S_BONUS_CAR:
             judge_final[ix][Play_Type].vs_cpu_grade[14] = Bonus_Game_result;
             break;
         }
