@@ -149,7 +149,7 @@ static void read_waza_work(SDL_IOStream* io, WAZA_WORK dst[2][56]) {
 static void read_t_pl_lvr(SDL_IOStream* io, T_PL_LVR dst[2]) {
     SDL_SeekIO(io, T_PL_LVR_OFFSET, SDL_IO_SEEK_SET);
 
-    u16* ptr = dst;
+    u16* ptr = (u16*)dst;
 
     // T_PL_LVR consists of 16-bit ints. We need to read sizeof(T_PL_LVR) / 2 * 2 such ints
     for (int i = 0; i < sizeof(T_PL_LVR); i++) {
@@ -482,7 +482,7 @@ static void sync_wcp(WORK_CP* dst, const WORK_CP* src) {
 }
 
 static void sync_waza_work(WAZA_WORK* dst, const WAZA_WORK* src) {
-    s16* local_w_ptr = dst->w_ptr;
+    const s16* local_w_ptr = dst->w_ptr;
     *dst = *src;
     dst->w_ptr = local_w_ptr;
 }
