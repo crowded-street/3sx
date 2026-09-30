@@ -35,7 +35,8 @@ const Uint8* Rom_GetSimm(const Rom* rom, int simm, size_t* size);
 /// @return Decrypted program SIMMs as one block in big-endian byte order, starting at `ROM_PROGRAM_BASE`.
 const Uint8* Rom_GetProgram(const Rom* rom, size_t* size);
 
-/// @return Graphics SIMMs as one block, starting with SIMM3.
+/// @return Graphics SIMMs as one block, starting with SIMM3. PCM samples can be read directly at their CPS3 offsets.
+/// Character DMA reads this block at `offset ^ 1`.
 const Uint8* Rom_GetGraphics(const Rom* rom, size_t* size);
 
 #endif

@@ -47,11 +47,9 @@ void Cps3_DecodeGraphicsSimm(Uint8* dst, const Uint8* const chips[8], size_t chi
         const Uint8* even = chips[pair * 2];
         const Uint8* odd = chips[pair * 2 + 1];
 
-        for (size_t i = 0; i < chip_size / 2; i++) {
-            out[i * 4] = even[i * 2];
-            out[i * 4 + 1] = odd[i * 2];
-            out[i * 4 + 2] = even[i * 2 + 1];
-            out[i * 4 + 3] = odd[i * 2 + 1];
+        for (size_t i = 0; i < chip_size; i++) {
+            out[i * 2] = odd[i];
+            out[i * 2 + 1] = even[i];
         }
     }
 }
