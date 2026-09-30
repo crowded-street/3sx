@@ -4,7 +4,6 @@
  */
 
 #include "sf33rd/Source/Game/screen/next_cpu.h"
-#include "arcade/arcade_stage.h"
 #include "common.h"
 #include "constants.h"
 #include "sf33rd/AcrSDK/common/pad.h"
@@ -1133,10 +1132,6 @@ void Setup_Next_Fighter() {
 #if DEBUG
     if (debug_config.stage_override) {
         Battle_Country = bg_w.stage = debug_config.stage_override - 1;
-
-        if (bg_w.stage == STAGE_3S_SHIN_AKUMA && !ArcadeStage_IsShinAkumaStageAvailable()) {
-            Battle_Country = bg_w.stage = STAGE_3S_AKUMA;
-        }
     }
 #endif
 

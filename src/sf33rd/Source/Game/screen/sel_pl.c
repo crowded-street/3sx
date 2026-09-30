@@ -1572,10 +1572,6 @@ void Exit_2nd() {
 #if DEBUG
         if (debug_config.stage_override) {
             Battle_Country = bg_w.stage = debug_config.stage_override - 1;
-
-            if (bg_w.stage == STAGE_3S_SHIN_AKUMA && !ArcadeStage_IsShinAkumaStageAvailable()) {
-                Battle_Country = bg_w.stage = STAGE_3S_AKUMA;
-            }
         }
 #endif
 
@@ -1926,6 +1922,19 @@ void Handicap_Stage_Select(s16 PL_id) {
     Handicap_Stage_Move_Sub(IO_Result);
 }
 
+/// Q's stage is never offered. Shin Akuma's is offered only when it's available.
+static bool Is_VS_Stage_Selectable(s8 stage) {
+    if (stage == STAGE_3S_Q) {
+        return false;
+    }
+
+    if (stage == STAGE_3S_SHIN_AKUMA) {
+        return ArcadeStage_IsShinAkumaStageAvailable();
+    }
+
+    return true;
+}
+
 void Handicap_Stage_Move_Sub(u16 sw) {
     switch (sw) {
     case SWK_LEFT:
@@ -1933,7 +1942,7 @@ void Handicap_Stage_Move_Sub(u16 sw) {
             VS_Stage = VS_STAGE_RANDOM;
         }
 
-        if (VS_Stage == STAGE_3S_Q || VS_Stage == STAGE_3S_SHIN_AKUMA) {
+        if (!Is_VS_Stage_Selectable(VS_Stage)) {
             VS_Stage -= 1;
         }
 
@@ -1945,7 +1954,7 @@ void Handicap_Stage_Move_Sub(u16 sw) {
             VS_Stage = 0;
         }
 
-        if (VS_Stage == STAGE_3S_Q || VS_Stage == STAGE_3S_SHIN_AKUMA) {
+        if (!Is_VS_Stage_Selectable(VS_Stage)) {
             VS_Stage += 1;
         }
 
@@ -2000,12 +2009,8 @@ s32 Check_Boss(s16 PL_id) {
 }
 
 Stage Resolve_Akuma_Stage(Stage stage) {
-    if (!ArcadeStage_IsShinAkumaStageAvailable()) {
-        return stage == STAGE_3S_SHIN_AKUMA ? STAGE_3S_AKUMA : stage;
-    }
-
     // Peers may differ in ROM availability, so netplay sticks to Akuma's stage to keep RNG and state in sync
-    if (Mode_Type == MODE_NETWORK) {
+    if (!ArcadeStage_IsShinAkumaStageAvailable() || Mode_Type == MODE_NETWORK) {
         return stage;
     }
 
