@@ -1442,7 +1442,7 @@ void BGM_Control() {
         BGM_No[0] = 0;
 
         if (Play_Type == 0 && EM_id == 17) {
-            Stage_BGM(17, Round_num);
+            Stage_BGM(STAGE_3S_Q, Round_num);
             break;
         }
 
@@ -1492,7 +1492,7 @@ void Check_Stage_BGM() {
         break;
 
     case 17:
-        Stage_BGM(17, Round_num);
+        Stage_BGM(STAGE_3S_Q, Round_num);
         break;
 
     default:

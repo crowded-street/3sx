@@ -328,7 +328,7 @@ void Mode_Select(struct _TASK* task_ptr) {
             Vital_Handicap[ix][1] = 7;
         }
 
-        VS_Stage = 0x14;
+        VS_Stage = VS_STAGE_RANDOM;
         Order[0x8A] = 4;
         Order_Timer[0x8A] = 1;
 

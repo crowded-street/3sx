@@ -1299,7 +1299,7 @@ void Game09() {
         bg_work_clear();
         win_lose_work_clear();
 
-        if (Bonus_Game_Flag == 0x15) {
+        if (Bonus_Game_Flag == STAGE_3S_BONUS_BALLS) {
             My_char[COM_id] = 12;
         } else {
             My_char[COM_id] = My_char[Player_id];

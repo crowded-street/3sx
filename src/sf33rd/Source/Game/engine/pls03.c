@@ -60,7 +60,7 @@ s32 check_full_gauge_attack(PLW* wk, s8 always) { // 🟡
         return 0;
     }
 
-    if (((Bonus_Game_Flag == 0x14) && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0)) {
+    if (((Bonus_Game_Flag == STAGE_3S_BONUS_CAR) && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0)) {
         if (wk->spmv_ng_flag & DIP_UNKNOWN_30) {
             return 0;
         }
@@ -229,7 +229,7 @@ s32 check_full_gauge_attack2(PLW* wk, s8 always) { // 🟡
         return 0;
     }
 
-    if (((Bonus_Game_Flag == 0x14) && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0)) {
+    if (((Bonus_Game_Flag == STAGE_3S_BONUS_CAR) && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0)) {
         if (wk->spmv_ng_flag & DIP_UNKNOWN_30) {
             return 0;
         }
@@ -426,7 +426,7 @@ s32 check_super_arts_attack_dc(PLW* wk) { // 🟡
         wk->permited_koa |= 1;
     }
 
-    if (((Bonus_Game_Flag == 0x14) && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0)) {
+    if (((Bonus_Game_Flag == STAGE_3S_BONUS_CAR) && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0)) {
         if (wk->spmv_ng_flag & DIP_UNKNOWN_30) {
             return 0;
         }
@@ -590,7 +590,7 @@ s32 execute_super_arts(PLW* wk) { // 🟡
         return 0;
     }
 
-    if (((Bonus_Game_Flag == 0x14) && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0)) {
+    if (((Bonus_Game_Flag == STAGE_3S_BONUS_CAR) && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0)) {
         if (wk->spmv_ng_flag & DIP_UNKNOWN_30) {
             return 0;
         }
@@ -688,7 +688,7 @@ s32 check_special_attack(PLW* wk) { // 🟡
         return 0;
     }
 
-    if (((Bonus_Game_Flag == 0x14) && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0)) {
+    if (((Bonus_Game_Flag == STAGE_3S_BONUS_CAR) && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0)) {
         conpane = &wk->cp->sw_lvbt;
 
         for (i = 28; i < 38; i++) {
@@ -952,7 +952,7 @@ s32 check_leap_attack(PLW* wk) { // 🟡
         }
     }
 
-    if (((Bonus_Game_Flag != 0x14) || !wk->bs2_on_car) && (wk->wu.xyz[1].disp.pos > 0)) {
+    if (((Bonus_Game_Flag != STAGE_3S_BONUS_CAR) || !wk->bs2_on_car) && (wk->wu.xyz[1].disp.pos > 0)) {
         return 0;
     }
 
@@ -1133,7 +1133,7 @@ s32 check_nm_attack(PLW* wk) { // 🟡
         break;
 
     default:
-        if (((Bonus_Game_Flag != 0x14) || !wk->bs2_on_car) && (wk->wu.xyz[1].disp.pos > 0)) {
+        if (((Bonus_Game_Flag != STAGE_3S_BONUS_CAR) || !wk->bs2_on_car) && (wk->wu.xyz[1].disp.pos > 0)) {
             return 0;
         }
 
@@ -1535,7 +1535,7 @@ s16 get_em_body_range(WORK* wk) { // 🟢
     s16* dad;
     s16 res_hs;
 
-    if (Bonus_Game_Flag == 20 && wk->operator != 0) {
+    if (Bonus_Game_Flag == STAGE_3S_BONUS_CAR && wk->operator != 0) {
         em = (WORK*)((WORK*)wk->target_adrs)->my_effadrs;
         dad = (s16*)(em->hosei_adrs + (get_sel_hosei_tbl_ix(((WORK_Other*)em)->master_player) + 1));
         res_hs = wk->xyz[0].disp.pos - (em->xyz[0].disp.pos + dad[0] + (dad[1] / 2));

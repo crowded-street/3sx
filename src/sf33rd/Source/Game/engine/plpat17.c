@@ -36,7 +36,7 @@ void Att_PL17_AT1(PLW* wk) {
         setup_mvxy_data(&wk->wu, wk->as->r_no);
         wk->wu.mvxy.index = wk->as->data_ix;
 
-        if (Bonus_Game_Flag != 20 || (Bonus_Game_Flag == 20 && wk->bs2_on_car == 0)) {
+        if (Bonus_Game_Flag != STAGE_3S_BONUS_CAR || (Bonus_Game_Flag == STAGE_3S_BONUS_CAR && wk->bs2_on_car == 0)) {
             wk->wu.xyz[1].disp.pos = 0;
         }
 

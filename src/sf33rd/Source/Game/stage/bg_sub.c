@@ -1033,7 +1033,7 @@ void bg_pos_hosei2() {
 }
 
 s16 get_center_position() {
-    if (Bonus_Game_Flag == 0x15) {
+    if (Bonus_Game_Flag == STAGE_3S_BONUS_BALLS) {
         return 0x200;
     }
 

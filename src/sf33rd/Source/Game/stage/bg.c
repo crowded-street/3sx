@@ -111,11 +111,11 @@ void Bg_Kakikae_Set() {
         tokusyu_stage = 3;
         stage_flash = 0;
         stage_ftimer = 2;
-        rw_dat->rwd_ptr = rw_dat->brw_ptr = (s16*)rw190;
+        rw_dat->rwd_ptr = rw_dat->brw_ptr = (s16*)rw200;
         rw_dat->rw_cnt = 2;
 
         for (i = 0; i < 4; i++) {
-            rw_gbix[i] = stage19rw_data_tbl[i];
+            rw_gbix[i] = stage20rw_data_tbl[i];
         }
 
         rw = bgrw_on[bg_w.bg_index][0];
@@ -834,22 +834,22 @@ void scr_trans(u8 bgnm) {
                     switch (stage_flash) {
                     case 0:
                     case 1:
-                        rw_dat[0].rwd_ptr = rw_dat[0].brw_ptr = rw191;
+                        rw_dat[0].rwd_ptr = rw_dat[0].brw_ptr = rw201;
                         rw_dat[0].rw_cnt = 1;
-                        stage_ftimer = stage19_loop_tbl2[stage_ftimer];
+                        stage_ftimer = stage20_loop_tbl2[stage_ftimer];
                         break;
 
                     case 2:
                     case 3:
-                        rw_dat[0].rwd_ptr = rw_dat[0].brw_ptr = rw192;
+                        rw_dat[0].rwd_ptr = rw_dat[0].brw_ptr = rw202;
                         rw_dat[0].rw_cnt = 1;
-                        stage_ftimer = stage19_loop_tbl2[stage_ftimer];
+                        stage_ftimer = stage20_loop_tbl2[stage_ftimer];
                         break;
 
                     default:
-                        rw_dat[0].rwd_ptr = rw_dat[0].brw_ptr = rw190;
+                        rw_dat[0].rwd_ptr = rw_dat[0].brw_ptr = rw200;
                         rw_dat[0].rw_cnt = 2;
-                        stage_ftimer = stage19_loop_tbl1[stage_ftimer];
+                        stage_ftimer = stage20_loop_tbl1[stage_ftimer];
                         break;
                     }
                 } else {

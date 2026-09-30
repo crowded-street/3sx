@@ -15,6 +15,11 @@ static const char* const character_names[] = {
     "Yang", "Ken",  "Sean", "Urien", "Akuma", "Chun-Li", "Makoto", "Q",    "Twelve", "Remy",
 };
 
+static const char* const stage_names[] = {
+    "-",    "Gill", "Alex", "Ryu",   "Yun",   "Dudley",     "Necro",   "Hugo",   "Ibuki", "Elena",  "Oro",
+    "Yang", "Ken",  "Sean", "Urien", "Akuma", "Shin Akuma", "Chun-Li", "Makoto", "Q",     "Twelve", "Remy",
+};
+
 static const char* const bonus_stage_names[] = { "-", "Destroy the car", "Parry the ball" };
 
 static bool initialized = false;
@@ -62,9 +67,7 @@ static void build_debug_config() {
 
         ImGui_AlignTextToFramePadding();
         ImGui_Text("Stage override:");
-        ImGui_ComboChar(
-            "##stage_override", &debug_config.stage_override, character_names, SDL_arraysize(character_names)
-        );
+        ImGui_ComboChar("##stage_override", &debug_config.stage_override, stage_names, SDL_arraysize(stage_names));
 
         ImGui_AlignTextToFramePadding();
         ImGui_Text("Bonus stage override:");

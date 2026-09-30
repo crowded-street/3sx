@@ -1,15 +1,19 @@
 /**
  * @file bg_160.c
- * The Dojo Of Rindo-kan, Japan
+ * Chinese Restaurant, China
  */
 
 #include "sf33rd/Source/Game/stage/bg160.h"
 #include "common.h"
+#include "port/config/config.h"
 #include "sf33rd/Source/Game/effect/eff05.h"
 #include "sf33rd/Source/Game/effect/eff06.h"
-#include "sf33rd/Source/Game/effect/eff19.h"
+#include "sf33rd/Source/Game/effect/eff12.h"
+#include "sf33rd/Source/Game/effect/eff25.h"
 #include "sf33rd/Source/Game/effect/eff44.h"
+#include "sf33rd/Source/Game/effect/eff85.h"
 #include "sf33rd/Source/Game/effect/eff94.h"
+#include "sf33rd/Source/Game/effect/effi4.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
@@ -51,11 +55,19 @@ void bg1602_init00() {
     bgw_ptr->old_pos_x = bgw_ptr->xy[0].disp.pos = bgw_ptr->pos_x_work = 0x200;
     bgw_ptr->hos_xy[0].cal = bgw_ptr->wxy[0].cal = bgw_ptr->xy[0].cal;
     bgw_ptr->zuubun = 0;
+
     effect_05_init();
+    effect_12_init(5);
     effect_06_init();
-    effect_44_init(2);
-    effect_19_init();
-    effect_94_init(2);
+    effect_44_init(8); // Men eating at the cafe
+    effect_25_init(0);
+    effect_94_init(0); // Stationary plates
+    effect_94_init(1); // Single plate that can fall
+    effect_85_init();  // Bird
+
+    if (!Config_GetBool(CFG_DRAW_PLAYERS_ABOVE_HUD)) {
+        effect_I4_init(); // Bamboo
+    }
 }
 
 void bg1602_sync_common() {
@@ -69,8 +81,8 @@ void bg1602_sync_common() {
         bgw_ptr->y_limit = bgw_ptr->y_limit2 = 0xF0;
         bgw_ptr->pos_y_work = 0;
         bgw_ptr->xy[1].disp.pos = 0;
-        bgw_ptr->speed_x = 0x12000;
-        bgw_ptr->speed_y = 0x10000;
+        bgw_ptr->speed_x = 0xF000;
+        bgw_ptr->speed_y = 0xF000;
         sync_fam_set3(bgw_ptr->fam_no);
         break;
 

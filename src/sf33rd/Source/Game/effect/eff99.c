@@ -15,12 +15,12 @@ void Setup_Letter_99(WORK_Other_CONN* ewk, s16 letter_index, s16 disp_index);
 
 const s16 Pos_Data_99[5][3] = { { -144, 128, 23 }, { 48, 128, 23 }, { 8, 54, 23 }, { 0, 42, 23 }, { 0, 30, 23 } };
 
-const char* Letter_Data_99[5][21] = {
+const char* Letter_Data_99[5][VS_STAGE_RANDOM + 1] = {
     { ";;;;;;;#", ";;;;;;##", ";;;;;###", ";;;;####", ";;;#####", ";;######", ";#######", "########" },
     { "#;;;;;;;", "##;;;;;;", "###;;;;;", "####;;;;", "#####;;;", "######;;", "#######;", "########" },
-    { "UNKNOWN", "AMERICA", "JAPAN",  "HONG KONG", "ENGLAND", "RUSSIA", "GERMANY",
-      "JAPAN",   "KENYA",   "BRAZIL", "HONG KONG", "AMERICA", "BRAZIL", "MEXICO",
-      "JAPAN",   "CHINA",   "JAPAN",  "",          "RUSSIA",  "FRANCE", "RANDOM" },
+    { "UNKNOWN", "AMERICA", "JAPAN",     "HONG KONG", "ENGLAND", "RUSSIA", "GERMANY", "JAPAN",
+      "KENYA",   "BRAZIL",  "HONG KONG", "AMERICA",   "BRAZIL",  "MEXICO", "JAPAN",   "JAPAN",
+      "CHINA",   "JAPAN",   "",          "RUSSIA",    "FRANCE",  "RANDOM" },
     { "GILL STAGE",
       "SUBWAY STATION",
       "SUZAKU CASTLE ROOFTOP",
@@ -35,6 +35,7 @@ const char* Letter_Data_99[5][21] = {
       "SUBWAY STATION",
       "SANTOS HARBOR",
       "ORMECA RUINS",
+      "KOUSYU STREET",
       "KOUSYU STREET",
       "CHINESE RESTAURANT",
       "THE DOJO OF RINDO-KAN",
@@ -57,6 +58,7 @@ const char* Letter_Data_99[5][21] = {
       "SEAN STAGE",
       "URIEN STAGE",
       "AKUMA STAGE",
+      "SHIN AKUMA STAGE",
       "CHUN-LI STAGE",
       "MAKOTO STAGE",
       "",

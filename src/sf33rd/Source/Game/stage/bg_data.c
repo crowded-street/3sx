@@ -38,53 +38,55 @@ u8 y_sitei_flag;
 s16 y_sitei_pos;
 
 const u8 use_scr[AREA_COUNT] = {
-    [AREA_3S_GILL] = 2,      [AREA_3S_ALEX] = 2,        [AREA_3S_RYU] = 3,   [AREA_3S_YUN] = 2,    [AREA_3S_DUDLEY] = 2,
-    [AREA_3S_NECRO] = 2,     [AREA_3S_HUGO] = 2,        [AREA_3S_IBUKI] = 3, [AREA_3S_ELENA] = 2,  [AREA_3S_ORO] = 2,
-    [AREA_3S_YANG] = 2,      [AREA_3S_KEN] = 2,         [AREA_3S_SEAN] = 2,  [AREA_3S_URIEN] = 2,  [AREA_3S_AKUMA] = 3,
-    [AREA_3S_CHUNLI] = 2,    [AREA_3S_MAKOTO] = 2,      [AREA_3S_Q] = 2,     [AREA_3S_TWELVE] = 2, [AREA_3S_REMY] = 2,
-    [AREA_3S_BONUS_CAR] = 2, [AREA_3S_BONUS_BALLS] = 2,
+    [AREA_3S_GILL] = 2,   [AREA_3S_ALEX] = 2,      [AREA_3S_RYU] = 3,         [AREA_3S_YUN] = 2,
+    [AREA_3S_DUDLEY] = 2, [AREA_3S_NECRO] = 2,     [AREA_3S_HUGO] = 2,        [AREA_3S_IBUKI] = 3,
+    [AREA_3S_ELENA] = 2,  [AREA_3S_ORO] = 2,       [AREA_3S_YANG] = 2,        [AREA_3S_KEN] = 2,
+    [AREA_3S_SEAN] = 2,   [AREA_3S_URIEN] = 2,     [AREA_3S_AKUMA] = 3,       [AREA_3S_SHIN_AKUMA] = 3,
+    [AREA_3S_CHUNLI] = 2, [AREA_3S_MAKOTO] = 2,    [AREA_3S_Q] = 2,           [AREA_3S_TWELVE] = 2,
+    [AREA_3S_REMY] = 2,   [AREA_3S_BONUS_CAR] = 2, [AREA_3S_BONUS_BALLS] = 2,
 };
 
 const u8 use_real_scr[AREA_COUNT] = {
-    [AREA_3S_GILL] = 2,      [AREA_3S_ALEX] = 1,        [AREA_3S_RYU] = 3,   [AREA_3S_YUN] = 2,    [AREA_3S_DUDLEY] = 1,
-    [AREA_3S_NECRO] = 2,     [AREA_3S_HUGO] = 1,        [AREA_3S_IBUKI] = 2, [AREA_3S_ELENA] = 2,  [AREA_3S_ORO] = 2,
-    [AREA_3S_YANG] = 2,      [AREA_3S_KEN] = 1,         [AREA_3S_SEAN] = 2,  [AREA_3S_URIEN] = 2,  [AREA_3S_AKUMA] = 3,
-    [AREA_3S_CHUNLI] = 2,    [AREA_3S_MAKOTO] = 2,      [AREA_3S_Q] = 2,     [AREA_3S_TWELVE] = 2, [AREA_3S_REMY] = 1,
-    [AREA_3S_BONUS_CAR] = 2, [AREA_3S_BONUS_BALLS] = 1,
+    [AREA_3S_GILL] = 2,   [AREA_3S_ALEX] = 1,      [AREA_3S_RYU] = 3,         [AREA_3S_YUN] = 2,
+    [AREA_3S_DUDLEY] = 1, [AREA_3S_NECRO] = 2,     [AREA_3S_HUGO] = 1,        [AREA_3S_IBUKI] = 2,
+    [AREA_3S_ELENA] = 2,  [AREA_3S_ORO] = 2,       [AREA_3S_YANG] = 2,        [AREA_3S_KEN] = 1,
+    [AREA_3S_SEAN] = 2,   [AREA_3S_URIEN] = 2,     [AREA_3S_AKUMA] = 3,       [AREA_3S_SHIN_AKUMA] = 3,
+    [AREA_3S_CHUNLI] = 2, [AREA_3S_MAKOTO] = 2,    [AREA_3S_Q] = 2,           [AREA_3S_TWELVE] = 2,
+    [AREA_3S_REMY] = 1,   [AREA_3S_BONUS_CAR] = 2, [AREA_3S_BONUS_BALLS] = 1,
 };
 
 const u8 use_family[AREA_COUNT] = {
-    [AREA_3S_GILL] = 0,          [AREA_3S_ALEX] = 160,  [AREA_3S_RYU] = 4,
-    [AREA_3S_YUN] = 0,           [AREA_3S_DUDLEY] = 0,  [AREA_3S_NECRO] = 32,
-    [AREA_3S_HUGO] = 160,        [AREA_3S_IBUKI] = 4,   [AREA_3S_ELENA] = 38,
-    [AREA_3S_ORO] = 38,          [AREA_3S_YANG] = 0,    [AREA_3S_KEN] = 160,
-    [AREA_3S_SEAN] = 38,         [AREA_3S_URIEN] = 32,  [AREA_3S_AKUMA] = 0,
-    [AREA_3S_CHUNLI] = 32,       [AREA_3S_MAKOTO] = 32, [AREA_3S_Q] = 0,
-    [AREA_3S_TWELVE] = 32,       [AREA_3S_REMY] = 160,  [AREA_3S_BONUS_CAR] = 32,
-    [AREA_3S_BONUS_BALLS] = 160,
+    [AREA_3S_GILL] = 0,       [AREA_3S_ALEX] = 160,        [AREA_3S_RYU] = 4,
+    [AREA_3S_YUN] = 0,        [AREA_3S_DUDLEY] = 0,        [AREA_3S_NECRO] = 32,
+    [AREA_3S_HUGO] = 160,     [AREA_3S_IBUKI] = 4,         [AREA_3S_ELENA] = 38,
+    [AREA_3S_ORO] = 38,       [AREA_3S_YANG] = 0,          [AREA_3S_KEN] = 160,
+    [AREA_3S_SEAN] = 38,      [AREA_3S_URIEN] = 32,        [AREA_3S_AKUMA] = 0,
+    [AREA_3S_SHIN_AKUMA] = 0, [AREA_3S_CHUNLI] = 32,       [AREA_3S_MAKOTO] = 32,
+    [AREA_3S_Q] = 0,          [AREA_3S_TWELVE] = 32,       [AREA_3S_REMY] = 160,
+    [AREA_3S_BONUS_CAR] = 32, [AREA_3S_BONUS_BALLS] = 160,
 };
 
 // TODO: Switch to per-area values when adding stages with different area rewrite animations
 const u8 rewrite_scr[AREA_COUNT] = {
-    [AREA_3S_GILL] = 0,      [AREA_3S_ALEX] = 0,        [AREA_3S_RYU] = 0,     [AREA_3S_YUN] = 25,
-    [AREA_3S_DUDLEY] = 0,    [AREA_3S_NECRO] = 0,       [AREA_3S_HUGO] = 0,    [AREA_3S_IBUKI] = 12,
-    [AREA_3S_ELENA] = 24,    [AREA_3S_ORO] = 0,         [AREA_3S_YANG] = 96,   [AREA_3S_KEN] = 0,
-    [AREA_3S_SEAN] = 0,      [AREA_3S_URIEN] = 0,       [AREA_3S_AKUMA] = 1,   [AREA_3S_CHUNLI] = 0,
-    [AREA_3S_MAKOTO] = 0,    [AREA_3S_Q] = 0,           [AREA_3S_TWELVE] = 10, [AREA_3S_REMY] = 18,
-    [AREA_3S_BONUS_CAR] = 0, [AREA_3S_BONUS_BALLS] = 0,
+    [AREA_3S_GILL] = 0,   [AREA_3S_ALEX] = 0,      [AREA_3S_RYU] = 0,         [AREA_3S_YUN] = 25,
+    [AREA_3S_DUDLEY] = 0, [AREA_3S_NECRO] = 0,     [AREA_3S_HUGO] = 0,        [AREA_3S_IBUKI] = 12,
+    [AREA_3S_ELENA] = 24, [AREA_3S_ORO] = 0,       [AREA_3S_YANG] = 96,       [AREA_3S_KEN] = 0,
+    [AREA_3S_SEAN] = 0,   [AREA_3S_URIEN] = 0,     [AREA_3S_AKUMA] = 1,       [AREA_3S_SHIN_AKUMA] = 1,
+    [AREA_3S_CHUNLI] = 0, [AREA_3S_MAKOTO] = 0,    [AREA_3S_Q] = 0,           [AREA_3S_TWELVE] = 10,
+    [AREA_3S_REMY] = 18,  [AREA_3S_BONUS_CAR] = 0, [AREA_3S_BONUS_BALLS] = 0,
 };
 
 const u8 use_scr2[7] = { 1, 1, 1, 1, 1, 1, 1 };
 
 const u8 stage_bgw_number[AREA_COUNT][3] = {
-    [AREA_3S_GILL] = { 1, 2, 0 },        [AREA_3S_ALEX] = { 0, 2, 0 },   [AREA_3S_RYU] = { 1, 2, 3 },
-    [AREA_3S_YUN] = { 1, 2, 0 },         [AREA_3S_DUDLEY] = { 0, 2, 0 }, [AREA_3S_NECRO] = { 1, 2, 0 },
-    [AREA_3S_HUGO] = { 0, 2, 0 },        [AREA_3S_IBUKI] = { 1, 2, 0 },  [AREA_3S_ELENA] = { 1, 2, 0 },
-    [AREA_3S_ORO] = { 1, 2, 0 },         [AREA_3S_YANG] = { 1, 2, 0 },   [AREA_3S_KEN] = { 0, 1, 0 },
-    [AREA_3S_SEAN] = { 1, 2, 0 },        [AREA_3S_URIEN] = { 1, 2, 0 },  [AREA_3S_AKUMA] = { 1, 2, 3 },
-    [AREA_3S_CHUNLI] = { 1, 2, 0 },      [AREA_3S_MAKOTO] = { 1, 2, 0 }, [AREA_3S_Q] = { 1, 2, 0 },
-    [AREA_3S_TWELVE] = { 1, 2, 0 },      [AREA_3S_REMY] = { 0, 2, 0 },   [AREA_3S_BONUS_CAR] = { 1, 2, 0 },
-    [AREA_3S_BONUS_BALLS] = { 0, 2, 0 },
+    [AREA_3S_GILL] = { 1, 2, 0 },       [AREA_3S_ALEX] = { 0, 2, 0 },        [AREA_3S_RYU] = { 1, 2, 3 },
+    [AREA_3S_YUN] = { 1, 2, 0 },        [AREA_3S_DUDLEY] = { 0, 2, 0 },      [AREA_3S_NECRO] = { 1, 2, 0 },
+    [AREA_3S_HUGO] = { 0, 2, 0 },       [AREA_3S_IBUKI] = { 1, 2, 0 },       [AREA_3S_ELENA] = { 1, 2, 0 },
+    [AREA_3S_ORO] = { 1, 2, 0 },        [AREA_3S_YANG] = { 1, 2, 0 },        [AREA_3S_KEN] = { 0, 1, 0 },
+    [AREA_3S_SEAN] = { 1, 2, 0 },       [AREA_3S_URIEN] = { 1, 2, 0 },       [AREA_3S_AKUMA] = { 1, 2, 3 },
+    [AREA_3S_SHIN_AKUMA] = { 1, 2, 3 }, [AREA_3S_CHUNLI] = { 1, 2, 0 },      [AREA_3S_MAKOTO] = { 1, 2, 0 },
+    [AREA_3S_Q] = { 1, 2, 0 },          [AREA_3S_TWELVE] = { 1, 2, 0 },      [AREA_3S_REMY] = { 0, 2, 0 },
+    [AREA_3S_BONUS_CAR] = { 1, 2, 0 },  [AREA_3S_BONUS_BALLS] = { 0, 2, 0 },
 };
 
 const s32 msp[AREA_COUNT][3][2] = {
@@ -103,6 +105,7 @@ const s32 msp[AREA_COUNT][3][2] = {
     [AREA_3S_SEAN] = { { 0x8000, 0xE000 }, { 0x10000, 0x10000 }, { 0x0, 0x0 } },
     [AREA_3S_URIEN] = { { 0xC000, 0xE000 }, { 0x10000, 0x10000 }, { 0x0, 0x0 } },
     [AREA_3S_AKUMA] = { { 0xC000, 0xF000 }, { 0x10000, 0x10000 }, { 0x0, 0x0 } },
+    [AREA_3S_SHIN_AKUMA] = { { 0xC000, 0xF000 }, { 0x10000, 0x10000 }, { 0x0, 0x0 } },
     [AREA_3S_CHUNLI] = { { 0x8000, 0xF000 }, { 0x10000, 0x10000 }, { 0x8000, 0xB000 } },
     [AREA_3S_MAKOTO] = { { 0xC000, 0xE000 }, { 0x10000, 0x10000 }, { 0x0, 0x0 } },
     [AREA_3S_Q] = { { 0xC000, 0xE000 }, { 0x10000, 0x10000 }, { 0x0, 0x0 } },
@@ -322,49 +325,49 @@ const u16 stage142_map[64] = { 0x0,    0x0,    0x0,    0x0,    0x0,    0x0,  0x0
                                0x5600, 0xAA00, 0x0,    0x0,    0x95,   0x95, 0x95, 0x95,   0x95,   0xAA,   0x0,
                                0x0,    0x0,    0x0,    0x0,    0x0,    0x0,  0x0,  0x0,    0x0 };
 
-const u16 stage150_map[64] = { 0x0,    0x5550, 0x5550, 0x5550, 0x5550, 0x5550, 0x5550, 0x5550, 0x0,    0x5555, 0x5555,
+const u16 stage160_map[64] = { 0x0,    0x5550, 0x5550, 0x5550, 0x5550, 0x5550, 0x5550, 0x5550, 0x0,    0x5555, 0x5555,
                                0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x0,    0x5555, 0x5555, 0x5555, 0x5555, 0x5555,
                                0x5555, 0x5555, 0x0,    0x555,  0x555,  0x555,  0x555,  0x555,  0x555,  0x555,  0x5550,
                                0x5550, 0x5550, 0x5550, 0x5550, 0x0,    0x0,    0x0,    0x5555, 0x5555, 0x5555, 0x5555,
                                0x5555, 0x0,    0x0,    0x0,    0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x0,    0x0,
                                0x0,    0x555,  0x555,  0x555,  0x555,  0x555,  0x0,    0x0,    0x0 };
 
-const u16 stage151_map[64] = { 0x0,    0x0,    0x0,    0xA8,   0x298,  0x2A58, 0xA558, 0x5558, 0x0,    0x0,    0x0,
+const u16 stage161_map[64] = { 0x0,    0x0,    0x0,    0xA8,   0x298,  0x2A58, 0xA558, 0x5558, 0x0,    0x0,    0x0,
                                0x0,    0x0,    0x0,    0xA,    0xA9,   0x0,    0x0,    0x0,    0x0,    0x0,    0x0,
                                0x0,    0x800,  0x0,    0x0,    0x0,    0x0,    0x0,    0x0,    0x0,    0x80,   0x5558,
                                0x5558, 0x5558, 0x5558, 0x5558, 0x5558, 0x5558, 0x5558, 0xAA95, 0xAA95, 0xAA95, 0x5555,
                                0x5555, 0x5555, 0x5555, 0x5555, 0xA800, 0xAA0A, 0x56AA, 0x56A5, 0x5695, 0x5695, 0x5555,
                                0x5555, 0x2AAA, 0x2AA6, 0x2555, 0x2555, 0x2555, 0x2555, 0x2555, 0x2555 };
 
-const u16 stage160_map[64] = { 0x0,    0x0,    0x5500, 0x5500, 0x5500, 0x5500, 0x5500, 0xAA00, 0x0,    0x0,    0x5555,
+const u16 stage170_map[64] = { 0x0,    0x0,    0x5500, 0x5500, 0x5500, 0x5500, 0x5500, 0xAA00, 0x0,    0x0,    0x5555,
                                0x5555, 0x5555, 0x5555, 0x5555, 0xAAAA, 0x0,    0x0,    0x5555, 0x5555, 0x5555, 0x955,
                                0x95,   0xAA,   0x0,    0x0,    0x55,   0x55,   0x55,   0x0,    0x0,    0x0,    0x0,
                                0x0,    0x0,    0x0,    0x0,    0x0,    0x0,    0x0,    0x0,    0x0,    0x0,    0x0,
                                0x0,    0x0,    0x0,    0x0,    0x0,    0x0,    0x0,    0x0,    0x0,    0x0,    0x0,
                                0x0,    0x0,    0x0,    0x0,    0x0,    0x0,    0x0,    0x0,    0x0 };
 
-const u16 stage161_map[64] = { 0x0,    0x0,    0x0,    0x0,    0x0,    0x0,    0x0,    0x8000, 0x0,    0x0,    0x0,
+const u16 stage171_map[64] = { 0x0,    0x0,    0x0,    0x0,    0x0,    0x0,    0x0,    0x8000, 0x0,    0x0,    0x0,
                                0x0,    0x0,    0x8000, 0xA0A8, 0x6AAA, 0x0,    0x0,    0x8000, 0xAA00, 0x56A8, 0x555A,
                                0x5555, 0x5555, 0x0,    0xA80,  0x56A,  0x555,  0x555,  0x555,  0x555,  0x555,  0x80A0,
                                0xA8A0, 0x5AA0, 0x56A0, 0x56A0, 0x5550, 0x5550, 0x5550, 0x56AA, 0x5555, 0x5555, 0x5555,
                                0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0xA955, 0xA955, 0x5555, 0x5555, 0x5555,
                                0x5555, 0x555,  0x555,  0x556,  0x556,  0x555,  0x555,  0x2555, 0x2555 };
 
-const u16 stage180_map[64] = { 0x5500, 0x5500, 0x5500, 0x5500, 0x5500, 0x5500, 0x5500, 0x5500, 0x5555, 0x5555, 0x5555,
+const u16 stage190_map[64] = { 0x5500, 0x5500, 0x5500, 0x5500, 0x5500, 0x5500, 0x5500, 0x5500, 0x5555, 0x5555, 0x5555,
                                0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x5555,
                                0x5555, 0x5555, 0x95,   0x95,   0x95,   0x95,   0x95,   0x95,   0x95,   0x95,   0x5500,
                                0x5500, 0x5500, 0x5500, 0x5500, 0x5500, 0x5800, 0x5800, 0x5555, 0x5555, 0x5555, 0x5555,
                                0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x2555, 0x2955,
                                0x95,   0x95,   0x95,   0x95,   0x95,   0x95,   0x0,    0x0,    0x0 };
 
-const u16 stage181_map[64] = { 0x0,    0x0,    0x0,    0x800,  0x800,  0xA00,  0xA00,  0x2A00, 0x0,    0x0,    0x0,
+const u16 stage191_map[64] = { 0x0,    0x0,    0x0,    0x800,  0x800,  0xA00,  0xA00,  0x2A00, 0x0,    0x0,    0x0,
                                0x0,    0x0,    0x0,    0x0,    0x0,    0x0,    0x0,    0x0,    0x0,    0x0,    0x8000,
                                0x8000, 0xA280, 0x28,   0x28,   0x28,   0xA8,   0x29A,  0x256,  0x255,  0x255,  0xA6A0,
                                0x9550, 0x5550, 0x5550, 0x5550, 0x9550, 0x9550, 0x9550, 0x0,    0x2,    0x9,    0x29,
                                0xA2A,  0xAAA,  0xAAAA, 0xAAAA, 0xAA80, 0xAAA8, 0x6AA8, 0x6AA8, 0x5AA8, 0x5AA8, 0x5AAA,
                                0x55AA, 0xA55,  0x955,  0x555,  0x555,  0x555,  0x555,  0x555,  0x555 };
 
-const u16 stage190_map[64] = { 0x5550, 0x5550, 0x5550, 0x5550, 0x5550, 0x5550, 0x5550, 0x5550, 0x5555, 0x5555, 0x5555,
+const u16 stage200_map[64] = { 0x5550, 0x5550, 0x5550, 0x5550, 0x5550, 0x5550, 0x5550, 0x5550, 0x5555, 0x5555, 0x5555,
                                0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x5555, 0x5555,
                                0x5555, 0x5559, 0x555,  0x555,  0x555,  0x555,  0x555,  0x555,  0x555,  0x555,  0x5550,
                                0x5550, 0x5550, 0x5550, 0x5550, 0x5550, 0x5550, 0x5550, 0xA555, 0x2A55, 0xA55,  0x2A55,
@@ -429,6 +432,7 @@ const u32 bgtex_stage_gbix[AREA_COUNT][3] = {
     [AREA_3S_SEAN] = { 0x7F7F7F3F, 0x98FFFFF, 0x0 },
     [AREA_3S_URIEN] = { 0xFFFFFF38, 0x3FFFFFFF, 0x0 },
     [AREA_3S_AKUMA] = { 0xFFFFFFFF, 0x6FEFEFFF, 0x18181818 },
+    [AREA_3S_SHIN_AKUMA] = { 0xFFFFFFFF, 0x6FEFEFFF, 0x18181818 },
     [AREA_3S_CHUNLI] = { 0xFFFFFFFF, 0x80E6FFFF, 0x0 },
     [AREA_3S_MAKOTO] = { 0x7E7E0000, 0x77FFFFF, 0x0 },
     [AREA_3S_Q] = { 0x7E7E0000, 0x77FFFFF, 0x0 },
@@ -441,25 +445,25 @@ const u32 bgtex_stage_gbix[AREA_COUNT][3] = {
 const u32 bgtex_etc_gbix[7] = { 0xFFFF, 0xF0F0, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xF0F0 };
 
 const u32 stage_priority[AREA_COUNT] = {
-    [AREA_3S_GILL] = 0x5E546800,        [AREA_3S_ALEX] = 0x5E540000,   [AREA_3S_RYU] = 0x5E546800,
-    [AREA_3S_YUN] = 0x5E540000,         [AREA_3S_DUDLEY] = 0x5E540000, [AREA_3S_NECRO] = 0x5E540000,
-    [AREA_3S_HUGO] = 0x5E540000,        [AREA_3S_IBUKI] = 0x68547400,  [AREA_3S_ELENA] = 0x68545E00,
-    [AREA_3S_ORO] = 0x5E540000,         [AREA_3S_YANG] = 0x5E140000,   [AREA_3S_KEN] = 0x5E540000,
-    [AREA_3S_SEAN] = 0x5E540000,        [AREA_3S_URIEN] = 0x5E540000,  [AREA_3S_AKUMA] = 0x5E546200,
-    [AREA_3S_CHUNLI] = 0x5E540000,      [AREA_3S_MAKOTO] = 0x5E540000, [AREA_3S_Q] = 0x5E540000,
-    [AREA_3S_TWELVE] = 0x5E540000,      [AREA_3S_REMY] = 0x5E540000,   [AREA_3S_BONUS_CAR] = 0x5E540000,
-    [AREA_3S_BONUS_BALLS] = 0x5E540000,
+    [AREA_3S_GILL] = 0x5E546800,       [AREA_3S_ALEX] = 0x5E540000,        [AREA_3S_RYU] = 0x5E546800,
+    [AREA_3S_YUN] = 0x5E540000,        [AREA_3S_DUDLEY] = 0x5E540000,      [AREA_3S_NECRO] = 0x5E540000,
+    [AREA_3S_HUGO] = 0x5E540000,       [AREA_3S_IBUKI] = 0x68547400,       [AREA_3S_ELENA] = 0x68545E00,
+    [AREA_3S_ORO] = 0x5E540000,        [AREA_3S_YANG] = 0x5E140000,        [AREA_3S_KEN] = 0x5E540000,
+    [AREA_3S_SEAN] = 0x5E540000,       [AREA_3S_URIEN] = 0x5E540000,       [AREA_3S_AKUMA] = 0x5E546200,
+    [AREA_3S_SHIN_AKUMA] = 0x5E546200, [AREA_3S_CHUNLI] = 0x5E540000,      [AREA_3S_MAKOTO] = 0x5E540000,
+    [AREA_3S_Q] = 0x5E540000,          [AREA_3S_TWELVE] = 0x5E540000,      [AREA_3S_REMY] = 0x5E540000,
+    [AREA_3S_BONUS_CAR] = 0x5E540000,  [AREA_3S_BONUS_BALLS] = 0x5E540000,
 };
 
 const u32 etc_bg_priority[7] = { 0x54540000, 0x5E000000, 0x54540000, 0x54540000, 0x54540000, 0x54540000, 0x5E540000 };
 
 const u8 stage_opaque[AREA_COUNT] = {
-    [AREA_3S_GILL] = 0x80,      [AREA_3S_ALEX] = 0x80,        [AREA_3S_RYU] = 0x20,    [AREA_3S_YUN] = 0x80,
-    [AREA_3S_DUDLEY] = 0x40,    [AREA_3S_NECRO] = 0x80,       [AREA_3S_HUGO] = 0x80,   [AREA_3S_IBUKI] = 0xA0,
-    [AREA_3S_ELENA] = 0x80,     [AREA_3S_ORO] = 0x80,         [AREA_3S_YANG] = 0x80,   [AREA_3S_KEN] = 0x80,
-    [AREA_3S_SEAN] = 0x80,      [AREA_3S_URIEN] = 0x80,       [AREA_3S_AKUMA] = 0x20,  [AREA_3S_CHUNLI] = 0x80,
-    [AREA_3S_MAKOTO] = 0x80,    [AREA_3S_Q] = 0x80,           [AREA_3S_TWELVE] = 0x80, [AREA_3S_REMY] = 0x80,
-    [AREA_3S_BONUS_CAR] = 0x80, [AREA_3S_BONUS_BALLS] = 0x80,
+    [AREA_3S_GILL] = 0x80,   [AREA_3S_ALEX] = 0x80,      [AREA_3S_RYU] = 0x20,         [AREA_3S_YUN] = 0x80,
+    [AREA_3S_DUDLEY] = 0x40, [AREA_3S_NECRO] = 0x80,     [AREA_3S_HUGO] = 0x80,        [AREA_3S_IBUKI] = 0xA0,
+    [AREA_3S_ELENA] = 0x80,  [AREA_3S_ORO] = 0x80,       [AREA_3S_YANG] = 0x80,        [AREA_3S_KEN] = 0x80,
+    [AREA_3S_SEAN] = 0x80,   [AREA_3S_URIEN] = 0x80,     [AREA_3S_AKUMA] = 0x20,       [AREA_3S_SHIN_AKUMA] = 0x20,
+    [AREA_3S_CHUNLI] = 0x80, [AREA_3S_MAKOTO] = 0x80,    [AREA_3S_Q] = 0x80,           [AREA_3S_TWELVE] = 0x80,
+    [AREA_3S_REMY] = 0x80,   [AREA_3S_BONUS_CAR] = 0x80, [AREA_3S_BONUS_BALLS] = 0x80,
 };
 
 const s8 bgrw_on[AREA_COUNT][8] = {
@@ -478,6 +482,7 @@ const s8 bgrw_on[AREA_COUNT][8] = {
     [AREA_3S_SEAN] = { -1, -1, -1, -1, -1, -1, -1, -1 },
     [AREA_3S_URIEN] = { -1, -1, -1, -1, -1, -1, -1, -1 },
     [AREA_3S_AKUMA] = { 18, -1, -1, -1, -1, -1, -1, -1 },
+    [AREA_3S_SHIN_AKUMA] = { 18, -1, -1, -1, -1, -1, -1, -1 },
     [AREA_3S_CHUNLI] = { -1, -1, -1, -1, -1, -1, -1, -1 },
     [AREA_3S_MAKOTO] = { -1, -1, -1, -1, -1, -1, -1, -1 },
     [AREA_3S_Q] = { -1, -1, -1, -1, -1, -1, -1, -1 },
@@ -495,10 +500,10 @@ const s16 rw072[9] = { 0x6, 0xA0, 0x6, 0xE6, 0x6, 0xEA, 0x6, 0xEE, -0x1 };
 
 const s16 rw073[9] = { 0x6, 0xA1, 0x6, 0xE7, 0x6, 0xEB, 0x6, 0xEF, -0x1 };
 
-const s16 rw180[21] = { 0x7,  0x8F, 0x7,  0xE4, 0x7,  0xE5, 0x7,  0xE6, 0x7,  0xE7, 0x7,
+const s16 rw190[21] = { 0x7,  0x8F, 0x7,  0xE4, 0x7,  0xE5, 0x7,  0xE6, 0x7,  0xE7, 0x7,
                         0xE8, 0x7,  0xE7, 0x7,  0xE6, 0x7,  0xE5, 0x7,  0xE4, -0x1 };
 
-const s16 rw181[21] = { 0x7,  0x99, 0x7,  0xE9, 0x7,  0xEA, 0x7,  0xEB, 0x7,  0xEC, 0x7,
+const s16 rw191[21] = { 0x7,  0x99, 0x7,  0xE9, 0x7,  0xEA, 0x7,  0xEB, 0x7,  0xEC, 0x7,
                         0xED, 0x7,  0xEC, 0x7,  0xEB, 0x7,  0xEA, 0x7,  0xE9, -0x1 };
 
 const s16 rw080[9] = { 0xC, 0x96, 0xC, 0xE4, 0xC, 0xEC, 0xC, 0xF4, -0x1 };
@@ -527,7 +532,7 @@ const s16 rw035[13] = { 0x6, 0xA2, 0x6, 0xF4, 0x6, 0xF8, 0x6, 0xFC, 0x6, 0xF8, 0
 
 const s16 rw140[5] = { 0x2, 0x95, 0x2, 0x124, -0x1 };
 
-const s16 rw193[9] = { 0x4, 0xD6, 0x4, 0xF4, 0x4, 0xF5, 0x4, 0xF4, -0x1 };
+const s16 rw203[9] = { 0x4, 0xD6, 0x4, 0xF4, 0x4, 0xF5, 0x4, 0xF4, -0x1 };
 
 const s16 rw30[113] = { 0x1,  0xC4, 0xC5, 0xCC, 0xCD, 0xCE, 0xD4, 0xD5, 0xD6, 0xD7, 0xDC, 0xDD, 0xDE, 0xDF, 0x1,
                         0xE4, 0xE5, 0xE6, 0xE7, 0xE8, 0xE9, 0xEA, 0xEB, 0xEC, 0xED, 0xEE, 0xEF, 0xF0, 0x1,  0xC4,
@@ -549,36 +554,37 @@ const s16 rw31[57] = { 0x1,  0xE4, 0xE5, 0xE6, 0xE7, 0xE8, 0xE9, 0xEA, 0xEB, 0xE
 
 const u32 rw31col[4] = { 0xFFFFFFFF, 0xFFF5F5F5, 0xFFFFFFFF, 0xFFF5F5F5 };
 
-const s16 rw190[26] = { 0x2,  0xD9, 0xDA, 0xE1, 0xE2, 0x2,  0xE4, 0xE5, 0xE6, 0xE7, 0x2,  0xE8, 0xE9,
+const s16 rw200[26] = { 0x2,  0xD9, 0xDA, 0xE1, 0xE2, 0x2,  0xE4, 0xE5, 0xE6, 0xE7, 0x2,  0xE8, 0xE9,
                         0xEA, 0xEB, 0x2,  0xEC, 0xED, 0xEE, 0xEF, 0x2,  0xF0, 0xF1, 0xF2, 0xF3, -0x1 };
 
-const s16 rw191[11] = { 0x1, 0xD9, 0xDA, 0xE1, 0xE2, 0x1, 0xE8, 0xE9, 0xEA, 0xEB, -0x1 };
+const s16 rw201[11] = { 0x1, 0xD9, 0xDA, 0xE1, 0xE2, 0x1, 0xE8, 0xE9, 0xEA, 0xEB, -0x1 };
 
-const s16 rw192[11] = { 0x1, 0xEC, 0xED, 0xEE, 0xEF, 0x1, 0xF0, 0xF1, 0xF2, 0xF3, -0x1 };
+const s16 rw202[11] = { 0x1, 0xEC, 0xED, 0xEE, 0xEF, 0x1, 0xF0, 0xF1, 0xF2, 0xF3, -0x1 };
 
 const bgrw_data_tbl_elem bgrw_data_tbl[20] = {
-    { 0x0, 0x9E, rw070 }, { 0x0, 0x9F, rw071 }, { 0x0, 0xA0, rw072 }, { 0x0, 0xA1, rw073 }, { 0x0, 0x8F, rw180 },
-    { 0x0, 0x99, rw181 }, { 0x0, 0x96, rw080 }, { 0x0, 0x97, rw081 }, { 0x0, 0x98, rw082 }, { 0x0, 0x99, rw083 },
+    { 0x0, 0x9E, rw070 }, { 0x0, 0x9F, rw071 }, { 0x0, 0xA0, rw072 }, { 0x0, 0xA1, rw073 }, { 0x0, 0x8F, rw190 },
+    { 0x0, 0x99, rw191 }, { 0x0, 0x96, rw080 }, { 0x0, 0x97, rw081 }, { 0x0, 0x98, rw082 }, { 0x0, 0x99, rw083 },
     { 0x0, 0x9E, rw084 }, { 0x0, 0x9F, rw085 }, { 0x0, 0xA0, rw086 }, { 0x0, 0xA1, rw087 }, { 0x0, 0x9F, rw032 },
-    { 0x0, 0xA0, rw033 }, { 0x0, 0xA1, rw034 }, { 0x0, 0xA2, rw035 }, { 0x0, 0x95, rw140 }, { 0x1, 0xD6, rw193 }
+    { 0x0, 0xA0, rw033 }, { 0x0, 0xA1, rw034 }, { 0x0, 0xA2, rw035 }, { 0x0, 0x95, rw140 }, { 0x1, 0xD6, rw203 }
 };
 
 const s32 stage03rw_data_tbl[13] = { 0xC4, 0xC5, 0xCC, 0xCD, 0xCE, 0xD4, 0xD5, 0xD6, 0xD7, 0xDC, 0xDD, 0xDE, 0xDF };
 
 const u8 stage03_flash_tbl[16] = { 0, 0, 0, 1, 0, 0, 2, 0, 0, 1, 0, 0, 3, 0, 0, 0 };
 
-const s32 stage19rw_data_tbl[4] = { 0xD9, 0xDA, 0xE1, 0xE2 };
+const s32 stage20rw_data_tbl[4] = { 0xD9, 0xDA, 0xE1, 0xE2 };
 
-const u8 stage19_loop_tbl1[16] = { 7, 1, 8, 2, 6, 2, 10, 1, 5, 8, 3, 6, 9, 7, 4, 2 };
+const u8 stage20_loop_tbl1[16] = { 7, 1, 8, 2, 6, 2, 10, 1, 5, 8, 3, 6, 9, 7, 4, 2 };
 
-const u8 stage19_loop_tbl2[16] = { 3, 2, 1, 4, 3, 2, 1, 4, 3, 2, 1, 4, 3, 2, 1, 4 };
+const u8 stage20_loop_tbl2[16] = { 3, 2, 1, 4, 3, 2, 1, 4, 3, 2, 1, 4, 3, 2, 1, 4 };
 
 const u8 ake_bg_off[AREA_COUNT] = {
-    [AREA_3S_GILL] = 3,      [AREA_3S_ALEX] = 2,        [AREA_3S_RYU] = 7,   [AREA_3S_YUN] = 3,    [AREA_3S_DUDLEY] = 2,
-    [AREA_3S_NECRO] = 3,     [AREA_3S_HUGO] = 2,        [AREA_3S_IBUKI] = 7, [AREA_3S_ELENA] = 3,  [AREA_3S_ORO] = 3,
-    [AREA_3S_YANG] = 3,      [AREA_3S_KEN] = 2,         [AREA_3S_SEAN] = 3,  [AREA_3S_URIEN] = 3,  [AREA_3S_AKUMA] = 3,
-    [AREA_3S_CHUNLI] = 3,    [AREA_3S_MAKOTO] = 3,      [AREA_3S_Q] = 0,     [AREA_3S_TWELVE] = 3, [AREA_3S_REMY] = 2,
-    [AREA_3S_BONUS_CAR] = 0, [AREA_3S_BONUS_BALLS] = 0,
+    [AREA_3S_GILL] = 3,   [AREA_3S_ALEX] = 2,      [AREA_3S_RYU] = 7,         [AREA_3S_YUN] = 3,
+    [AREA_3S_DUDLEY] = 2, [AREA_3S_NECRO] = 3,     [AREA_3S_HUGO] = 2,        [AREA_3S_IBUKI] = 7,
+    [AREA_3S_ELENA] = 3,  [AREA_3S_ORO] = 3,       [AREA_3S_YANG] = 3,        [AREA_3S_KEN] = 2,
+    [AREA_3S_SEAN] = 3,   [AREA_3S_URIEN] = 3,     [AREA_3S_AKUMA] = 3,       [AREA_3S_SHIN_AKUMA] = 3,
+    [AREA_3S_CHUNLI] = 3, [AREA_3S_MAKOTO] = 3,    [AREA_3S_Q] = 0,           [AREA_3S_TWELVE] = 3,
+    [AREA_3S_REMY] = 2,   [AREA_3S_BONUS_CAR] = 0, [AREA_3S_BONUS_BALLS] = 0,
 };
 
 const s16 limit_tbl3[AREA_COUNT][3][4] = {
@@ -597,6 +603,7 @@ const s16 limit_tbl3[AREA_COUNT][3][4] = {
     [AREA_3S_SEAN] = { { 0x10C, 0x2F2, 0xF0, 0xF0 }, { 0x10C, 0x2F2, 0xF0, 0xF0 }, { 0x10C, 0x2F2, 0xF0, 0xF0 } },
     [AREA_3S_URIEN] = { { 0x168, 0x2AF, 0xE3, 0xE3 }, { 0x10C, 0x2F8, 0xE3, 0xE3 }, { 0x1A3, 0x274, 0xE3, 0xE3 } },
     [AREA_3S_AKUMA] = { { 0x14D, 0x2B7, 0xF0, 0xF0 }, { 0x110, 0x2F0, 0xF0, 0xF0 }, { 0x189, 0x27A, 0xF0, 0xF0 } },
+    [AREA_3S_SHIN_AKUMA] = { { 0x14D, 0x2B7, 0xF0, 0xF0 }, { 0x110, 0x2F0, 0xF0, 0xF0 }, { 0x189, 0x27A, 0xF0, 0xF0 } },
     [AREA_3S_CHUNLI] = { { 0x10E, 0x2F8, 0xF0, 0xF0 }, { 0x106, 0x2F8, 0xF0, 0xF0 }, { 0x10E, 0x2F8, 0xF0, 0xF0 } },
     [AREA_3S_MAKOTO] = { { 0x14D, 0x2B7, 0xE8, 0xE8 }, { 0x114, 0x2F2, 0xE8, 0xE8 }, { 0x189, 0x27A, 0xE8, 0xE8 } },
     [AREA_3S_Q] = { { 0x110, 0x2F0, 0xF0, 0xF0 }, { 0x110, 0x2F0, 0xF0, 0xF0 }, { 0x110, 0x2F0, 0xF0, 0xF0 } },
@@ -624,6 +631,7 @@ const s8 bg_index_tbl[STAGE_COUNT][3] = {
     [STAGE_3S_SEAN] = { AREA_3S_SEAN, AREA_3S_SEAN, AREA_3S_SEAN },
     [STAGE_3S_URIEN] = { AREA_3S_URIEN, AREA_3S_URIEN, AREA_3S_URIEN },
     [STAGE_3S_AKUMA] = { AREA_3S_AKUMA, AREA_3S_AKUMA, AREA_3S_AKUMA },
+    [STAGE_3S_SHIN_AKUMA] = { AREA_3S_SHIN_AKUMA, AREA_3S_SHIN_AKUMA, AREA_3S_SHIN_AKUMA },
     [STAGE_3S_CHUNLI] = { AREA_3S_CHUNLI, AREA_3S_CHUNLI, AREA_3S_CHUNLI },
     [STAGE_3S_MAKOTO] = { AREA_3S_MAKOTO, AREA_3S_MAKOTO, AREA_3S_MAKOTO },
     [STAGE_3S_Q] = { AREA_3S_DUDLEY, AREA_3S_DUDLEY, AREA_3S_DUDLEY },
@@ -672,11 +680,12 @@ const u16* bg_map_tbl[AREA_COUNT][3] = {
     [AREA_3S_SEAN] = { stage120_map, stage121_map, NULL },
     [AREA_3S_URIEN] = { stage130_map, stage131_map, NULL },
     [AREA_3S_AKUMA] = { stage140_map, stage141_map, stage142_map },
-    [AREA_3S_CHUNLI] = { stage150_map, stage151_map, NULL },
-    [AREA_3S_MAKOTO] = { stage160_map, stage161_map, NULL },
-    [AREA_3S_Q] = { stage160_map, stage161_map, NULL },
-    [AREA_3S_TWELVE] = { stage180_map, stage181_map, NULL },
-    [AREA_3S_REMY] = { stage190_map, NULL, NULL },
+    [AREA_3S_SHIN_AKUMA] = { stage140_map, stage141_map, stage142_map },
+    [AREA_3S_CHUNLI] = { stage160_map, stage161_map, NULL },
+    [AREA_3S_MAKOTO] = { stage170_map, stage171_map, NULL },
+    [AREA_3S_Q] = { stage170_map, stage171_map, NULL },
+    [AREA_3S_TWELVE] = { stage190_map, stage191_map, NULL },
+    [AREA_3S_REMY] = { stage200_map, NULL, NULL },
     [AREA_3S_BONUS_CAR] = { bonus010_map, bonus011_map, NULL },
     [AREA_3S_BONUS_BALLS] = { bonus020_map, NULL, NULL },
 };

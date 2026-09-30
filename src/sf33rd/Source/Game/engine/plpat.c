@@ -213,7 +213,7 @@ void Attack_03000(PLW* wk) { // 🟢
     case 0:
         wk->wu.routine_no[3]++;
         get_cancel_timer(wk);
-        if ((Bonus_Game_Flag == 20 && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0)) {
+        if ((Bonus_Game_Flag == STAGE_3S_BONUS_CAR && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0)) {
             hoken_muriyari_chakuchi(wk);
             wk->wu.rl_flag = wk->wu.rl_waza;
             setup_lvdir_after_autodir(wk);
@@ -758,7 +758,7 @@ void get_cancel_timer(PLW* wk) { // 🟢
 }
 
 void hoken_muriyari_chakuchi(PLW* wk) { // 🟢
-    if ((Bonus_Game_Flag == 20) && wk->bs2_on_car) {
+    if ((Bonus_Game_Flag == STAGE_3S_BONUS_CAR) && wk->bs2_on_car) {
         wk->wu.xyz[1].disp.pos = bs2_floor[2];
     } else {
         wk->wu.xyz[1].disp.pos = 0;

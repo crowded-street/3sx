@@ -83,7 +83,7 @@ void plcnt_b_init() {
         clear_super_arts_point(&plw[0]);
         clear_super_arts_point(&plw[1]);
 
-        if (Bonus_Game_Flag == 21) {
+        if (Bonus_Game_Flag == STAGE_3S_BONUS_BALLS) {
             setup_bs_scrrrl_bs();
         }
 
@@ -210,7 +210,7 @@ void plcnt_b_die() {
 s16 footwork_check_bns(s8 ix) {
     s16 rnum = 0;
 
-    if ((Bonus_Game_Flag == 20) && plw[ix].wu.operator == 0) {
+    if ((Bonus_Game_Flag == STAGE_3S_BONUS_CAR) && plw[ix].wu.operator == 0) {
         return 1;
     }
 
@@ -263,7 +263,7 @@ void move_player_work_bonus() {
     set_rl_waza(&plw[1]);
     Timer_Freeze = 0;
 
-    if (Bonus_Game_Flag == 20) {
+    if (Bonus_Game_Flag == STAGE_3S_BONUS_CAR) {
         setup_bs_scrrrl_bs2();
     }
 
@@ -288,7 +288,7 @@ void move_P1_move_P2_bonus(s16* field_work) {
         set_field_hosei_flag(&plw[1], field_work[3], 0);
     }
 
-    if (Bonus_Game_Flag == 20) {
+    if (Bonus_Game_Flag == STAGE_3S_BONUS_CAR) {
         plw[1].wu.disp_flag = 0;
     }
 }
@@ -306,7 +306,7 @@ void move_P2_move_P1_bonus(s16* field_work) {
         set_field_hosei_flag(&plw[0], field_work[1], 0);
     }
 
-    if (Bonus_Game_Flag == 20) {
+    if (Bonus_Game_Flag == STAGE_3S_BONUS_CAR) {
         plw[0].wu.disp_flag = 0;
     }
 }
