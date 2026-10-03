@@ -1,14 +1,17 @@
 #if CRS_VIDEO_DRIVER_OPENGL
+#define STB_IMAGE_IMPLEMENTATION
 
 #include "platform/video/opengl/opengl_renderer.h"
 #include "common.h"
 #include "port/utils.h"
+#include "port/paths.h"
 #include "sf33rd/AcrSDK/ps2/flps2etc.h"
 #include "sf33rd/AcrSDK/ps2/flps2render.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 
 #include "glad.h"
 #include "stb/stb_ds.h"
+#include "stb/stb_image.h"
 #include <SDL3/SDL.h>
 
 #include <libgraph.h>
@@ -91,6 +94,9 @@ static GLVertex* vertices = NULL;
 static GLTexture textures[FL_TEXTURE_MAX] = { 0 };
 static GLuint palettes[FL_PALETTE_MAX] = { 0 };
 static GLTextureSpec latest_texture_spec = { 0 };
+
+GLuint borderTexture, foregroundTexture, borderQuadVAO;
+bool draw_bg_border, draw_fg_border;
 
 static const char* read_shader(const char* filename) {
     const char* base_path = SDL_GetBasePath();
@@ -185,6 +191,87 @@ static GLuint build_shader_program(const char* vertex_shader_filename, const cha
     glDeleteShader(fragment_shader);
 
     return program;
+}
+
+static GLuint load_border(const char* borderFileName) {
+    int width, height, nrChannels;
+    stbi_set_flip_vertically_on_load(true);
+
+    const char* base_path = SDL_GetBasePath();
+    char* full_path = NULL;
+    SDL_asprintf(&full_path, "%s/assets/%s", base_path, borderFileName);
+    
+    // Check if the border file exists.
+    // If it doesn't we just assume that the user hasn't added one.
+    bool path_result = SDL_GetPathInfo(full_path, NULL);
+    if(!path_result) {
+        return 0;
+    }
+    else {
+        SDL_Log("Loading border file: %s", borderFileName);
+    }
+
+    unsigned char *data = stbi_load(full_path, &width, &height, &nrChannels, 0);
+    if(!data) {
+        SDL_Log("Failed to load border file: %s", borderFileName);
+        return 0;
+    }
+
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    // Texture wrapping and filtering options
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // Note: might have wrong colours as the SDL renderer flips red and blue channels
+    GLenum format = (nrChannels == 4) ? GL_RGBA : GL_RGB;
+
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    stbi_image_free(data);
+
+    return texture;
+}
+
+static GLuint create_border_quad_vao() {
+    float vertices[] = {
+         0.5f,  0.5f,  1.0f, 1.0f,
+         0.5f, -0.5f,  1.0f, 0.0f,
+        -0.5f, -0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f,  0.0f, 1.0f
+    };
+    unsigned int indices[] = {
+        0, 1, 3,
+        1, 2, 3
+    };
+
+    GLuint VAO, VBO, EBO;
+    glGenVertexArrays(1, & VAO);
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
+
+    glBindVertexArray(VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glBindVertexArray(0);
+
+    return VAO;
 }
 
 static float convert_to_screen_x(float x) {
@@ -610,6 +697,21 @@ static SDL_Window* OpenGLRenderer_Init(const SDLRenderBackendInitInfo* init_info
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
+    // Setup borders
+    borderTexture = load_border("border_bg.png");
+    if(borderTexture != 0) {
+        borderQuadVAO = create_border_quad_vao();
+        draw_bg_border = true;
+    }
+
+    foregroundTexture = load_border("border_fg.png");
+    if(foregroundTexture != 0) {
+        if(borderQuadVAO == 0) {
+            borderQuadVAO = create_border_quad_vao();
+        }
+        draw_fg_border = true;
+    }
+
     // Misc
 
     glEnable(GL_BLEND);
@@ -625,18 +727,17 @@ static void OpenGLRenderer_Quit() {
 }
 
 static void OpenGLRenderer_RenderFrame(SDL_Rect viewport) {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glBindVertexArray(vertex_array);
-    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-
-    // Draw to canvas
-
     glBindFramebuffer(GL_FRAMEBUFFER, canvas_fbo);
     glViewport(0, 0, 384, 224);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    glBindVertexArray(vertex_array);
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+
+    // Draw to canvas
     for (int i = 0; i < arrlen(quads); i++) {
         const int vertex_base = i * 4;
         const GLQuad* quad = &quads[i];
@@ -689,6 +790,19 @@ static void OpenGLRenderer_RenderFrame(SDL_Rect viewport) {
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (GLvoid*)(sizeof(GLuint) * 6 * i));
     }
 
+    // Get window size for border
+    int win_w = 0, win_h = 0;
+    if(draw_bg_border || draw_fg_border) {
+        SDL_GetWindowSizeInPixels(window, &win_w, &win_h);
+        glViewport(0, 0, win_w, win_h);
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
+    glUseProgram(direct_shader);
+
     // Draw canvas to window
 
     GLVertex screen_vertices[4] = {
@@ -703,17 +817,35 @@ static void OpenGLRenderer_RenderFrame(SDL_Rect viewport) {
     }
 
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(screen_vertices), screen_vertices);
-    glUseProgram(direct_shader);
-    glDisable(GL_BLEND);
-    glDisable(GL_DEPTH_TEST);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    // Draw border
+    if(draw_bg_border && borderTexture != 0) {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, borderTexture);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (GLvoid*)0);
+    }
+
+
     glViewport(viewport.x, viewport.y, viewport.w, viewport.h);
-    glClear(GL_COLOR_BUFFER_BIT);
-
+    
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, canvas_color_tex);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (GLvoid*)0);
+
+    // Draw foreground border
+    if(draw_fg_border && foregroundTexture != 0) {
+        glViewport(0, 0, win_w, win_h);
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, foregroundTexture);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (GLvoid*)0);
+
+        glDisable(GL_BLEND);
+    }
+    
     glEnable(GL_BLEND);
 
     // Cleanup
