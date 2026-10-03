@@ -5,7 +5,7 @@
 #include "main.h"
 #include "platform/netplay/netplay_stress.h"
 #include "port/config/config.h"
-#include "port/io/afs.h"
+#include "port/io/resource.h"
 #include "port/resources.h"
 
 #include <SDL3/SDL.h>
@@ -20,7 +20,7 @@ static bool init() {
         return false;
     }
 
-    if (!AFS_Init(Resources_GetAFSPath(), 256 * 1024)) {
+    if (!Resource_Init(Resources_GetAFSPath(), 256 * 1024)) {
         SDL_Log("Couldn't initialize AFS: %s", Resources_GetAFSPath());
         return false;
     }
@@ -31,7 +31,7 @@ static bool init() {
 
 static void cleanup() {
     Main_Finish();
-    AFS_Finish();
+    Resource_Finish();
     Config_Destroy();
 }
 
@@ -49,7 +49,7 @@ int SDLStressApp_Run() {
 
     // No event loop to deliver a quit event, so the run ends on its own flag.
     while (!Stress_IsFinished()) {
-        AFS_RunServer();
+        Resource_RunServer();
         Main_StepFrame();
         Main_FinishFrame();
     }

@@ -1,12 +1,12 @@
 /**
  * @file gd3rd.c
- * AFS file reading
+ * Game file reading
  */
 
 #include "sf33rd/Source/Game/io/gd3rd.h"
 #include "common.h"
 #include "constants.h"
-#include "port/io/afs.h"
+#include "port/io/resource.h"
 #include "port/utils.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
@@ -38,94 +38,94 @@ static LoadRequest q_ldreq[16] = { 0 };
 
 static bool ldreq_break = false;
 static u8 ldreq_result[294] = { 0 };
-static AFSHandle afs_handle = AFS_NONE;
+static ResourceHandle file_handle = RESOURCE_NONE;
 
 bool fsOpen(u16 fnum) {
-    if (fnum >= AFS_GetFileCount()) {
+    if (!Resource_Exists(fnum)) {
         return false;
     }
 
-    if (afs_handle != AFS_NONE) {
-        AFS_Close(afs_handle);
+    if (file_handle != RESOURCE_NONE) {
+        Resource_Close(file_handle);
     }
 
-    afs_handle = AFS_Open(fnum);
+    file_handle = Resource_Open(fnum);
     return true;
 }
 
 void fsClose() {
-    AFS_Close(afs_handle);
-    afs_handle = AFS_NONE;
+    Resource_Close(file_handle);
+    file_handle = RESOURCE_NONE;
 }
 
 u32 fsGetFileSize(u16 fnum) {
-    if (fnum >= AFS_GetFileCount()) {
+    if (!Resource_Exists(fnum)) {
         return 0;
     }
 
-    return AFS_GetSize(fnum);
+    return Resource_GetSize(fnum);
 }
 
 static void fsCansel() {
-    if ((afs_handle != AFS_NONE) && (AFS_GetState(afs_handle) == AFS_READ_STATE_READING)) {
-        AFS_Stop(afs_handle);
+    if ((file_handle != RESOURCE_NONE) && (Resource_GetState(file_handle) == RESOURCE_READ_STATE_READING)) {
+        Resource_Stop(file_handle);
     }
 }
 
 bool fsCheckCommandExecuting() {
-    if (afs_handle == AFS_NONE) {
+    if (file_handle == RESOURCE_NONE) {
         return false;
     }
 
-    const AFSReadState state = AFS_GetState(afs_handle);
+    const ResourceReadState state = Resource_GetState(file_handle);
 
     switch (state) {
-    case AFS_READ_STATE_READING:
-    case AFS_READ_STATE_ERROR:
+    case RESOURCE_READ_STATE_READING:
+    case RESOURCE_READ_STATE_ERROR:
         return true;
 
-    case AFS_READ_STATE_IDLE:
-    case AFS_READ_STATE_FINISHED:
+    case RESOURCE_READ_STATE_IDLE:
+    case RESOURCE_READ_STATE_FINISHED:
         return false;
 
     default:
-        fatal_error("Unhandled AFS state: %d", state);
+        fatal_error("Unhandled resource state: %d", state);
     }
 }
 
 s32 fsRequestFileRead(void* buff) {
-    AFS_Read(afs_handle, buff);
+    Resource_Read(file_handle, buff);
     return 1;
 }
 
 FileReadStatus fsCheckFileReaded() {
-    const AFSReadState state = AFS_GetState(afs_handle);
+    const ResourceReadState state = Resource_GetState(file_handle);
 
     switch (state) {
-    case AFS_READ_STATE_IDLE:
-    case AFS_READ_STATE_FINISHED:
+    case RESOURCE_READ_STATE_IDLE:
+    case RESOURCE_READ_STATE_FINISHED:
         return FS_READ_IDLE;
 
-    case AFS_READ_STATE_READING:
+    case RESOURCE_READ_STATE_READING:
         return FS_READ_READING;
 
-    case AFS_READ_STATE_ERROR:
+    case RESOURCE_READ_STATE_ERROR:
         return FS_READ_ERROR;
 
     default:
-        fatal_error("Unhandled AFS state: %d", state);
+        fatal_error("Unhandled resource state: %d", state);
     }
 }
 
 bool fsFileReadSync(void* buff) {
-    AFS_ReadSync(afs_handle, buff);
+    Resource_ReadSync(file_handle, buff);
     return fsCheckFileReaded() == FS_READ_IDLE;
 }
 
 s32 load_it_use_any_key2(u16 fnum, void** adrs, s16* key, u8 kokey, u8 group) {
     u32 size;
 
-    if (fnum >= AFS_GetFileCount()) {
+    if (!Resource_Exists(fnum)) {
         flLogOut("ファイルナンバーに異常があります。ファイル番号：%d\n", fnum);
         while (1) {}
     }

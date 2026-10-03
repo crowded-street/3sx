@@ -15,6 +15,19 @@ const char* Paths_GetPrefPath() {
     return pref_path;
 }
 
+char* Paths_GetCachePath(const char* file_path) {
+    const char* base = Paths_GetPrefPath();
+    char* full_path = NULL;
+
+    if (file_path == NULL) {
+        SDL_asprintf(&full_path, "%scache/", base);
+    } else {
+        SDL_asprintf(&full_path, "%scache/%s", base, file_path);
+    }
+
+    return full_path;
+}
+
 const char* Paths_GetBasePath() {
     return SDL_GetBasePath();
 }
