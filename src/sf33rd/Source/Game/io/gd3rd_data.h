@@ -16,7 +16,9 @@ typedef struct Span {
     s16 length;
 } Span;
 
-extern const LoadRequestEntry ldreq_tbl[];
+#define LDREQ_TBL_SIZE 297
+
+extern const LoadRequestEntry ldreq_tbl[LDREQ_TBL_SIZE];
 extern const Span spans[];
 
 #endif

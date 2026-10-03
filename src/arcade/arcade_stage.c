@@ -1,4 +1,5 @@
 #include "arcade/arcade_stage.h"
+#include "port/io/cache.h"
 
 /// Offset of SIMM5 in the graphics region
 #define SIMM5_OFFSET 0x2000000
@@ -7,13 +8,14 @@
 typedef struct StagePaletteSource {
     Uint32 offset;
     size_t count;
+    CacheFile file;
 } StagePaletteSource;
 
-static const StagePaletteSource palette_sources[STAGE_COUNT] = {
-    [STAGE_3S_SHIN_AKUMA] = { .offset = SIMM5_OFFSET + 0xF4D280, .count = 17 * 64 },
+static const StagePaletteSource palette_sources[] = {
+    { .offset = SIMM5_OFFSET + 0xF4D280, .count = 17 * 64, .file = CACHE_FILE_SHIN_AKUMA_BG_PALETTE },
 };
 
-static Uint16* palettes[STAGE_COUNT] = { 0 };
+static bool shin_akuma_stage_available = false;
 
 /// Converts a CPS3 xRGB555 color to the PS2 file format: xBGR555 with bit 15 set on everything
 /// except the transparent color that starts each 64-color row.
@@ -28,50 +30,36 @@ static Uint16 convert_color(Uint16 color, size_t index) {
     return swapped | 0x8000;
 }
 
-void ArcadeStage_Init(const Rom* rom) {
-    size_t graphics_size;
-    const Uint8* graphics = Rom_GetGraphics(rom, &graphics_size);
-
-    for (int stage = 0; stage < STAGE_COUNT; stage++) {
-        const StagePaletteSource* source = &palette_sources[stage];
-
-        if (source->count == 0) {
-            continue;
-        }
-
-        if (graphics == NULL || source->offset + source->count * 2 > graphics_size) {
-            SDL_Log("Couldn't build palette for stage %d: ROM has no data for it", stage);
-            continue;
-        }
-
-        Uint16* palette = SDL_malloc(source->count * sizeof(Uint16));
-        const Uint8* src = graphics + source->offset;
-
-        // Graphics are stored in MAME byte order, where palette words read as little-endian
-        for (size_t i = 0; i < source->count; i++) {
-            palette[i] = convert_color(src[i * 2] | (src[i * 2 + 1] << 8), i);
-        }
-
-        palettes[stage] = palette;
+static void write_palette(const StagePaletteSource* source, const Uint8* graphics, size_t graphics_size) {
+    if (graphics == NULL || source->offset + source->count * 2 > graphics_size) {
+        SDL_Log("Couldn't build %s: ROM has no data for it", Cache_GetPath(source->file));
+        return;
     }
+
+    Uint16* palette = SDL_malloc(source->count * sizeof(Uint16));
+    const Uint8* src = graphics + source->offset;
+
+    for (size_t i = 0; i < source->count; i++) {
+        palette[i] = SDL_Swap16LE(convert_color(src[i * 2] | (src[i * 2 + 1] << 8), i));
+    }
+
+    Cache_Write(source->file, palette, source->count * sizeof(Uint16));
+    SDL_free(palette);
 }
 
-void ArcadeStage_Finish() {
-    for (int stage = 0; stage < STAGE_COUNT; stage++) {
-        SDL_free(palettes[stage]);
-        palettes[stage] = NULL;
+void ArcadeStage_Init(const Rom* rom) {
+    if (rom != NULL) {
+        size_t graphics_size;
+        const Uint8* graphics = Rom_GetGraphics(rom, &graphics_size);
+
+        for (int i = 0; i < SDL_arraysize(palette_sources); i++) {
+            write_palette(&palette_sources[i], graphics, graphics_size);
+        }
     }
+
+    shin_akuma_stage_available = Cache_Exists(CACHE_FILE_SHIN_AKUMA_BG_PALETTE);
 }
 
 bool ArcadeStage_IsShinAkumaStageAvailable() {
-    return palettes[STAGE_3S_SHIN_AKUMA] != NULL;
-}
-
-const Uint16* ArcadeStage_GetPalette(Stage stage, size_t* count) {
-    if (palettes[stage] == NULL) {
-        return NULL;
-    }
-
-    *count = palette_sources[stage].count;
-    return palettes[stage];
+    return shin_akuma_stage_available;
 }

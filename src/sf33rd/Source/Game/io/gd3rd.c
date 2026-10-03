@@ -37,7 +37,7 @@ static const LDREQ_Process_Func ldreq_process[] = {
 static LoadRequest q_ldreq[16] = { 0 };
 
 static bool ldreq_break = false;
-static u8 ldreq_result[294] = { 0 };
+static u8 ldreq_result[LDREQ_TBL_SIZE] = { 0 };
 static ResourceHandle file_handle = RESOURCE_NONE;
 
 bool fsOpen(u16 fnum) {
@@ -290,14 +290,7 @@ static void Push_LDREQ_Queue_Metamor() {
     }
 }
 
-/// Converts a stage to its index in `spans`. PS2 data has no resources for Shin Akuma's stage, so it reuses Akuma's.
 static s16 bg_span_index(Stage stage) {
-    if (stage == STAGE_3S_SHIN_AKUMA) {
-        stage = STAGE_3S_AKUMA;
-    } else if (stage > STAGE_3S_SHIN_AKUMA) {
-        stage -= 1;
-    }
-
     return stage + 20;
 }
 

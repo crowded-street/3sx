@@ -45,9 +45,7 @@ void Arcade_Init() {
         ArcadeCharData_Init(sfiii3);
     }
 
-    if (sfiii3 != NULL) {
-        ArcadeStage_Init(sfiii3);
-    }
+    ArcadeStage_Init(sfiii3);
 
 #if ARCADE_ROM_TEXTURES
     if (sfiii3 != NULL) {
@@ -57,8 +55,6 @@ void Arcade_Init() {
 }
 
 void Arcade_Finish() {
-    ArcadeStage_Finish();
-
 #if ARCADE_ROM_TEXTURES
     ArcadeTexture_Finish();
 #endif
