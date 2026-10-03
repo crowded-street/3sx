@@ -22,6 +22,7 @@ const s16 scr_obj_num6[AREA_COUNT] = {
     [AREA_3S_SEAN] = 3,   [AREA_3S_URIEN] = 0,     [AREA_3S_AKUMA] = 1,       [AREA_3S_SHIN_AKUMA] = 1,
     [AREA_3S_CHUNLI] = 1, [AREA_3S_MAKOTO] = 4,    [AREA_3S_Q] = 0,           [AREA_3S_TWELVE] = 1,
     [AREA_3S_REMY] = 1,   [AREA_3S_BONUS_CAR] = 0, [AREA_3S_BONUS_BALLS] = 0,
+    // TODO: [AREA_NG_ALEX] after porting the stage effects
 };
 
 const s16 st0000_data_tbl[8] = { 0, 2, 8492, 640, 48, 82, 0, 0 };
@@ -99,6 +100,7 @@ const s16* scr_obj_data6[AREA_COUNT] = {
     [AREA_3S_REMY] = st1400_data_tbl,
     [AREA_3S_BONUS_CAR] = stg_dum_data_tbl,
     [AREA_3S_BONUS_BALLS] = stg_dum_data_tbl,
+    // TODO: [AREA_NG_ALEX] after porting the stage effects
 };
 
 void effect_06_move(WORK_Other* ewk) {

@@ -871,11 +871,11 @@ void Appear_16000(PLW* wk) {
         bg_app_stop = 1;
 
         if (smoke_check[bg_w.bg_index]) {
-            set_char_move_init(&wk->wu, 9, 0xE);
-            return;
+            set_char_move_init(&wk->wu, 9, 14);
+        } else {
+            set_char_move_init(&wk->wu, 9, 12);
         }
 
-        set_char_move_init(&wk->wu, 9, 0xC);
         break;
 
     case 1:
@@ -1288,12 +1288,10 @@ const s16 smoke_check[AREA_COUNT] = {
     [AREA_3S_ELENA] = 0,  [AREA_3S_ORO] = 1,       [AREA_3S_YANG] = 0,        [AREA_3S_KEN] = 0,
     [AREA_3S_SEAN] = 1,   [AREA_3S_URIEN] = 1,     [AREA_3S_AKUMA] = 0,       [AREA_3S_SHIN_AKUMA] = 0,
     [AREA_3S_CHUNLI] = 0, [AREA_3S_MAKOTO] = 0,    [AREA_3S_Q] = 1,           [AREA_3S_TWELVE] = 1,
-    [AREA_3S_REMY] = 0,   [AREA_3S_BONUS_CAR] = 0, [AREA_3S_BONUS_BALLS] = 0,
+    [AREA_3S_REMY] = 0,   [AREA_3S_BONUS_CAR] = 0, [AREA_3S_BONUS_BALLS] = 0, [AREA_NG_ALEX] = 1,
 };
 
 void Appear_26000(PLW* wk) {
-    // s32 effect_86_init(s16 type86);
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         bg_app_stop = 1;
