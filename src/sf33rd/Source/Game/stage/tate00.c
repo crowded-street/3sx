@@ -29,6 +29,7 @@
 #include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "sf33rd/Source/Game/stage/bns_bg2.h"
 #include "sf33rd/Source/Game/stage/bonus_bg.h"
+#include "sf33rd/Source/Game/stage/ng/bg240.h"
 
 void (*ta_move_tbl[AREA_COUNT])() = {
     [AREA_3S_GILL] = BG000,
@@ -54,6 +55,7 @@ void (*ta_move_tbl[AREA_COUNT])() = {
     [AREA_3S_REMY] = BG200,
     [AREA_3S_BONUS_CAR] = Bonus_bg,
     [AREA_3S_BONUS_BALLS] = Bonus_bg2,
+    [AREA_NG_ALEX] = BG240,
 };
 
 void ta0_init00();
