@@ -7,6 +7,7 @@
 // Add a path to `paths` in cache.c for every file
 
 typedef enum CacheFile {
+    CACHE_FILE_SHIN_AKUMA_BG_PALETTE,
     CACHE_FILE_COUNT,
 } CacheFile;
 
@@ -30,6 +31,7 @@ char* Cache_GetFullPath(CacheFile file);
 
 bool Cache_Exists(CacheFile file);
 size_t Cache_GetSize(CacheFile file);
+bool Cache_Write(CacheFile file, const void* data, size_t size);
 void Cache_RunServer();
 CacheHandle Cache_Open(CacheFile file);
 void Cache_Read(CacheHandle handle, void* buf);

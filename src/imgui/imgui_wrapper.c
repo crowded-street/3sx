@@ -2,6 +2,7 @@
 
 #include "imgui/imgui_wrapper.h"
 #include "arcade/arcade_stage.h"
+#include "constants.h"
 #include "platform/app/sdl/sdl_app.h"
 #include "port/paths.h"
 #include "sf33rd/Source/Game/debug/debug_config.h"

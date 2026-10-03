@@ -5,7 +5,7 @@
 
 #include "sf33rd/Source/Game/io/gd3rd_data.h"
 
-const LoadRequestEntry ldreq_tbl[] = {
+const LoadRequestEntry ldreq_tbl[LDREQ_TBL_SIZE] = {
     [0] = { .type = LDREQ_TEXTURE, .ix = 1, .frre = 2, .kokey = 3 },
     [1] = { .type = LDREQ_TEXTURE, .ix = 27, .frre = 2, .kokey = 3 },
     [2] = { .type = LDREQ_TEXTURE, .ix = 35, .frre = 2, .kokey = 3 },
@@ -300,6 +300,11 @@ const LoadRequestEntry ldreq_tbl[] = {
     [291] = { .type = LDREQ_COLOR, .ix = 19, .frre = 1, .kokey = 10 },
     [292] = { .type = LDREQ_KANJI, .ix = 151, .frre = 2, .kokey = 25 },
     [293] = { .type = LDREQ_KANJI, .ix = 152, .frre = 2, .kokey = 26 },
+
+    // Shin Akuma's stage
+    [294] = { .type = LDREQ_COLOR, .ix = 161, .frre = 1, .kokey = 2 },
+    [295] = { .type = LDREQ_TEXTURE, .ix = 46, .frre = 1, .kokey = 19 },
+    [296] = { .type = LDREQ_SCREEN, .ix = 55, .frre = 1, .kokey = 18 },
 };
 
 const Span spans[] = {
@@ -314,8 +319,8 @@ const Span spans[] = {
     { .start = 120, .length = 3 }, { .start = 125, .length = 3 }, { .start = 130, .length = 3 },
     { .start = 135, .length = 3 }, { .start = 140, .length = 3 }, { .start = 145, .length = 3 },
     { .start = 150, .length = 3 }, { .start = 155, .length = 3 }, { .start = 160, .length = 3 },
-    { .start = 165, .length = 3 }, { .start = 170, .length = 3 }, { .start = 175, .length = 3 },
-    { .start = 180, .length = 3 }, { .start = 185, .length = 3 }, { .start = 190, .length = 3 },
-    { .start = 195, .length = 3 }, { .start = 200, .length = 5 }, { .start = 206, .length = 4 },
-    { .start = 22, .length = 3 },
+    { .start = 165, .length = 3 }, { .start = 170, .length = 3 }, { .start = 294, .length = 3 },
+    { .start = 175, .length = 3 }, { .start = 180, .length = 3 }, { .start = 185, .length = 3 },
+    { .start = 190, .length = 3 }, { .start = 195, .length = 3 }, { .start = 200, .length = 5 },
+    { .start = 206, .length = 4 }, { .start = 22, .length = 3 },
 };
