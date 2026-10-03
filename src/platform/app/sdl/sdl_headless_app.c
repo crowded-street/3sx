@@ -4,7 +4,7 @@
 #include "args.h"
 #include "main.h"
 #include "port/config/config.h"
-#include "port/io/afs.h"
+#include "port/io/resource.h"
 #include "port/resources.h"
 #include "test/test_runner.h"
 
@@ -20,7 +20,7 @@ static bool init() {
         return false;
     }
 
-    if (!AFS_Init(Resources_GetAFSPath(), 256 * 1024)) {
+    if (!Resource_Init(Resources_GetAFSPath(), 256 * 1024)) {
         SDL_Log("Couldn't initialize AFS: %s", Resources_GetAFSPath());
         return false;
     }
@@ -36,14 +36,14 @@ static bool init() {
 
 static void cleanup() {
     Main_Finish();
-    AFS_Finish();
+    Resource_Finish();
     Config_Destroy();
     TestRunner_Destroy();
 }
 
 static void begin_frame() {
     TestRunner_Prologue();
-    AFS_RunServer();
+    Resource_RunServer();
 }
 
 static void end_frame() {

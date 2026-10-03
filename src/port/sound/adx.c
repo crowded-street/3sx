@@ -2,7 +2,7 @@
 
 #if SOUND_ENABLED
 
-#include "port/io/afs.h"
+#include "port/io/resource.h"
 #include "port/sound/adx_decoder.h"
 #include "port/utils.h"
 
@@ -54,13 +54,13 @@ static bool stream_is_empty() {
 }
 
 static void* load_file(int file_id, size_t* size) {
-    const size_t file_size = AFS_GetSize(file_id);
+    const size_t file_size = Resource_GetSize(file_id);
     *size = file_size;
     void* buff = SDL_malloc(file_size);
 
-    AFSHandle handle = AFS_Open(file_id);
-    AFS_ReadSync(handle, buff);
-    AFS_Close(handle);
+    ResourceHandle handle = Resource_Open(file_id);
+    Resource_ReadSync(handle, buff);
+    Resource_Close(handle);
 
     return buff;
 }

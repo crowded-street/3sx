@@ -3,7 +3,7 @@
 #include "main.h"
 #include "platform/input/sdl/sdl_pad.h"
 #include "platform/video/psp/psp_renderer.h"
-#include "port/io/afs.h"
+#include "port/io/resource.h"
 #include "port/resources.h"
 
 #include <SDL3/SDL.h>
@@ -23,7 +23,7 @@ static bool init() {
     }
 
     SDLPad_Init();
-    AFS_Init(Resources_GetAFSPath(), 16 * 1024);
+    Resource_Init(Resources_GetAFSPath(), 16 * 1024);
     PSPRenderer_Init();
     Main_Init();
     return true;
@@ -51,7 +51,7 @@ static bool poll_sdl_events() {
 
 static void begin_frame() {
     PSPRenderer_BeginFrame();
-    AFS_RunServer();
+    Resource_RunServer();
 }
 
 static void end_frame() {

@@ -35,7 +35,7 @@
 #include "test/test_runner.h"
 #endif
 
-#include "port/io/afs.h"
+#include "port/io/resource.h"
 #include "port/resources.h"
 
 #define SDL_MAIN_USE_CALLBACKS 1
@@ -178,7 +178,7 @@ static bool full_init() {
     init_windows_console();
 #endif
 
-    AFS_Init(Resources_GetAFSPath(), 256 * 1024);
+    Resource_Init(Resources_GetAFSPath(), 256 * 1024);
 
 #if STATCHECK
     if (!TestRunner_Init(get_args()->statcheck.ram_archive_path)) {
@@ -193,7 +193,7 @@ static bool full_init() {
 
 static void cleanup() {
     Main_Finish();
-    AFS_Finish();
+    Resource_Finish();
     Config_Destroy();
     SDLGenericRenderer_Quit();
 }
@@ -279,7 +279,7 @@ static void begin_frame() {
     ImGuiW_NewFrame();
 #endif
 
-    AFS_RunServer();
+    Resource_RunServer();
 }
 
 static void center_rect(SDL_Rect* rect, int win_w, int win_h) {
