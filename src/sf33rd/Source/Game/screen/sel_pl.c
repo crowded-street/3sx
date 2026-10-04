@@ -1932,6 +1932,7 @@ static bool Is_VS_Stage_Selectable(s8 stage) {
     case STAGE_3S_SHIN_AKUMA:
         return ArcadeStage_IsRomProcessed(ROM_GAME_SFIII3);
 
+    case STAGE_NG_GILL:
     case STAGE_NG_ALEX:
         return ArcadeStage_IsRomProcessed(ROM_GAME_SFIII);
 

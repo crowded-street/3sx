@@ -639,6 +639,11 @@ typedef struct GameState {
     s16 old_mes_no3;
     s16 old_mes_no_pl;
     s16 mes_timer;
+
+    // bg230
+
+    s8 bg230_intro_wait;
+    s8 bg230_intro_skips;
 } GameState;
 
 void GameState_Save(GameState* dst);

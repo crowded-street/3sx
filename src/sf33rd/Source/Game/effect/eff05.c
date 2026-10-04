@@ -22,7 +22,8 @@ const s16 scr_obj_num[AREA_COUNT] = {
     [AREA_3S_ELENA] = 3,  [AREA_3S_ORO] = 1,       [AREA_3S_YANG] = 0,        [AREA_3S_KEN] = 1,
     [AREA_3S_SEAN] = 1,   [AREA_3S_URIEN] = 1,     [AREA_3S_AKUMA] = 1,       [AREA_3S_SHIN_AKUMA] = 1,
     [AREA_3S_CHUNLI] = 2, [AREA_3S_MAKOTO] = 2,    [AREA_3S_Q] = 0,           [AREA_3S_TWELVE] = 2,
-    [AREA_3S_REMY] = 4,   [AREA_3S_BONUS_CAR] = 1, [AREA_3S_BONUS_BALLS] = 4, [AREA_NG_ALEX] = 4,
+    [AREA_3S_REMY] = 4,   [AREA_3S_BONUS_CAR] = 1, [AREA_3S_BONUS_BALLS] = 4, [AREA_NG_GILL] = 5,
+    [AREA_NG_ALEX] = 4,
 };
 
 const s16 stg_dum_data_tbl[1] = { 0 };
@@ -97,6 +98,12 @@ const s16 stg1600_data_tbl[36] = {
     0, 2, 300, 511, 0, 80, 4, 0, 0, 0, 2, 300,  608, 48, 77, 11, 0, 0,
 };
 
+/// New Generation's Gill stage. Colour codes are converted from palette row 0x40 to the PS2 BG palette row 0x12C.
+const s16 ng_stg0000_data_tbl[45] = {
+    0,  2, 8492, 416, 96, 82, 10,   0,   0,  0,  2,  8492, 528, 79, 82, 9,    0,   0,  0,  2,  8492, 480, 256,
+    92, 4, 0,    0,   0,  2,  8492, 512, 64, 83, 22, 0,    0,   0,  2,  8492, 512, 64, 83, 23, 0,    0,
+};
+
 /// New Generation's Alex stage. Colour codes are converted from palette row 0x40 to the PS2 BG palette row 0x12C.
 const s16 ng_stg0100_data_tbl[36] = {
     0, 2, 8492, 608, 40,  82, 1, 0, 0, 0, 2, 8492, 512, 16, 22, 3,  0, 0,
@@ -115,7 +122,8 @@ u32* char_add[AREA_COUNT] = {
     [AREA_3S_CHUNLI] = _chn_char_table,      [AREA_3S_MAKOTO] = _jp3_char_table,
     [AREA_3S_Q] = _usa_char_table,           [AREA_3S_TWELVE] = _rca_char_table,
     [AREA_3S_REMY] = _frc_char_table,        [AREA_3S_BONUS_CAR] = _bns_char_table,
-    [AREA_3S_BONUS_BALLS] = _bns_char_table, [AREA_NG_ALEX] = _ng_usa_char_table,
+    [AREA_3S_BONUS_BALLS] = _bns_char_table, [AREA_NG_GILL] = _ng_fnl_char_table,
+    [AREA_NG_ALEX] = _ng_usa_char_table,
 };
 
 const s16* scr_obj_data[AREA_COUNT] = {
@@ -130,7 +138,8 @@ const s16* scr_obj_data[AREA_COUNT] = {
     [AREA_3S_CHUNLI] = stg1000_data_tbl,      [AREA_3S_MAKOTO] = stg1100_data_tbl,
     [AREA_3S_Q] = stg_dum_data_tbl,           [AREA_3S_TWELVE] = stg1300_data_tbl,
     [AREA_3S_REMY] = stg1400_data_tbl,        [AREA_3S_BONUS_CAR] = stg1500_data_tbl,
-    [AREA_3S_BONUS_BALLS] = stg1600_data_tbl, [AREA_NG_ALEX] = ng_stg0100_data_tbl,
+    [AREA_3S_BONUS_BALLS] = stg1600_data_tbl, [AREA_NG_GILL] = ng_stg0000_data_tbl,
+    [AREA_NG_ALEX] = ng_stg0100_data_tbl,
 };
 
 void effect_05_move(WORK_Other* ewk) {

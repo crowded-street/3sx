@@ -7,6 +7,9 @@
 
 static const char* const paths[CACHE_FILE_COUNT] = {
     [CACHE_FILE_SHIN_AKUMA_BG_PALETTE] = "3s/bg15_palette.bin",
+    [CACHE_FILE_NG_GILL_BG_PALETTE] = "ng/bg00_palette.bin",
+    [CACHE_FILE_NG_GILL_STAGE] = "ng/stage00.ppg",
+    [CACHE_FILE_NG_GILL_OBJECTS] = "ng/bg00.bin",
     [CACHE_FILE_NG_ALEX_BG_PALETTE] = "ng/bg01_palette.bin",
     [CACHE_FILE_NG_ALEX_STAGE] = "ng/stage01.ppg",
     [CACHE_FILE_NG_ALEX_OBJECTS] = "ng/bg01.bin",

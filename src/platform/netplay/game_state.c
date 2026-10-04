@@ -11,6 +11,7 @@
 #include "sf33rd/Source/Game/engine/spgauge.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
+#include "sf33rd/Source/Game/stage/ng/bg230.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
 #include "sf33rd/Source/Game/system/sysdir.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
@@ -653,6 +654,11 @@ void GameState_Save(GameState* dst) {
     GS_SAVE(old_mes_no3);
     GS_SAVE(old_mes_no_pl);
     GS_SAVE(mes_timer);
+
+    // bg230
+
+    GS_SAVE(bg230_intro_wait);
+    GS_SAVE(bg230_intro_skips);
 }
 
 #define GS_LOAD(member)                                                                                                \
@@ -1258,6 +1264,8 @@ void GameState_Load(const GameState* src) {
     GS_LOAD(demo_car_flag);
     GS_LOAD(ideal_w);
     GS_LOAD(bg_app_stop);
+    GS_LOAD(bg230_intro_wait);
+    GS_LOAD(bg230_intro_skips);
     GS_LOAD(bg_stop);
     GS_LOAD(base_y_pos);
     GS_LOAD(etcBgPalCnvTable);

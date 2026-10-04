@@ -40,6 +40,7 @@ static const char* const stage_names[] = {
     "Q",
     "Twelve",
     "Remy",
+    [STAGE_NG_GILL + 1] = "Gill (NG)",
     [STAGE_NG_ALEX + 1] = "Alex (NG)",
 };
 
@@ -48,6 +49,7 @@ static bool is_stage_available(Stage stage) {
     case STAGE_3S_SHIN_AKUMA:
         return ArcadeStage_IsRomProcessed(ROM_GAME_SFIII3);
 
+    case STAGE_NG_GILL:
     case STAGE_NG_ALEX:
         return ArcadeStage_IsRomProcessed(ROM_GAME_SFIII);
 

@@ -29,7 +29,7 @@ const u16 BGM_Stage_Data[STAGE_COUNT] = {
     [STAGE_3S_ELENA] = 25,  [STAGE_3S_ORO] = 28,       [STAGE_3S_YANG] = 34,        [STAGE_3S_KEN] = 1,
     [STAGE_3S_SEAN] = 28,   [STAGE_3S_URIEN] = 43,     [STAGE_3S_AKUMA] = 22,       [STAGE_3S_SHIN_AKUMA] = 22,
     [STAGE_3S_CHUNLI] = 10, [STAGE_3S_MAKOTO] = 19,    [STAGE_3S_Q] = 40,           [STAGE_3S_TWELVE] = 4,
-    [STAGE_3S_REMY] = 37,   [STAGE_3S_BONUS_CAR] = 61, [STAGE_3S_BONUS_BALLS] = 62,
+    [STAGE_3S_REMY] = 37,   [STAGE_3S_BONUS_CAR] = 61, [STAGE_3S_BONUS_BALLS] = 62, [STAGE_NG_GILL] = 46,
     [STAGE_NG_ALEX] = 1,
 };
 const s16 SE_Shock_Data[7] = { 285, 286, 287, 288, 289, 305, 306 };

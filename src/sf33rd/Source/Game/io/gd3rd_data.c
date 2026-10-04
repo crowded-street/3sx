@@ -312,6 +312,11 @@ const LoadRequestEntry ldreq_tbl[LDREQ_TBL_SIZE] = {
     [299] = { .type = LDREQ_TEXTURE, .ix = 100, .frre = 1, .kokey = 19 },
     [300] = { .type = LDREQ_TEXTURE, .ix = 101, .frre = 1, .kokey = 19 }, // Ibuki's tanuki
     [301] = { .type = LDREQ_COLOR, .ix = 164, .frre = 1, .kokey = 2 },    // Ibuki's tanuki palette
+
+    // NG Gill's stage. Its span starts at 300 to include the tanuki.
+    [302] = { .type = LDREQ_COLOR, .ix = 165, .frre = 1, .kokey = 2 },
+    [303] = { .type = LDREQ_SCREEN, .ix = 166, .frre = 1, .kokey = 18 },
+    [304] = { .type = LDREQ_TEXTURE, .ix = 102, .frre = 1, .kokey = 19 },
 };
 
 const Span spans[] = {
@@ -329,5 +334,5 @@ const Span spans[] = {
     { .start = 165, .length = 3 }, { .start = 170, .length = 3 }, { .start = 294, .length = 3 },
     { .start = 175, .length = 3 }, { .start = 180, .length = 3 }, { .start = 185, .length = 3 },
     { .start = 190, .length = 3 }, { .start = 195, .length = 3 }, { .start = 200, .length = 5 },
-    { .start = 206, .length = 4 }, { .start = 297, .length = 5 },
+    { .start = 206, .length = 4 }, { .start = 300, .length = 5 }, { .start = 297, .length = 5 },
 };

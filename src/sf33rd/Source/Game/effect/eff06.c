@@ -23,7 +23,8 @@ const s16 scr_obj_num6[AREA_COUNT] = {
     [AREA_3S_ELENA] = 8,  [AREA_3S_ORO] = 3,       [AREA_3S_YANG] = 0,        [AREA_3S_KEN] = 4,
     [AREA_3S_SEAN] = 3,   [AREA_3S_URIEN] = 0,     [AREA_3S_AKUMA] = 1,       [AREA_3S_SHIN_AKUMA] = 1,
     [AREA_3S_CHUNLI] = 1, [AREA_3S_MAKOTO] = 4,    [AREA_3S_Q] = 0,           [AREA_3S_TWELVE] = 1,
-    [AREA_3S_REMY] = 1,   [AREA_3S_BONUS_CAR] = 0, [AREA_3S_BONUS_BALLS] = 0, [AREA_NG_ALEX] = 8,
+    [AREA_3S_REMY] = 1,   [AREA_3S_BONUS_CAR] = 0, [AREA_3S_BONUS_BALLS] = 0, [AREA_NG_GILL] = 10,
+    [AREA_NG_ALEX] = 8,
 };
 
 const s16 st0000_data_tbl[9] = {
@@ -102,6 +103,15 @@ const s16 st1400_data_tbl[9] = {
     0, 3, 300, 496, 64, 88, 4, 0, 0,
 };
 
+/// New Generation's Gill stage. Colour codes are converted from palette row 0x40 to the PS2 BG palette row 0x12C, both
+/// with the 0x2000 flag (0x2040 -> 8492) and without it (0x40 -> 300).
+const s16 ng_st0000_data_tbl[90] = {
+    1,  2,   8492, 182, 80, 80,   8,    1,   0,  1,  2,    300, 784, 80, 82,   2,   0,   0,   0,  2,   8492, 304, 80,
+    80, 0,   1,    0,   0,  2,    8492, 592, 80, 80, 1,    0,   0,   0,  2,    300, 704, 256, 82, 3,   0,    0,   1,
+    2,  300, 224,  80,  81, 5,    0,    0,   1,  2,  8492, 368, 288, 81, 6,    0,   0,   1,   2,  300, 190,  272, 82,
+    7,  0,   0,    0,   2,  8492, 256,  64,  83, 21, 0,    0,   0,   2,  8492, 768, 64,  83,  24, 0,   0,
+};
+
 /// New Generation's Alex stage. Colour codes are converted from palette rows 0x40 and 0x5C to the PS2 BG palette rows
 /// 0x12C and 0x148.
 const s16 ng_st0100_data_tbl[72] = {
@@ -134,6 +144,7 @@ const s16* scr_obj_data6[AREA_COUNT] = {
     [AREA_3S_REMY] = st1400_data_tbl,
     [AREA_3S_BONUS_CAR] = stg_dum_data_tbl,
     [AREA_3S_BONUS_BALLS] = stg_dum_data_tbl,
+    [AREA_NG_GILL] = ng_st0000_data_tbl,
     [AREA_NG_ALEX] = ng_st0100_data_tbl,
 };
 
