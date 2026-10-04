@@ -210,6 +210,7 @@
 #include "sf33rd/Source/Game/effect/effm6.h"
 #include "sf33rd/Source/Game/effect/effm7.h"
 #include "sf33rd/Source/Game/effect/effm8.h"
+#include "sf33rd/Source/Game/effect/ng/eff64.h"
 #include "sf33rd/Source/Game/engine/plpat09.h"
 
 s32 effect_dummy_init() {
@@ -220,7 +221,7 @@ void effect_dummy_move(WORK_Other* /* unused */) {
     // Do nothing
 }
 
-EffectMoveCallback const effmovejptbl[229] = {
+EffectMoveCallback const effmovejptbl[230] = {
     (EffectMoveCallback)effect_00_move,
     effect_01_move,
     effect_02_move,
@@ -450,6 +451,9 @@ EffectMoveCallback const effmovejptbl[229] = {
     effect_M6_move,
     effect_M7_move,
     effect_M8_move,
+
+    // New Generation
+    [EFFECT_NG64_ID] = effect_ng64_move,
 };
 
 EffectInitCallback const effinitjptbl[59] = {
