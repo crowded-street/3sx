@@ -33,7 +33,7 @@ static const PaletteSource palette_sources[] = {
       .file = CACHE_FILE_SHIN_AKUMA_BG_PALETTE },
 
     // Ibuki's tanuki (effect 94) for each of Ibuki's NG colors. NG loads it with each color's palette 5.
-    { .game = ROM_GAME_SFIII_NG,
+    { .game = ROM_GAME_SFIII,
       .offset = 0x23D5300,
       .rows = 6,
       .row_stride = 128,
@@ -58,7 +58,7 @@ typedef struct StageTables {
 } StageTables;
 
 static const StageTables stage_tables[ROM_GAME_COUNT] = {
-    [ROM_GAME_SFIII_NG] = {
+    [ROM_GAME_SFIII] = {
         .use_scr = 0x0640B658,
         .bg_cg_tbl = 0x0640BEEC,
         .bg_pal_tbl = 0x0640D6E8,
@@ -90,7 +90,7 @@ typedef struct StageSource {
 } StageSource;
 
 static const StageSource stage_sources[] = {
-    { .game = ROM_GAME_SFIII_NG,
+    { .game = ROM_GAME_SFIII,
       .bg_index = 1,
       .area = AREA_NG_ALEX,
       .palette_file = CACHE_FILE_NG_ALEX_BG_PALETTE,
@@ -118,7 +118,7 @@ typedef struct CgGroupSource {
 
 static const CgGroupSource cg_group_sources[] = {
     // Objects of NG Alex's stage
-    { .game = ROM_GAME_SFIII_NG,
+    { .game = ROM_GAME_SFIII,
       .group = 100,
       .ranges = { { 0x5620, 320 } },
       .range_count = 1,
@@ -127,7 +127,7 @@ static const CgGroupSource cg_group_sources[] = {
 
     // Ibuki's tanuki (effect 94). Its char table is _ng_eff94_char_table. The tanuki itself uses part palette 5, while
     // the notes and the figures use Ibuki's palette.
-    { .game = ROM_GAME_SFIII_NG,
+    { .game = ROM_GAME_SFIII,
       .group = 101,
       .ranges = { { 0x235B, 160 }, { 0x7245, 15 }, { 0x7263, 3 }, { 0x732C, 6 } },
       .range_count = 4,

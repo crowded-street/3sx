@@ -36,7 +36,7 @@ typedef struct RomSpec {
     int chips[SIMM_COUNT]; // Number of chips on each SIMM, indexed by SIMM number minus one
 } RomSpec;
 
-static const FlashFile sfiii_ng_files[] = {
+static const FlashFile sfiii_files[] = {
     { .name = "10", .simm = 1, .offset = 0, .size = 0x800000 },
     { .name = "30", .simm = 3, .offset = 0, .size = 0x800000 },
     { .name = "31", .simm = 3, .offset = 0x800000, .size = 0x800000 },
@@ -46,6 +46,16 @@ static const FlashFile sfiii_ng_files[] = {
 };
 
 static const RomSpec specs[ROM_GAME_COUNT] = {
+    [ROM_GAME_SFIII] = {
+        .zip_name = "sfiiin.zip",
+        .chip_name_format = "sfiii-simm%d.%d",
+        .flash_files = sfiii_files,
+        .flash_file_count = SDL_arraysize(sfiii_files),
+        .key1 = 0xB5FE053E,
+        .key2 = 0xFC03925A,
+        .chip_size = 0x200000,
+        .chips = { 4, 0, 8, 8, 2, 0 },
+    },
     [ROM_GAME_SFIII3] = {
         .zip_name = "sfiii3nr1.zip",
         .chip_name_format = "sfiii3-simm%d.%d",
@@ -53,16 +63,6 @@ static const RomSpec specs[ROM_GAME_COUNT] = {
         .key2 = 0x0C129981,
         .chip_size = 0x200000,
         .chips = { 4, 4, 8, 8, 8, 8 },
-    },
-    [ROM_GAME_SFIII_NG] = {
-        .zip_name = "sfiiin.zip",
-        .chip_name_format = "sfiii-simm%d.%d",
-        .flash_files = sfiii_ng_files,
-        .flash_file_count = SDL_arraysize(sfiii_ng_files),
-        .key1 = 0xB5FE053E,
-        .key2 = 0xFC03925A,
-        .chip_size = 0x200000,
-        .chips = { 4, 0, 8, 8, 2, 0 },
     },
 };
 

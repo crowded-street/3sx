@@ -9,8 +9,8 @@
 #define ROM_PROGRAM_BASE 0x06000000
 
 typedef enum RomGame {
-    ROM_GAME_SFIII3,
-    ROM_GAME_SFIII_NG,
+    ROM_GAME_SFIII,  // New Generation
+    ROM_GAME_SFIII3, // 3rd Strike
     ROM_GAME_COUNT,
 } RomGame;
 
