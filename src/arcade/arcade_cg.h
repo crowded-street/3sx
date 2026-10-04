@@ -1,6 +1,8 @@
 #ifndef ARCADE_CG_H
 #define ARCADE_CG_H
 
+#include "arcade/rom/rom.h"
+
 #include <SDL3/SDL.h>
 
 #include <stdbool.h>
@@ -8,14 +10,12 @@
 
 /// Where a CPS3 ROM set keeps its CGs (sprite frames)
 typedef struct ArcadeCgSource {
-    const Uint8* program; // Big-endian SH-2 words
-    size_t program_size;
-    Uint32 program_base;   // SH-2 address of `program[0]`
+    RomRegion program;     // Big-endian SH-2 words
+    Uint32 program_base;   // SH-2 address of `program.data[0]`
     Uint32 table;          // SH-2 address of the CG table, whose entries end with the descriptor address
     Uint32 entry_size;     // Size of a CG table entry
     Uint32 origin_offset;  // Offset of the s16 origin x within an entry. Origin y follows it.
-    const Uint8* graphics; // Graphics region, laid out as `Rom_GetGraphics` returns it
-    size_t graphics_size;
+    RomRegion graphics;    // Graphics region as `Rom_GetGraphics` returns it
 } ArcadeCgSource;
 
 /// The two tables of a texture group that mtrans.c consumes

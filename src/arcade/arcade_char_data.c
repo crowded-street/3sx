@@ -473,9 +473,8 @@ static void dump_data(CharInitData* data, Character character) {
 #endif
 
 void ArcadeCharData_Init(const Rom* rom) {
-    size_t program_size = 0;
-    const Uint8* program = Rom_GetProgram(rom, &program_size);
-    SDL_IOStream* io = SDL_IOFromConstMem(program, program_size);
+    const RomRegion program = Rom_GetProgram(rom);
+    SDL_IOStream* io = SDL_IOFromConstMem(program.data, program.size);
 
     for (int character = 0; character < NUM_CHARS; character++) {
         const LocationData* locations = &location_data[character];

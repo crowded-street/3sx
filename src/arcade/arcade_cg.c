@@ -23,12 +23,12 @@ static Uint32 be32(const Uint8* p) {
 
 /// @return Pointer to `size` bytes of program data at `address`, or `NULL` if they are out of range.
 static const Uint8* program_at(const ArcadeCgSource* source, Uint32 address, size_t size) {
-    if (address < source->program_base || address - source->program_base > source->program_size ||
-        size > source->program_size - (address - source->program_base)) {
+    if (address < source->program_base || address - source->program_base > source->program.size ||
+        size > source->program.size - (address - source->program_base)) {
         return NULL;
     }
 
-    return source->program + (address - source->program_base);
+    return source->program.data + (address - source->program_base);
 }
 
 static const Uint8* table_entry(const ArcadeCgSource* source, Uint16 cg) {
@@ -68,7 +68,7 @@ static bool descriptor_for(const ArcadeCgSource* source, Uint16 cg, CgDescriptor
 static bool graphics_offset(const ArcadeCgSource* source, Uint32 dma_word, size_t* offset) {
     const Uint64 byte_address = (Uint64)dma_word * 2;
 
-    if (byte_address < 0x400000 || byte_address - 0x400000 >= source->graphics_size) {
+    if (byte_address < 0x400000 || byte_address - 0x400000 >= source->graphics.size) {
         return false;
     }
 
@@ -94,7 +94,7 @@ static Uint8* decode_cram(const ArcadeCgSource* source, const CgDescriptor* desc
 
         if (destination > *allocation || length > *allocation - destination ||
             !graphics_offset(source, be32(span), &offset) ||
-            !Cps3_DecodeDma(source->graphics, source->graphics_size, offset, dictionary, cram + destination, length)) {
+            !Cps3_DecodeDma(source->graphics, offset, dictionary, cram + destination, length)) {
             SDL_free(cram);
             return NULL;
         }

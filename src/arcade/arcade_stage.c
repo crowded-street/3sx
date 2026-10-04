@@ -148,15 +148,10 @@ static const CgGroupSource cg_group_sources[] = {
 #define PPG_LAYER_CHIPS 32
 #define PPG_LAYERS 3
 
-typedef struct Region {
-    const Uint8* data;
-    size_t size;
-} Region;
-
 /// The parts of a ROM set that the stage conversion reads
 typedef struct StageRom {
-    Region program; // Starts at ROM_PROGRAM_BASE
-    Region graphics;
+    RomRegion program; // Starts at ROM_PROGRAM_BASE
+    RomRegion graphics;
     const StageTables* tables;
 } StageRom;
 
@@ -176,11 +171,11 @@ static Uint16 convert_color(Uint16 color, size_t index, bool transparent_pen) {
     return swapped | 0x8000;
 }
 
-static bool write_palette(const PaletteSource* source, const Region* graphics) {
+static bool write_palette(const PaletteSource* source, RomRegion graphics) {
     const size_t count = source->rows * 64;
     const size_t end = source->offset + ((source->rows - 1) * source->row_stride + 64) * 2;
 
-    if (graphics->data == NULL || end > graphics->size) {
+    if (graphics.data == NULL || end > graphics.size) {
         SDL_Log("Couldn't build %s: ROM has no data for it", Cache_GetPath(source->file));
         return false;
     }
@@ -192,7 +187,7 @@ static bool write_palette(const PaletteSource* source, const Region* graphics) {
     }
 
     for (size_t i = 0; i < count; i++) {
-        const Uint8* src = graphics->data + source->offset + ((i / 64) * source->row_stride + i % 64) * 2;
+        const Uint8* src = graphics.data + source->offset + ((i / 64) * source->row_stride + i % 64) * 2;
         palette[i] = SDL_Swap16LE(convert_color(src[0] | (src[1] << 8), i, source->transparent_pen));
     }
 
@@ -266,7 +261,7 @@ static Uint8* load_tiles(const StageRom* rom, int bg_index, size_t* tiles_size) 
     Uint8* tiles = SDL_malloc(*tiles_size);
 
     if (tiles == NULL ||
-        !Cps3_DecodeDma(rom->graphics.data, rom->graphics.size, source, dictionary, tiles, *tiles_size)) {
+        !Cps3_DecodeDma(rom->graphics, source, dictionary, tiles, *tiles_size)) {
         SDL_free(tiles);
         return NULL;
     }
@@ -549,14 +544,12 @@ static bool build_ppg(
 /// Builds a texture group from CGs. Its trans table is padded to the group's `to_tex`.
 static bool write_cg_group(const CgGroupSource* source, const StageRom* rom) {
     const ArcadeCgSource cg_source = {
-        .program = rom->program.data,
-        .program_size = rom->program.size,
+        .program = rom->program,
         .program_base = ROM_PROGRAM_BASE,
         .table = rom->tables->cg_table,
         .entry_size = rom->tables->cg_entry_size,
         .origin_offset = rom->tables->cg_origin_offset,
-        .graphics = rom->graphics.data,
-        .graphics_size = rom->graphics.size,
+        .graphics = rom->graphics,
     };
 
     int slot_count = 0;
@@ -647,9 +640,11 @@ static bool make_stage_rom(const Rom* const roms[ROM_GAME_COUNT], RomGame game, 
         return false;
     }
 
-    *result = (StageRom) { .tables = &stage_tables[game] };
-    result->program.data = Rom_GetProgram(rom, &result->program.size);
-    result->graphics.data = Rom_GetGraphics(rom, &result->graphics.size);
+    *result = (StageRom) {
+        .program = Rom_GetProgram(rom),
+        .graphics = Rom_GetGraphics(rom),
+        .tables = &stage_tables[game],
+    };
     return true;
 }
 
@@ -662,7 +657,7 @@ void ArcadeStage_Init(const Rom* const roms[ROM_GAME_COUNT]) {
         const PaletteSource* source = &palette_sources[i];
         StageRom stage_rom;
 
-        if (make_stage_rom(roms, source->game, &stage_rom) && !write_palette(source, &stage_rom.graphics)) {
+        if (make_stage_rom(roms, source->game, &stage_rom) && !write_palette(source, stage_rom.graphics)) {
             rom_processed[source->game] = false;
         }
     }

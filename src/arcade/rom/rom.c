@@ -283,25 +283,21 @@ RomGame Rom_GetGame(const Rom* rom) {
     return rom->game;
 }
 
-const Uint8* Rom_GetSimm(const Rom* rom, int simm, size_t* size) {
+RomRegion Rom_GetSimm(const Rom* rom, int simm) {
     const RomSpec* spec = &specs[rom->game];
 
     if (simm < 1 || simm > SIMM_COUNT || spec->chips[simm - 1] == 0) {
-        *size = 0;
-        return NULL;
+        return (RomRegion) { 0 };
     }
 
     const Uint8* region = is_graphics_simm(simm) ? rom->graphics : rom->program;
-    *size = simm_size(spec, simm);
-    return region + simm_offset(spec, simm);
+    return (RomRegion) { .data = region + simm_offset(spec, simm), .size = simm_size(spec, simm) };
 }
 
-const Uint8* Rom_GetProgram(const Rom* rom, size_t* size) {
-    *size = rom->program_size;
-    return rom->program;
+RomRegion Rom_GetProgram(const Rom* rom) {
+    return (RomRegion) { .data = rom->program, .size = rom->program_size };
 }
 
-const Uint8* Rom_GetGraphics(const Rom* rom, size_t* size) {
-    *size = rom->graphics_size;
-    return rom->graphics;
+RomRegion Rom_GetGraphics(const Rom* rom) {
+    return (RomRegion) { .data = rom->graphics, .size = rom->graphics_size };
 }

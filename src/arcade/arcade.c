@@ -27,7 +27,6 @@ static Rom* load_rom(RomGame game) {
     return rom;
 }
 
-/// Optional ROM sets are only loaded when present, so their absence isn't reported as an error.
 static bool rom_exists(RomGame game) {
     char* path = Resources_GetPath(Rom_GetZipName(game));
     const bool exists = SDL_GetPathInfo(path, NULL);

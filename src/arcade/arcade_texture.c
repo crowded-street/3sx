@@ -36,7 +36,7 @@ static bool omit_cg(int group, int index) {
 bool ArcadeTexture_BuildGroup(int group, Character character, ArcadeTextureGroup* result) {
     SDL_zero(*result);
 
-    if (group < 1 || group > 20 || cg_source.program == NULL || cg_source.graphics == NULL) {
+    if (group < 1 || group > 20 || cg_source.program.data == NULL || cg_source.graphics.data == NULL) {
         return false;
     }
 
@@ -92,12 +92,12 @@ void ArcadeTexture_FreeGroup(ArcadeTextureGroup* group) {
 }
 
 void ArcadeTexture_Init(const Rom* rom) {
-    cg_source.program = Rom_GetSimm(rom, 2, &cg_source.program_size);
+    cg_source.program = Rom_GetSimm(rom, 2);
     cg_source.program_base = SIMM2_BASE;
     cg_source.table = SIMM2_BASE;
     cg_source.entry_size = 8;
     cg_source.origin_offset = 0;
-    cg_source.graphics = Rom_GetGraphics(rom, &cg_source.graphics_size);
+    cg_source.graphics = Rom_GetGraphics(rom);
 }
 
 void ArcadeTexture_Finish() {
