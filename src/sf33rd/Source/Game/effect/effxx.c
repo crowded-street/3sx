@@ -456,11 +456,11 @@ EffectMoveCallback const effmovejptbl[234] = {
     effect_M8_move,
 
     // New Generation
+    [EFFECT_NG60_ID] = effect_ng60_move,
     [EFFECT_NG64_ID] = effect_ng64_move,
-    [EFFECT_NG94_ID] = effect_ng94_move,
     [EFFECT_NG69_ID] = effect_ng69_move,
     [EFFECT_NG70_ID] = effect_ng70_move,
-    [EFFECT_NG60_ID] = effect_ng60_move,
+    [EFFECT_NG94_ID] = effect_ng94_move,
 };
 
 EffectInitCallback const effinitjptbl[59] = {
