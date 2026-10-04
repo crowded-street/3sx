@@ -28,6 +28,9 @@ void cal_bg_speed_data_y(s16 bg_num, s16 tm, s16 unk);
 s32 range_x_check(WORK_Other* ewk);
 s16 eff_hit_check(WORK_Other* ewk, s16 type);
 s16 eff_hit_check2(WORK_Other* ewk, s16 type, s16 where_type);
+
+/// Like eff_hit_check, but with a hitbox of the effect's own instead of one from eff_hit_data
+s16 eff_hit_check_box(WORK_Other* ewk, s16 type, const s16* box);
 s32 range_x_check3(WORK_Other* ewk, s16 optional_range);
 void eff_hit_flag_clear();
 

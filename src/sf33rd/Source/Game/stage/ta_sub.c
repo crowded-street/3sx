@@ -282,6 +282,23 @@ s32 eff_hit_check_sub(WORK_Other* ewk, PLW* pl) {
     return 0;
 }
 
+static s32 eff_hit_check_box_sub(WORK_Other* ewk, PLW* pl, const s16* box) {
+    if (pl->wu.routine_no[1] != 1 || pl->wu.routine_no[2] < 14 || pl->wu.routine_no[2] >= 24) {
+        return 0;
+    }
+
+    return hit_check_subroutine(&pl->wu, &ewk->wu, pl_hit_eff[pl->player_number], box) != 0;
+}
+
+s16 eff_hit_check_box(WORK_Other* ewk, s16 type, const s16* box) {
+    if (!EXE_obroll && (!type || pcon_dp_flag)) {
+        eff_hit_flag[ewk->wu.type] += eff_hit_check_box_sub(ewk, &plw[0], box);
+        eff_hit_flag[ewk->wu.type] += eff_hit_check_box_sub(ewk, &plw[1], box);
+    }
+
+    return eff_hit_flag[ewk->wu.type];
+}
+
 s16 eff_hit_check2(WORK_Other* ewk, s16 type, s16 where_type) {
     if (!EXE_obroll) {
         if (type) {

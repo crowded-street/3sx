@@ -8,6 +8,7 @@
 #include "sf33rd/Source/Game/effect/eff05.h"
 #include "sf33rd/Source/Game/effect/eff06.h"
 #include "sf33rd/Source/Game/effect/ng/eff64.h"
+#include "sf33rd/Source/Game/effect/ng/eff69.h"
 #include "sf33rd/Source/Game/effect/ng/eff94.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
@@ -87,7 +88,7 @@ static void bg2401_init00() {
 
     effect_05_init();
     effect_06_init();
-    // effect_69_init();
+    effect_ng69_init();
     effect_ng64_init(3);
     effect_ng64_init(4);
     effect_ng94_init_for_players(1);
