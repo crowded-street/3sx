@@ -44,7 +44,7 @@ static const s16 wait_tbl[16] = { 8, 34, 278, 40, 42, 140, 238, 0, 240, 18, 6, 7
 static const u8 react_tbl[8] = { 0, 1, 0, 0, 1, 0, 0, 1 };
 
 /// Frames to run to Ibuki, indexed by distance / 32
-static const s16 run_time_tbl[32] = { 16, 16, 16, 32, 32, 32, 48, 48, 48, 56, 56, 56, 64, 64, 64, 72,
+static const s16 run_time_tbl[32] = { 16, 16, 16, 32, 32, 32, 48, 48, 48, 56, 56, 56, 64,  64,  64,  72,
                                       72, 72, 72, 80, 80, 80, 88, 88, 88, 96, 96, 96, 104, 104, 104, 104 };
 
 static PLW* master(WORK_Other* ewk) {
@@ -399,7 +399,31 @@ static void (*const eff94_states[12])(WORK_Other*) = {
 
 #define FOLLOWING_STATES 4
 
+static bool is_in_round_end_state(WORK_Other* ewk) {
+    const s16 state = ewk->wu.routine_no[1];
+
+    if (ewk->wu.old_rno[3] == 0) {
+        return state != 0;
+    }
+
+    return state == 4 || state == 5 || state == 7;
+}
+
+static void restart_if_new_round(WORK_Other* ewk) {
+    if (ewk->wu.routine_no[0] == 0 || !is_in_round_end_state(ewk) || is_round_over()) {
+        return;
+    }
+
+    ewk->wu.routine_no[0] = 0;
+    ewk->wu.routine_no[1] = 0;
+    ewk->wu.routine_no[2] = 0;
+    ewk->wu.dir_step = 0;
+    ewk->wu.rl_flag = (ewk->master_id == 0);
+}
+
 void effect_ng94_move(WORK_Other* ewk) {
+    restart_if_new_round(ewk);
+
     if (ewk->wu.routine_no[0] == 0) {
         // Ibuki's palette is loaded by now
         set_palette(ewk);
