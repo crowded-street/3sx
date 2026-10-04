@@ -12,6 +12,7 @@
 #include "sf33rd/AcrSDK/common/plcommon.h"
 #include "sf33rd/AcrSDK/ps2/flps2vram.h"
 #include "sf33rd/Source/Common/PPGFile.h"
+#include "sf33rd/Source/Game/effect/ng/eff94.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/io/gd3rd.h"
 #include "sf33rd/Source/Game/rendering/dc_ghost.h"
@@ -62,7 +63,7 @@ s32 palFormConv;
 
 // forward decls
 const u16 hitmark_color[128];
-const col_file_data color_file[164];
+const col_file_data color_file[165];
 
 void q_ldreq_color_data(LoadRequest* curr) {
     col_file_data* cfn;
@@ -561,7 +562,7 @@ const u16 hitmark_color[128] = {
     64478, 58270, 54174, 49950, 45662, 43550, 43486, 41310, 64478, 58206, 56094, 53982, 53918, 51806, 49694, 47582
 };
 
-const col_file_data color_file[164] = {
+const col_file_data color_file[165] = {
     { .data = 0x0, .type = 0x1, .apfn = 0x5B7, .free = 0x0 },
     { .data = 0x0, .type = 0x1, .apfn = 0x5BA, .free = 0x0 },
     { .data = 0x0, .type = 0x1, .apfn = 0x5BE, .free = 0x0 },
@@ -728,4 +729,6 @@ const col_file_data color_file[164] = {
     // NG Alex's stage palette and stage PPG
     { .data = 0x12C, .type = 0x2, .apfn = RESOURCE_CACHE_FNUM(CACHE_FILE_NG_ALEX_BG_PALETTE), .free = 0x0 },
     { .data = 0x0, .type = 0x0, .apfn = RESOURCE_CACHE_FNUM(CACHE_FILE_NG_ALEX_STAGE), .free = 0x0 },
+    // Ibuki's tanuki (NG effect 94), one row for each of Ibuki's NG colors
+    { .data = EFF94_PALETTE_ROW, .type = 0x2, .apfn = RESOURCE_CACHE_FNUM(CACHE_FILE_NG_EF94_PALETTE), .free = 0x0 },
 };

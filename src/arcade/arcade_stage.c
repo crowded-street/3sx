@@ -11,15 +11,34 @@
 /// Offset of SIMM5 in the graphics region
 #define SIMM5_OFFSET 0x2000000
 
-/// BG palette blocks in SIMM5. Each stage stores its normal block followed by a faded one of the same size.
-typedef struct StagePaletteSource {
+/// Palette rows copied from the graphics region
+typedef struct PaletteSource {
+    RomGame game;
     Uint32 offset;
-    size_t count;
-    CacheFile file;
-} StagePaletteSource;
+    int rows;
+    size_t row_stride; // Colors from the start of one row to the next
 
-static const StagePaletteSource palette_sources[] = {
-    { .offset = SIMM5_OFFSET + 0xF4D280, .count = 17 * 64, .file = CACHE_FILE_SHIN_AKUMA_BG_PALETTE },
+    /// Whether the first color of each row is always transparent. Sprite palettes need it.
+    bool transparent_pen;
+
+    CacheFile file;
+} PaletteSource;
+
+static const PaletteSource palette_sources[] = {
+    // BG palette block in SIMM5. Each stage stores its normal block followed by a faded one of the same size.
+    { .game = ROM_GAME_SFIII3,
+      .offset = SIMM5_OFFSET + 0xF4D280,
+      .rows = 17,
+      .row_stride = 64,
+      .file = CACHE_FILE_SHIN_AKUMA_BG_PALETTE },
+
+    // Ibuki's tanuki (effect 94) for each of Ibuki's NG colors. NG loads it with each color's palette 5.
+    { .game = ROM_GAME_SFIII_NG,
+      .offset = 0x23D5300,
+      .rows = 6,
+      .row_stride = 128,
+      .transparent_pen = true,
+      .file = CACHE_FILE_NG_EF94_PALETTE },
 };
 
 /// Program tables that the stage conversion reads. Most are indexed by bg_index.
@@ -57,7 +76,7 @@ static const StageTables stage_tables[ROM_GAME_COUNT] = {
 
 #define MAX_OBJECT_PALETTES 4
 
-/// An arcade stage, converted to a PS2-style palette, stage PPG and object texture group
+/// An arcade stage, converted to a PS2-style palette and stage PPG
 typedef struct StageSource {
     RomGame game;
     int bg_index;
@@ -68,12 +87,6 @@ typedef struct StageSource {
     /// Palettes that the stage's setup code loads for its objects. They follow the stage palette.
     int object_palettes[MAX_OBJECT_PALETTES];
     int object_palette_count;
-
-    /// The objects' CGs start here. They fill `object_group` in order.
-    Uint16 first_object_cg;
-    int object_group;
-    int object_cg_count;
-    CacheFile objects_file;
 } StageSource;
 
 static const StageSource stage_sources[] = {
@@ -83,11 +96,43 @@ static const StageSource stage_sources[] = {
       .palette_file = CACHE_FILE_NG_ALEX_BG_PALETTE,
       .ppg_file = CACHE_FILE_NG_ALEX_STAGE,
       .object_palettes = { 0x68 },
-      .object_palette_count = 1,
-      .first_object_cg = 0x5620,
-      .object_group = 100,
-      .object_cg_count = 320,
-      .objects_file = CACHE_FILE_NG_ALEX_OBJECTS },
+      .object_palette_count = 1 },
+};
+
+#define MAX_CG_RANGES 4
+
+typedef struct CgRange {
+    Uint16 first;
+    int count;
+} CgRange;
+
+/// A texture group built from arcade CGs. The ranges fill the group's slots in order.
+typedef struct CgGroupSource {
+    RomGame game;
+    int group;
+    CgRange ranges[MAX_CG_RANGES];
+    int range_count;
+    ArcadeCgFlags flags;
+    CacheFile file;
+} CgGroupSource;
+
+static const CgGroupSource cg_group_sources[] = {
+    // Objects of NG Alex's stage
+    { .game = ROM_GAME_SFIII_NG,
+      .group = 100,
+      .ranges = { { 0x5620, 320 } },
+      .range_count = 1,
+      .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
+      .file = CACHE_FILE_NG_ALEX_OBJECTS },
+
+    // Ibuki's tanuki (effect 94). Its char table is _ng_eff94_char_table. The tanuki itself uses part palette 5, while
+    // the notes and the figures use Ibuki's palette.
+    { .game = ROM_GAME_SFIII_NG,
+      .group = 101,
+      .ranges = { { 0x235B, 160 }, { 0x7245, 15 }, { 0x7263, 3 }, { 0x732C, 6 } },
+      .range_count = 4,
+      .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
+      .file = CACHE_FILE_NG_EF94 },
 };
 
 /// CPS3 graphics addresses start this far before the graphics region
@@ -131,25 +176,27 @@ static Uint16 convert_color(Uint16 color, size_t index, bool transparent_pen) {
     return swapped | 0x8000;
 }
 
-static bool write_palette(const StagePaletteSource* source, const Region* graphics) {
-    if (graphics->data == NULL || source->offset + source->count * 2 > graphics->size) {
+static bool write_palette(const PaletteSource* source, const Region* graphics) {
+    const size_t count = source->rows * 64;
+    const size_t end = source->offset + ((source->rows - 1) * source->row_stride + 64) * 2;
+
+    if (graphics->data == NULL || end > graphics->size) {
         SDL_Log("Couldn't build %s: ROM has no data for it", Cache_GetPath(source->file));
         return false;
     }
 
-    Uint16* palette = SDL_malloc(source->count * sizeof(Uint16));
+    Uint16* palette = SDL_malloc(count * sizeof(Uint16));
 
     if (palette == NULL) {
         return false;
     }
 
-    const Uint8* src = graphics->data + source->offset;
-
-    for (size_t i = 0; i < source->count; i++) {
-        palette[i] = SDL_Swap16LE(convert_color(src[i * 2] | (src[i * 2 + 1] << 8), i, false));
+    for (size_t i = 0; i < count; i++) {
+        const Uint8* src = graphics->data + source->offset + ((i / 64) * source->row_stride + i % 64) * 2;
+        palette[i] = SDL_Swap16LE(convert_color(src[0] | (src[1] << 8), i, source->transparent_pen));
     }
 
-    const bool success = Cache_Write(source->file, palette, source->count * sizeof(Uint16));
+    const bool success = Cache_Write(source->file, palette, count * sizeof(Uint16));
     SDL_free(palette);
     return success;
 }
@@ -499,8 +546,8 @@ static bool build_ppg(
     return success;
 }
 
-/// Builds the texture group with the stage's object CGs. Its trans table is padded to the group's `to_tex`.
-static bool write_objects(const StageSource* source, const StageRom* rom) {
+/// Builds a texture group from CGs. Its trans table is padded to the group's `to_tex`.
+static bool write_cg_group(const CgGroupSource* source, const StageRom* rom) {
     const ArcadeCgSource cg_source = {
         .program = rom->program.data,
         .program_size = rom->program.size,
@@ -512,28 +559,31 @@ static bool write_objects(const StageSource* source, const StageRom* rom) {
         .graphics_size = rom->graphics.size,
     };
 
-    const size_t to_tex = texgrpdat[source->object_group].to_tex;
-    Sint32* cgs = SDL_malloc(source->object_cg_count * sizeof(Sint32));
+    int slot_count = 0;
+
+    for (int i = 0; i < source->range_count; i++) {
+        slot_count += source->ranges[i].count;
+    }
+
+    const size_t to_tex = texgrpdat[source->group].to_tex;
+    Sint32* cgs = SDL_malloc(slot_count * sizeof(Sint32));
     ArcadeCgGroup group = { 0 };
     Uint8* file = NULL;
     bool success = cgs != NULL;
 
-    for (int i = 0; i < source->object_cg_count && success; i++) {
-        const Uint16 cg = source->first_object_cg + i;
-        cgs[i] = ArcadeCg_Exists(&cg_source, cg) ? cg : -1;
+    for (int i = 0, slot = 0; i < source->range_count && success; i++) {
+        for (int j = 0; j < source->ranges[i].count; j++, slot++) {
+            const Uint16 cg = source->ranges[i].first + j;
+            cgs[slot] = ArcadeCg_Exists(&cg_source, cg) ? cg : -1;
+        }
     }
 
     success =
-        success && ArcadeCg_BuildGroup(
-                       &cg_source, cgs, source->object_cg_count, ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS, &group
-                   );
+        success && ArcadeCg_BuildGroup(&cg_source, cgs, slot_count, source->flags, &group);
 
     if (success && group.trans_size > to_tex) {
         SDL_Log(
-            "Trans table of %s needs %zu bytes, but to_tex is %zu",
-            Cache_GetPath(source->objects_file),
-            group.trans_size,
-            to_tex
+            "Trans table of %s needs %zu bytes, but to_tex is %zu", Cache_GetPath(source->file), group.trans_size, to_tex
         );
         success = false;
     }
@@ -546,7 +596,11 @@ static bool write_objects(const StageSource* source, const StageRom* rom) {
     if (success) {
         SDL_memcpy(file, group.trans_table, group.trans_size);
         SDL_memcpy(file + to_tex, group.texture_table, group.texture_size);
-        success = Cache_Write(source->objects_file, file, to_tex + group.texture_size);
+        success = Cache_Write(source->file, file, to_tex + group.texture_size);
+    }
+
+    if (!success) {
+        SDL_Log("Couldn't build %s", Cache_GetPath(source->file));
     }
 
     SDL_free(cgs);
@@ -572,7 +626,7 @@ static bool write_stage(const StageSource* source, const StageRom* rom) {
         success = (palette_base & 0x1FF) == first_row &&
                   build_ppg(rom, source, tiles, tiles_size, palette_base, (int)(palette_count / 64), &ppg) &&
                   Cache_Write(source->palette_file, palette, palette_count * sizeof(Uint16)) &&
-                  Cache_Write(source->ppg_file, ppg.data, ppg.size) && write_objects(source, rom);
+                  Cache_Write(source->ppg_file, ppg.data, ppg.size);
     }
 
     if (!success) {
@@ -585,37 +639,48 @@ static bool write_stage(const StageSource* source, const StageRom* rom) {
     return success;
 }
 
+/// @return `false` if the ROM set isn't loaded.
+static bool make_stage_rom(const Rom* const roms[ROM_GAME_COUNT], RomGame game, StageRom* result) {
+    const Rom* rom = roms[game];
+
+    if (rom == NULL) {
+        return false;
+    }
+
+    *result = (StageRom) { .tables = &stage_tables[game] };
+    result->program.data = Rom_GetProgram(rom, &result->program.size);
+    result->graphics.data = Rom_GetGraphics(rom, &result->graphics.size);
+    return true;
+}
+
 void ArcadeStage_Init(const Rom* const roms[ROM_GAME_COUNT]) {
     for (int game = 0; game < ROM_GAME_COUNT; game++) {
         rom_processed[game] = roms[game] != NULL;
     }
 
-    const Rom* sfiii3 = roms[ROM_GAME_SFIII3];
+    for (int i = 0; i < SDL_arraysize(palette_sources); i++) {
+        const PaletteSource* source = &palette_sources[i];
+        StageRom stage_rom;
 
-    if (sfiii3 != NULL) {
-        Region graphics;
-        graphics.data = Rom_GetGraphics(sfiii3, &graphics.size);
-
-        for (int i = 0; i < SDL_arraysize(palette_sources); i++) {
-            if (!write_palette(&palette_sources[i], &graphics)) {
-                rom_processed[ROM_GAME_SFIII3] = false;
-            }
+        if (make_stage_rom(roms, source->game, &stage_rom) && !write_palette(source, &stage_rom.graphics)) {
+            rom_processed[source->game] = false;
         }
     }
 
     for (int i = 0; i < SDL_arraysize(stage_sources); i++) {
         const StageSource* source = &stage_sources[i];
-        const Rom* rom = roms[source->game];
+        StageRom stage_rom;
 
-        if (rom == NULL) {
-            continue;
+        if (make_stage_rom(roms, source->game, &stage_rom) && !write_stage(source, &stage_rom)) {
+            rom_processed[source->game] = false;
         }
+    }
 
-        StageRom stage_rom = { .tables = &stage_tables[source->game] };
-        stage_rom.program.data = Rom_GetProgram(rom, &stage_rom.program.size);
-        stage_rom.graphics.data = Rom_GetGraphics(rom, &stage_rom.graphics.size);
+    for (int i = 0; i < SDL_arraysize(cg_group_sources); i++) {
+        const CgGroupSource* source = &cg_group_sources[i];
+        StageRom stage_rom;
 
-        if (!write_stage(source, &stage_rom)) {
+        if (make_stage_rom(roms, source->game, &stage_rom) && !write_cg_group(source, &stage_rom)) {
             rom_processed[source->game] = false;
         }
     }
