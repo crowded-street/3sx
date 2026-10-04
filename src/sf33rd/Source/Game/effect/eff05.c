@@ -8,6 +8,8 @@
 #include "common.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/charset.h"
+#include "sf33rd/Source/Game/engine/slowf.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "sf33rd/Source/Game/rendering/texcash.h"
 #include "sf33rd/Source/Game/stage/bg.h"
@@ -20,62 +22,100 @@ const s16 scr_obj_num[AREA_COUNT] = {
     [AREA_3S_ELENA] = 3,  [AREA_3S_ORO] = 1,       [AREA_3S_YANG] = 0,        [AREA_3S_KEN] = 1,
     [AREA_3S_SEAN] = 1,   [AREA_3S_URIEN] = 1,     [AREA_3S_AKUMA] = 1,       [AREA_3S_SHIN_AKUMA] = 1,
     [AREA_3S_CHUNLI] = 2, [AREA_3S_MAKOTO] = 2,    [AREA_3S_Q] = 0,           [AREA_3S_TWELVE] = 2,
-    [AREA_3S_REMY] = 4,   [AREA_3S_BONUS_CAR] = 1, [AREA_3S_BONUS_BALLS] = 4,
-    // TODO: [AREA_NG_ALEX] after porting the stage effects
+    [AREA_3S_REMY] = 4,   [AREA_3S_BONUS_CAR] = 1, [AREA_3S_BONUS_BALLS] = 4, [AREA_NG_ALEX] = 4,
 };
 
 const s16 stg_dum_data_tbl[1] = { 0 };
 
-const s16 stg0100_data_tbl[16] = { 0, 1, 300, 568, 48, 86, 0, 0, 0, 2, 8492, 528, 47, 68, 19, 0 };
+const s16 stg0100_data_tbl[18] = {
+    0, 1, 300, 568, 48, 86, 0, 0, 0, 0, 2, 8492, 528, 47, 68, 19, 0, 0,
+};
 
-const s16 stg0A00_data_tbl[8] = { 0, 3, 300, 512, 16, 88, 10, 0 };
+const s16 stg0A00_data_tbl[9] = {
+    0, 3, 300, 512, 16, 88, 10, 0, 0,
+};
 
-const s16 stg0500_data_tbl[32] = { 0, 3, 300, 512, 0, 88, 9, 0, 0, 3, 8492, 560, 0, 88, 10, 0,
-                                   0, 2, 300, 512, 0, 84, 3, 0, 0, 2, 300,  512, 0, 84, 4,  0 };
+const s16 stg0500_data_tbl[36] = {
+    0, 3, 300, 512, 0, 88, 9, 0, 0, 0, 3, 8492, 560, 0, 88, 10, 0, 0,
+    0, 2, 300, 512, 0, 84, 3, 0, 0, 0, 2, 300,  512, 0, 84, 4,  0, 0,
+};
 
-const s16 stg1300_data_tbl[32] = { 0, 3, 300, 512, 0, 88, 21, 0, 0, 3, 8492, 560, 0, 88, 22, 0,
-                                   0, 2, 300, 512, 0, 84, 15, 0, 0, 2, 300,  512, 0, 84, 16, 0 };
+const s16 stg1300_data_tbl[36] = {
+    0, 3, 300, 512, 0, 88, 21, 0, 0, 0, 3, 8492, 560, 0, 88, 22, 0, 0,
+    0, 2, 300, 512, 0, 84, 15, 0, 0, 0, 2, 300,  512, 0, 84, 16, 0, 0,
+};
 
-const s16 stg0600_data_tbl[8] = { 0, 1, 8492, 511, 96, 88, 11, 0 };
+const s16 stg0600_data_tbl[9] = {
+    0, 1, 8492, 511, 96, 88, 11, 0, 0,
+};
 
-const s16 stg0700_data_tbl[32] = { 0, 3, 8492, 504, 48,  94, 4, 0, 0, 3, 8492, 504, 112, 94, 8, 0,
-                                   0, 2, 8492, 464, 256, 84, 7, 0, 0, 2, 8492, 512, 352, 84, 8, 0 };
+const s16 stg0700_data_tbl[36] = {
+    0, 3, 8492, 504, 48,  94, 4, 0, 0, 0, 3, 8492, 504, 112, 94, 8, 0, 0,
+    0, 2, 8492, 464, 256, 84, 7, 0, 0, 0, 2, 8492, 512, 352, 84, 8, 0, 0,
+};
 
-const s16 stg0800_data_tbl[48] = { 0, 2, 8492, 496, 48, 85, 1,  0, 0, 7, 8492, 512, 43,  88, 12, 0,
-                                   0, 7, 8492, 512, 43, 88, 13, 0, 0, 2, 8492, 624, 120, 86, 7,  0,
-                                   0, 3, 8492, 512, 72, 90, 1,  0, 0, 3, 8492, 512, 72,  90, 2,  0 };
+const s16 stg0800_data_tbl[54] = {
+    0, 2, 8492, 496, 48,  85, 1, 0, 0, 0, 7, 8492, 512, 43, 88, 12, 0, 0, 0, 7, 8492, 512, 43, 88, 13, 0, 0,
+    0, 2, 8492, 624, 120, 86, 7, 0, 0, 0, 3, 8492, 512, 72, 90, 1,  0, 0, 0, 3, 8492, 512, 72, 90, 2,  0, 0,
+};
 
-const s16 stg0900_data_tbl[8] = { 0, 6, 8492, 352, 16, 10, 5, 0 };
+const s16 stg0900_data_tbl[9] = {
+    0, 6, 8492, 352, 16, 10, 5, 0, 0,
+};
 
-const s16 stg0c00_data_tbl[8] = { 0, 6, 8492, 352, 16, 10, 5, 0 };
+const s16 stg0c00_data_tbl[9] = {
+    0, 6, 8492, 352, 16, 10, 5, 0, 0,
+};
 
-const s16 stg0d00_data_tbl[8] = { 0, 3, 300, 512, 32, 88, 0, 0 };
+const s16 stg0d00_data_tbl[9] = {
+    0, 3, 300, 512, 32, 88, 0, 0, 0,
+};
 
-const s16 stg0e00_data_tbl[24] = { 0,  3,  300, 512, 88, 98, 7,   0,   0,   2,  300, 576,
-                                   64, 84, 5,   0,   0,  2,  300, 560, 208, 84, 6,   0 };
+const s16 stg0e00_data_tbl[27] = {
+    0, 3, 300, 512, 88, 98, 7, 0, 0, 0, 2, 300, 576, 64, 84, 5, 0, 0, 0, 2, 300, 560, 208, 84, 6, 0, 0,
+};
 
-const s16 stg1000_data_tbl[16] = { 0, 3, 8492, 512, 80, 86, 0, 0, 0, 2, 8492, 480, 16, 12, 2, 0 };
+const s16 stg1000_data_tbl[18] = {
+    0, 3, 8492, 512, 80, 86, 0, 0, 0, 0, 2, 8492, 480, 16, 12, 2, 0, 0,
+};
 
-const s16 stg1100_data_tbl[16] = { 0, 1, 8492, 512, 176, 90, 2, 0, 0, 1, 8492, 512, 240, 90, 3, 0 };
+const s16 stg1100_data_tbl[18] = {
+    0, 1, 8492, 512, 176, 90, 2, 0, 0, 0, 1, 8492, 512, 240, 90, 3, 0, 0,
+};
 
-const s16 stg1400_data_tbl[32] = { 0, 2, 8492, 504, 11,  10, 0, 0, 0, 1, 8492, 496, 64,  86, 1, 0,
-                                   0, 3, 300,  496, 144, 88, 3, 0, 0, 3, 300,  512, 320, 83, 5, 0 };
+const s16 stg1400_data_tbl[36] = {
+    0, 2, 8492, 504, 11,  10, 0, 0, 0, 0, 1, 8492, 496, 64,  86, 1, 0, 0,
+    0, 3, 300,  496, 144, 88, 3, 0, 0, 0, 3, 300,  512, 320, 83, 5, 0, 0,
+};
 
-const s16 stg1500_data_tbl[8] = { 0, 2, 300, 445, 48, 10, 0, 0 };
+const s16 stg1500_data_tbl[9] = {
+    0, 2, 300, 445, 48, 10, 0, 0, 0,
+};
 
-const s16 stg1600_data_tbl[32] = { 0, 2, 300, 624, 0, 10, 2, 0, 0, 2, 8492, 511, 0,  12, 3,  0,
-                                   0, 2, 300, 511, 0, 80, 4, 0, 0, 2, 300,  608, 48, 77, 11, 0 };
+const s16 stg1600_data_tbl[36] = {
+    0, 2, 300, 624, 0, 10, 2, 0, 0, 0, 2, 8492, 511, 0,  12, 3,  0, 0,
+    0, 2, 300, 511, 0, 80, 4, 0, 0, 0, 2, 300,  608, 48, 77, 11, 0, 0,
+};
+
+/// New Generation's Alex stage. Colour codes are converted from palette row 0x40 to the PS2 BG palette row 0x12C.
+const s16 ng_stg0100_data_tbl[36] = {
+    0, 2, 8492, 608, 40,  82, 1, 0, 0, 0, 2, 8492, 512, 16, 22, 3,  0, 0,
+    1, 2, 8492, 512, 318, 83, 9, 1, 0, 0, 2, 8492, 512, 64, 80, 13, 0, 0,
+};
 
 u32* char_add[AREA_COUNT] = {
-    [AREA_3S_GILL] = _fnl_char_table,       [AREA_3S_ALEX] = _usa_char_table,        [AREA_3S_RYU] = _j10_char_table,
-    [AREA_3S_YUN] = _hkg_char_table,        [AREA_3S_DUDLEY] = _eng_char_table,      [AREA_3S_NECRO] = _rca_char_table,
-    [AREA_3S_HUGO] = _grm_char_table,       [AREA_3S_IBUKI] = _j11_char_table,       [AREA_3S_ELENA] = _afc_char_table,
-    [AREA_3S_ORO] = _brz_char_table,        [AREA_3S_YANG] = _hkg_char_table,        [AREA_3S_KEN] = _usa_char_table,
-    [AREA_3S_SEAN] = _brz_char_table,       [AREA_3S_URIEN] = _orm_char_table,       [AREA_3S_AKUMA] = _jp2_char_table,
-    [AREA_3S_SHIN_AKUMA] = _jp2_char_table, [AREA_3S_CHUNLI] = _chn_char_table,      [AREA_3S_MAKOTO] = _jp3_char_table,
-    [AREA_3S_Q] = _usa_char_table,          [AREA_3S_TWELVE] = _rca_char_table,      [AREA_3S_REMY] = _frc_char_table,
-    [AREA_3S_BONUS_CAR] = _bns_char_table,  [AREA_3S_BONUS_BALLS] = _bns_char_table,
-    // TODO: [AREA_NG_ALEX] after porting the stage effects
+    [AREA_3S_GILL] = _fnl_char_table,        [AREA_3S_ALEX] = _usa_char_table,
+    [AREA_3S_RYU] = _j10_char_table,         [AREA_3S_YUN] = _hkg_char_table,
+    [AREA_3S_DUDLEY] = _eng_char_table,      [AREA_3S_NECRO] = _rca_char_table,
+    [AREA_3S_HUGO] = _grm_char_table,        [AREA_3S_IBUKI] = _j11_char_table,
+    [AREA_3S_ELENA] = _afc_char_table,       [AREA_3S_ORO] = _brz_char_table,
+    [AREA_3S_YANG] = _hkg_char_table,        [AREA_3S_KEN] = _usa_char_table,
+    [AREA_3S_SEAN] = _brz_char_table,        [AREA_3S_URIEN] = _orm_char_table,
+    [AREA_3S_AKUMA] = _jp2_char_table,       [AREA_3S_SHIN_AKUMA] = _jp2_char_table,
+    [AREA_3S_CHUNLI] = _chn_char_table,      [AREA_3S_MAKOTO] = _jp3_char_table,
+    [AREA_3S_Q] = _usa_char_table,           [AREA_3S_TWELVE] = _rca_char_table,
+    [AREA_3S_REMY] = _frc_char_table,        [AREA_3S_BONUS_CAR] = _bns_char_table,
+    [AREA_3S_BONUS_BALLS] = _bns_char_table, [AREA_NG_ALEX] = _ng_usa_char_table,
 };
 
 const s16* scr_obj_data[AREA_COUNT] = {
@@ -90,8 +130,7 @@ const s16* scr_obj_data[AREA_COUNT] = {
     [AREA_3S_CHUNLI] = stg1000_data_tbl,      [AREA_3S_MAKOTO] = stg1100_data_tbl,
     [AREA_3S_Q] = stg_dum_data_tbl,           [AREA_3S_TWELVE] = stg1300_data_tbl,
     [AREA_3S_REMY] = stg1400_data_tbl,        [AREA_3S_BONUS_CAR] = stg1500_data_tbl,
-    [AREA_3S_BONUS_BALLS] = stg1600_data_tbl,
-    // TODO: [AREA_NG_ALEX] after porting the stage effects
+    [AREA_3S_BONUS_BALLS] = stg1600_data_tbl, [AREA_NG_ALEX] = ng_stg0100_data_tbl,
 };
 
 void effect_05_move(WORK_Other* ewk) {
@@ -108,6 +147,11 @@ void effect_05_move(WORK_Other* ewk) {
                 ewk->wu.routine_no[0]++;
                 break;
             }
+
+            if (ewk->wu.hit_stop && !EXE_flag && !Game_pause && !EXE_obroll) {
+                char_move(&ewk->wu);
+            }
+
             disp_pos_trans_entry_s(ewk);
             break;
 
@@ -154,6 +198,7 @@ s32 effect_05_init() {
         ewk->wu.xyz[1].disp.pos = *data_ptr++;
         ewk->wu.my_priority = ewk->wu.position_z = *data_ptr++;
         ewk->wu.char_index = *data_ptr++;
+        ewk->wu.hit_stop = *data_ptr++; // Animate every frame
         ewk->wu.sync_suzi = *data_ptr++;
 
         suzi_offset_set(ewk);

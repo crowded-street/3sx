@@ -2,10 +2,11 @@
 #define TEXGROUP_H
 
 #include "sf33rd/Source/Game/io/gd3rd.h"
+#include "sf33rd/Source/Game/rendering/texgroup_data.h"
 #include "structs.h"
 #include "types.h"
 
-extern TEX_GRP_LD texgrplds[100];
+extern TEX_GRP_LD texgrplds[TEXGROUP_COUNT];
 
 void q_ldreq_texture_group(LoadRequest* curr);
 void Init_texgrplds_work();

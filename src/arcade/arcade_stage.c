@@ -1,6 +1,9 @@
 #include "arcade/arcade_stage.h"
+#include "arcade/arcade_cg.h"
+#include "arcade/byte_buffer.h"
 #include "arcade/rom/cps3_dma.h"
 #include "port/io/cache.h"
+#include "sf33rd/Source/Game/rendering/texgroup_data.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
 
 #include <zlib.h>
@@ -30,6 +33,9 @@ typedef struct StageTables {
     Uint32 bg_block_list;    // u32[4]: {u32 tilemap offset, u32 block index} lists, in RAM
     Uint32 palette_load_tbl; // {u32 source, u32 destination, u32 size}, in bytes, indexed by palette id
     Uint32 ram_image;        // Initialized RAM at 0x02000000 is copied from here at boot
+    Uint32 cg_table;         // CG entries, indexed by CG number. They end with the descriptor address.
+    Uint32 cg_entry_size;
+    Uint32 cg_origin_offset; // Offset of the s16 origin x within a CG entry. Origin y follows it.
 } StageTables;
 
 static const StageTables stage_tables[ROM_GAME_COUNT] = {
@@ -43,16 +49,31 @@ static const StageTables stage_tables[ROM_GAME_COUNT] = {
         .bg_block_list = 0x02005CC4,
         .palette_load_tbl = 0x0642D74C,
         .ram_image = 0x0643BC60,
+        .cg_table = 0x06500000,
+        .cg_entry_size = 12,
+        .cg_origin_offset = 2,
     },
 };
 
-/// An arcade stage, converted to a PS2-style palette and stage PPG
+#define MAX_OBJECT_PALETTES 4
+
+/// An arcade stage, converted to a PS2-style palette, stage PPG and object texture group
 typedef struct StageSource {
     RomGame game;
     int bg_index;
     Area area;
     CacheFile palette_file;
     CacheFile ppg_file;
+
+    /// Palettes that the stage's setup code loads for its objects. They follow the stage palette.
+    int object_palettes[MAX_OBJECT_PALETTES];
+    int object_palette_count;
+
+    /// The objects' CGs start here. They fill `object_group` in order.
+    Uint16 first_object_cg;
+    int object_group;
+    int object_cg_count;
+    CacheFile objects_file;
 } StageSource;
 
 static const StageSource stage_sources[] = {
@@ -60,7 +81,13 @@ static const StageSource stage_sources[] = {
       .bg_index = 1,
       .area = AREA_NG_ALEX,
       .palette_file = CACHE_FILE_NG_ALEX_BG_PALETTE,
-      .ppg_file = CACHE_FILE_NG_ALEX_STAGE },
+      .ppg_file = CACHE_FILE_NG_ALEX_STAGE,
+      .object_palettes = { 0x68 },
+      .object_palette_count = 1,
+      .first_object_cg = 0x5620,
+      .object_group = 100,
+      .object_cg_count = 320,
+      .objects_file = CACHE_FILE_NG_ALEX_OBJECTS },
 };
 
 /// CPS3 graphics addresses start this far before the graphics region
@@ -87,12 +114,6 @@ typedef struct StageRom {
     Region graphics;
     const StageTables* tables;
 } StageRom;
-
-typedef struct ByteBuffer {
-    Uint8* data;
-    size_t size;
-    size_t capacity;
-} ByteBuffer;
 
 static bool rom_processed[ROM_GAME_COUNT] = { false };
 
@@ -179,29 +200,6 @@ static bool graphics_offset(const StageRom* rom, Uint32 address, size_t* offset)
     return true;
 }
 
-static bool append(ByteBuffer* buffer, const void* bytes, size_t size) {
-    if (buffer->size + size > buffer->capacity) {
-        size_t capacity = buffer->capacity ? buffer->capacity : 0x10000;
-
-        while (capacity < buffer->size + size) {
-            capacity *= 2;
-        }
-
-        Uint8* data = SDL_realloc(buffer->data, capacity);
-
-        if (data == NULL) {
-            return false;
-        }
-
-        buffer->data = data;
-        buffer->capacity = capacity;
-    }
-
-    SDL_memcpy(buffer->data + buffer->size, bytes, size);
-    buffer->size += size;
-    return true;
-}
-
 /// Decompresses the stage's 16x16 tiles.
 static Uint8* load_tiles(const StageRom* rom, int bg_index, size_t* tiles_size) {
     const Uint32 record = rom->tables->bg_cg_tbl + bg_index * 0x10;
@@ -212,8 +210,7 @@ static Uint8* load_tiles(const StageRom* rom, int bg_index, size_t* tiles_size) 
     size_t source;
 
     if (!program_u32(rom, record, &dictionary_word) || !program_u32(rom, record + 4, &size) ||
-        !program_u32(rom, record + 8, &source_word) ||
-        !graphics_offset(rom, dictionary_word * 2, &dictionary) ||
+        !program_u32(rom, record + 8, &source_word) || !graphics_offset(rom, dictionary_word * 2, &dictionary) ||
         !graphics_offset(rom, source_word * 2, &source)) {
         return NULL;
     }
@@ -221,7 +218,8 @@ static Uint8* load_tiles(const StageRom* rom, int bg_index, size_t* tiles_size) 
     *tiles_size = ((size_t)size + 1) * 16;
     Uint8* tiles = SDL_malloc(*tiles_size);
 
-    if (tiles == NULL || !Cps3_DecodeDma(rom->graphics.data, rom->graphics.size, source, dictionary, tiles, *tiles_size)) {
+    if (tiles == NULL ||
+        !Cps3_DecodeDma(rom->graphics.data, rom->graphics.size, source, dictionary, tiles, *tiles_size)) {
         SDL_free(tiles);
         return NULL;
     }
@@ -229,38 +227,58 @@ static Uint8* load_tiles(const StageRom* rom, int bg_index, size_t* tiles_size) 
     return tiles;
 }
 
-/// Converts the stage palette that `bg_initialize` loads.
+/// Converts a palette that `palette_load` loads.
+/// @param palette Receives the colors after the `*count` already in it.
 /// @param first_row Receives the CPS3 palette row that the palette is loaded at.
-static Uint16* load_stage_palette(const StageRom* rom, int bg_index, size_t* count, int* first_row) {
-    Uint16 palette_id;
+static bool load_palette(
+    const StageRom* rom, Uint16 palette_id, Uint16* palette, size_t capacity, size_t* count, int* first_row
+) {
+    const Uint32 record = rom->tables->palette_load_tbl + (palette_id & 0xFF) * 12;
     Uint32 source_address;
     Uint32 destination;
     Uint32 size;
     size_t source;
 
-    if (!program_u16(rom, rom->tables->bg_pal_tbl + bg_index * 2, &palette_id)) {
-        return NULL;
-    }
-
-    const Uint32 record = rom->tables->palette_load_tbl + (palette_id & 0xFF) * 12;
-
     if (!program_u32(rom, record, &source_address) || !program_u32(rom, record + 4, &destination) ||
         !program_u32(rom, record + 8, &size) || !graphics_offset(rom, source_address, &source) ||
-        source + size > rom->graphics.size) {
-        return NULL;
+        source + size > rom->graphics.size || *count + size / 2 > capacity) {
+        return false;
     }
 
-    *count = size / 2;
     *first_row = destination / 2 / 64;
-    Uint16* palette = SDL_malloc(*count * sizeof(Uint16));
 
-    if (palette == NULL) {
-        return NULL;
+    for (size_t i = 0; i < size / 2; i++) {
+        const Uint8* src = rom->graphics.data + source + i * 2;
+        palette[*count + i] = SDL_Swap16LE(convert_color(src[0] | (src[1] << 8), i, true));
     }
 
-    for (size_t i = 0; i < *count; i++) {
-        const Uint8* src = rom->graphics.data + source + i * 2;
-        palette[i] = SDL_Swap16LE(convert_color(src[0] | (src[1] << 8), i, true));
+    *count += size / 2;
+    return true;
+}
+
+#define MAX_STAGE_PALETTE_COLORS (128 * 64)
+
+/// Converts the stage palette that `bg_initialize` loads, followed by the stage's object palettes.
+/// @param first_row Receives the CPS3 palette row that the stage palette is loaded at.
+static Uint16* load_stage_palette(const StageRom* rom, const StageSource* source, size_t* count, int* first_row) {
+    Uint16* palette = SDL_malloc(MAX_STAGE_PALETTE_COLORS * sizeof(Uint16));
+    Uint16 palette_id;
+    bool success = palette != NULL && program_u16(rom, rom->tables->bg_pal_tbl + source->bg_index * 2, &palette_id);
+    *count = 0;
+    success = success && load_palette(rom, palette_id, palette, MAX_STAGE_PALETTE_COLORS, count, first_row);
+
+    for (int i = 0; i < source->object_palette_count && success; i++) {
+        int row;
+        const int expected_row = *first_row + (int)(*count / 64);
+
+        // Object palettes must continue the stage palette, since the PS2 format loads one block
+        success = load_palette(rom, source->object_palettes[i], palette, MAX_STAGE_PALETTE_COLORS, count, &row) &&
+                  row == expected_row;
+    }
+
+    if (!success) {
+        SDL_free(palette);
+        return NULL;
     }
 
     return palette;
@@ -299,9 +317,7 @@ static bool build_tilemap(const StageRom* rom, int bg_index, int layer, Uint32* 
         for (int y = 0; y < 16; y++) {
             for (int x = 0; x < 16; x++) {
                 if (!program_u32(
-                        rom,
-                        map_base + block * 0x400 + (y * 16 + x) * 4,
-                        &tilemap[(top + y) * TILEMAP_SIZE + left + x]
+                        rom, map_base + block * 0x400 + (y * 16 + x) * 4, &tilemap[(top + y) * TILEMAP_SIZE + left + x]
                     )) {
                     return false;
                 }
@@ -440,8 +456,9 @@ static bool append_chip(ByteBuffer* ppg, const Uint8* pixels, const int* block_p
                                trans_count };
     const Uint8 padding[3] = { 0 };
 
-    const bool success = append(ppg, header, sizeof(header)) && append(ppg, trans, trans_count * 3) &&
-                         append(ppg, compressed, compressed_size) && append(ppg, padding, (4 - size % 4) % 4);
+    const bool success =
+        ByteBuffer_Append(ppg, header, sizeof(header)) && ByteBuffer_Append(ppg, trans, trans_count * 3) &&
+        ByteBuffer_Append(ppg, compressed, compressed_size) && ByteBuffer_Append(ppg, padding, (4 - size % 4) % 4);
     SDL_free(compressed);
     return success;
 }
@@ -476,9 +493,65 @@ static bool build_ppg(
         }
     }
 
-    success = success && append(ppg, "pEND", 4);
+    success = success && ByteBuffer_Append(ppg, "pEND", 4);
     SDL_free(tilemap);
     SDL_free(pixels);
+    return success;
+}
+
+/// Builds the texture group with the stage's object CGs. Its trans table is padded to the group's `to_tex`.
+static bool write_objects(const StageSource* source, const StageRom* rom) {
+    const ArcadeCgSource cg_source = {
+        .program = rom->program.data,
+        .program_size = rom->program.size,
+        .program_base = ROM_PROGRAM_BASE,
+        .table = rom->tables->cg_table,
+        .entry_size = rom->tables->cg_entry_size,
+        .origin_offset = rom->tables->cg_origin_offset,
+        .graphics = rom->graphics.data,
+        .graphics_size = rom->graphics.size,
+    };
+
+    const size_t to_tex = texgrpdat[source->object_group].to_tex;
+    Sint32* cgs = SDL_malloc(source->object_cg_count * sizeof(Sint32));
+    ArcadeCgGroup group = { 0 };
+    Uint8* file = NULL;
+    bool success = cgs != NULL;
+
+    for (int i = 0; i < source->object_cg_count && success; i++) {
+        const Uint16 cg = source->first_object_cg + i;
+        cgs[i] = ArcadeCg_Exists(&cg_source, cg) ? cg : -1;
+    }
+
+    success =
+        success && ArcadeCg_BuildGroup(
+                       &cg_source, cgs, source->object_cg_count, ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS, &group
+                   );
+
+    if (success && group.trans_size > to_tex) {
+        SDL_Log(
+            "Trans table of %s needs %zu bytes, but to_tex is %zu",
+            Cache_GetPath(source->objects_file),
+            group.trans_size,
+            to_tex
+        );
+        success = false;
+    }
+
+    if (success) {
+        file = SDL_calloc(1, to_tex + group.texture_size);
+        success = file != NULL;
+    }
+
+    if (success) {
+        SDL_memcpy(file, group.trans_table, group.trans_size);
+        SDL_memcpy(file + to_tex, group.texture_table, group.texture_size);
+        success = Cache_Write(source->objects_file, file, to_tex + group.texture_size);
+    }
+
+    SDL_free(cgs);
+    SDL_free(file);
+    ArcadeCg_FreeGroup(&group);
     return success;
 }
 
@@ -489,7 +562,7 @@ static bool write_stage(const StageSource* source, const StageRom* rom) {
     Uint16 palette_base;
     ByteBuffer ppg = { 0 };
     Uint8* tiles = load_tiles(rom, source->bg_index, &tiles_size);
-    Uint16* palette = load_stage_palette(rom, source->bg_index, &palette_count, &first_row);
+    Uint16* palette = load_stage_palette(rom, source, &palette_count, &first_row);
     bool success = tiles != NULL && palette != NULL &&
                    program_u16(rom, rom->tables->bg_pal_base_tbl + source->bg_index * 2, &palette_base);
 
@@ -499,7 +572,7 @@ static bool write_stage(const StageSource* source, const StageRom* rom) {
         success = (palette_base & 0x1FF) == first_row &&
                   build_ppg(rom, source, tiles, tiles_size, palette_base, (int)(palette_count / 64), &ppg) &&
                   Cache_Write(source->palette_file, palette, palette_count * sizeof(Uint16)) &&
-                  Cache_Write(source->ppg_file, ppg.data, ppg.size);
+                  Cache_Write(source->ppg_file, ppg.data, ppg.size) && write_objects(source, rom);
     }
 
     if (!success) {

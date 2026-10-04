@@ -5,6 +5,8 @@
 
 #include "sf33rd/Source/Game/stage/ng/bg240.h"
 #include "common.h"
+#include "sf33rd/Source/Game/effect/eff05.h"
+#include "sf33rd/Source/Game/effect/eff06.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
@@ -81,8 +83,8 @@ static void bg2401_init00() {
     bgw_ptr->hos_xy[0].cal = bgw_ptr->wxy[0].cal = bgw_ptr->xy[0].cal;
     bgw_ptr->zuubun = 0;
 
-    // effect_05_init();
-    // effect_06_init();
+    effect_05_init();
+    effect_06_init();
     // effect_69_init();
     // effect_64_init(3);
     // effect_64_init(4);
