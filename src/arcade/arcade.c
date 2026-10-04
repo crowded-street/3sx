@@ -27,11 +27,20 @@ static Rom* load_rom(RomGame game) {
     return rom;
 }
 
+/// Optional ROM sets are only loaded when present, so their absence isn't reported as an error.
+static bool rom_exists(RomGame game) {
+    char* path = Resources_GetPath(Rom_GetZipName(game));
+    const bool exists = SDL_GetPathInfo(path, NULL);
+    SDL_free(path);
+    return exists;
+}
+
 void Arcade_Init() {
     ArcadeBalance_Init();
 
     bool needed[ROM_GAME_COUNT] = { false };
     needed[ROM_GAME_SFIII3] = true;
+    needed[ROM_GAME_SFIII_NG] = rom_exists(ROM_GAME_SFIII_NG);
 
     for (int game = 0; game < ROM_GAME_COUNT; game++) {
         if (needed[game]) {
@@ -45,7 +54,11 @@ void Arcade_Init() {
         ArcadeCharData_Init(sfiii3);
     }
 
-    ArcadeStage_Init(sfiii3);
+    ArcadeStage_Init((const Rom* const*)roms);
+
+    // Only the stage converter reads New Generation's ROM
+    Rom_Destroy(roms[ROM_GAME_SFIII_NG]);
+    roms[ROM_GAME_SFIII_NG] = NULL;
 
 #if ARCADE_ROM_TEXTURES
     if (sfiii3 != NULL) {

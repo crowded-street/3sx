@@ -41,8 +41,20 @@ void Cps3_DecodeProgramSimm(
     }
 }
 
-void Cps3_DecodeGraphicsSimm(Uint8* dst, const Uint8* const chips[8], size_t chip_size) {
-    for (int pair = 0; pair < 4; pair++) {
+void Cps3_DecodeProgramFlash(Uint8* dst, const Uint8* src, size_t size, Uint32 address, Uint32 key1, Uint32 key2) {
+    for (size_t i = 0; i + 4 <= size; i += 4) {
+        const Uint32 encrypted =
+            ((Uint32)src[i] << 24) | ((Uint32)src[i + 1] << 16) | ((Uint32)src[i + 2] << 8) | src[i + 3];
+        const Uint32 word = encrypted ^ cps3_mask(address + (Uint32)i, key1, key2);
+        dst[i] = word >> 24;
+        dst[i + 1] = word >> 16;
+        dst[i + 2] = word >> 8;
+        dst[i + 3] = word;
+    }
+}
+
+void Cps3_DecodeGraphicsSimm(Uint8* dst, const Uint8* const chips[8], int chip_count, size_t chip_size) {
+    for (int pair = 0; pair < chip_count / 2; pair++) {
         Uint8* out = dst + pair * chip_size * 2;
         const Uint8* even = chips[pair * 2];
         const Uint8* odd = chips[pair * 2 + 1];
@@ -51,5 +63,12 @@ void Cps3_DecodeGraphicsSimm(Uint8* dst, const Uint8* const chips[8], size_t chi
             out[i * 2] = odd[i];
             out[i * 2 + 1] = even[i];
         }
+    }
+}
+
+void Cps3_DecodeGraphicsFlash(Uint8* dst, const Uint8* src, size_t size) {
+    for (size_t i = 0; i + 2 <= size; i += 2) {
+        dst[i] = src[i + 1];
+        dst[i + 1] = src[i];
     }
 }

@@ -8,6 +8,8 @@
 
 typedef enum CacheFile {
     CACHE_FILE_SHIN_AKUMA_BG_PALETTE,
+    CACHE_FILE_NG_ALEX_BG_PALETTE,
+    CACHE_FILE_NG_ALEX_STAGE,
     CACHE_FILE_COUNT,
 } CacheFile;
 

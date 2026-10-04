@@ -10,6 +10,7 @@
 
 typedef enum RomGame {
     ROM_GAME_SFIII3,
+    ROM_GAME_SFIII_NG,
     ROM_GAME_COUNT,
 } RomGame;
 

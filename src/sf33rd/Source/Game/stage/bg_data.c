@@ -54,7 +54,7 @@ const u8 use_real_scr[AREA_COUNT] = {
     [AREA_3S_SEAN] = 2,   [AREA_3S_URIEN] = 2,     [AREA_3S_AKUMA] = 3,       [AREA_3S_SHIN_AKUMA] = 3,
     [AREA_3S_CHUNLI] = 2, [AREA_3S_MAKOTO] = 2,    [AREA_3S_Q] = 2,           [AREA_3S_TWELVE] = 2,
     [AREA_3S_REMY] = 1,   [AREA_3S_BONUS_CAR] = 2, [AREA_3S_BONUS_BALLS] = 1,
-    // TODO: [AREA_NG_ALEX] depends on the generated stage assets
+    [AREA_NG_ALEX] = 3,
 };
 
 const u8 use_family[AREA_COUNT] = {
@@ -91,7 +91,7 @@ const u8 stage_bgw_number[AREA_COUNT][3] = {
     [AREA_3S_SHIN_AKUMA] = { 1, 2, 3 }, [AREA_3S_CHUNLI] = { 1, 2, 0 },      [AREA_3S_MAKOTO] = { 1, 2, 0 },
     [AREA_3S_Q] = { 1, 2, 0 },          [AREA_3S_TWELVE] = { 1, 2, 0 },      [AREA_3S_REMY] = { 0, 2, 0 },
     [AREA_3S_BONUS_CAR] = { 1, 2, 0 },  [AREA_3S_BONUS_BALLS] = { 0, 2, 0 },
-    // TODO: [AREA_NG_ALEX] depends on the generated stage assets
+    [AREA_NG_ALEX] = { 1, 2, 3 },
 };
 
 const s32 msp[AREA_COUNT][3][2] = {
@@ -446,7 +446,7 @@ const u32 bgtex_stage_gbix[AREA_COUNT][3] = {
     [AREA_3S_REMY] = { 0xFFFFFFFF, 0x0, 0x0 },
     [AREA_3S_BONUS_CAR] = { 0x3C3C3C1C, 0x20343C3C, 0x0 },
     [AREA_3S_BONUS_BALLS] = { 0x3E3E3E3E, 0x0, 0x0 },
-    // TODO: [AREA_NG_ALEX] depends on the generated stage assets
+    [AREA_NG_ALEX] = { 0x6060606, 0xFFFFFFFF, 0xE0E0000 },
 };
 
 const u32 bgtex_etc_gbix[7] = { 0xFFFF, 0xF0F0, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xF0F0 };
@@ -460,7 +460,7 @@ const u32 stage_priority[AREA_COUNT] = {
     [AREA_3S_SHIN_AKUMA] = 0x5E546200, [AREA_3S_CHUNLI] = 0x5E540000,      [AREA_3S_MAKOTO] = 0x5E540000,
     [AREA_3S_Q] = 0x5E540000,          [AREA_3S_TWELVE] = 0x5E540000,      [AREA_3S_REMY] = 0x5E540000,
     [AREA_3S_BONUS_CAR] = 0x5E540000,  [AREA_3S_BONUS_BALLS] = 0x5E540000,
-    // TODO: [AREA_NG_ALEX] depends on the generated stage assets
+    [AREA_NG_ALEX] = 0x5E546800,
 };
 
 const u32 etc_bg_priority[7] = { 0x54540000, 0x5E000000, 0x54540000, 0x54540000, 0x54540000, 0x54540000, 0x5E540000 };
@@ -472,7 +472,7 @@ const u8 stage_opaque[AREA_COUNT] = {
     [AREA_3S_SEAN] = 0x80,   [AREA_3S_URIEN] = 0x80,     [AREA_3S_AKUMA] = 0x20,       [AREA_3S_SHIN_AKUMA] = 0x20,
     [AREA_3S_CHUNLI] = 0x80, [AREA_3S_MAKOTO] = 0x80,    [AREA_3S_Q] = 0x80,           [AREA_3S_TWELVE] = 0x80,
     [AREA_3S_REMY] = 0x80,   [AREA_3S_BONUS_CAR] = 0x80, [AREA_3S_BONUS_BALLS] = 0x80,
-    // TODO: [AREA_NG_ALEX] depends on the generated stage assets
+    [AREA_NG_ALEX] = 0x80,
 };
 
 const s8 bgrw_on[AREA_COUNT][8] = {
@@ -595,7 +595,7 @@ const u8 ake_bg_off[AREA_COUNT] = {
     [AREA_3S_SEAN] = 3,   [AREA_3S_URIEN] = 3,     [AREA_3S_AKUMA] = 3,       [AREA_3S_SHIN_AKUMA] = 3,
     [AREA_3S_CHUNLI] = 3, [AREA_3S_MAKOTO] = 3,    [AREA_3S_Q] = 0,           [AREA_3S_TWELVE] = 3,
     [AREA_3S_REMY] = 2,   [AREA_3S_BONUS_CAR] = 0, [AREA_3S_BONUS_BALLS] = 0,
-    // TODO: [AREA_NG_ALEX] depends on the generated stage assets
+    [AREA_NG_ALEX] = 7,
 };
 
 const s16 limit_tbl3[AREA_COUNT][3][4] = {
@@ -701,7 +701,7 @@ const u16* bg_map_tbl[AREA_COUNT][3] = {
     [AREA_3S_REMY] = { stage200_map, NULL, NULL },
     [AREA_3S_BONUS_CAR] = { bonus010_map, bonus011_map, NULL },
     [AREA_3S_BONUS_BALLS] = { bonus020_map, NULL, NULL },
-    // TODO: [AREA_NG_ALEX] depends on the generated stage assets
+    [AREA_NG_ALEX] = { NULL, NULL, NULL },
 };
 
 const u16* bg_map_tbl2[7] = { win_lose_map, rank_map, select_map, win_lose_map, win_lose_map, win_lose_map, rank_map };

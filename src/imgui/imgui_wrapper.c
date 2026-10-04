@@ -18,9 +18,43 @@ static const char* const character_names[] = {
 };
 
 static const char* const stage_names[] = {
-    "-",    "Gill", "Alex", "Ryu",   "Yun",   "Dudley",     "Necro",   "Hugo",   "Ibuki", "Elena",  "Oro",
-    "Yang", "Ken",  "Sean", "Urien", "Akuma", "Shin Akuma", "Chun-Li", "Makoto", "Q",     "Twelve", "Remy",
+    "-",
+    "Gill",
+    "Alex",
+    "Ryu",
+    "Yun",
+    "Dudley",
+    "Necro",
+    "Hugo",
+    "Ibuki",
+    "Elena",
+    "Oro",
+    "Yang",
+    "Ken",
+    "Sean",
+    "Urien",
+    "Akuma",
+    "Shin Akuma",
+    "Chun-Li",
+    "Makoto",
+    "Q",
+    "Twelve",
+    "Remy",
+    [STAGE_NG_ALEX + 1] = "Alex (NG)",
 };
+
+static bool is_stage_available(Stage stage) {
+    switch (stage) {
+    case STAGE_3S_SHIN_AKUMA:
+        return ArcadeStage_IsRomProcessed(ROM_GAME_SFIII3);
+
+    case STAGE_NG_ALEX:
+        return ArcadeStage_IsRomProcessed(ROM_GAME_SFIII_NG);
+
+    default:
+        return true;
+    }
+}
 
 static const char* const bonus_stage_names[] = { "-", "Destroy the car", "Parry the ball" };
 
@@ -48,8 +82,12 @@ static void build_stage_override_combo() {
     }
 
     for (int i = 0; i < SDL_arraysize(stage_names); i++) {
+        if (stage_names[i] == NULL) {
+            continue;
+        }
+
         const bool selected = (i == debug_config.stage_override);
-        const bool available = (i - 1 != STAGE_3S_SHIN_AKUMA) || ArcadeStage_IsShinAkumaStageAvailable();
+        const bool available = (i == 0) || is_stage_available(i - 1);
         const ImGuiSelectableFlags flags = available ? 0 : ImGuiSelectableFlags_Disabled;
 
         ImGui_PushIDInt(i);

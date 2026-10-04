@@ -1929,7 +1929,7 @@ static bool Is_VS_Stage_Selectable(s8 stage) {
     }
 
     if (stage == STAGE_3S_SHIN_AKUMA) {
-        return ArcadeStage_IsShinAkumaStageAvailable();
+        return ArcadeStage_IsRomProcessed(ROM_GAME_SFIII3);
     }
 
     return true;
@@ -2010,7 +2010,7 @@ s32 Check_Boss(s16 PL_id) {
 
 Stage Resolve_Akuma_Stage(Stage stage) {
     // Peers may differ in ROM availability, so netplay sticks to Akuma's stage to keep RNG and state in sync
-    if (!ArcadeStage_IsShinAkumaStageAvailable() || Mode_Type == MODE_NETWORK) {
+    if (!ArcadeStage_IsRomProcessed(ROM_GAME_SFIII3) || Mode_Type == MODE_NETWORK) {
         return stage;
     }
 

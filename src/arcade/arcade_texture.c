@@ -3,6 +3,7 @@
 #include "arcade/arcade_texture.h"
 
 #include "arcade/arcade_char_data.h"
+#include "arcade/rom/cps3_dma.h"
 #include "sf33rd/Source/Common/PPGFile.h"
 #include "sf33rd/Source/Game/rendering/texgroup_data.h"
 #include "structs.h"
@@ -119,51 +120,6 @@ static bool graphics_offset(Uint32 dma_word, size_t* offset) {
     return true;
 }
 
-static void emit_dma_byte(Uint8 value, Uint8* dst, size_t length, size_t* written, Uint8* previous) {
-    if (value & 0x40) {
-        size_t run = (value & 0x3f) + 1;
-
-        if (run > length - *written) {
-            run = length - *written;
-        }
-
-        SDL_memset(dst + *written, *previous, run);
-        *written += run;
-    } else if (*written < length) {
-        dst[(*written)++] = value;
-        *previous = value;
-    }
-}
-
-static bool decode_dma(size_t source, size_t dictionary, Uint8* dst, size_t length) {
-    size_t written = 0;
-    Uint8 previous = 0;
-
-    while (written < length) {
-        if (source >= graphics_size) {
-            return false;
-        }
-
-        Uint8 control = graphics[source ^ 1];
-        source += 1;
-
-        if (control & 0x80) {
-            size_t entry = dictionary + (control & 0x7f) * 2;
-
-            if (entry + 1 >= graphics_size) {
-                return false;
-            }
-
-            emit_dma_byte(graphics[entry ^ 1], dst, length, &written, &previous);
-            emit_dma_byte(graphics[(entry + 1) ^ 1], dst, length, &written, &previous);
-        } else {
-            emit_dma_byte(control, dst, length, &written, &previous);
-        }
-    }
-
-    return true;
-}
-
 static Uint8* decode_cram(const CgDescriptor* descriptor, size_t* allocation) {
     *allocation = ((descriptor->allocation >> 5) + 1) * 0x1000;
     Uint8* cram = SDL_calloc(1, *allocation);
@@ -181,7 +137,7 @@ static Uint8* decode_cram(const CgDescriptor* descriptor, size_t* allocation) {
         size_t source = 0;
 
         if (destination > *allocation || length > *allocation - destination || !graphics_offset(be32(span), &source) ||
-            !decode_dma(source, dictionary, cram + destination, length)) {
+            !Cps3_DecodeDma(graphics, graphics_size, source, dictionary, cram + destination, length)) {
             SDL_free(cram);
             return NULL;
         }
