@@ -66,7 +66,8 @@ static void bg2300_init00() {
     bgw_ptr->hos_xy[0].cal = bgw_ptr->wxy[0].cal = bgw_ptr->xy[0].cal;
     bgw_ptr->zuubun = 0;
 
-    // TODO: Port NG effects 12 and 47. NG also preloads CGs 0x6000 and 0x6390 into sprite RAM here.
+    // NG starts effect 12 here to animate the lava of this layer. 3S does it with rw231-rw235 instead.
+    // TODO: Port NG effect 47. NG also preloads its CGs into sprite RAM here, which 3S doesn't need.
 }
 
 static void bg2300_move01() {

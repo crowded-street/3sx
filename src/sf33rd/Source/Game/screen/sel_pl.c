@@ -1933,9 +1933,6 @@ static bool Is_VS_Stage_Selectable(s8 stage) {
         return ArcadeStage_IsRomProcessed(ROM_GAME_SFIII3);
 
     case STAGE_NG_GILL:
-        // TODO: Make available once its resources are generated
-        return false;
-
     case STAGE_NG_ALEX:
         return ArcadeStage_IsRomProcessed(ROM_GAME_SFIII);
 

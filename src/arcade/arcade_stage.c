@@ -75,6 +75,15 @@ static const StageTables stage_tables[ROM_GAME_COUNT] = {
 };
 
 #define MAX_OBJECT_PALETTES 4
+#define MAX_REWRITE_CHIPS 16
+
+/// A chip of an alternate tilemap that the stage swaps in to animate a layer. It becomes a rewrite chip, which the PPG
+/// stores after the layer chips.
+typedef struct RewriteChip {
+    Uint32 blocks; // {u32 tilemap offset, u32 block index} list of the alternate tilemap
+    int block_count;
+    int chip;
+} RewriteChip;
 
 /// An arcade stage, converted to a PS2-style palette and stage PPG
 typedef struct StageSource {
@@ -87,9 +96,38 @@ typedef struct StageSource {
     /// Palettes that the stage's setup code loads for its objects. They follow the stage palette.
     int object_palettes[MAX_OBJECT_PALETTES];
     int object_palette_count;
+
+    /// Must match `rewrite_scr` and the stage's `bgrw_data_tbl` entries
+    RewriteChip rewrite_chips[MAX_REWRITE_CHIPS];
+    int rewrite_chip_count;
 } StageSource;
 
+/// Alternate tilemaps of Gill's stage. NG's effect 12 cycles through them to animate the lava of layer 0.
+#define NG_GILL_LAVA_MAP_0 0x0643275C
+#define NG_GILL_LAVA_MAP_1 0x064327DC
+
 static const StageSource stage_sources[] = {
+    { .game = ROM_GAME_SFIII,
+      .bg_index = 0,
+      .area = AREA_NG_GILL,
+      .palette_file = CACHE_FILE_NG_GILL_BG_PALETTE,
+      .ppg_file = CACHE_FILE_NG_GILL_STAGE,
+      // The lava chips 49-53 of layer 0, in the order rw231-rw235 use them. Effect 12 shows the upper half of map 0,
+      // the lower half of map 0 (the regular tilemap), the upper half of map 1 and the lower half of map 1.
+      .rewrite_chips = { { NG_GILL_LAVA_MAP_0, 16, 17 },
+                         { NG_GILL_LAVA_MAP_1, 16, 17 },
+                         { NG_GILL_LAVA_MAP_1, 16, 49 },
+                         { NG_GILL_LAVA_MAP_0, 16, 18 },
+                         { NG_GILL_LAVA_MAP_1, 16, 18 },
+                         { NG_GILL_LAVA_MAP_1, 16, 50 },
+                         { NG_GILL_LAVA_MAP_0, 16, 19 },
+                         { NG_GILL_LAVA_MAP_1, 16, 19 },
+                         { NG_GILL_LAVA_MAP_1, 16, 51 },
+                         { NG_GILL_LAVA_MAP_0, 16, 20 },
+                         { NG_GILL_LAVA_MAP_1, 16, 20 },
+                         { NG_GILL_LAVA_MAP_1, 16, 52 },
+                         { NG_GILL_LAVA_MAP_1, 16, 21 } },
+      .rewrite_chip_count = 13 },
     { .game = ROM_GAME_SFIII,
       .bg_index = 1,
       .area = AREA_NG_ALEX,
@@ -133,6 +171,14 @@ static const CgGroupSource cg_group_sources[] = {
       .range_count = 4,
       .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
       .file = CACHE_FILE_NG_EF94 },
+
+    // Objects of NG Gill's stage. Its char table is _ng_fnl_char_table.
+    { .game = ROM_GAME_SFIII,
+      .group = 102,
+      .ranges = { { 0x6000, 156 }, { 0x6390, 82 } },
+      .range_count = 2,
+      .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
+      .file = CACHE_FILE_NG_GILL_OBJECTS },
 };
 
 /// CPS3 graphics addresses start this far before the graphics region
@@ -260,8 +306,7 @@ static Uint8* load_tiles(const StageRom* rom, int bg_index, size_t* tiles_size) 
     *tiles_size = ((size_t)size + 1) * 16;
     Uint8* tiles = SDL_malloc(*tiles_size);
 
-    if (tiles == NULL ||
-        !Cps3_DecodeDma(rom->graphics, source, dictionary, tiles, *tiles_size)) {
+    if (tiles == NULL || !Cps3_DecodeDma(rom->graphics, source, dictionary, tiles, *tiles_size)) {
         SDL_free(tiles);
         return NULL;
     }
@@ -326,18 +371,14 @@ static Uint16* load_stage_palette(const StageRom* rom, const StageSource* source
     return palette;
 }
 
-/// Builds a layer's 64x64 tilemap. Each entry holds the tile number in the upper half and the attributes in the lower
-/// half. Entries that no map block covers are 0xFFFFFFFF.
-static bool build_tilemap(const StageRom* rom, int bg_index, int layer, Uint32* tilemap) {
-    Uint16 count;
-    Uint32 blocks;
+/// Builds a 64x64 tilemap from a {u32 tilemap offset, u32 block index} list. Each entry holds the tile number in the
+/// upper half and the attributes in the lower half. Entries that no map block covers are 0xFFFFFFFF.
+static bool build_tilemap_from_blocks(const StageRom* rom, int bg_index, Uint32 blocks, int count, Uint32* tilemap) {
     Uint32 map_base;
 
     SDL_memset(tilemap, 0xFF, TILEMAP_SIZE * TILEMAP_SIZE * sizeof(Uint32));
 
-    if (!program_u16(rom, rom->tables->bg_block_count + bg_index * 8 + layer * 2, &count) ||
-        !program_u32(rom, rom->tables->bg_block_list + bg_index * 0x10 + layer * 4, &blocks) ||
-        !program_u32(rom, rom->tables->bg_map_base + bg_index * 4, &map_base)) {
+    if (!program_u32(rom, rom->tables->bg_map_base + bg_index * 4, &map_base)) {
         return false;
     }
 
@@ -368,6 +409,16 @@ static bool build_tilemap(const StageRom* rom, int bg_index, int layer, Uint32* 
     }
 
     return true;
+}
+
+/// Builds a layer's 64x64 tilemap from the stage's map block list.
+static bool build_tilemap(const StageRom* rom, int bg_index, int layer, Uint32* tilemap) {
+    Uint16 count;
+    Uint32 blocks;
+
+    return program_u16(rom, rom->tables->bg_block_count + bg_index * 8 + layer * 2, &count) &&
+           program_u32(rom, rom->tables->bg_block_list + bg_index * 0x10 + layer * 4, &blocks) &&
+           build_tilemap_from_blocks(rom, bg_index, blocks, count, tilemap);
 }
 
 /// Draws a 128x128 chip from the tilemap.
@@ -505,7 +556,8 @@ static bool append_chip(ByteBuffer* ppg, const Uint8* pixels, const int* block_p
     return success;
 }
 
-/// Builds the stage PPG: one pTEX per chip that `bgtex_stage_gbix` selects, layer by layer.
+/// Builds the stage PPG: one pTEX per chip that `bgtex_stage_gbix` selects, layer by layer, followed by the rewrite
+/// chips.
 static bool build_ppg(
     const StageRom* rom, const StageSource* source, const Uint8* tiles, size_t tiles_size, int palette_base,
     int palette_rows, ByteBuffer* ppg
@@ -533,6 +585,14 @@ static bool build_ppg(
                 ) &&
                 append_chip(ppg, pixels, block_palettes);
         }
+    }
+
+    for (int i = 0; i < source->rewrite_chip_count && success; i++) {
+        const RewriteChip* chip = &source->rewrite_chips[i];
+        success =
+            build_tilemap_from_blocks(rom, source->bg_index, chip->blocks, chip->block_count, tilemap) &&
+            draw_chip(tilemap, tiles, tiles_size, chip->chip, palette_base, palette_rows, pixels, block_palettes) &&
+            append_chip(ppg, pixels, block_palettes);
     }
 
     success = success && ByteBuffer_Append(ppg, "pEND", 4);
@@ -571,12 +631,14 @@ static bool write_cg_group(const CgGroupSource* source, const StageRom* rom) {
         }
     }
 
-    success =
-        success && ArcadeCg_BuildGroup(&cg_source, cgs, slot_count, source->flags, &group);
+    success = success && ArcadeCg_BuildGroup(&cg_source, cgs, slot_count, source->flags, &group);
 
     if (success && group.trans_size > to_tex) {
         SDL_Log(
-            "Trans table of %s needs %zu bytes, but to_tex is %zu", Cache_GetPath(source->file), group.trans_size, to_tex
+            "Trans table of %s needs %zu bytes, but to_tex is %zu",
+            Cache_GetPath(source->file),
+            group.trans_size,
+            to_tex
         );
         success = false;
     }
