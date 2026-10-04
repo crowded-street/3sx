@@ -18,9 +18,9 @@ const s16 Pos_Data_99[5][3] = { { -144, 128, 23 }, { 48, 128, 23 }, { 8, 54, 23 
 const char* Letter_Data_99[5][VS_STAGE_RANDOM + 1] = {
     { ";;;;;;;#", ";;;;;;##", ";;;;;###", ";;;;####", ";;;#####", ";;######", ";#######", "########" },
     { "#;;;;;;;", "##;;;;;;", "###;;;;;", "####;;;;", "#####;;;", "######;;", "#######;", "########" },
-    { "UNKNOWN", "AMERICA", "JAPAN",     "HONG KONG", "ENGLAND", "RUSSIA", "GERMANY", "JAPAN",
-      "KENYA",   "BRAZIL",  "HONG KONG", "AMERICA",   "BRAZIL",  "MEXICO", "JAPAN",   "JAPAN",
-      "CHINA",   "JAPAN",   "",          "RUSSIA",    "FRANCE",  "RANDOM" },
+    { "UNKNOWN", "AMERICA",   "JAPAN",   "HONG KONG", "ENGLAND", "RUSSIA",  "GERMANY", "JAPAN", "KENYA",
+      "BRAZIL",  "HONG KONG", "AMERICA", "BRAZIL",    "MEXICO",  "JAPAN",   "JAPAN",   "CHINA", "JAPAN",
+      "",        "RUSSIA",    "FRANCE",  "",          "",        "AMERICA", "RANDOM" },
     { "GILL STAGE",
       "SUBWAY STATION",
       "SUZAKU CASTLE ROOFTOP",
@@ -42,6 +42,9 @@ const char* Letter_Data_99[5][VS_STAGE_RANDOM + 1] = {
       "",
       "MOSQUE",
       "CLUB METRO",
+      "",
+      "",
+      "NEW YORK ALLEYWAY",
       "" },
     { "",
       "ALEX STAGE",
@@ -64,6 +67,9 @@ const char* Letter_Data_99[5][VS_STAGE_RANDOM + 1] = {
       "",
       "TWELVE STAGE",
       "REMY STAGE",
+      "",
+      "",
+      "ALEX STAGE (NG)",
       "" }
 };
 

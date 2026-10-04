@@ -1922,41 +1922,42 @@ void Handicap_Stage_Select(s16 PL_id) {
     Handicap_Stage_Move_Sub(IO_Result);
 }
 
-/// Q's stage is never offered. Shin Akuma's is offered only when it's available.
 static bool Is_VS_Stage_Selectable(s8 stage) {
-    if (stage == STAGE_3S_Q) {
+    switch (stage) {
+    case STAGE_3S_Q:
+    case STAGE_3S_BONUS_CAR:
+    case STAGE_3S_BONUS_BALLS:
         return false;
-    }
 
-    if (stage == STAGE_3S_SHIN_AKUMA) {
+    case STAGE_3S_SHIN_AKUMA:
         return ArcadeStage_IsRomProcessed(ROM_GAME_SFIII3);
-    }
 
-    return true;
+    case STAGE_NG_ALEX:
+        return ArcadeStage_IsRomProcessed(ROM_GAME_SFIII_NG);
+
+    default:
+        return true;
+    }
 }
 
 void Handicap_Stage_Move_Sub(u16 sw) {
     switch (sw) {
     case SWK_LEFT:
-        if ((VS_Stage -= 1) < 0) {
-            VS_Stage = VS_STAGE_RANDOM;
-        }
-
-        if (!Is_VS_Stage_Selectable(VS_Stage)) {
-            VS_Stage -= 1;
-        }
+        do {
+            if ((VS_Stage -= 1) < 0) {
+                VS_Stage = VS_STAGE_RANDOM;
+            }
+        } while (!Is_VS_Stage_Selectable(VS_Stage));
 
         SE_dir_cursor_move();
         break;
 
     case SWK_RIGHT:
-        if ((VS_Stage += 1) > VS_STAGE_RANDOM) {
-            VS_Stage = 0;
-        }
-
-        if (!Is_VS_Stage_Selectable(VS_Stage)) {
-            VS_Stage += 1;
-        }
+        do {
+            if ((VS_Stage += 1) > VS_STAGE_RANDOM) {
+                VS_Stage = 0;
+            }
+        } while (!Is_VS_Stage_Selectable(VS_Stage));
 
         SE_dir_cursor_move();
         break;
