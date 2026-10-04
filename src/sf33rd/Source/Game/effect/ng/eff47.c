@@ -1,9 +1,11 @@
 /**
  * @file eff47.c
- * Lava flows of Gill's stage from New Generation (effect 47 in the NG arcade ROM)
+ * Lava flows of Gill's stage from New Generation (effect 47 in the NG arcade ROM). The last flow is the master of the
+ * effect 19 objects.
  */
 
 #include "sf33rd/Source/Game/effect/ng/eff47.h"
+#include "sf33rd/Source/Game/effect/ng/eff19.h"
 #include "bin2obj/char_table.h"
 #include "common.h"
 #include "sf33rd/Source/Game/effect/effect.h"
@@ -47,7 +49,7 @@ static void eff47_animate(WORK_Other* ewk) {
         return;
     }
 
-    if (--ewk->wu.cg_type != 0) {
+    if (--ewk->wu.cg_ctr != 0) {
         return;
     }
 
@@ -57,7 +59,7 @@ static void eff47_animate(WORK_Other* ewk) {
         ewk->wu.cg_ix = 0;
     }
 
-    ewk->wu.cg_type = eff47_wait_tbl[ewk->wu.cg_ix / 2];
+    ewk->wu.cg_ctr = eff47_wait_tbl[ewk->wu.cg_ix / 2];
 }
 
 static void eff47_disp(WORK_Other* ewk) {
@@ -74,7 +76,7 @@ void effect_ng47_move(WORK_Other* ewk) {
     case 0:
         ewk->wu.routine_no[0]++;
         ewk->wu.disp_flag = 1;
-        ewk->wu.cg_type = 8;
+        ewk->wu.cg_ctr = 8;
         ewk->wu.cg_ix = 0;
         ewk->wu.position_x = ewk->wu.xyz[0].disp.pos & 0x3FF;
         ewk->wu.position_y = ewk->wu.xyz[1].disp.pos & 0x3FF;
@@ -129,6 +131,5 @@ s32 effect_ng47_init() {
         ewk->wu.my_trans_mode = get_my_trans_mode(ewk->wu.my_mts);
     }
 
-    // TODO: Port NG effect 19. NG starts it here with the last flow as its master.
-    return 0;
+    return effect_ng19_init(ewk);
 }

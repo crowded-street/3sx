@@ -4,7 +4,7 @@
 #include "structs.h"
 #include "types.h"
 
-#define EFFECT_NG64_ID 231
+#define EFFECT_NG64_ID 232
 
 void effect_ng64_move(WORK_Other* ewk);
 s32 effect_ng64_init(s16 variant);

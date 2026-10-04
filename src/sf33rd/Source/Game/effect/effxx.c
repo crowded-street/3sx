@@ -210,6 +210,7 @@
 #include "sf33rd/Source/Game/effect/effm6.h"
 #include "sf33rd/Source/Game/effect/effm7.h"
 #include "sf33rd/Source/Game/effect/effm8.h"
+#include "sf33rd/Source/Game/effect/ng/eff19.h"
 #include "sf33rd/Source/Game/effect/ng/eff47.h"
 #include "sf33rd/Source/Game/effect/ng/eff60.h"
 #include "sf33rd/Source/Game/effect/ng/eff64.h"
@@ -225,7 +226,7 @@ void effect_dummy_move(WORK_Other* /* unused */) {
     // Do nothing
 }
 
-EffectMoveCallback const effmovejptbl[235] = {
+EffectMoveCallback const effmovejptbl[236] = {
     (EffectMoveCallback)effect_00_move,
     effect_01_move,
     effect_02_move,
@@ -457,6 +458,7 @@ EffectMoveCallback const effmovejptbl[235] = {
     effect_M8_move,
 
     // New Generation
+    [EFFECT_NG19_ID] = effect_ng19_move,
     [EFFECT_NG47_ID] = effect_ng47_move,
     [EFFECT_NG60_ID] = effect_ng60_move,
     [EFFECT_NG64_ID] = effect_ng64_move,
