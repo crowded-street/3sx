@@ -20,7 +20,7 @@ const char* Letter_Data_99[5][VS_STAGE_RANDOM + 1] = {
     { "#;;;;;;;", "##;;;;;;", "###;;;;;", "####;;;;", "#####;;;", "######;;", "#######;", "########" },
     { "UNKNOWN", "AMERICA",   "JAPAN",   "HONG KONG", "ENGLAND", "RUSSIA",  "GERMANY", "JAPAN", "KENYA",
       "BRAZIL",  "HONG KONG", "AMERICA", "BRAZIL",    "MEXICO",  "JAPAN",   "JAPAN",   "CHINA", "JAPAN",
-      "",        "RUSSIA",    "FRANCE",  "",          "",        "AMERICA", "RANDOM" },
+      "",        "RUSSIA",    "FRANCE",  "",          "",        "UNKNOWN", "AMERICA", "RANDOM" },
     { "GILL STAGE",
       "SUBWAY STATION",
       "SUZAKU CASTLE ROOFTOP",
@@ -44,6 +44,7 @@ const char* Letter_Data_99[5][VS_STAGE_RANDOM + 1] = {
       "CLUB METRO",
       "",
       "",
+      "UNDERGROUND CAVE",
       "NEW YORK ALLEYWAY",
       "" },
     { "",
@@ -69,6 +70,7 @@ const char* Letter_Data_99[5][VS_STAGE_RANDOM + 1] = {
       "REMY STAGE",
       "",
       "",
+      "GILL STAGE (NG)",
       "ALEX STAGE (NG)",
       "" }
 };

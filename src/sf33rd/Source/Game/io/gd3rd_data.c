@@ -329,5 +329,5 @@ const Span spans[] = {
     { .start = 165, .length = 3 }, { .start = 170, .length = 3 }, { .start = 294, .length = 3 },
     { .start = 175, .length = 3 }, { .start = 180, .length = 3 }, { .start = 185, .length = 3 },
     { .start = 190, .length = 3 }, { .start = 195, .length = 3 }, { .start = 200, .length = 5 },
-    { .start = 206, .length = 4 }, { .start = 297, .length = 5 },
+    { .start = 206, .length = 4 }, { .start = 0, .length = 0 },   { .start = 297, .length = 5 },
 };
