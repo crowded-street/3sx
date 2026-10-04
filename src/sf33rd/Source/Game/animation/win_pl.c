@@ -319,8 +319,8 @@ const s16 win_2000_tbl[AREA_COUNT] = {
     [AREA_3S_ELENA] = 1,  [AREA_3S_ORO] = 1,       [AREA_3S_YANG] = 1,        [AREA_3S_KEN] = 0,
     [AREA_3S_SEAN] = 1,   [AREA_3S_URIEN] = 1,     [AREA_3S_AKUMA] = 1,       [AREA_3S_SHIN_AKUMA] = 1,
     [AREA_3S_CHUNLI] = 1, [AREA_3S_MAKOTO] = 1,    [AREA_3S_Q] = 1,           [AREA_3S_TWELVE] = 1,
-    [AREA_3S_REMY] = 1,   [AREA_3S_BONUS_CAR] = 0, [AREA_3S_BONUS_BALLS] = 0,
-    [AREA_NG_GILL] = 1,   [AREA_NG_ALEX] = 1,
+    [AREA_3S_REMY] = 1,   [AREA_3S_BONUS_CAR] = 0, [AREA_3S_BONUS_BALLS] = 0, [AREA_NG_GILL] = 1,
+    [AREA_NG_ALEX] = 1,   [AREA_NG_RYU_A] = 1,
 };
 
 /// Dudley's win routine
