@@ -15,23 +15,54 @@
 #define GRAPHICS_SIMM_CHIPS 8
 #define MAX_CHIP_NAME 64
 
+typedef struct FlashFile {
+    const char* name;
+    int simm;
+    size_t offset; // Within the SIMM
+    size_t size;
+} FlashFile;
+
+/// A ROM set comes as one file per chip (MAME) or, if `flash_files` is set, optionally as one file per flash bank
+/// with the bank's chips already merged into big-endian words (FBNeo). The chip layout is used when the zip has the
+/// first chip.
 typedef struct RomSpec {
     const char* zip_name;
     const char* chip_name_format; // Takes SIMM number and chip number
+    const FlashFile* flash_files;
+    int flash_file_count;
     Uint32 key1;
     Uint32 key2;
     size_t chip_size;
-    bool simms[SIMM_COUNT]; // Indexed by SIMM number minus one
+    int chips[SIMM_COUNT]; // Number of chips on each SIMM, indexed by SIMM number minus one
 } RomSpec;
 
+static const FlashFile sfiii_files[] = {
+    { .name = "10", .simm = 1, .offset = 0, .size = 0x800000 },
+    { .name = "30", .simm = 3, .offset = 0, .size = 0x800000 },
+    { .name = "31", .simm = 3, .offset = 0x800000, .size = 0x800000 },
+    { .name = "40", .simm = 4, .offset = 0, .size = 0x800000 },
+    { .name = "41", .simm = 4, .offset = 0x800000, .size = 0x800000 },
+    { .name = "50", .simm = 5, .offset = 0, .size = 0x400000 },
+};
+
 static const RomSpec specs[ROM_GAME_COUNT] = {
+    [ROM_GAME_SFIII] = {
+        .zip_name = "sfiiin.zip",
+        .chip_name_format = "sfiii-simm%d.%d",
+        .flash_files = sfiii_files,
+        .flash_file_count = SDL_arraysize(sfiii_files),
+        .key1 = 0xB5FE053E,
+        .key2 = 0xFC03925A,
+        .chip_size = 0x200000,
+        .chips = { 4, 0, 8, 8, 2, 0 },
+    },
     [ROM_GAME_SFIII3] = {
         .zip_name = "sfiii3nr1.zip",
         .chip_name_format = "sfiii3-simm%d.%d",
         .key1 = 0xA55432B4,
         .key2 = 0x0C129981,
         .chip_size = 0x200000,
-        .simms = { true, true, true, true, true, true },
+        .chips = { 4, 4, 8, 8, 8, 8 },
     },
 };
 
@@ -47,12 +78,12 @@ static bool is_graphics_simm(int simm) {
     return simm >= FIRST_GRAPHICS_SIMM;
 }
 
-static int chip_count(int simm) {
+static int slot_chips(int simm) {
     return is_graphics_simm(simm) ? GRAPHICS_SIMM_CHIPS : PROGRAM_SIMM_CHIPS;
 }
 
 static size_t simm_size(const RomSpec* spec, int simm) {
-    return spec->chip_size * chip_count(simm);
+    return spec->chip_size * slot_chips(simm);
 }
 
 /// Offset of the SIMM within its region. Absent SIMMs still occupy their slot.
@@ -107,7 +138,7 @@ static bool read_chip(void* zip, const char* name, Uint8* dst, size_t size) {
 static bool load_simm(Rom* rom, const RomSpec* spec, void* zip, int simm, Uint8* staging) {
     const Uint8* chips[GRAPHICS_SIMM_CHIPS] = { 0 };
 
-    for (int chip = 0; chip < chip_count(simm); chip++) {
+    for (int chip = 0; chip < spec->chips[simm - 1]; chip++) {
         char name[MAX_CHIP_NAME];
         SDL_snprintf(name, sizeof(name), spec->chip_name_format, simm, chip);
         Uint8* dst = staging + chip * spec->chip_size;
@@ -122,7 +153,7 @@ static bool load_simm(Rom* rom, const RomSpec* spec, void* zip, int simm, Uint8*
     const size_t offset = simm_offset(spec, simm);
 
     if (is_graphics_simm(simm)) {
-        Cps3_DecodeGraphicsSimm(rom->graphics + offset, chips, spec->chip_size);
+        Cps3_DecodeGraphicsSimm(rom->graphics + offset, chips, spec->chips[simm - 1], spec->chip_size);
     } else {
         Cps3_DecodeProgramSimm(
             rom->program + offset, chips, spec->chip_size, ROM_PROGRAM_BASE + (Uint32)offset, spec->key1, spec->key2
@@ -130,6 +161,48 @@ static bool load_simm(Rom* rom, const RomSpec* spec, void* zip, int simm, Uint8*
     }
 
     return true;
+}
+
+static bool load_flash_file(Rom* rom, const RomSpec* spec, void* zip, const FlashFile* file, Uint8* staging) {
+    if (!read_chip(zip, file->name, staging, file->size)) {
+        return false;
+    }
+
+    const size_t offset = simm_offset(spec, file->simm) + file->offset;
+
+    if (is_graphics_simm(file->simm)) {
+        Cps3_DecodeGraphicsFlash(rom->graphics + offset, staging, file->size);
+    } else {
+        Cps3_DecodeProgramFlash(
+            rom->program + offset, staging, file->size, ROM_PROGRAM_BASE + (Uint32)offset, spec->key1, spec->key2
+        );
+    }
+
+    return true;
+}
+
+static bool has_entry(void* zip, const char* name) {
+    return mz_zip_locate_first_entry(zip, (void*)name, match_base_name) == MZ_OK;
+}
+
+static bool load_files(Rom* rom, const RomSpec* spec, void* zip, Uint8* staging) {
+    char first_chip[MAX_CHIP_NAME];
+    SDL_snprintf(first_chip, sizeof(first_chip), spec->chip_name_format, 1, 0);
+    bool success = true;
+
+    if (spec->flash_file_count > 0 && !has_entry(zip, first_chip)) {
+        for (int i = 0; i < spec->flash_file_count && success; i++) {
+            success = load_flash_file(rom, spec, zip, &spec->flash_files[i], staging);
+        }
+    } else {
+        for (int simm = 1; simm <= SIMM_COUNT && success; simm++) {
+            if (spec->chips[simm - 1] > 0) {
+                success = load_simm(rom, spec, zip, simm, staging);
+            }
+        }
+    }
+
+    return success;
 }
 
 static bool load_simms(Rom* rom, const RomSpec* spec, const char* path) {
@@ -144,14 +217,7 @@ static bool load_simms(Rom* rom, const RomSpec* spec, const char* path) {
                mz_zip_open(zip, stream, MZ_OPEN_MODE_READ) != MZ_OK) {
         SDL_SetError("Couldn't open ROM set %s", path);
     } else {
-        success = true;
-
-        for (int simm = 1; simm <= SIMM_COUNT && success; simm++) {
-            if (spec->simms[simm - 1]) {
-                success = load_simm(rom, spec, zip, simm, staging);
-            }
-        }
-
+        success = load_files(rom, spec, zip, staging);
         mz_zip_close(zip);
     }
 
@@ -183,7 +249,7 @@ Rom* Rom_Create(RomGame game, const char* path) {
     rom->game = game;
 
     for (int simm = 1; simm <= SIMM_COUNT; simm++) {
-        if (spec->simms[simm - 1]) {
+        if (spec->chips[simm - 1] > 0) {
             const size_t end = simm_offset(spec, simm) + simm_size(spec, simm);
             size_t* region_size = is_graphics_simm(simm) ? &rom->graphics_size : &rom->program_size;
             *region_size = SDL_max(*region_size, end);
@@ -217,25 +283,21 @@ RomGame Rom_GetGame(const Rom* rom) {
     return rom->game;
 }
 
-const Uint8* Rom_GetSimm(const Rom* rom, int simm, size_t* size) {
+RomRegion Rom_GetSimm(const Rom* rom, int simm) {
     const RomSpec* spec = &specs[rom->game];
 
-    if (simm < 1 || simm > SIMM_COUNT || !spec->simms[simm - 1]) {
-        *size = 0;
-        return NULL;
+    if (simm < 1 || simm > SIMM_COUNT || spec->chips[simm - 1] == 0) {
+        return (RomRegion) { 0 };
     }
 
     const Uint8* region = is_graphics_simm(simm) ? rom->graphics : rom->program;
-    *size = simm_size(spec, simm);
-    return region + simm_offset(spec, simm);
+    return (RomRegion) { .data = region + simm_offset(spec, simm), .size = simm_size(spec, simm) };
 }
 
-const Uint8* Rom_GetProgram(const Rom* rom, size_t* size) {
-    *size = rom->program_size;
-    return rom->program;
+RomRegion Rom_GetProgram(const Rom* rom) {
+    return (RomRegion) { .data = rom->program, .size = rom->program_size };
 }
 
-const Uint8* Rom_GetGraphics(const Rom* rom, size_t* size) {
-    *size = rom->graphics_size;
-    return rom->graphics;
+RomRegion Rom_GetGraphics(const Rom* rom) {
+    return (RomRegion) { .data = rom->graphics, .size = rom->graphics_size };
 }

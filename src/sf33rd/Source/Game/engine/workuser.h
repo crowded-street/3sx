@@ -8,7 +8,7 @@
 #include <stdbool.h>
 
 /// Value of `VS_Stage` that picks a random stage
-#define VS_STAGE_RANDOM (STAGE_3S_REMY + 1)
+#define VS_STAGE_RANDOM STAGE_COUNT
 
 typedef enum ModeType {
     MODE_ARCADE,

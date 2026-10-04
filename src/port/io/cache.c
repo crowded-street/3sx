@@ -7,6 +7,11 @@
 
 static const char* const paths[CACHE_FILE_COUNT] = {
     [CACHE_FILE_SHIN_AKUMA_BG_PALETTE] = "3s/bg15_palette.bin",
+    [CACHE_FILE_NG_ALEX_BG_PALETTE] = "ng/bg01_palette.bin",
+    [CACHE_FILE_NG_ALEX_STAGE] = "ng/stage01.ppg",
+    [CACHE_FILE_NG_ALEX_OBJECTS] = "ng/bg01.bin",
+    [CACHE_FILE_NG_EF94] = "ng/ef94.bin",
+    [CACHE_FILE_NG_EF94_PALETTE] = "ng/ef94_palette.bin",
 };
 
 typedef struct ReadRequest {

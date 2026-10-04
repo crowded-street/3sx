@@ -28,10 +28,10 @@
 #include <stdlib.h>
 
 u8 omSelObjNowOnMemoryType = 0xFF;
-TEX_GRP_LD texgrplds[100];
+TEX_GRP_LD texgrplds[TEXGROUP_COUNT];
 
 #if ARCADE_ROM_TEXTURES
-static ArcadeTextureGroup arcade_texture_groups[100];
+static ArcadeTextureGroup arcade_texture_groups[TEXGROUP_COUNT];
 
 static void use_arcade_texture_group(int group, Character character, TEX_GRP_LD* destination) {
     ArcadeTextureGroup built;

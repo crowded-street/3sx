@@ -4,10 +4,11 @@
  */
 
 #include "sf33rd/Source/Game/rendering/texgroup_data.h"
+#include "port/io/resource.h"
 
 #define TexGroupData_Empty ((TexGroupData) { 0, -1, 0, 0, 0 })
 
-const TexGroupData texgrpdat[100] = {
+const TexGroupData texgrpdat[TEXGROUP_COUNT] = {
     [0] = TexGroupData_Empty,
     [1] = { .num_of_1st = 0,
             .apfn = 1460,
@@ -448,4 +449,16 @@ const TexGroupData texgrpdat[100] = {
              .to_tex = 0x20B9C,
              .to_chd = 0x0 }, // ef02.bin
     [99] = TexGroupData_Empty,
+
+    // Built from the arcade ROM. The converter pads the trans table to `to_tex`.
+    [100] = { .num_of_1st = 37664,
+              .apfn = RESOURCE_CACHE_FNUM(CACHE_FILE_NG_ALEX_OBJECTS),
+              .mode = TEXGROUP_MODE_NORMAL,
+              .to_tex = 0x3800,
+              .to_chd = 0x0 }, // ng/bg01.bin
+    [101] = { .num_of_1st = 37984,
+              .apfn = RESOURCE_CACHE_FNUM(CACHE_FILE_NG_EF94),
+              .mode = TEXGROUP_MODE_NORMAL,
+              .to_tex = 0x28A0,
+              .to_chd = 0x0 }, // ng/ef94.bin
 };

@@ -9,9 +9,16 @@
 #define ROM_PROGRAM_BASE 0x06000000
 
 typedef enum RomGame {
-    ROM_GAME_SFIII3,
+    ROM_GAME_SFIII,  // New Generation
+    ROM_GAME_SFIII3, // 3rd Strike
     ROM_GAME_COUNT,
 } RomGame;
+
+/// A block of decoded ROM data. Empty (`data` is `NULL`) when the ROM set lacks it.
+typedef struct RomRegion {
+    const Uint8* data;
+    size_t size;
+} RomRegion;
 
 /// A CPS3 ROM set with every SIMM unpacked and decoded.
 typedef struct Rom Rom;
@@ -29,14 +36,14 @@ void Rom_Destroy(Rom* rom);
 RomGame Rom_GetGame(const Rom* rom);
 
 /// @param simm SIMM number, 1–6. SIMM1 and SIMM2 hold program data, SIMM3–6 hold graphics.
-/// @return Decoded contents of the SIMM, or `NULL` if the ROM set has no such SIMM.
-const Uint8* Rom_GetSimm(const Rom* rom, int simm, size_t* size);
+/// @return Decoded contents of the SIMM, or an empty region if the ROM set has no such SIMM.
+RomRegion Rom_GetSimm(const Rom* rom, int simm);
 
 /// @return Decrypted program SIMMs as one block in big-endian byte order, starting at `ROM_PROGRAM_BASE`.
-const Uint8* Rom_GetProgram(const Rom* rom, size_t* size);
+RomRegion Rom_GetProgram(const Rom* rom);
 
 /// @return Graphics SIMMs as one block, starting with SIMM3. PCM samples can be read directly at their CPS3 offsets.
 /// Character DMA reads this block at `offset ^ 1`.
-const Uint8* Rom_GetGraphics(const Rom* rom, size_t* size);
+RomRegion Rom_GetGraphics(const Rom* rom);
 
 #endif
