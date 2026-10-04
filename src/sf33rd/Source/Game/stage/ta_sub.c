@@ -96,6 +96,14 @@ s32 range_x_check(WORK_Other* ewk) {
     return 1;
 }
 
+s32 range_x_check_ng(WORK_Other* ewk) {
+    const BGW* bgw = &bg_w.bgw[ewk->wu.my_family - 1];
+    const s16 pos_x_work = (bg_w.chase_flag & 0xF) ? bgw->chase_xy[0].disp.pos : bgw->wxy[0].disp.pos;
+    const s16 x = ewk->wu.xyz[0].disp.pos;
+
+    return x >= pos_x_work - 272 && x <= pos_x_work + 272;
+}
+
 s32 range_x_check3(WORK_Other* ewk, s16 optional_range) {
     s16 pos_x_work;
     s16 work2;

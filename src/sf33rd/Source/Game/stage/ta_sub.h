@@ -26,6 +26,10 @@ s32 compel_dead_check(WORK_Other* ewk);
 void cal_bg_speed_data_x(s16 bg_num, s16 tm, s16 unk);
 void cal_bg_speed_data_y(s16 bg_num, s16 tm, s16 unk);
 s32 range_x_check(WORK_Other* ewk);
+
+/// Like range_x_check, but with New Generation's wider range of 272 around the family's BG x
+s32 range_x_check_ng(WORK_Other* ewk);
+
 s16 eff_hit_check(WORK_Other* ewk, s16 type);
 s16 eff_hit_check2(WORK_Other* ewk, s16 type, s16 where_type);
 

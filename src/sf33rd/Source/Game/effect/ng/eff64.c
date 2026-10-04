@@ -18,8 +18,6 @@
 #include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
 
-#define DISPLAY_RANGE 272
-
 typedef struct Eff64Data {
     s16 dead_f;
 
@@ -129,11 +127,7 @@ static bool is_paused() {
 
 /// Like disp_pos_trans_entry_rs, but with NG's wider range.
 static void eff64_disp(WORK_Other* ewk) {
-    const BGW* bgw = &bg_w.bgw[ewk->wu.my_family - 1];
-    const s16 bg_x = (bg_w.chase_flag & 0xF) ? bgw->chase_xy[0].disp.pos : bgw->wxy[0].disp.pos;
-    const s16 x = ewk->wu.xyz[0].disp.pos;
-
-    if (obr_no_disp_check() || x < bg_x - DISPLAY_RANGE || x > bg_x + DISPLAY_RANGE) {
+    if (obr_no_disp_check() || !range_x_check_ng(ewk)) {
         return;
     }
 

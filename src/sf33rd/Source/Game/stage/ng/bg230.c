@@ -8,6 +8,7 @@
 #include "sf33rd/AcrSDK/common/pad.h"
 #include "sf33rd/Source/Game/effect/eff05.h"
 #include "sf33rd/Source/Game/effect/eff06.h"
+#include "sf33rd/Source/Game/effect/ng/eff47.h"
 #include "sf33rd/Source/Game/effect/ng/eff94.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/stage/bg.h"
@@ -66,8 +67,9 @@ static void bg2300_init00() {
     bgw_ptr->hos_xy[0].cal = bgw_ptr->wxy[0].cal = bgw_ptr->xy[0].cal;
     bgw_ptr->zuubun = 0;
 
-    // NG starts effect 12 here to animate the lava of this layer. 3S does it with rw231-rw235 instead.
-    // TODO: Port NG effect 47. NG also preloads its CGs into sprite RAM here, which 3S doesn't need.
+    // NG starts effect 12 here to animate the lava of this layer. We do it with rw231-rw235 instead.
+    // After effect 47, NG also preloads its CGs into sprite RAM, which we don't need.
+    effect_ng47_init();
 }
 
 static void bg2300_move01() {
