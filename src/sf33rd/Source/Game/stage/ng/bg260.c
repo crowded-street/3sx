@@ -7,6 +7,7 @@
 #include "common.h"
 #include "sf33rd/Source/Game/effect/eff05.h"
 #include "sf33rd/Source/Game/effect/eff06.h"
+#include "sf33rd/Source/Game/effect/ng/eff18.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
@@ -86,10 +87,11 @@ static void bg2601_init00() {
     // NG then loads palette 0x66 and preloads CGs 0x41C0 and 0x7718 into sprite RAM, which we don't need.
     effect_05_init();
     effect_06_init();
+    effect_ng18_init(0);
 
     // NG starts effect 14 (variants 1, 2 and 3) here to cycle the palettes of parts of layers 0 and 2. We do it with
     // rw261-rw263 instead.
-    // TODO: NG also starts effects 18 (0) and 34 here
+    // TODO: NG also starts effect 34 here
 }
 
 static void bg2601_move01() {

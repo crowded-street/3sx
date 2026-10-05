@@ -4,7 +4,7 @@
 #include "structs.h"
 #include "types.h"
 
-#define EFFECT_NG94_ID 235
+#define EFFECT_NG94_ID 236
 
 /// First ColorRAM row of the tanuki palettes, one for each of Ibuki's NG colors
 #define EFF94_PALETTE_ROW 0x1D0
