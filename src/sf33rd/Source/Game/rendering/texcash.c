@@ -372,5 +372,5 @@ const s16 mts_OB_page[STAGE_COUNT][2] = {
     [STAGE_3S_SHIN_AKUMA] = { 1, 1 }, [STAGE_3S_CHUNLI] = { 1, 2 },      [STAGE_3S_MAKOTO] = { 1, 2 },
     [STAGE_3S_Q] = { 1, 4 },          [STAGE_3S_TWELVE] = { 1, 2 },      [STAGE_3S_REMY] = { 1, 4 },
     [STAGE_3S_BONUS_CAR] = { 1, 1 },  [STAGE_3S_BONUS_BALLS] = { 1, 2 }, [STAGE_NG_GILL] = { 1, 10 },
-    [STAGE_NG_ALEX] = { 1, 3 },       [STAGE_NG_RYU] = { 1, 2 },
+    [STAGE_NG_ALEX] = { 1, 3 },       [STAGE_NG_RYU] = { 1, 4 },
 };

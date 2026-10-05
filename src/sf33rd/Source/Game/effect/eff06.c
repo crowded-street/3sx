@@ -24,7 +24,7 @@ const s16 scr_obj_num6[AREA_COUNT] = {
     [AREA_3S_SEAN] = 3,   [AREA_3S_URIEN] = 0,     [AREA_3S_AKUMA] = 1,       [AREA_3S_SHIN_AKUMA] = 1,
     [AREA_3S_CHUNLI] = 1, [AREA_3S_MAKOTO] = 4,    [AREA_3S_Q] = 0,           [AREA_3S_TWELVE] = 1,
     [AREA_3S_REMY] = 1,   [AREA_3S_BONUS_CAR] = 0, [AREA_3S_BONUS_BALLS] = 0, [AREA_NG_GILL] = 10,
-    [AREA_NG_ALEX] = 8,
+    [AREA_NG_ALEX] = 8,   [AREA_NG_RYU_A] = 4,
 };
 
 const s16 st0000_data_tbl[9] = {
@@ -120,6 +120,14 @@ const s16 ng_st0100_data_tbl[72] = {
     0, 0, 0,    2,    8492, 272, 56, 83, 7, 0, 0, 1,    1,    8492, 752, 86, 90, 8, 0, 0,
 };
 
+/// First area of New Generation's Ryu stage. Colour codes are converted from palette rows 0x40 and 0x63 to the PS2 BG
+/// palette rows 0x12C and 0x14F, both with the 0x2000 flag and without it. NG syncs these objects with the line scroll
+/// of layer 1 (sync_suzi 1), which we don't have.
+const s16 ng_st0200_data_tbl[36] = {
+    1, 2, 8492, 303,  122, 76, 10, 1, 0, 1, 2, 8492, 239, 192, 77, 13, 1, 0,
+    1, 2, 8527, -288, 64,  74, 20, 1, 0, 1, 2, 335,  256, 48,  74, 21, 1, 0,
+};
+
 const s16* scr_obj_data6[AREA_COUNT] = {
     [AREA_3S_GILL] = st0000_data_tbl,
     [AREA_3S_ALEX] = st0100_data_tbl,
@@ -146,6 +154,7 @@ const s16* scr_obj_data6[AREA_COUNT] = {
     [AREA_3S_BONUS_BALLS] = stg_dum_data_tbl,
     [AREA_NG_GILL] = ng_st0000_data_tbl,
     [AREA_NG_ALEX] = ng_st0100_data_tbl,
+    [AREA_NG_RYU_A] = ng_st0200_data_tbl,
 };
 
 void effect_06_move(WORK_Other* ewk) {

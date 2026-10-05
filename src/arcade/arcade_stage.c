@@ -135,6 +135,13 @@ static const StageSource stage_sources[] = {
       .ppg_file = CACHE_FILE_NG_ALEX_STAGE,
       .object_palettes = { 0x68 },
       .object_palette_count = 1 },
+    { .game = ROM_GAME_SFIII,
+      .bg_index = 3,
+      .area = AREA_NG_RYU_A,
+      .palette_file = CACHE_FILE_NG_RYU_A_BG_PALETTE,
+      .ppg_file = CACHE_FILE_NG_RYU_A_STAGE,
+      .object_palettes = { 0x66 },
+      .object_palette_count = 1 },
 };
 
 #define MAX_CG_RANGES 4
@@ -179,6 +186,14 @@ static const CgGroupSource cg_group_sources[] = {
       .range_count = 2,
       .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
       .file = CACHE_FILE_NG_GILL_OBJECTS },
+
+    // Objects of the first area of NG Ryu's stage. Its char table is _ng_j10_a_char_table.
+    { .game = ROM_GAME_SFIII,
+      .group = 103,
+      .ranges = { { 0x41C6, 432 }, { 0x7718, 32 } },
+      .range_count = 2,
+      .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
+      .file = CACHE_FILE_NG_RYU_A_OBJECTS },
 };
 
 /// CPS3 graphics addresses start this far before the graphics region
@@ -464,13 +479,23 @@ static bool draw_chip(
                 }
             }
 
-            if (!empty) {
-                if (palette < 0 || palette >= palette_rows) {
-                    return false;
+            if (empty) {
+                continue;
+            }
+
+            // Some tiles point outside the stage palette. The one known case, on Ryu's stage, is a single stray
+            // pixel, so drop such tiles.
+            if (palette < 0 || palette >= palette_rows) {
+                SDL_Log("Dropping tile %zu of chip %d: palette %d is outside the stage palette", tile, chip, palette);
+
+                for (int y = 0; y < 16; y++) {
+                    SDL_memset(&pixels[(by * 16 + y) * PPG_CHIP_SIZE + bx * 16], 0, 16);
                 }
 
-                *block_palette = palette;
+                continue;
             }
+
+            *block_palette = palette;
         }
     }
 

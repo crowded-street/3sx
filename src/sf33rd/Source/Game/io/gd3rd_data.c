@@ -317,6 +317,11 @@ const LoadRequestEntry ldreq_tbl[LDREQ_TBL_SIZE] = {
     [302] = { .type = LDREQ_COLOR, .ix = 165, .frre = 1, .kokey = 2 },
     [303] = { .type = LDREQ_SCREEN, .ix = 166, .frre = 1, .kokey = 18 },
     [304] = { .type = LDREQ_TEXTURE, .ix = 102, .frre = 1, .kokey = 19 },
+
+    // NG Ryu's stage
+    [305] = { .type = LDREQ_COLOR, .ix = 167, .frre = 1, .kokey = 2 },
+    [306] = { .type = LDREQ_SCREEN, .ix = 168, .frre = 1, .kokey = 18 },
+    [307] = { .type = LDREQ_TEXTURE, .ix = 103, .frre = 1, .kokey = 19 },
 };
 
 const Span spans[] = {
@@ -335,4 +340,5 @@ const Span spans[] = {
     { .start = 175, .length = 3 }, { .start = 180, .length = 3 }, { .start = 185, .length = 3 },
     { .start = 190, .length = 3 }, { .start = 195, .length = 3 }, { .start = 200, .length = 5 },
     { .start = 206, .length = 4 }, { .start = 300, .length = 5 }, { .start = 297, .length = 5 },
+    { .start = 305, .length = 3 },
 };
