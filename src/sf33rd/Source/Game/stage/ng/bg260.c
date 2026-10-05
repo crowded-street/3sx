@@ -87,7 +87,9 @@ static void bg2601_init00() {
     effect_05_init();
     effect_06_init();
 
-    // TODO: NG starts effects 18 (0), 14 (1, 2, 3) and 34 here
+    // NG starts effect 14 (variants 1, 2 and 3) here to cycle the palettes of parts of layers 0 and 2. We do it with
+    // rw261-rw263 instead.
+    // TODO: NG also starts effects 18 (0) and 34 here
 }
 
 static void bg2601_move01() {

@@ -46,7 +46,7 @@ s32 bgPalCodeOffset[8];
 BG bg_w;
 RW_DATA rw_dat[20];
 
-static void bgRWWorkUpdate();
+static void bgRWWorkUpdate(s32 bgnm);
 static void bgDrawOneScreen(s32 bgnum, s32 gixbase, s32* xx, s32* yy, s32 /* unused */, s32 ofsPal,
                             PPGDataList* curDataList);
 static void bgDrawOneChip(s32 x, s32 y, s32 xs, s32 ys, s32 gbix, u32 vtxCol, s32 ofsPal);
@@ -1002,7 +1002,7 @@ void scr_trans(u8 bgnm) {
         }
 
         if (rw_bg_flag[bgnm] && rw_num) {
-            bgRWWorkUpdate();
+            bgRWWorkUpdate(-1);
         }
 
         scr_calc2(bgnm);
@@ -1030,17 +1030,22 @@ void scr_trans(u8 bgnm) {
         bgDrawOneScreen(bgnm, global_index, &xx[0], &yy[0], -1, palOffset, curDataList);
 
         if (EXE_flag == 0 && Game_pause == 0 && rw_bg_flag[bgnm] && rw_num) {
-            bgRWWorkUpdate();
+            bgRWWorkUpdate(bgnm);
         }
 
         break;
     }
 }
 
-void bgRWWorkUpdate() {
+/// Advances the rewrites of a layer, or all rewrites if `bgnm` is -1.
+void bgRWWorkUpdate(s32 bgnm) {
     s32 i;
 
     for (i = 0; i < rw_num; i++) {
+        if (bgnm != -1 && rw_dat[i].bg_num != bgnm) {
+            continue;
+        }
+
         rw_dat[i].rw_cnt--;
 
         if (rw_dat[i].rw_cnt == 0) {
