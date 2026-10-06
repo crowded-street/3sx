@@ -8,6 +8,7 @@
 #include "sf33rd/Source/Game/effect/eff05.h"
 #include "sf33rd/Source/Game/effect/eff06.h"
 #include "sf33rd/Source/Game/effect/ng/eff18.h"
+#include "sf33rd/Source/Game/effect/ng/eff34.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
@@ -93,7 +94,7 @@ static void bg2601_init00() {
 
     // NG starts effect 14 (variants 1, 2 and 3) here to cycle the palettes of parts of layers 0 and 2. We do it with
     // rw261-rw263 instead.
-    // TODO: NG also starts effect 34 here
+    effect_ng34_init();
 }
 
 static void bg2601_move01() {
