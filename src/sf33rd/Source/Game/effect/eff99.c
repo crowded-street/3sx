@@ -20,7 +20,8 @@ const char* Letter_Data_99[5][VS_STAGE_RANDOM + 1] = {
     { "#;;;;;;;", "##;;;;;;", "###;;;;;", "####;;;;", "#####;;;", "######;;", "#######;", "########" },
     { "UNKNOWN", "AMERICA",   "JAPAN",   "HONG KONG", "ENGLAND", "RUSSIA",  "GERMANY", "JAPAN", "KENYA",
       "BRAZIL",  "HONG KONG", "AMERICA", "BRAZIL",    "MEXICO",  "JAPAN",   "JAPAN",   "CHINA", "JAPAN",
-      "",        "RUSSIA",    "FRANCE",  "",          "",        "UNKNOWN", "AMERICA", "RANDOM" },
+      "",        "RUSSIA",    "FRANCE",  "",          "",        "UNKNOWN", "AMERICA", "JAPAN",
+      [VS_STAGE_RANDOM] = "RANDOM" },
     { "GILL STAGE",
       "SUBWAY STATION",
       "SUZAKU CASTLE ROOFTOP",
@@ -46,7 +47,8 @@ const char* Letter_Data_99[5][VS_STAGE_RANDOM + 1] = {
       "",
       "UNDERGROUND CAVE",
       "NEW YORK ALLEYWAY",
-      "" },
+      "HOT SPRING INN",
+      [VS_STAGE_RANDOM] = "" },
     { "",
       "ALEX STAGE",
       "RYU STAGE",
@@ -72,7 +74,8 @@ const char* Letter_Data_99[5][VS_STAGE_RANDOM + 1] = {
       "",
       "GILL STAGE (NG)",
       "ALEX STAGE (NG)",
-      "" }
+      "RYU STAGE (NG)",
+      [VS_STAGE_RANDOM] = "" }
 };
 
 void effect_99_move(WORK_Other_CONN* ewk) {
