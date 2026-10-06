@@ -46,7 +46,7 @@ s32 bgPalCodeOffset[8];
 BG bg_w;
 RW_DATA rw_dat[20];
 
-static void bgRWWorkUpdate();
+static void bgRWWorkUpdate(s32 bgnm);
 static void bgDrawOneScreen(s32 bgnum, s32 gixbase, s32* xx, s32* yy, s32 /* unused */, s32 ofsPal,
                             PPGDataList* curDataList);
 static void bgDrawOneChip(s32 x, s32 y, s32 xs, s32 ys, s32 gbix, u32 vtxCol, s32 ofsPal);
@@ -553,10 +553,15 @@ void scr_trans(u8 bgnm) {
     u32 vtxColor;
     s32 suzi_pos;
 
+    // A New Generation layer with line scroll (nonzero zuubun) draws its tilemap further than its position, which
+    // sprites follow. NG adds the same offset to such layers' positions in FUN_0607ab24.
+    // FIXME: Implement proper line scrolling instead. NG also shifts lines depending on the camera position.
+    const s16 tilemap_x = (ending_flag == 0 && bgnm < 3 && bg_w.bgw[bgnm].zuubun) ? LINE_SCROLL_BASE : 0;
+
     njUnitMatrix(0);
     njScale(0, 1.0f, -1.0f, 1.0f);
     njTranslate(0, 0.0f, -1024.0f, 0.0f);
-    njTranslate(0, (s16)bg_prm[bgnm].bg_h_shift, (s16)bg_prm[bgnm].bg_v_shift, 0.0f);
+    njTranslate(0, (s16)(bg_prm[bgnm].bg_h_shift + tilemap_x), (s16)bg_prm[bgnm].bg_v_shift, 0.0f);
     njScale(0, 1.0f, -1.0f, 1.0f);
     njTranslate(0, 0.0f, -224.0f, 0.0f);
     njScale(0, 1.0f / scr_sc, 1.0f / scr_sc, 1.0f);
@@ -596,7 +601,7 @@ void scr_trans(u8 bgnm) {
     njScale(0, 1.0, -1.0, 1.0);
     njTranslate(0, (s16)-bg_prm[bgnm].bg_h_shift, (s16)-bg_prm[bgnm].bg_v_shift, 0);
     njGetMatrix(&BgMATRIX[bgnm + 1]);
-    njTranslate(0, 0, 1024.0, PrioBase[bg_priority[bgnm]]);
+    njTranslate(0, -tilemap_x, 1024.0, PrioBase[bg_priority[bgnm]]);
     njScale(0, 1.0, -1.0, 1.0);
 
     palOffset = bgPalCodeOffset[bgnm];
@@ -1002,7 +1007,7 @@ void scr_trans(u8 bgnm) {
         }
 
         if (rw_bg_flag[bgnm] && rw_num) {
-            bgRWWorkUpdate();
+            bgRWWorkUpdate(-1);
         }
 
         scr_calc2(bgnm);
@@ -1030,17 +1035,22 @@ void scr_trans(u8 bgnm) {
         bgDrawOneScreen(bgnm, global_index, &xx[0], &yy[0], -1, palOffset, curDataList);
 
         if (EXE_flag == 0 && Game_pause == 0 && rw_bg_flag[bgnm] && rw_num) {
-            bgRWWorkUpdate();
+            bgRWWorkUpdate(bgnm);
         }
 
         break;
     }
 }
 
-void bgRWWorkUpdate() {
+/// Advances the rewrites of a layer, or all rewrites if `bgnm` is -1.
+void bgRWWorkUpdate(s32 bgnm) {
     s32 i;
 
     for (i = 0; i < rw_num; i++) {
+        if (bgnm != -1 && rw_dat[i].bg_num != bgnm) {
+            continue;
+        }
+
         rw_dat[i].rw_cnt--;
 
         if (rw_dat[i].rw_cnt == 0) {

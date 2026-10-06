@@ -214,7 +214,10 @@ static bool add_cg(
     int count = 0;
     bool success = true;
 
-    for (int part_index = 0; part_index < descriptor.parts && success; part_index++) {
+    // CPS3 draws a sprite's later parts in front, while 3S draws a CG's earlier chips in front, 
+    // so the parts are stored last to first
+    for (int i = 0; i < descriptor.parts && success; i++) {
+        const int part_index = descriptor.parts - 1 - i;
         const Uint8* part = descriptor.data + 12 + descriptor.spans * 8 + part_index * 8;
         const int tile_base = be16(part) / 2;
         const Uint16 attributes = be16(part + 2);

@@ -76,13 +76,25 @@ static const StageTables stage_tables[ROM_GAME_COUNT] = {
 
 #define MAX_OBJECT_PALETTES 4
 #define MAX_REWRITE_CHIPS 16
+#define MAX_PALETTE_STEPS 2
+
+/// A step of NG's effect 14, which animates a layer by cycling the palettes of a rectangle of tilemap cells
+typedef struct PaletteStep {
+    int variant;
+    int step; // Index in the variant's palette sequence
+} PaletteStep;
 
 /// A chip of an alternate tilemap that the stage swaps in to animate a layer. It becomes a rewrite chip, which the PPG
 /// stores after the layer chips.
 typedef struct RewriteChip {
-    Uint32 blocks; // {u32 tilemap offset, u32 block index} list of the alternate tilemap
+    Uint32 blocks; // {u32 tilemap offset, u32 block index} list of the alternate tilemap, or 0 for the layer's own
     int block_count;
+    int layer; // Used when `blocks` is 0
     int chip;
+
+    /// Effect 14 steps applied to the tilemap
+    PaletteStep palette_steps[MAX_PALETTE_STEPS];
+    int palette_step_count;
 } RewriteChip;
 
 /// An arcade stage, converted to a PS2-style palette and stage PPG
@@ -105,6 +117,15 @@ typedef struct StageSource {
 /// Alternate tilemaps of Gill's stage. NG's effect 12 cycles through them to animate the lava of layer 0.
 #define NG_GILL_LAVA_MAP_0 0x0643275C
 #define NG_GILL_LAVA_MAP_1 0x064327DC
+
+/// Variants of NG's effect 14 (20 bytes each): {u8[3], u8 layer, u8[4], u32 palette sequence, u32 cell mask,
+/// u32 size}. The sequence holds {u8, u8 frames, u16 palette row} steps, the mask a byte per cell (1 if the cell
+/// changes) and the size {u8 width, u8 height} in cells.
+#define NG_EFFECT14_VARIANTS 0x06433400
+
+/// u16 tilemap offset of each variant's rectangle. The rectangles are in the lower half of the tilemap.
+#define NG_EFFECT14_OFFSETS 0x0643305C
+#define NG_EFFECT14_OFFSET_BASE 0x2000
 
 static const StageSource stage_sources[] = {
     { .game = ROM_GAME_SFIII,
@@ -135,6 +156,22 @@ static const StageSource stage_sources[] = {
       .ppg_file = CACHE_FILE_NG_ALEX_STAGE,
       .object_palettes = { 0x68 },
       .object_palette_count = 1 },
+    { .game = ROM_GAME_SFIII,
+      .bg_index = 3,
+      .area = AREA_NG_RYU_A,
+      .palette_file = CACHE_FILE_NG_RYU_A_BG_PALETTE,
+      .ppg_file = CACHE_FILE_NG_RYU_A_STAGE,
+      .object_palettes = { 0x66 },
+      .object_palette_count = 1,
+      // Steps 1 and 2 of effect 14's variants 1 and 2 (chips 59 and 60 of layer 0) and variant 3 (chip 52 of layer 2),
+      // in the order rw261-rw263 use them. The regular tilemap already shows step 0.
+      .rewrite_chips = { { .layer = 0, .chip = 59, .palette_steps = { { 1, 1 } }, .palette_step_count = 1 },
+                         { .layer = 0, .chip = 59, .palette_steps = { { 1, 2 } }, .palette_step_count = 1 },
+                         { .layer = 0, .chip = 60, .palette_steps = { { 1, 1 }, { 2, 1 } }, .palette_step_count = 2 },
+                         { .layer = 0, .chip = 60, .palette_steps = { { 1, 2 }, { 2, 2 } }, .palette_step_count = 2 },
+                         { .layer = 2, .chip = 52, .palette_steps = { { 3, 1 } }, .palette_step_count = 1 },
+                         { .layer = 2, .chip = 52, .palette_steps = { { 3, 2 } }, .palette_step_count = 1 } },
+      .rewrite_chip_count = 6 },
 };
 
 #define MAX_CG_RANGES 4
@@ -179,6 +216,14 @@ static const CgGroupSource cg_group_sources[] = {
       .range_count = 2,
       .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
       .file = CACHE_FILE_NG_GILL_OBJECTS },
+
+    // Objects of the first area of NG Ryu's stage. Its char table is _ng_j10_a_char_table.
+    { .game = ROM_GAME_SFIII,
+      .group = 103,
+      .ranges = { { 0x41C6, 432 }, { 0x7718, 32 } },
+      .range_count = 2,
+      .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
+      .file = CACHE_FILE_NG_RYU_A_OBJECTS },
 };
 
 /// CPS3 graphics addresses start this far before the graphics region
@@ -421,6 +466,50 @@ static bool build_tilemap(const StageRom* rom, int bg_index, int layer, Uint32* 
            build_tilemap_from_blocks(rom, bg_index, blocks, count, tilemap);
 }
 
+/// Sets the palettes that a step of NG's effect 14 gives to its cells.
+/// @param palette_base Palette code that map entries are relative to
+static bool apply_palette_step(
+    const StageRom* rom, const PaletteStep* step, int layer, int palette_base, Uint32* tilemap
+) {
+    const Uint32 variant = NG_EFFECT14_VARIANTS + step->variant * 20;
+    const Uint8* header;
+    const Uint8* size;
+    const Uint8* mask;
+    Uint32 sequence;
+    Uint32 mask_address;
+    Uint32 size_address;
+    Uint16 offset;
+    Uint16 palette;
+
+    if (!program_read(rom, variant, 8, &header) || header[3] != layer || !program_u32(rom, variant + 8, &sequence) ||
+        !program_u32(rom, variant + 12, &mask_address) || !program_u32(rom, variant + 16, &size_address) ||
+        !program_read(rom, size_address, 2, &size) || !program_read(rom, mask_address, size[0] * size[1], &mask) ||
+        !program_u16(rom, NG_EFFECT14_OFFSETS + step->variant * 2, &offset) ||
+        !program_u16(rom, sequence + step->step * 4 + 2, &palette)) {
+        return false;
+    }
+
+    const int top = (NG_EFFECT14_OFFSET_BASE + offset) / 0x100;
+    const int left = (offset % 0x100) / 4;
+
+    if (top + size[1] > TILEMAP_SIZE || left + size[0] > TILEMAP_SIZE) {
+        return false;
+    }
+
+    for (int y = 0; y < size[1]; y++) {
+        for (int x = 0; x < size[0]; x++) {
+            Uint32* entry = &tilemap[(top + y) * TILEMAP_SIZE + left + x];
+
+            if (mask[y * size[0] + x] == 1 && *entry != 0xFFFFFFFF) {
+                // The effect writes absolute palette codes, while map entries are relative to palette_base
+                *entry = (*entry & 0xFFFFFE00) | ((palette - palette_base) & 0x1FF);
+            }
+        }
+    }
+
+    return true;
+}
+
 /// Draws a 128x128 chip from the tilemap.
 /// @param block_palettes Receives the palette row of each 16x16 block, or -1 if the block is empty.
 static bool draw_chip(
@@ -464,13 +553,27 @@ static bool draw_chip(
                 }
             }
 
-            if (!empty) {
-                if (palette < 0 || palette >= palette_rows) {
-                    return false;
+            if (empty) {
+                continue;
+            }
+
+            if (palette < 0 || palette >= palette_rows) {
+                SDL_LogDebug(
+                    SDL_LOG_CATEGORY_APPLICATION,
+                    "Dropping tile %zu of chip %d: palette %d is outside the stage palette",
+                    tile,
+                    chip,
+                    palette
+                );
+
+                for (int y = 0; y < 16; y++) {
+                    SDL_memset(&pixels[(by * 16 + y) * PPG_CHIP_SIZE + bx * 16], 0, 16);
                 }
 
-                *block_palette = palette;
+                continue;
             }
+
+            *block_palette = palette;
         }
     }
 
@@ -589,8 +692,19 @@ static bool build_ppg(
 
     for (int i = 0; i < source->rewrite_chip_count && success; i++) {
         const RewriteChip* chip = &source->rewrite_chips[i];
+
+        if (chip->blocks != 0) {
+            success = build_tilemap_from_blocks(rom, source->bg_index, chip->blocks, chip->block_count, tilemap);
+        } else {
+            success = build_tilemap(rom, source->bg_index, chip->layer, tilemap);
+        }
+
+        for (int j = 0; j < chip->palette_step_count && success; j++) {
+            success = apply_palette_step(rom, &chip->palette_steps[j], chip->layer, palette_base, tilemap);
+        }
+
         success =
-            build_tilemap_from_blocks(rom, source->bg_index, chip->blocks, chip->block_count, tilemap) &&
+            success &&
             draw_chip(tilemap, tiles, tiles_size, chip->chip, palette_base, palette_rows, pixels, block_palettes) &&
             append_chip(ppg, pixels, block_palettes);
     }
