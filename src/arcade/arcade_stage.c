@@ -557,10 +557,14 @@ static bool draw_chip(
                 continue;
             }
 
-            // Some tiles point outside the stage palette. The one known case, on Ryu's stage, is a single stray
-            // pixel, so drop such tiles.
             if (palette < 0 || palette >= palette_rows) {
-                SDL_Log("Dropping tile %zu of chip %d: palette %d is outside the stage palette", tile, chip, palette);
+                SDL_LogDebug(
+                    SDL_LOG_CATEGORY_APPLICATION,
+                    "Dropping tile %zu of chip %d: palette %d is outside the stage palette",
+                    tile,
+                    chip,
+                    palette
+                );
 
                 for (int y = 0; y < 16; y++) {
                     SDL_memset(&pixels[(by * 16 + y) * PPG_CHIP_SIZE + bx * 16], 0, 16);

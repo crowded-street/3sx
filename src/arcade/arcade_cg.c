@@ -214,8 +214,8 @@ static bool add_cg(
     int count = 0;
     bool success = true;
 
-    // CPS3 draws a sprite's later parts in front, while 3S draws a CG's earlier chips in front, so the parts are stored
-    // last to first. Where parts overlap, this reproduces 3rd Strike's PS2 files, which Capcom converted the same way.
+    // CPS3 draws a sprite's later parts in front, while 3S draws a CG's earlier chips in front, 
+    // so the parts are stored last to first
     for (int i = 0; i < descriptor.parts && success; i++) {
         const int part_index = descriptor.parts - 1 - i;
         const Uint8* part = descriptor.data + 12 + descriptor.spans * 8 + part_index * 8;

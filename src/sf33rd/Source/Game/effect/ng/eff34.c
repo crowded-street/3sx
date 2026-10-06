@@ -22,18 +22,11 @@
 #define GROUP_COUNT 2
 #define SPAWN_LIST_LENGTH 7
 #define SPAWN_LIST_COUNT 8
-
-/// Frames that a near petal lies on the ground before it vanishes
 #define LANDED_FRAMES 50
-
-/// Petals vanish beyond this distance from the centre of the layer
 #define X_RANGE 0x180
 
-/// NG gives the petals char tables that start 2 (near) and 6 (far) animations into the stage table. 3S char tables
-/// hold offsets from their own start, so the full table is used with the animations offset instead.
 static const s16 first_char_index[GROUP_COUNT] = { 2, 6 };
 
-/// Petals of each group in the first burst, chosen at random
 static const s16 spawn_lists[GROUP_COUNT][SPAWN_LIST_COUNT][SPAWN_LIST_LENGTH] = {
     { { 1, 6, 8, 3, 4, 0, 5 },
       { 2, 3, 6, 1, 0, 4, 5 },
@@ -53,7 +46,6 @@ static const s16 spawn_lists[GROUP_COUNT][SPAWN_LIST_COUNT][SPAWN_LIST_LENGTH] =
       { 20, 16, 15, 14, 13, 12, 11 } },
 };
 
-/// Frames between spawns, chosen at random
 static const s16 spawn_delays[32] = { 10,  24,  28,  34,  40,  48,  60,  78,  88,  94,  108, 114, 118, 128, 134, 144,
                                       148, 154, 160, 174, 180, 188, 194, 208, 218, 228, 260, 328, 388, 400, 480, 600 };
 
@@ -85,7 +77,6 @@ typedef struct Velocity {
     s32 accel;
 } Velocity;
 
-/// Vertical velocities of each group, chosen at random
 static const Velocity y_velocities[GROUP_COUNT][32] = {
     { { -0x1400, -0x480 }, { -0x1800, -0x380 }, { -0x2C00, -0x330 }, { -0x2E00, -0x310 }, { -0x3000, -0x300 },
       { -0x3200, -0x2E0 }, { -0x3600, -0x280 }, { -0x3800, -0x260 }, { -0x3A00, -0x240 }, { -0x3C00, -0x230 },
@@ -103,11 +94,9 @@ static const Velocity y_velocities[GROUP_COUNT][32] = {
       { -0x2200, -0x180 }, { -0x2E00, -0x230 } },
 };
 
-/// Horizontal speeds, chosen at random. They drift left unless made positive.
 static const s32 x_speeds[16] = { -0x40,   -0x800,  -0x1200, -0x1800, -0x2000, -0x2400, -0x2E00, -0x3000,
                                   -0x3200, -0x3600, -0x3800, -0x3A00, -0x3E00, -0x4200, -0x5800, -0x6000 };
 
-/// Horizontal accelerations, chosen at random from one of the two tables
 static const s32 x_accels[2][16] = {
     { 0,
       -0x100,
@@ -143,27 +132,22 @@ static const s32 x_accels[2][16] = {
       -0x380 },
 };
 
-/// Live petals of a group, kept by the master
 static s16* group_count(WORK_Other* master, s16 group) {
     return (group == 0) ? &master->wu.direction : &master->wu.dir_old;
 }
 
-/// Picks a new random velocity. `dmcal_m` is the group and `vitality` the chance to drift right.
 static void eff35_set_velocity(WORK_Other* ewk) {
     const Velocity* y = &y_velocities[ewk->wu.dmcal_m][random_32()];
     const s16 x = random_16();
-    bool right;
 
     ewk->wu.mvxy.a[1].sp = y->speed;
     ewk->wu.mvxy.d[1].sp = y->accel;
-    right = x < ewk->wu.vitality;
+    bool right = x < ewk->wu.vitality;
     ewk->wu.mvxy.a[0].sp = right ? SDL_abs(x_speeds[x]) : x_speeds[x];
 
-    {
-        const s32* accels = x_accels[random_16() & 1];
-        const s32 accel = accels[random_16()];
-        ewk->wu.mvxy.d[0].sp = right ? SDL_abs(accel) : accel;
-    }
+    const s32* accels = x_accels[random_16() & 1];
+    const s32 accel = accels[random_16()];
+    ewk->wu.mvxy.d[0].sp = right ? SDL_abs(accel) : accel;
 }
 
 /// Like add_x_sub and add_y_sub, but accelerates before moving, as NG does
@@ -179,15 +163,11 @@ static void eff35_disp(WORK_Other* ewk) {
     sort_push_request4(&ewk->wu);
 }
 
-/// Petals live in layer 1's coordinates, which are centred on 0. NG wraps positions to 10 bits, which its sprite
-/// hardware undoes; 3S needs them signed.
 static void eff35_set_position(WORK_Other* ewk) {
     ewk->wu.position_x = ewk->wu.xyz[0].disp.pos;
     ewk->wu.position_y = ewk->wu.xyz[1].disp.pos;
 }
 
-/// `vital_new` counts down to the next velocity change, `vital_old` holds the ground and `dm_vital` the frames left on
-/// the ground.
 void effect_ng35_move(WORK_Other* ewk) {
     WORK_Other* master = (WORK_Other*)ewk->my_master;
 
@@ -315,7 +295,6 @@ static s32 eff35_init(WORK_Other* master, s16 type) {
     return 0;
 }
 
-/// Spawns `count` petals from a random list of a group
 static void spawn_burst(WORK_Other* ewk, s16 group, s16 count) {
     const s16* list = spawn_lists[group][random_32() & 7];
 
@@ -324,8 +303,6 @@ static void spawn_burst(WORK_Other* ewk, s16 group, s16 count) {
     }
 }
 
-/// Spawns a random petal of a group whenever its delay runs out, while the group has room. `routine_no[2 + group]`
-/// waits or spawns, `vitality` (near) and `vital_new` (far) hold the delays.
 static void spawn_over_time(WORK_Other* ewk, s16 group, s16 max_count) {
     s16* state = &ewk->wu.routine_no[2 + group];
     s16* delay = (group == 0) ? &ewk->wu.vitality : &ewk->wu.vital_new;
@@ -359,7 +336,6 @@ static void spawn_over_time(WORK_Other* ewk, s16 group, s16 max_count) {
     }
 }
 
-/// `direction` and `dir_old` count the live petals of each group, `dir_step` and `dir_timer` limit them
 void effect_ng34_move(WORK_Other* ewk) {
     s16 count;
 

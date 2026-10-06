@@ -78,22 +78,14 @@ static void bg2601_init00() {
         bgw_ptr->r_no_0++;
     }
 
-    // Unlike the other layers, this one is centred on 0. The nonzero zuubun makes the chase use the signed abs_x and
-    // draws the tilemap LINE_SCROLL_BASE further.
     bgw_ptr->old_pos_x = bgw_ptr->xy[0].disp.pos = bgw_ptr->pos_x_work = 0;
     bgw_ptr->hos_xy[0].cal = bgw_ptr->wxy[0].cal = bgw_ptr->xy[0].cal;
     bgw_ptr->zuubun = 0xCC;
+    // FIXME: Configure line scroll
 
-    // NG also sets up line scroll for this layer (no_suzi_line 0x3C7, u_line 0x10, d_line 0x28) and updates it in
-    // move01 to give the floor perspective. Only the initial scroll of the lines is reproduced, through zuubun.
-
-    // NG then loads palette 0x66 and preloads CGs 0x41C0 and 0x7718 into sprite RAM, which we don't need.
     effect_05_init();
     effect_06_init();
     effect_ng18_init(0);
-
-    // NG starts effect 14 (variants 1, 2 and 3) here to cycle the palettes of parts of layers 0 and 2. We do it with
-    // rw261-rw263 instead.
     effect_ng34_init();
 }
 

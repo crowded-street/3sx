@@ -60,7 +60,6 @@ static const Eff18Variant eff18_variants[] = {
     { eff18_ryu_a_data, SDL_arraysize(eff18_ryu_a_data) },
 };
 
-/// Whether a player is doing a special move
 static bool is_special_move_active() {
     for (int i = 0; i < 2; i++) {
         if (plw[i].wu.routine_no[1] == 4 && plw[i].wu.routine_no[2] > 15) {
@@ -81,8 +80,6 @@ static void animate(WORK_Other* ewk) {
     }
 }
 
-/// Swings for a while after a player does a special move, then settles. `direction` counts the frames of the current
-/// loop of the animation and `dir_timer` holds what's left of the swing.
 static void swing_on_special_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[2]) {
     case 0:
@@ -143,7 +140,6 @@ static void swing_on_special_move(WORK_Other* ewk) {
     }
 }
 
-/// Plays the reaction animation once a round is won
 static void play_on_victory(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[2]) {
     case 0:
