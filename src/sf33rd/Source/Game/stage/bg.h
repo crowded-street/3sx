@@ -6,6 +6,7 @@
 #include "types.h"
 
 #define BG_SCROLL_SPACE_COUNT 8
+#define LINE_SCROLL_BASE 0x200
 
 typedef struct {
     s8 be_flag;

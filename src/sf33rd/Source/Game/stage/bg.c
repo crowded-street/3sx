@@ -553,10 +553,15 @@ void scr_trans(u8 bgnm) {
     u32 vtxColor;
     s32 suzi_pos;
 
+    // A New Generation layer with line scroll (nonzero zuubun) draws its tilemap further than its position, which
+    // sprites follow. NG adds the same offset to such layers' positions in FUN_0607ab24.
+    // FIXME: Implement proper line scrolling instead. NG also shifts lines depending on the camera position.
+    const s16 tilemap_x = (ending_flag == 0 && bgnm < 3 && bg_w.bgw[bgnm].zuubun) ? LINE_SCROLL_BASE : 0;
+
     njUnitMatrix(0);
     njScale(0, 1.0f, -1.0f, 1.0f);
     njTranslate(0, 0.0f, -1024.0f, 0.0f);
-    njTranslate(0, (s16)bg_prm[bgnm].bg_h_shift, (s16)bg_prm[bgnm].bg_v_shift, 0.0f);
+    njTranslate(0, (s16)(bg_prm[bgnm].bg_h_shift + tilemap_x), (s16)bg_prm[bgnm].bg_v_shift, 0.0f);
     njScale(0, 1.0f, -1.0f, 1.0f);
     njTranslate(0, 0.0f, -224.0f, 0.0f);
     njScale(0, 1.0f / scr_sc, 1.0f / scr_sc, 1.0f);
@@ -596,7 +601,7 @@ void scr_trans(u8 bgnm) {
     njScale(0, 1.0, -1.0, 1.0);
     njTranslate(0, (s16)-bg_prm[bgnm].bg_h_shift, (s16)-bg_prm[bgnm].bg_v_shift, 0);
     njGetMatrix(&BgMATRIX[bgnm + 1]);
-    njTranslate(0, 0, 1024.0, PrioBase[bg_priority[bgnm]]);
+    njTranslate(0, -tilemap_x, 1024.0, PrioBase[bg_priority[bgnm]]);
     njScale(0, 1.0, -1.0, 1.0);
 
     palOffset = bgPalCodeOffset[bgnm];
