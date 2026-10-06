@@ -112,6 +112,7 @@ const s16 ng_stg0100_data_tbl[36] = {
 
 /// First area of New Generation's Ryu stage. Colour codes are converted from palette row 0x40 to the PS2 BG palette row
 /// 0x12C. NG syncs the object with the line scroll of layer 1 (sync_suzi 1), which we don't have.
+// FIXME: Set sync_suzi back to 1 once line scrolling is implemented.
 const s16 ng_stg0200_data_tbl[9] = {
     0, 2, 8492, 16, 19, 20, 11, 0, 0,
 };
