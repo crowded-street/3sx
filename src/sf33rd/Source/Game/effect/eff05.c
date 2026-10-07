@@ -123,7 +123,7 @@ const s16 ng_stg0200_data_tbl[9] = {
 // FIXME: Set sync_suzi back to 1 once line scrolling is implemented.
 const s16 ng_stg0210_data_tbl[36] = {
     0, 2, 300,  16,  80, 80, 2,  1, 0, 0, 2, 300,  -288, 80,  83, 4,  1, 0,
-    1, 2, 8518, -17, 48, 84, 17, 0, 0, 1, 2, 8518, -89,  136, 83, 24, 0, 0,
+    1, 2, 8518, -17, 48, 83, 17, 0, 0, 1, 2, 8518, -89,  136, 83, 24, 0, 0,
 };
 
 u32* char_add[AREA_COUNT] = {
