@@ -318,12 +318,15 @@ const LoadRequestEntry ldreq_tbl[LDREQ_TBL_SIZE] = {
     [303] = { .type = LDREQ_SCREEN, .ix = 166, .frre = 1, .kokey = 18 },
     [304] = { .type = LDREQ_TEXTURE, .ix = 102, .frre = 1, .kokey = 19 },
 
-    // NG Ryu's stage
+    // First area of NG Ryu's stage
     [305] = { .type = LDREQ_COLOR, .ix = 167, .frre = 1, .kokey = 2 },
     [306] = { .type = LDREQ_SCREEN, .ix = 168, .frre = 1, .kokey = 18 },
     [307] = { .type = LDREQ_TEXTURE, .ix = 103, .frre = 1, .kokey = 19 },
 };
 
+/// Load request spans. Spans from 20 on hold the resources of area `index - 20`. AREA_3S_Q's span loads Ken's stage
+/// (Q's stage used to load it by stage number), but no stage uses that area.
+// FIXME: Give the second area of NG Ryu's stage (the last span) its own resources instead of the first area's
 const Span spans[] = {
     { .start = 0, .length = 5 },   { .start = 5, .length = 3 },   { .start = 10, .length = 4 },
     { .start = 15, .length = 4 },  { .start = 19, .length = 3 },  { .start = 25, .length = 5 },
@@ -340,5 +343,5 @@ const Span spans[] = {
     { .start = 175, .length = 3 }, { .start = 180, .length = 3 }, { .start = 185, .length = 3 },
     { .start = 190, .length = 3 }, { .start = 195, .length = 3 }, { .start = 200, .length = 5 },
     { .start = 206, .length = 4 }, { .start = 300, .length = 5 }, { .start = 297, .length = 5 },
-    { .start = 305, .length = 3 },
+    { .start = 305, .length = 3 }, { .start = 305, .length = 3 },
 };

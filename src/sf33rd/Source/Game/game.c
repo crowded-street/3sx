@@ -1312,7 +1312,7 @@ void Game09() {
         Switch_Screen(1);
 
         if (--G_Timer == 0) {
-            if (!Check_LDREQ_Queue_BG(bg_w.stage)) {
+            if (!Check_LDREQ_Queue_BG(bg_index_tbl[bg_w.stage][bg_w.area])) {
                 G_Timer = 1;
             } else {
                 G_No[2] += 1;

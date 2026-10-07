@@ -459,7 +459,7 @@ static bool is_load_complete() {
         return false;
     }
 
-    if (!Check_LDREQ_Queue_BG(bg_w.stage)) {
+    if (!Check_LDREQ_Queue_BG(bg_index_tbl[bg_w.stage][bg_w.area])) {
         return false;
     }
 
@@ -1135,7 +1135,7 @@ void Setup_Next_Fighter() {
     }
 #endif
 
-    Push_LDREQ_Queue_BG(bg_w.stage);
+    Push_LDREQ_Queue_BG(bg_index_tbl[bg_w.stage][bg_w.area]);
     bg_w.area = 0;
     Super_Arts[COM_id] = Stock_Com_Arts[Player_id] = Setup_Com_Arts();
 
@@ -1493,7 +1493,7 @@ s8 Check_Bonus_Stage() {
     Setup_Com_Color();
     Setup_PL_Color(COM_id, Com_Color_Shot);
     Push_LDREQ_Queue_Player(COM_id, My_char[COM_id]);
-    Push_LDREQ_Queue_BG(Bonus_Type);
+    Push_LDREQ_Queue_BG(bg_index_tbl[bg_w.stage][bg_w.area]);
     return Completion_Bonus[Player_id][Bonus_Type - STAGE_3S_BONUS_CAR] = 1;
 }
 

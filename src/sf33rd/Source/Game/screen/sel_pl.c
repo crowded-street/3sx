@@ -1575,7 +1575,7 @@ void Exit_2nd() {
         }
 #endif
 
-        Push_LDREQ_Queue_BG(bg_w.stage);
+        Push_LDREQ_Queue_BG(bg_index_tbl[bg_w.stage][bg_w.area]);
         return;
     }
 
@@ -1676,7 +1676,7 @@ void Exit_6th() {
         return;
     }
 
-    if (!Check_LDREQ_Queue_BG(bg_w.stage)) {
+    if (!Check_LDREQ_Queue_BG(bg_index_tbl[bg_w.stage][bg_w.area])) {
         return;
     }
 
