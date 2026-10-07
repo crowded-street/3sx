@@ -39,7 +39,6 @@ void bg0701_init00() {
     bgw_ptr->old_pos_x = bgw_ptr->xy[0].disp.pos = bgw_ptr->pos_x_work = 0x200;
     bgw_ptr->xy[1].disp.pos = bgw_ptr->wxy[1].disp.pos = bgw_ptr->pos_y_work = 0x10;
     bgw_ptr->hos_xy[0].cal = bgw_ptr->wxy[0].cal = bgw_ptr->xy[0].cal;
-    bgw_ptr->zuubun = 0xE3;
 }
 
 void bg0701_move00() {
