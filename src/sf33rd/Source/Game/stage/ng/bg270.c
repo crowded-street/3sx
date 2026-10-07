@@ -8,6 +8,8 @@
 #include "sf33rd/Source/Game/effect/eff05.h"
 #include "sf33rd/Source/Game/effect/eff06.h"
 #include "sf33rd/Source/Game/effect/ng/eff18.h"
+#include "sf33rd/Source/Game/effect/ng/eff88.h"
+#include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
@@ -67,7 +69,10 @@ static void bg2701_init00() {
     effect_05_init();
     effect_06_init();
     effect_ng18_init(1);
-    // FIXME: NG also starts effect 88 (variant 4) when the byte at 0x02012d35 is 8.
+
+    if (Country == 8) {
+        effect_ng88_init(4);
+    }
 }
 
 static void bg2701_move00() {
