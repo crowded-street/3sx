@@ -140,7 +140,7 @@ u32* char_add[AREA_COUNT] = {
     [AREA_3S_REMY] = _frc_char_table,        [AREA_3S_BONUS_CAR] = _bns_char_table,
     [AREA_3S_BONUS_BALLS] = _bns_char_table, [AREA_NG_GILL] = _ng_fnl_char_table,
     [AREA_NG_ALEX] = _ng_usa_char_table,     [AREA_NG_RYU_A] = _ng_j10_a_char_table,
-    // FIXME: Add the char table of NG Ryu's second area
+    [AREA_NG_RYU_B] = _ng_j10_b_char_table,
 };
 
 const s16* scr_obj_data[AREA_COUNT] = {

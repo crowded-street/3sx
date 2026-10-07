@@ -172,6 +172,13 @@ static const StageSource stage_sources[] = {
                          { .layer = 2, .chip = 52, .palette_steps = { { 3, 1 } }, .palette_step_count = 1 },
                          { .layer = 2, .chip = 52, .palette_steps = { { 3, 2 } }, .palette_step_count = 1 } },
       .rewrite_chip_count = 6 },
+    { .game = ROM_GAME_SFIII,
+      .bg_index = 4,
+      .area = AREA_NG_RYU_B,
+      .palette_file = CACHE_FILE_NG_RYU_B_BG_PALETTE,
+      .ppg_file = CACHE_FILE_NG_RYU_B_STAGE,
+      .object_palettes = { 0x67 },
+      .object_palette_count = 1 },
 };
 
 #define MAX_CG_RANGES 4
@@ -224,6 +231,14 @@ static const CgGroupSource cg_group_sources[] = {
       .range_count = 2,
       .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
       .file = CACHE_FILE_NG_RYU_A_OBJECTS },
+
+    // Objects of the second area of NG Ryu's stage. Its char table is _ng_j10_b_char_table.
+    { .game = ROM_GAME_SFIII,
+      .group = 104,
+      .ranges = { { 0x43A0, 316 } },
+      .range_count = 1,
+      .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
+      .file = CACHE_FILE_NG_RYU_B_OBJECTS },
 };
 
 /// CPS3 graphics addresses start this far before the graphics region

@@ -16,6 +16,9 @@ static const char* const paths[CACHE_FILE_COUNT] = {
     [CACHE_FILE_NG_RYU_A_BG_PALETTE] = "ng/bg03_palette.bin",
     [CACHE_FILE_NG_RYU_A_STAGE] = "ng/stage03.ppg",
     [CACHE_FILE_NG_RYU_A_OBJECTS] = "ng/bg03.bin",
+    [CACHE_FILE_NG_RYU_B_BG_PALETTE] = "ng/bg04_palette.bin",
+    [CACHE_FILE_NG_RYU_B_STAGE] = "ng/stage04.ppg",
+    [CACHE_FILE_NG_RYU_B_OBJECTS] = "ng/bg04.bin",
     [CACHE_FILE_NG_EF94] = "ng/ef94.bin",
     [CACHE_FILE_NG_EF94_PALETTE] = "ng/ef94_palette.bin",
 };

@@ -30,6 +30,7 @@ extern u32 _usa_char_table[];
 extern u32 _ng_fnl_char_table[];
 extern u32 _ng_usa_char_table[];
 extern u32 _ng_j10_a_char_table[];
+extern u32 _ng_j10_b_char_table[];
 extern u32 _ng_eff94_char_table[];
 extern u32 _effD4_char_table[];
 extern u32 _ag_00_char_table[];

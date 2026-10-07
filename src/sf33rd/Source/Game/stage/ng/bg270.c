@@ -5,6 +5,8 @@
 
 #include "sf33rd/Source/Game/stage/ng/bg270.h"
 #include "common.h"
+#include "sf33rd/Source/Game/effect/eff05.h"
+#include "sf33rd/Source/Game/effect/eff06.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
@@ -61,8 +63,9 @@ static void bg2701_init00() {
     bgw_ptr->zuubun = 0x1C7;
     // FIXME: Configure line scroll
 
-    // FIXME: Start effects 05, 06 and NG 18 (variant 1) once this area's objects are converted. NG also starts effect
-    // 88 (variant 4) when the byte at 0x02012d35 is 8.
+    effect_05_init();
+    effect_06_init();
+    // FIXME: Start NG effect 18 (variant 1). NG also starts effect 88 (variant 4) when the byte at 0x02012d35 is 8.
 }
 
 static void bg2701_move00() {
