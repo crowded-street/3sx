@@ -23,7 +23,7 @@ const s16 scr_obj_num[AREA_COUNT] = {
     [AREA_3S_SEAN] = 1,   [AREA_3S_URIEN] = 1,     [AREA_3S_AKUMA] = 1,       [AREA_3S_SHIN_AKUMA] = 1,
     [AREA_3S_CHUNLI] = 2, [AREA_3S_MAKOTO] = 2,    [AREA_3S_Q] = 0,           [AREA_3S_TWELVE] = 2,
     [AREA_3S_REMY] = 4,   [AREA_3S_BONUS_CAR] = 1, [AREA_3S_BONUS_BALLS] = 4, [AREA_NG_GILL] = 5,
-    [AREA_NG_ALEX] = 4,   [AREA_NG_RYU_A] = 1,
+    [AREA_NG_ALEX] = 4,   [AREA_NG_RYU_A] = 1,     [AREA_NG_RYU_B] = 4,
 };
 
 const s16 stg_dum_data_tbl[1] = { 0 };
@@ -117,6 +117,15 @@ const s16 ng_stg0200_data_tbl[9] = {
     0, 2, 8492, 16, 19, 20, 11, 0, 0,
 };
 
+/// Second area of New Generation's Ryu stage. Colour codes are converted from palette rows 0x40 and 0x5A to the PS2 BG
+/// palette rows 0x12C and 0x146. NG syncs these objects with the line scroll of layer 1 (sync_suzi 1), which we don't
+/// have.
+// FIXME: Set sync_suzi back to 1 once line scrolling is implemented.
+const s16 ng_stg0210_data_tbl[36] = {
+    0, 2, 300,  16,  80, 80, 2,  1, 0, 0, 2, 300,  -288, 80,  83, 4,  1, 0,
+    1, 2, 8518, -17, 48, 83, 17, 0, 0, 1, 2, 8518, -89,  136, 83, 24, 0, 0,
+};
+
 u32* char_add[AREA_COUNT] = {
     [AREA_3S_GILL] = _fnl_char_table,        [AREA_3S_ALEX] = _usa_char_table,
     [AREA_3S_RYU] = _j10_char_table,         [AREA_3S_YUN] = _hkg_char_table,
@@ -131,6 +140,7 @@ u32* char_add[AREA_COUNT] = {
     [AREA_3S_REMY] = _frc_char_table,        [AREA_3S_BONUS_CAR] = _bns_char_table,
     [AREA_3S_BONUS_BALLS] = _bns_char_table, [AREA_NG_GILL] = _ng_fnl_char_table,
     [AREA_NG_ALEX] = _ng_usa_char_table,     [AREA_NG_RYU_A] = _ng_j10_a_char_table,
+    [AREA_NG_RYU_B] = _ng_j10_b_char_table,
 };
 
 const s16* scr_obj_data[AREA_COUNT] = {
@@ -147,6 +157,7 @@ const s16* scr_obj_data[AREA_COUNT] = {
     [AREA_3S_REMY] = stg1400_data_tbl,        [AREA_3S_BONUS_CAR] = stg1500_data_tbl,
     [AREA_3S_BONUS_BALLS] = stg1600_data_tbl, [AREA_NG_GILL] = ng_stg0000_data_tbl,
     [AREA_NG_ALEX] = ng_stg0100_data_tbl,     [AREA_NG_RYU_A] = ng_stg0200_data_tbl,
+    [AREA_NG_RYU_B] = ng_stg0210_data_tbl,
 };
 
 void effect_05_move(WORK_Other* ewk) {

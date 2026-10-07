@@ -42,6 +42,8 @@ s16 get_center_position();
 s16 get_height_position();
 void bg_work_clear();
 void compel_bg_init_position();
+bool bg_next_area_begin();
+void bg_next_area_finish();
 void bg_base_move_common();
 void bg_move_common();
 void bg_initialize();

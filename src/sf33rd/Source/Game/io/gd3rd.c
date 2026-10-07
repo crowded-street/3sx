@@ -290,12 +290,16 @@ static void Push_LDREQ_Queue_Metamor() {
     }
 }
 
-static s16 bg_span_index(Stage stage) {
-    return stage + 20;
+static s16 bg_span_index(Area area) {
+    return area + 20;
 }
 
-void Push_LDREQ_Queue_BG(Stage stage) {
-    Push_LDREQ_Queue_Union(bg_span_index(stage));
+void Push_LDREQ_Queue_Area(Area area) {
+    Push_LDREQ_Queue_Union(bg_span_index(area));
+}
+
+void Push_LDREQ_Queue_BG(Area area) {
+    Push_LDREQ_Queue_Area(area);
     Push_LDREQ_Queue_Metamor();
 }
 
@@ -358,8 +362,8 @@ bool Check_LDREQ_Queue_Player(u8 id) {
     return Check_LDREQ_Queue_Union(plt_req[id], ldreq_id_from_player_id(id));
 }
 
-bool Check_LDREQ_Queue_BG(Stage stage) {
-    return Check_LDREQ_Queue_Union(bg_span_index(stage), LDREQ_ID_SHARED);
+bool Check_LDREQ_Queue_BG(Area area) {
+    return Check_LDREQ_Queue_Union(bg_span_index(area), LDREQ_ID_SHARED);
 }
 
 bool Check_LDREQ_Queue_Direct(s16 ix) {

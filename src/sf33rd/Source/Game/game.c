@@ -641,9 +641,28 @@ void Game2_5() {
         pcon_rno[3] = 0;
         appear_type = APPEAR_TYPE_NON_ANIMATED;
         erase_extra_plef_work();
-        compel_bg_init_position();
         win_lose_work_clear();
+
+        if (bg_next_area_begin()) {
+            G_No[3] = 2;
+            break;
+        }
+
+        compel_bg_init_position();
         TATE00();
+        break;
+
+    case 2:
+        // Load the next area behind the black screen
+        Switch_Screen(0);
+
+        if (!Check_LDREQ_Queue_BG(bg_index_tbl[bg_w.stage][bg_w.area])) {
+            break;
+        }
+
+        bg_next_area_finish();
+        TATE00();
+        G_No[3] = 1;
         break;
 
     default:
@@ -1312,7 +1331,7 @@ void Game09() {
         Switch_Screen(1);
 
         if (--G_Timer == 0) {
-            if (!Check_LDREQ_Queue_BG(bg_w.stage)) {
+            if (!Check_LDREQ_Queue_BG(bg_index_tbl[bg_w.stage][bg_w.area])) {
                 G_Timer = 1;
             } else {
                 G_No[2] += 1;

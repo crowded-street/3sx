@@ -54,10 +54,21 @@ static const Eff18Data eff18_ryu_a_data[1] = {
     { 1, 2, 8527, -224, 64, 74, 18, 19, 1, 0, EFF18_SWING_ON_SPECIAL_MOVE, 1 },
 };
 
-/// NG picks each variant's data by `compel_flag` as well, but the data of variant 0 is the same for all of them. The
-/// other variants belong to stages that aren't ported yet.
+/// Second area of Ryu's stage. Colour codes are converted from palette row 0x5A to the PS2 BG palette row 0x146, with
+/// the 0x2000 flag and without it. NG syncs these objects with the line scroll of layer 1 (sync_suzi 1), which we don't
+/// have.
+// FIXME: Set sync_suzi back to 1 once line scrolling is implemented.
+static const Eff18Data eff18_ryu_b_data[3] = {
+    { 1, 2, 326, 336, 80, 75, 20, 21, 1, 0, EFF18_SWING_ON_SPECIAL_MOVE, 1 },
+    { 1, 2, 326, 48, 48, 73, 28, 29, 1, 0, EFF18_PLAY_ON_VICTORY, 0 },
+    { 1, 2, 8518, -112, 57, 76, 25, 26, 1, 0, EFF18_SWING_ON_SPECIAL_MOVE, 1 },
+};
+
+/// NG picks each variant's data by `compel_flag` as well, but the data of variants 0 and 1 is the same for all of them.
+/// The other variants belong to stages that aren't ported yet.
 static const Eff18Variant eff18_variants[] = {
     { eff18_ryu_a_data, SDL_arraysize(eff18_ryu_a_data) },
+    { eff18_ryu_b_data, SDL_arraysize(eff18_ryu_b_data) },
 };
 
 static bool is_special_move_active() {
@@ -70,8 +81,12 @@ static bool is_special_move_active() {
     return false;
 }
 
+static bool is_round_over() {
+    return !Allow_a_battle_f && Conclusion_Flag == 1 && C_No[0] > 1;
+}
+
 static bool is_round_won() {
-    return !Allow_a_battle_f && Conclusion_Flag == 1 && C_No[0] > 1 && Complete_Victory;
+    return is_round_over() && Complete_Victory;
 }
 
 static void animate(WORK_Other* ewk) {
@@ -163,6 +178,12 @@ static void play_on_victory(WORK_Other* ewk) {
         break;
 
     case 3:
+        // NG re-creates stage effects every round, while 3S keeps them. Start over once the next round begins.
+        if (!is_round_over()) {
+            ewk->wu.routine_no[2] = 0;
+            break;
+        }
+
         char_move(&ewk->wu);
         break;
     }

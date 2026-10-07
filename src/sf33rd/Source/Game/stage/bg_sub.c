@@ -5,13 +5,19 @@
 
 #include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "common.h"
+#include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/pls02.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
+#include "sf33rd/Source/Game/io/gd3rd.h"
+#include "sf33rd/Source/Game/rendering/texcash.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
+#include "sf33rd/Source/Game/system/ramcnt.h"
 #include "structs.h"
+
+#include <SDL3/SDL.h>
 
 void (*scr_x_mv_jp[35])() = { scr_10_20,   scr_10_21,   scr_10_22,   scr_x_dummy, scr_x_dummy, scr_x_dummy, scr_x_dummy,
                               scr_x_dummy, scr_x_dummy, scr_x_dummy, scr_x_dummy, scr_x_dummy, scr_x_dummy, scr_x_dummy,
@@ -1064,6 +1070,30 @@ void bg_work_clear() {
         bg_w.bgw[i].r_no_1 = 0;
         bg_w.bgw[i].r_no_2 = 0;
     }
+}
+
+/// @return Whether the area changes. If so, call `bg_next_area_finish` once the resources are loaded.
+bool bg_next_area_begin() {
+    const s16 next_area = SDL_min(bg_w.area + 1, 2);
+
+    if (bg_index_tbl[bg_w.stage][next_area] == bg_index_tbl[bg_w.stage][bg_w.area]) {
+        return false;
+    }
+
+    effect_work_quick_init();
+    purge_texcash_work(7); // Stage objects
+    Bg_Close();
+    Purge_memory_of_kind_of_key(18); // Stage PPG
+    Purge_memory_of_kind_of_key(19); // Stage textures
+
+    bg_w.area = next_area;
+    Push_LDREQ_Queue_Area(bg_index_tbl[bg_w.stage][bg_w.area]);
+    return true;
+}
+
+void bg_next_area_finish() {
+    bg_work_clear();
+    make_texcash_work(7); // Stage objects
 }
 
 void compel_bg_init_position() {

@@ -77,12 +77,19 @@ static const StageTables stage_tables[ROM_GAME_COUNT] = {
 #define MAX_OBJECT_PALETTES 4
 #define MAX_REWRITE_CHIPS 16
 #define MAX_PALETTE_STEPS 2
+#define MAX_BLOCK_WRITES 2
 
 /// A step of NG's effect 14, which animates a layer by cycling the palettes of a rectangle of tilemap cells
 typedef struct PaletteStep {
     int variant;
     int step; // Index in the variant's palette sequence
 } PaletteStep;
+
+/// A map block that stage code writes over part of a layer's tilemap (NG's `bg_write_block`)
+typedef struct BlockWrite {
+    Uint32 offset; // Tilemap offset in bytes
+    int block;     // Index of the stage's map block
+} BlockWrite;
 
 /// A chip of an alternate tilemap that the stage swaps in to animate a layer. It becomes a rewrite chip, which the PPG
 /// stores after the layer chips.
@@ -95,6 +102,10 @@ typedef struct RewriteChip {
     /// Effect 14 steps applied to the tilemap
     PaletteStep palette_steps[MAX_PALETTE_STEPS];
     int palette_step_count;
+
+    /// Blocks written over the tilemap
+    BlockWrite block_writes[MAX_BLOCK_WRITES];
+    int block_write_count;
 } RewriteChip;
 
 /// An arcade stage, converted to a PS2-style palette and stage PPG
@@ -172,6 +183,21 @@ static const StageSource stage_sources[] = {
                          { .layer = 2, .chip = 52, .palette_steps = { { 3, 1 } }, .palette_step_count = 1 },
                          { .layer = 2, .chip = 52, .palette_steps = { { 3, 2 } }, .palette_step_count = 1 } },
       .rewrite_chip_count = 6 },
+    { .game = ROM_GAME_SFIII,
+      .bg_index = 4,
+      .area = AREA_NG_RYU_B,
+      .palette_file = CACHE_FILE_NG_RYU_B_BG_PALETTE,
+      .ppg_file = CACHE_FILE_NG_RYU_B_STAGE,
+      .object_palettes = { 0x67 },
+      .object_palette_count = 1,
+      // The chips of layer 1 that bg0401_rewrite fills with content (bg_outer_chip_tbl's 0x124-0x127). Past 0x90 it
+      // writes blocks 5 and 11 over the left edge of layer 1, and past -0x90 blocks 0 and 6 over its right edge. Blocks
+      // 0 and 5 and the other chips of blocks 6 and 11 are empty.
+      .rewrite_chips = { { .layer = 1, .chip = 56, .block_writes = { { 0x3000, 11 } }, .block_write_count = 1 },
+                         { .layer = 1, .chip = 57, .block_writes = { { 0x3000, 11 } }, .block_write_count = 1 },
+                         { .layer = 1, .chip = 62, .block_writes = { { 0x30C0, 6 } }, .block_write_count = 1 },
+                         { .layer = 1, .chip = 63, .block_writes = { { 0x30C0, 6 } }, .block_write_count = 1 } },
+      .rewrite_chip_count = 4 },
 };
 
 #define MAX_CG_RANGES 4
@@ -224,6 +250,14 @@ static const CgGroupSource cg_group_sources[] = {
       .range_count = 2,
       .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
       .file = CACHE_FILE_NG_RYU_A_OBJECTS },
+
+    // Objects of the second area of NG Ryu's stage. Its char table is _ng_j10_b_char_table.
+    { .game = ROM_GAME_SFIII,
+      .group = 104,
+      .ranges = { { 0x43A0, 316 } },
+      .range_count = 1,
+      .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
+      .file = CACHE_FILE_NG_RYU_B_OBJECTS },
 };
 
 /// CPS3 graphics addresses start this far before the graphics region
@@ -416,40 +450,42 @@ static Uint16* load_stage_palette(const StageRom* rom, const StageSource* source
     return palette;
 }
 
+/// Copies a 16x16 map block of the stage into the tilemap at a byte offset
+static bool write_block(const StageRom* rom, int bg_index, Uint32 offset, Uint32 block, Uint32* tilemap) {
+    const int top = offset / 0x100;
+    const int left = (offset % 0x100) / 4;
+    Uint32 map_base;
+
+    if (top + 16 > TILEMAP_SIZE || left + 16 > TILEMAP_SIZE ||
+        !program_u32(rom, rom->tables->bg_map_base + bg_index * 4, &map_base)) {
+        return false;
+    }
+
+    for (int y = 0; y < 16; y++) {
+        for (int x = 0; x < 16; x++) {
+            if (!program_u32(
+                    rom, map_base + block * 0x400 + (y * 16 + x) * 4, &tilemap[(top + y) * TILEMAP_SIZE + left + x]
+                )) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 /// Builds a 64x64 tilemap from a {u32 tilemap offset, u32 block index} list. Each entry holds the tile number in the
 /// upper half and the attributes in the lower half. Entries that no map block covers are 0xFFFFFFFF.
 static bool build_tilemap_from_blocks(const StageRom* rom, int bg_index, Uint32 blocks, int count, Uint32* tilemap) {
-    Uint32 map_base;
-
     SDL_memset(tilemap, 0xFF, TILEMAP_SIZE * TILEMAP_SIZE * sizeof(Uint32));
-
-    if (!program_u32(rom, rom->tables->bg_map_base + bg_index * 4, &map_base)) {
-        return false;
-    }
 
     for (int i = 0; i < count; i++) {
         Uint32 offset;
         Uint32 block;
 
-        if (!program_u32(rom, blocks + i * 8, &offset) || !program_u32(rom, blocks + i * 8 + 4, &block)) {
+        if (!program_u32(rom, blocks + i * 8, &offset) || !program_u32(rom, blocks + i * 8 + 4, &block) ||
+            !write_block(rom, bg_index, offset, block, tilemap)) {
             return false;
-        }
-
-        const int top = offset / 0x100;
-        const int left = (offset % 0x100) / 4;
-
-        if (top + 16 > TILEMAP_SIZE || left + 16 > TILEMAP_SIZE) {
-            return false;
-        }
-
-        for (int y = 0; y < 16; y++) {
-            for (int x = 0; x < 16; x++) {
-                if (!program_u32(
-                        rom, map_base + block * 0x400 + (y * 16 + x) * 4, &tilemap[(top + y) * TILEMAP_SIZE + left + x]
-                    )) {
-                    return false;
-                }
-            }
         }
     }
 
@@ -701,6 +737,11 @@ static bool build_ppg(
 
         for (int j = 0; j < chip->palette_step_count && success; j++) {
             success = apply_palette_step(rom, &chip->palette_steps[j], chip->layer, palette_base, tilemap);
+        }
+
+        for (int j = 0; j < chip->block_write_count && success; j++) {
+            const BlockWrite* write = &chip->block_writes[j];
+            success = write_block(rom, source->bg_index, write->offset, write->block, tilemap);
         }
 
         success =

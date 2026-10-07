@@ -1289,7 +1289,7 @@ const s16 smoke_check[AREA_COUNT] = {
     [AREA_3S_SEAN] = 1,   [AREA_3S_URIEN] = 1,     [AREA_3S_AKUMA] = 0,       [AREA_3S_SHIN_AKUMA] = 0,
     [AREA_3S_CHUNLI] = 0, [AREA_3S_MAKOTO] = 0,    [AREA_3S_Q] = 1,           [AREA_3S_TWELVE] = 1,
     [AREA_3S_REMY] = 0,   [AREA_3S_BONUS_CAR] = 0, [AREA_3S_BONUS_BALLS] = 0, [AREA_NG_GILL] = 1,
-    [AREA_NG_ALEX] = 1,   [AREA_NG_RYU_A] = 0,
+    [AREA_NG_ALEX] = 1,   [AREA_NG_RYU_A] = 0,     [AREA_NG_RYU_B] = 0,
 };
 
 void Appear_26000(PLW* wk) {
