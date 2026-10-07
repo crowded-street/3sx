@@ -10,6 +10,14 @@ typedef struct {
     const s16* rw_ptr;
 } bgrw_data_tbl_elem;
 
+/// A chip drawn outside a layer's 1024x1024 plane
+typedef struct {
+    s16 bg_num;
+    s16 x; // Position in the plane's coordinates
+    s16 y;
+    s16 gbix; // -1 ends a list
+} bg_outer_chip_elem;
+
 extern const u8 use_scr[AREA_COUNT];
 extern const u8 use_real_scr[AREA_COUNT];
 extern const u8 use_family[AREA_COUNT];
@@ -87,6 +95,7 @@ extern const s8 quake_x_tbl[130];
 extern const s8 quake_y_tbl[130];
 extern const u16* bg_map_tbl[][3];
 extern const u16* bg_map_tbl2[];
+extern const bg_outer_chip_elem* bg_outer_chip_tbl[AREA_COUNT];
 
 // MARK: - Unhandled
 

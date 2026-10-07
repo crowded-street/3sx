@@ -72,7 +72,6 @@ static void bg2701_init00() {
 
 static void bg2701_move00() {
     bg_base_x_move_check();
-    // FIXME: Port bg0401_rewrite, which swaps blocks of this layer as it scrolls past ±0x90
     bg_base_y_move_check();
     bg_chase_move();
 }

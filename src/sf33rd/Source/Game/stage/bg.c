@@ -50,6 +50,7 @@ static void bgRWWorkUpdate(s32 bgnm);
 static void bgDrawOneScreen(s32 bgnum, s32 gixbase, s32* xx, s32* yy, s32 /* unused */, s32 ofsPal,
                             PPGDataList* curDataList);
 static void bgDrawOneChip(s32 x, s32 y, s32 xs, s32 ys, s32 gbix, u32 vtxCol, s32 ofsPal);
+static void bgDrawOuterChips(s32 bgnum, s32 ofsPal, PPGDataList* curDataList);
 static void bgAkebonoDraw();
 static void ppgCalScrPosition(s32 x, s32 y, s32 xs, s32 ys);
 
@@ -1034,6 +1035,10 @@ void scr_trans(u8 bgnm) {
     default:
         bgDrawOneScreen(bgnm, global_index, &xx[0], &yy[0], -1, palOffset, curDataList);
 
+        if (ending_flag == 0) {
+            bgDrawOuterChips(bgnm, palOffset, curDataList);
+        }
+
         if (EXE_flag == 0 && Game_pause == 0 && rw_bg_flag[bgnm] && rw_num) {
             bgRWWorkUpdate(bgnm);
         }
@@ -1064,6 +1069,25 @@ void bgRWWorkUpdate(s32 bgnm) {
             }
         }
     }
+}
+
+/// Draws the area's chips outside the layer's plane. They are rewrite chips.
+void bgDrawOuterChips(s32 bgnum, s32 ofsPal, PPGDataList* curDataList) {
+    const bg_outer_chip_elem* chip = bg_outer_chip_tbl[bg_w.bg_index];
+
+    if (chip == NULL) {
+        return;
+    }
+
+    ppgSetupCurrentDataList(&ppgRwBgList);
+
+    for (; chip->gbix != -1; chip++) {
+        if (chip->bg_num == bgnum) {
+            bgDrawOneChip(chip->x, chip->y, 128, 128, chip->gbix, -1, ofsPal);
+        }
+    }
+
+    ppgSetupCurrentDataList(curDataList);
 }
 
 void bgDrawOneScreen(s32 bgnum, s32 gixbase, s32* xx, s32* yy, s32 /* unused */, s32 ofsPal, PPGDataList* curDataList) {

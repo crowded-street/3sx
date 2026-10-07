@@ -77,7 +77,7 @@ const u8 rewrite_scr[AREA_COUNT] = {
     [AREA_3S_SEAN] = 0,   [AREA_3S_URIEN] = 0,     [AREA_3S_AKUMA] = 1,       [AREA_3S_SHIN_AKUMA] = 1,
     [AREA_3S_CHUNLI] = 0, [AREA_3S_MAKOTO] = 0,    [AREA_3S_Q] = 0,           [AREA_3S_TWELVE] = 10,
     [AREA_3S_REMY] = 18,  [AREA_3S_BONUS_CAR] = 0, [AREA_3S_BONUS_BALLS] = 0, [AREA_NG_GILL] = 13,
-    [AREA_NG_ALEX] = 0,   [AREA_NG_RYU_A] = 6,     [AREA_NG_RYU_B] = 0,
+    [AREA_NG_ALEX] = 0,   [AREA_NG_RYU_A] = 6,     [AREA_NG_RYU_B] = 4,
 };
 
 const u8 use_scr2[7] = { 1, 1, 1, 1, 1, 1, 1 };
@@ -746,6 +746,22 @@ const u16* bg_map_tbl[AREA_COUNT][3] = {
 };
 
 const u16* bg_map_tbl2[7] = { win_lose_map, rank_map, select_map, win_lose_map, win_lose_map, win_lose_map, rank_map };
+
+/// New Generation's Ryu stage, second area. Layer 1 shows more than its 1024 pixels. NG's tilemap wraps, and
+/// bg0401_rewrite writes the content beyond each end of the layer over the other end before it wraps into view. Here
+/// that content sits just outside the plane instead: rewrite chips 0x124 and 0x125 continue the right end, and 0x126
+/// and 0x127 the left end. The rest of the written blocks is empty.
+static const bg_outer_chip_elem ng_bg270_outer_chips[5] = {
+    { 1, 0x400, 0x380, 0x124 },
+    { 1, 0x480, 0x380, 0x125 },
+    { 1, -0x100, 0x380, 0x126 },
+    { 1, -0x80, 0x380, 0x127 },
+    { 0, 0, 0, -1 },
+};
+
+const bg_outer_chip_elem* bg_outer_chip_tbl[AREA_COUNT] = {
+    [AREA_NG_RYU_B] = ng_bg270_outer_chips,
+};
 
 s32 etcBgPalCnvTable[7] = { 0, 43, 0, 33, -13, 37, 44 };
 
