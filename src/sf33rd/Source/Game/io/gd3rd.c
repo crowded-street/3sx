@@ -294,8 +294,12 @@ static s16 bg_span_index(Area area) {
     return area + 20;
 }
 
-void Push_LDREQ_Queue_BG(Area area) {
+void Push_LDREQ_Queue_Area(Area area) {
     Push_LDREQ_Queue_Union(bg_span_index(area));
+}
+
+void Push_LDREQ_Queue_BG(Area area) {
+    Push_LDREQ_Queue_Area(area);
     Push_LDREQ_Queue_Metamor();
 }
 

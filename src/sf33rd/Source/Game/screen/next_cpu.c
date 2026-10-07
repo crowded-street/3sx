@@ -1135,8 +1135,8 @@ void Setup_Next_Fighter() {
     }
 #endif
 
-    Push_LDREQ_Queue_BG(bg_index_tbl[bg_w.stage][bg_w.area]);
     bg_w.area = 0;
+    Push_LDREQ_Queue_BG(bg_index_tbl[bg_w.stage][bg_w.area]);
     Super_Arts[COM_id] = Stock_Com_Arts[Player_id] = Setup_Com_Arts();
 
 #if DEBUG

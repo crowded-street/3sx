@@ -101,8 +101,11 @@ void Push_LDREQ_Queue_Direct(s16 ix, LoadRequestID id);
 
 bool Check_LDREQ_Queue_Direct(s16 ix);
 
-/// Queue loading the resources of an area
+/// Queue loading the resources of an area, and of the players' metamorphoses
 void Push_LDREQ_Queue_BG(Area area);
+
+/// Queue loading only the resources of an area
+void Push_LDREQ_Queue_Area(Area area);
 
 /// Check if all load requests for an area's resources have been processed
 bool Check_LDREQ_Queue_BG(Area area);

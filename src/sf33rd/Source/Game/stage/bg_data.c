@@ -687,9 +687,7 @@ const s8 bg_index_tbl[STAGE_COUNT][3] = {
     [STAGE_3S_BONUS_BALLS] = { AREA_3S_BONUS_BALLS, AREA_3S_BONUS_BALLS, AREA_3S_BONUS_BALLS },
     [STAGE_NG_GILL] = { AREA_NG_GILL, AREA_NG_GILL, AREA_NG_GILL },
     [STAGE_NG_ALEX] = { AREA_NG_ALEX, AREA_NG_ALEX, AREA_NG_ALEX },
-    // FIXME: Use { AREA_NG_RYU_A, AREA_NG_RYU_B, AREA_NG_RYU_B } once rounds advance bg_w.area and the stage resources
-    // cover both areas
-    [STAGE_NG_RYU] = { AREA_NG_RYU_B, AREA_NG_RYU_B, AREA_NG_RYU_B },
+    [STAGE_NG_RYU] = { AREA_NG_RYU_A, AREA_NG_RYU_B, AREA_NG_RYU_B },
 };
 
 const s32 bg_pos_tbl2[7][3][2] = {
