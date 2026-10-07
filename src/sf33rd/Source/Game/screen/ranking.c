@@ -12,6 +12,7 @@
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/game.h"
 #include "sf33rd/Source/Game/io/gd3rd.h"
+#include "sf33rd/Source/Game/rendering/dc_ghost.h"
 #include "sf33rd/Source/Game/rendering/mmtmcnt.h"
 #include "sf33rd/Source/Game/rendering/texcash.h"
 #include "sf33rd/Source/Game/sound/se.h"
@@ -208,6 +209,7 @@ void Ranking_01() {
 }
 
 void Ranking_01_1st() {
+    njdp2d_init();
     Switch_Screen(1);
     BGM_Request(57);
     Purge_mmtm_area(4);
