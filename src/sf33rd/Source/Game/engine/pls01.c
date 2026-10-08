@@ -177,7 +177,7 @@ s32 saishin_bs2_area_car(PLW* wk) { // 🟡
 
     if (ArcadeBalance_IsEnabled()) {
         if (!wk->bs2_over_car) {
-            return 0;
+            return 1;
         }
     }
 
