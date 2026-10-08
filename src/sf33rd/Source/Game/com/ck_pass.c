@@ -828,6 +828,11 @@ s32 Check_Blow_Off(PLW* wk, WORK* em, s16 VS_Technique) {
         return 0;
     }
 
+    if (em->routine_no[3] == 0) {
+        // Damage reaction hasn't been converted to a damage routine number yet
+        return 0;
+    }
+
     if (PL_Blow_Off_Data[em->routine_no[2]] == 0) {
         return 0;
     }

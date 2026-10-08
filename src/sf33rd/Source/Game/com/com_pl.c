@@ -362,7 +362,9 @@ void Com_Guard(PLW* wk) {
         return;
     }
 
-    if (wk->wu.routine_no[1] == 1 && PL_Blow_Off_Data[wk->wu.routine_no[2]] == 2) {
+    // While routine_no[3] is 0, routine_no[2] still holds the reaction code from the hit check rather than a damage
+    // routine number. Wait for Player_damage to convert it
+    if (wk->wu.routine_no[1] == 1 && wk->wu.routine_no[3] != 0 && PL_Blow_Off_Data[wk->wu.routine_no[2]] == 2) {
         Next_Be_Float(wk);
         return;
     }
@@ -720,6 +722,11 @@ void Damage_1st(PLW* wk) {
     case 0:
         if (wk->py->flag) {
             CP_No[wk->wu.id][1] = 9;
+            break;
+        }
+
+        if (wk->wu.routine_no[3] == 0) {
+            // Damage reaction hasn't been converted to a damage routine number yet
             break;
         }
 
