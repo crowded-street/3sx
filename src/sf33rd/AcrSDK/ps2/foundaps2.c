@@ -16,7 +16,6 @@
 
 #include <stdarg.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 FLPS2State flPs2State;
@@ -48,7 +47,7 @@ static s32 system_work_init() {
     void* temp;
 
     SDL_zero(flPs2State);
-    temp = malloc(0x1800000);
+    temp = SDL_malloc(0x1800000);
 
     if (temp == NULL) {
         return 0;

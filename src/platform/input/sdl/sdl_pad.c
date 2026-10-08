@@ -54,7 +54,8 @@ static int input_source_index_from_joystick_id(SDL_JoystickID id) {
 
 static void setup_keyboard() {
     int keyboard_count = 0;
-    SDL_GetKeyboards(&keyboard_count);
+    SDL_KeyboardID* keyboards = SDL_GetKeyboards(&keyboard_count);
+    SDL_free(keyboards);
 
     if (keyboard_index >= 0 || keyboard_count <= 0) {
         return;

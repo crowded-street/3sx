@@ -874,8 +874,16 @@ static void SDLGPURenderer_RenderFrame(SDL_Rect viewport) {
         upload->h = info->height;
 
         if (info->is_palette) {
+            if (palettes[info->index] != NULL) {
+                SDL_ReleaseGPUTexture(device, palettes[info->index]);
+            }
+
             palettes[info->index] = texture;
         } else {
+            if (textures[info->index].handle != NULL) {
+                SDL_ReleaseGPUTexture(device, textures[info->index].handle);
+            }
+
             textures[info->index] = (_Texture) {
                 .handle = texture,
                 .width = info->width,
