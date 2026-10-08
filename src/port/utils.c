@@ -1,5 +1,7 @@
 #include "port/utils.h"
 
+#include <SDL3/SDL.h>
+
 #if _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -41,7 +43,7 @@ void fatal_error(const char* fmt, ...) {
     HANDLE process = GetCurrentProcess();
     SymInitialize(process, NULL, TRUE);
     int nptrs = CaptureStackBackTrace(0, BACKTRACE_MAX, buffer, NULL);
-    SYMBOL_INFO* symbol = (SYMBOL_INFO*)calloc(1, sizeof(SYMBOL_INFO) + SYMBOL_NAME_MAX);
+    SYMBOL_INFO* symbol = (SYMBOL_INFO*)SDL_calloc(1, sizeof(SYMBOL_INFO) + SYMBOL_NAME_MAX);
 
     if (!symbol) {
         fprintf(stderr, "Calloc failed when allocating SYMBOL_INFO, bailing!\n\n");
@@ -57,7 +59,7 @@ void fatal_error(const char* fmt, ...) {
         fprintf(stderr, "%i: %s - 0x%0llX\n", nptrs - i - 1, symbol->Name, symbol->Address);
     }
 
-    free(symbol);
+    SDL_free(symbol);
     SymCleanup(process);
 #endif
 
