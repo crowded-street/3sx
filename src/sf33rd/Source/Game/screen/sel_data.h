@@ -24,7 +24,7 @@ extern const s16 Compute_Pos_Data_76[2][6][3];
 extern const s16 Compute_Score_Pos_Data_G0[2][4][3];
 extern const s16 Pos_Cont_Data_76[][3];
 extern const s16 Bust_Pos_Data_76[20][2];
-extern const s16 Width_Data_76[];
+extern const s16 Width_Data_76[43];
 extern const u8 PL_Color_Data[20];
 extern const u8 Victory_Color_Data[20];
 extern const u8 Random_Stage_Data[2][32];
