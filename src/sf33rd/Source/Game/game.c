@@ -1725,6 +1725,7 @@ void Loop_Demo_Sub() {
     Play_Game = 0;
     pulpul_stop();
     pp_operator_check_flag(1);
+    effect_work_init();
 }
 
 void Next_Title_Sub() {
