@@ -252,10 +252,10 @@ s32 ppgWriteQuadUseTrans(Vertex* pos, u32 col, PPGDataList* tb, s32 tix, s32 cix
     u16 transTotal;
     u16 iPoint;
     u16 ix_ofs;
-    f32 pxs;
-    f32 pys;
-    f32 sadd;
-    f32 tadd;
+    f32 xscale;
+    f32 yscale;
+    f32 s[2];
+    f32 t[2];
     f32 ppgwf;
     f32 ppghf;
     PPGFileHeader* ppg;
@@ -289,6 +289,9 @@ s32 ppgWriteQuadUseTrans(Vertex* pos, u32 col, PPGDataList* tb, s32 tix, s32 cix
         }
     }
 
+    qvtx[0].z = pos[0].z;
+    qvtx[3].z = pos[3].z;
+
     if (tb->tex->srcAdrs != NULL) {
         ppg = (PPGFileHeader*)(tb->tex->srcAdrs + tb->tex->offset[ix_ofs & 0xFFF]);
         transTotal = ((ppg->transNums >> 8) & 0xFF) | ((ppg->transNums & 0xFF) << 8);
@@ -298,24 +301,8 @@ s32 ppgWriteQuadUseTrans(Vertex* pos, u32 col, PPGDataList* tb, s32 tix, s32 cix
             ppgwf = ppg->width;
             ppgw = ppg->width;
             ppghf = ppg->height;
-            pxs = pos[3].x - pos[0].x;
-            pys = pos[3].y - pos[0].y;
-            sadd = 0.5f / pxs;
-            tadd = 0.5f / pys;
-
-            if (sadd >= (1.0f / (16.0f * ppgwf))) {
-                sadd = 1.0f / (16.0f * ppgwf);
-            }
-
-            if (tadd >= (1.0f / (16.0f * ppghf))) {
-                tadd = 1.0f / (16.0f * ppghf);
-            }
-
-            sadd = 0;
-            tadd = 0;
-
-            qvtx[0].z = pos[0].z;
-            qvtx[3].z = pos[3].z;
+            xscale = (pos[3].x - pos[0].x) / (pos[3].s - pos[0].s);
+            yscale = (pos[3].y - pos[0].y) / (pos[3].t - pos[0].t);
 
             for (i = 0; i < transTotal; i++) {
                 if (ix_ofs & 0x4000) {
@@ -330,39 +317,40 @@ s32 ppgWriteQuadUseTrans(Vertex* pos, u32 col, PPGDataList* tb, s32 tix, s32 cix
                 sx = iPoint % ppgw;
                 sy = iPoint / ppgw;
 
+                s[0] = SDL_max(sx / ppgwf, pos[0].s);
+                s[1] = SDL_min((sx + xs) / ppgwf, pos[3].s);
+                t[0] = SDL_max(sy / ppghf, pos[0].t);
+                t[1] = SDL_min((sy + ys) / ppghf, pos[3].t);
+
+                if ((s[0] >= s[1]) || (t[0] >= t[1])) {
+                    continue;
+                }
+
                 if (flip & 1) {
-                    qvtx[3].x = pos->x + (pxs * (ppgw - sx) / ppgwf);
-                    qvtx[0].x = pos->x + (pxs * (ppgw - (sx + xs)) / ppgwf);
+                    qvtx[0].x = pos[0].x + (pos[3].s - s[1]) * xscale;
+                    qvtx[3].x = pos[0].x + (pos[3].s - s[0]) * xscale;
+                    qvtx[0].s = s[1];
+                    qvtx[3].s = s[0];
                 } else {
-                    qvtx[0].x = pos->x + (sx * pxs / ppgwf);
-                    qvtx[3].x = pos->x + (pxs * (sx + xs) / ppgwf);
+                    qvtx[0].x = pos[0].x + (s[0] - pos[0].s) * xscale;
+                    qvtx[3].x = pos[0].x + (s[1] - pos[0].s) * xscale;
+                    qvtx[0].s = s[0];
+                    qvtx[3].s = s[1];
                 }
 
                 if (flip & 2) {
-                    qvtx[3].y = pos->y + (pys * (ppgw - sy) / ppghf);
-                    qvtx[0].y = pos->y + (pys * (ppgw - (sy + ys)) / ppghf);
+                    qvtx[0].y = pos[0].y + (pos[3].t - t[1]) * yscale;
+                    qvtx[3].y = pos[0].y + (pos[3].t - t[0]) * yscale;
+                    qvtx[0].t = t[1];
+                    qvtx[3].t = t[0];
                 } else {
-                    qvtx[0].y = pos->y + (sy * pys / ppghf);
-                    qvtx[3].y = pos->y + (pys * (sy + ys) / ppghf);
+                    qvtx[0].y = pos[0].y + (t[0] - pos[0].t) * yscale;
+                    qvtx[3].y = pos[0].y + (t[1] - pos[0].t) * yscale;
+                    qvtx[0].t = t[0];
+                    qvtx[3].t = t[1];
                 }
 
                 if ((qvtx[0].x < 384.0f) && (qvtx[3].x >= 0.0f) && (qvtx[0].y < 224.0f) && (qvtx[3].y >= 0.0f)) {
-                    if (flip & 1) {
-                        qvtx[3].s = (sx / ppgwf) - sadd;
-                        qvtx[0].s = ((sx + xs) / ppgwf) - sadd;
-                    } else {
-                        qvtx[0].s = sadd + (sx / ppgwf);
-                        qvtx[3].s = sadd + ((sx + xs) / ppgwf);
-                    }
-
-                    if (flip & 2) {
-                        qvtx[3].t = (sy / ppghf) - tadd;
-                        qvtx[0].t = ((sy + ys) / ppghf) - tadd;
-                    } else {
-                        qvtx[0].t = tadd + (sy / ppghf);
-                        qvtx[3].t = tadd + ((sy + ys) / ppghf);
-                    }
-
                     ppgWriteQuadOnly2(qvtx, col, texhan | (palhan << 0x10));
                 }
             }
@@ -379,29 +367,15 @@ s32 ppgWriteQuadUseTrans(Vertex* pos, u32 col, PPGDataList* tb, s32 tix, s32 cix
         }
     }
 
-    switch (flip) {
-    case 0:
-        pos[0].s = pos[0].t = 0.0f;
-        pos[3].s = pos[3].t = 1.0f;
-        break;
-
-    case 1:
-        pos[3].s = pos[0].t = 0.0f;
-        pos[0].s = pos[3].t = 1.0f;
-        break;
-
-    case 2:
-        pos[0].s = pos[3].t = 0.0f;
-        pos[3].s = pos[0].t = 1.0f;
-        break;
-
-    default:
-        pos[0].s = pos[0].t = 1.0f;
-        pos[3].s = pos[3].t = 0.0f;
-        break;
-    }
-
-    ppgWriteQuadOnly2(pos, col, texhan | (palhan << 0x10));
+    qvtx[0].x = pos[0].x;
+    qvtx[0].y = pos[0].y;
+    qvtx[3].x = pos[3].x;
+    qvtx[3].y = pos[3].y;
+    qvtx[0].s = (flip & 1) ? pos[3].s : pos[0].s;
+    qvtx[3].s = (flip & 1) ? pos[0].s : pos[3].s;
+    qvtx[0].t = (flip & 2) ? pos[3].t : pos[0].t;
+    qvtx[3].t = (flip & 2) ? pos[0].t : pos[3].t;
+    ppgWriteQuadOnly2(qvtx, col, texhan | (palhan << 0x10));
     return 1;
 }
 

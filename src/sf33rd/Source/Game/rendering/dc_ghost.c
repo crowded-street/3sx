@@ -71,7 +71,7 @@ void njGetMatrix(MTX* m) {
     *m = cmtx;
 }
 
-void njSetMatrix(MTX* md, MTX* ms) {
+void njSetMatrix(MTX* md, const MTX* ms) {
     if (md == NULL) {
         md = &cmtx;
     }

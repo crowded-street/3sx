@@ -6,7 +6,7 @@
 
 void njUnitMatrix(MTX* mtx);
 void njGetMatrix(MTX* m);
-void njSetMatrix(MTX* md, MTX* ms);
+void njSetMatrix(MTX* md, const MTX* ms);
 void njScale(MTX* mtx, f32 x, f32 y, f32 z);
 void njTranslate(MTX* mtx, f32 x, f32 y, f32 z);
 void njSetBackColor(u32 c0, u32 c1, u32 c2);

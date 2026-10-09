@@ -59,6 +59,8 @@ void put_chr2(OPTW* optw) {
     tex[3].x = ((optw->off_x + 0x100) * optw->zx);
     tex[3].y = ((optw->off_y + 0x100) * optw->zy);
     tex[0].z = tex[3].z = PrioBase[optw->prio];
+    tex[0].s = tex[0].t = 0.0f;
+    tex[3].s = tex[3].t = 1.0f;
     ppgWriteQuadUseTrans(tex, optw->col.full, NULL, optw->g_no, -1, optw->hv, 300);
 }
 

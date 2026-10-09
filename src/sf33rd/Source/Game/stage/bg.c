@@ -18,9 +18,12 @@
 #include "sf33rd/Source/Game/rendering/dc_ghost.h"
 #include "sf33rd/Source/Game/rendering/mtrans.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
+#include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "sf33rd/Source/Game/system/ramcnt.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "structs.h"
+
+#include <SDL3/SDL.h>
 
 Vertex scrDrawPos[4];
 ColoredVertex bgpoly[4];
@@ -47,10 +50,19 @@ BG bg_w;
 RW_DATA rw_dat[20];
 
 static void bgRWWorkUpdate(s32 bgnm);
-static void bgDrawOneScreen(s32 bgnum, s32 gixbase, s32* xx, s32* yy, s32 /* unused */, s32 ofsPal,
-                            PPGDataList* curDataList);
+
+static void bgDrawOneScreen(
+    s32 bgnum, s32 gixbase, const s32 xx[2], const s32 yy[2], s32 ofsPal, PPGDataList* curDataList
+);
+
 static void bgDrawOneChip(s32 x, s32 y, s32 xs, s32 ys, s32 gbix, u32 vtxCol, s32 ofsPal);
-static void bgDrawOuterChips(s32 bgnum, s32 ofsPal, PPGDataList* curDataList);
+static void bgDrawOuterChips(s32 bgnum, const s32 yy[2], s32 ofsPal, PPGDataList* curDataList);
+
+static void bgDrawLineScroll(
+    u8 bgnm, s32 gixbase, const f32 left_right[2], const s32 yy[2], s32 ofsPal, PPGDataList* curDataList
+);
+
+static void bgClipChipColumns(s32 xx[2], f32 left, f32 right);
 static void bgAkebonoDraw();
 static void ppgCalScrPosition(s32 x, s32 y, s32 xs, s32 ys);
 
@@ -553,57 +565,43 @@ void scr_trans(u8 bgnm) {
     s32 palOffset;
     u32 vtxColor;
     s32 suzi_pos;
+    f32 left_right[2];
 
-    // A New Generation layer with line scroll (nonzero zuubun) draws its tilemap further than its position, which
-    // sprites follow. NG adds the same offset to such layers' positions in FUN_0607ab24.
-    // FIXME: Implement proper line scrolling instead. NG also shifts lines depending on the camera position.
-    const s16 tilemap_x = (ending_flag == 0 && bgnm < 3 && bg_w.bgw[bgnm].zuubun) ? LINE_SCROLL_BASE : 0;
+    const bool line_scroll = (ending_flag == 0) && (bgnm < 3) && (bg_w.bgw[bgnm].zuubun != 0);
 
-    njUnitMatrix(0);
-    njScale(0, 1.0f, -1.0f, 1.0f);
-    njTranslate(0, 0.0f, -1024.0f, 0.0f);
-    njTranslate(0, (s16)(bg_prm[bgnm].bg_h_shift + tilemap_x), (s16)bg_prm[bgnm].bg_v_shift, 0.0f);
-    njScale(0, 1.0f, -1.0f, 1.0f);
-    njTranslate(0, 0.0f, -224.0f, 0.0f);
-    njScale(0, 1.0f / scr_sc, 1.0f / scr_sc, 1.0f);
+    njUnitMatrix(NULL);
+    njScale(NULL, 1.0f, -1.0f, 1.0f);
+    njTranslate(NULL, 0.0f, -1024.0f, 0.0f);
+    njTranslate(NULL, (s16)bg_prm[bgnm].bg_h_shift, (s16)bg_prm[bgnm].bg_v_shift, 0.0f);
+    njScale(NULL, 1.0f, -1.0f, 1.0f);
+    njTranslate(NULL, 0.0f, -224.0f, 0.0f);
+    njScale(NULL, 1.0f / scr_sc, 1.0f / scr_sc, 1.0f);
     point[0].x = 0.0f;
     point[0].y = 0.0f;
-    point[0].z = 00.f;
+    point[0].z = 0.0f;
     point[1].x = 648.0f;
     point[1].y = 488.0f;
     point[1].z = 0.0f;
-    njCalcPoints(0, &point[0], &point[0], 2);
-    xx[0] = ((s32)point[0].x) & ~0x7F;
-    yy[0] = ((s32)point[0].y) & ~0x7F;
-    xx[1] = ((s32)point[1].x + 0x7F) & ~0x7F;
+    njCalcPoints(NULL, point, point, SDL_arraysize(point));
+    left_right[0] = point[0].x;
+    left_right[1] = point[1].x;
+    bgClipChipColumns(xx, left_right[0], left_right[1]);
+    yy[0] = (s32)point[0].y & ~0x7F;
     yy[1] = ((s32)point[1].y + 0x7F) & ~0x7F;
+    yy[0] = SDL_clamp(yy[0], 0, 1023);
+    yy[1] = SDL_clamp(yy[1], 0, 1023);
 
-    for (x = 0; x < 2; x++) {
-        if (xx[x] < 0) {
-            xx[x] = 0;
-        }
-
-        if (0x3FF < xx[x]) {
-            xx[x] = 0x3FF;
-        }
-
-        if (yy[x] < 0) {
-            yy[x] = 0;
-        }
-
-        if (0x3FF < yy[x]) {
-            yy[x] = 0x3FF;
-        }
-    }
-
-    njUnitMatrix(0);
-    njScale(0, scr_sc, scr_sc, 1.0);
-    njTranslate(0, 0, 224.0, 0);
-    njScale(0, 1.0, -1.0, 1.0);
-    njTranslate(0, (s16)-bg_prm[bgnm].bg_h_shift, (s16)-bg_prm[bgnm].bg_v_shift, 0);
+    njUnitMatrix(NULL);
+    njScale(NULL, scr_sc, scr_sc, 1.0);
+    njTranslate(NULL, 0, 224.0, 0);
+    njScale(NULL, 1.0, -1.0, 1.0);
+    njTranslate(NULL, (s16)-bg_prm[bgnm].bg_h_shift, (s16)-bg_prm[bgnm].bg_v_shift, 0);
     njGetMatrix(&BgMATRIX[bgnm + 1]);
-    njTranslate(0, -tilemap_x, 1024.0, PrioBase[bg_priority[bgnm]]);
-    njScale(0, 1.0, -1.0, 1.0);
+
+    if (!line_scroll) {
+        njTranslate(NULL, 0, 1024.0, PrioBase[bg_priority[bgnm]]);
+        njScale(NULL, 1.0, -1.0, 1.0);
+    }
 
     palOffset = bgPalCodeOffset[bgnm];
 
@@ -997,7 +995,7 @@ void scr_trans(u8 bgnm) {
         break;
 
     case 7:
-        bgDrawOneScreen(bgnm, global_index, &xx[0], &yy[0], -1, palOffset, curDataList);
+        bgDrawOneScreen(bgnm, global_index, xx, yy, palOffset, curDataList);
 
         if (EXE_flag != 0) {
             break;
@@ -1033,10 +1031,14 @@ void scr_trans(u8 bgnm) {
         /* fallthrough */
 
     default:
-        bgDrawOneScreen(bgnm, global_index, &xx[0], &yy[0], -1, palOffset, curDataList);
+        if (line_scroll) {
+            bgDrawLineScroll(bgnm, global_index, left_right, yy, palOffset, curDataList);
+        } else {
+            bgDrawOneScreen(bgnm, global_index, xx, yy, palOffset, curDataList);
 
-        if (ending_flag == 0) {
-            bgDrawOuterChips(bgnm, palOffset, curDataList);
+            if (ending_flag == 0) {
+                bgDrawOuterChips(bgnm, yy, palOffset, curDataList);
+            }
         }
 
         if (EXE_flag == 0 && Game_pause == 0 && rw_bg_flag[bgnm] && rw_num) {
@@ -1071,9 +1073,12 @@ void bgRWWorkUpdate(s32 bgnm) {
     }
 }
 
-/// Draws the area's chips outside the layer's plane. They are rewrite chips.
-void bgDrawOuterChips(s32 bgnum, s32 ofsPal, PPGDataList* curDataList) {
+/// Draws the parts of the area's chips outside the layer's plane that are in rows `yy[0]` to `yy[1]`. They are rewrite
+/// chips.
+static void bgDrawOuterChips(s32 bgnum, const s32 yy[2], s32 ofsPal, PPGDataList* curDataList) {
     const bg_outer_chip_elem* chip = bg_outer_chip_tbl[bg_w.bg_index];
+    s32 top;
+    s32 bottom;
 
     if (chip == NULL) {
         return;
@@ -1082,18 +1087,34 @@ void bgDrawOuterChips(s32 bgnum, s32 ofsPal, PPGDataList* curDataList) {
     ppgSetupCurrentDataList(&ppgRwBgList);
 
     for (; chip->gbix != -1; chip++) {
-        if (chip->bg_num == bgnum) {
-            bgDrawOneChip(chip->x, chip->y, 128, 128, chip->gbix, -1, ofsPal);
+        if (chip->bg_num != bgnum) {
+            continue;
+        }
+
+        top = (chip->y > yy[0]) ? chip->y : yy[0];
+        bottom = (chip->y + 128 < yy[1]) ? chip->y + 128 : yy[1];
+
+        if (top < bottom) {
+            bgDrawOneChip(chip->x, top, 128, bottom - top, chip->gbix, -1, ofsPal);
         }
     }
 
     ppgSetupCurrentDataList(curDataList);
 }
 
-void bgDrawOneScreen(s32 bgnum, s32 gixbase, s32* xx, s32* yy, s32 /* unused */, s32 ofsPal, PPGDataList* curDataList) {
+static void bgDrawOneScreen(
+    s32 bgnum, s32 gixbase, const s32 xx[2], const s32 yy[2], s32 ofsPal, PPGDataList* curDataList
+) {
     s32 i, x, y, gbix;
+    s32 bottom;
 
-    for (y = yy[0]; y < yy[1]; y += 128) {
+    for (y = yy[0]; y < yy[1]; y = bottom) {
+        bottom = (y & ~0x7F) + 128;
+
+        if (bottom > yy[1]) {
+            bottom = yy[1];
+        }
+
         for (x = xx[0]; x < xx[1]; x += 128) {
             gbix = ((y >> 7) << 3) + (x >> 7) + gixbase;
 
@@ -1109,9 +1130,41 @@ void bgDrawOneScreen(s32 bgnum, s32 gixbase, s32* xx, s32* yy, s32 /* unused */,
                 }
             }
 
-            bgDrawOneChip(x, y, 128, 128, gbix, -1, ofsPal);
+            bgDrawOneChip(x, y, 128, bottom - y, gbix, -1, ofsPal);
             ppgSetupCurrentDataList(curDataList);
         }
+    }
+}
+
+/// Columns of chips that cover the tilemap from `left` to `right`
+static void bgClipChipColumns(s32 xx[2], f32 left, f32 right) {
+    xx[0] = ((s32)left) & ~0x7F;
+    xx[1] = ((s32)right + 0x7F) & ~0x7F;
+    xx[0] = SDL_clamp(xx[0], 0, 1023);
+    xx[1] = SDL_clamp(xx[1], 0, 1023);
+}
+
+static void bgDrawLineScroll(
+    u8 bgnm, s32 gixbase, const f32 left_right[2], const s32 yy[2], s32 ofsPal, PPGDataList* curDataList
+) {
+    s32 strip[2];
+
+    for (strip[0] = yy[0]; strip[0] < yy[1]; strip[0] = strip[1]) {
+        const s16 scroll = bg_suzi_line_scroll(bgnm, strip[0]);
+        strip[1] = strip[0] + 1;
+
+        while ((strip[1] < yy[1]) && (bg_suzi_line_scroll(bgnm, strip[1]) == scroll)) {
+            strip[1] += 1;
+        }
+
+        njSetMatrix(NULL, &BgMATRIX[bgnm + 1]);
+        njTranslate(NULL, -scroll, 1024.0, PrioBase[bg_priority[bgnm]]);
+        njScale(NULL, 1.0, -1.0, 1.0);
+
+        s32 xx[2];
+        bgClipChipColumns(xx, left_right[0] + scroll, left_right[1] + scroll);
+        bgDrawOneScreen(bgnm, gixbase, xx, strip, ofsPal, curDataList);
+        bgDrawOuterChips(bgnm, strip, ofsPal, curDataList);
     }
 }
 
@@ -1119,7 +1172,7 @@ void bgDrawOneChip(s32 x, s32 y, s32 xs, s32 ys, s32 gbix, u32 vtxCol, s32 ofsPa
     if ((No_Trans == 0) && ppgCheckTextureNumber(0, gbix)) {
         ppgCalScrPosition(x, y, xs, ys);
 
-        if ((scrDrawPos->x >= 384.0f) || (scrDrawPos[3].x < 0.0f) || (scrDrawPos->y >= 224.0f) ||
+        if ((scrDrawPos[0].x >= 384.0f) || (scrDrawPos[3].x < 0.0f) || (scrDrawPos[0].y >= 224.0f) ||
             (scrDrawPos[3].y < 0.0f)) {
             return;
         }
@@ -1131,18 +1184,18 @@ void bgDrawOneChip(s32 x, s32 y, s32 xs, s32 ys, s32 gbix, u32 vtxCol, s32 ofsPa
 void bgAkebonoDraw() {
     s32 i;
 
-    scrDrawPos->x = 0.0f;
-    scrDrawPos->y = 0.0f;
+    scrDrawPos[0].x = 0.0f;
+    scrDrawPos[0].y = 0.0f;
     scrDrawPos[3].x = 128.0f;
     scrDrawPos[3].y = 224.0f;
-    scrDrawPos->z = scrDrawPos[3].z = PrioBase[bg_priority[3]];
-    scrDrawPos->s = scrDrawPos->t = 0.0f;
+    scrDrawPos[0].z = scrDrawPos[3].z = PrioBase[bg_priority[3]];
+    scrDrawPos[0].s = scrDrawPos[0].t = 0.0f;
     scrDrawPos[3].s = 1.0f;
-    scrDrawPos[3].t = 0.875f;
+    scrDrawPos[3].t = 1.0f;
 
     for (i = 0; i < 3; i++) {
         ppgWriteQuadUseTrans(scrDrawPos, 0xFFFFFFFF, NULL, i, i, 0, 0);
-        scrDrawPos->x += 128.0f;
+        scrDrawPos[0].x += 128.0f;
         scrDrawPos[3].x += 128.0f;
     }
 }
@@ -1155,7 +1208,7 @@ void ppgCalScrPosition(s32 x, s32 y, s32 xs, s32 ys) {
     point[1].x = (f32)(x + xs);
     point[1].y = (f32)(y + ys);
     point[0].z = point[1].z = 0;
-    njCalcPoints(0, point, point, 2);
+    njCalcPoints(NULL, point, point, SDL_arraysize(point));
     scrDrawPos[0].x = scrDrawPos[2].x = point[0].x;
     scrDrawPos[0].y = scrDrawPos[1].y = point[0].y;
     scrDrawPos[1].x = scrDrawPos[3].x = point[1].x;
@@ -1183,8 +1236,8 @@ void scr_trans_sub2(s32 x, s32 y, s32 suzi) {
     spoint[1].x = (f32)(x + suzi + 0x100);
     point[1].y = spoint[1].y = (f32)(y + 0x300);
     point[0].z = point[1].z = spoint[0].z = spoint[1].z = 0;
-    njCalcPoints(NULL, &point[0], &point[0], 2);
-    njCalcPoints(NULL, &spoint[0], &spoint[0], 2);
+    njCalcPoints(NULL, point, point, SDL_arraysize(point));
+    njCalcPoints(NULL, spoint, spoint, SDL_arraysize(spoint));
     bgpoly[0].x = spoint[0].x;
     bgpoly[0].y = point[0].y;
     bgpoly[0].z = point[0].z;
@@ -1230,9 +1283,9 @@ void scr_calc2(u8 bgnm) {
 }
 
 void Pause_Family_On() {
-    njUnitMatrix(0);
-    njTranslate(0, 0, 224, 0);
-    njScale(0, 1, -1, 1);
+    njUnitMatrix(NULL);
+    njTranslate(NULL, 0, 224, 0);
+    njScale(NULL, 1, -1, 1);
     njGetMatrix(&BgMATRIX[8]);
 }
 
