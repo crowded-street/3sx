@@ -121,23 +121,19 @@ const s16 ng_st0100_data_tbl[72] = {
 };
 
 /// First area of New Generation's Ryu stage. Colour codes are converted from palette rows 0x40 and 0x63 to the PS2 BG
-/// palette rows 0x12C and 0x14F, both with the 0x2000 flag and without it. NG syncs these objects with the line scroll
-/// of layer 1 (sync_suzi 1), which we don't have.
-// FIXME: Set sync_suzi back to 1 once line scrolling is implemented.
+/// palette rows 0x12C and 0x14F, both with the 0x2000 flag and without it.
 const s16 ng_st0200_data_tbl[36] = {
-    1, 2, 8492, 303,  122, 76, 10, 1, 0, 1, 2, 8492, 239, 192, 77, 13, 1, 0,
-    1, 2, 8527, -288, 64,  74, 20, 1, 0, 1, 2, 335,  256, 48,  74, 21, 1, 0,
+    1, 2, 8492, 303,  122, 76, 10, 1, 1, 1, 2, 8492, 239, 192, 77, 13, 1, 1,
+    1, 2, 8527, -288, 64,  74, 20, 1, 1, 1, 2, 335,  256, 48,  74, 21, 1, 1,
 };
 
 /// Second area of New Generation's Ryu stage. Colour codes are converted from palette rows 0x40 and 0x5A to the PS2 BG
-/// palette rows 0x12C and 0x146, both with the 0x2000 flag and without it. NG syncs these objects with the line scroll
-/// of layer 1 (sync_suzi 1), which we don't have.
-// FIXME: Set sync_suzi back to 1 once line scrolling is implemented.
+/// palette rows 0x12C and 0x146, both with the 0x2000 flag and without it.
 const s16 ng_st0210_data_tbl[99] = {
-    1, 2, 8492, -394, 80, 83, 0,  1, 0, 1, 2, 8492, -384, 64, 82, 1,  1, 0, 0, 2, 300,  208,  96, 80, 3,  1, 0,
-    1, 2, 300,  -128, 80, 83, 5,  1, 0, 0, 2, 8518, -145, 64, 77, 10, 1, 0, 1, 2, 8518, -233, 81, 79, 14, 1, 0,
-    1, 2, 8518, -217, 64, 78, 15, 0, 0, 1, 2, 8518, -265, 59, 77, 16, 0, 0, 1, 2, 8518, 273,  65, 74, 18, 1, 0,
-    1, 2, 8518, 264,  97, 80, 22, 0, 0, 1, 2, 8518, 424,  97, 76, 23, 0, 0,
+    1, 2, 8492, -394, 80, 83, 0,  1, 1, 1, 2, 8492, -384, 64, 82, 1,  1, 1, 0, 2, 300,  208,  96, 80, 3,  1, 1,
+    1, 2, 300,  -128, 80, 83, 5,  1, 1, 0, 2, 8518, -145, 64, 77, 10, 1, 1, 1, 2, 8518, -233, 81, 79, 14, 1, 1,
+    1, 2, 8518, -217, 64, 78, 15, 0, 1, 1, 2, 8518, -265, 59, 77, 16, 0, 1, 1, 2, 8518, 273,  65, 74, 18, 1, 1,
+    1, 2, 8518, 264,  97, 80, 22, 0, 1, 1, 2, 8518, 424,  97, 76, 23, 0, 1,
 };
 
 const s16* scr_obj_data6[AREA_COUNT] = {

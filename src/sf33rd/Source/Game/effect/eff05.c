@@ -111,19 +111,16 @@ const s16 ng_stg0100_data_tbl[36] = {
 };
 
 /// First area of New Generation's Ryu stage. Colour codes are converted from palette row 0x40 to the PS2 BG palette row
-/// 0x12C. NG syncs the object with the line scroll of layer 1 (sync_suzi 1), which we don't have.
-// FIXME: Set sync_suzi back to 1 once line scrolling is implemented.
+/// 0x12C.
 const s16 ng_stg0200_data_tbl[9] = {
-    0, 2, 8492, 16, 19, 20, 11, 0, 0,
+    0, 2, 8492, 16, 19, 20, 11, 0, 1,
 };
 
 /// Second area of New Generation's Ryu stage. Colour codes are converted from palette rows 0x40 and 0x5A to the PS2 BG
-/// palette rows 0x12C and 0x146. NG syncs these objects with the line scroll of layer 1 (sync_suzi 1), which we don't
-/// have.
-// FIXME: Set sync_suzi back to 1 once line scrolling is implemented.
+/// palette rows 0x12C and 0x146.
 const s16 ng_stg0210_data_tbl[36] = {
-    0, 2, 300,  16,  80, 80, 2,  1, 0, 0, 2, 300,  -288, 80,  83, 4,  1, 0,
-    1, 2, 8518, -17, 48, 83, 17, 0, 0, 1, 2, 8518, -89,  136, 83, 24, 0, 0,
+    0, 2, 300,  16,  80, 80, 2,  1, 1, 0, 2, 300,  -288, 80,  83, 4,  1, 1,
+    1, 2, 8518, -17, 48, 83, 17, 0, 1, 1, 2, 8518, -89,  136, 83, 24, 0, 1,
 };
 
 u32* char_add[AREA_COUNT] = {

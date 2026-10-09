@@ -19,11 +19,10 @@ typedef struct Eff88Variant {
     s16 object_count;
 } Eff88Variant;
 
-// FIXME: Set sync_suzi back to 1 once line scrolling is implemented.
 static const s16 eff88_ryu_b_data[3][9] = {
-    { 0, 2, 300, -96, 112, 82, 32, 0, 0 },
-    { 0, 2, 300, 79, 129, 82, 30, 0, 0 },
-    { 0, 2, 300, 208, 65, 82, 31, 0, 0 },
+    { 0, 2, 300, -96, 112, 82, 32, 0, 1 },
+    { 0, 2, 300, 79, 129, 82, 30, 0, 1 },
+    { 0, 2, 300, 208, 65, 82, 31, 0, 1 },
 };
 
 static const Eff88Variant eff88_variants[] = {

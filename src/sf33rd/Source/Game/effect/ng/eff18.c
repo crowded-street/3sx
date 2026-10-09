@@ -55,13 +55,11 @@ static const Eff18Data eff18_ryu_a_data[1] = {
 };
 
 /// Second area of Ryu's stage. Colour codes are converted from palette row 0x5A to the PS2 BG palette row 0x146, with
-/// the 0x2000 flag and without it. NG syncs these objects with the line scroll of layer 1 (sync_suzi 1), which we don't
-/// have.
-// FIXME: Set sync_suzi back to 1 once line scrolling is implemented.
+/// the 0x2000 flag and without it.
 static const Eff18Data eff18_ryu_b_data[3] = {
-    { 1, 2, 326, 336, 80, 75, 20, 21, 1, 0, EFF18_SWING_ON_SPECIAL_MOVE, 1 },
-    { 1, 2, 326, 48, 48, 73, 28, 29, 1, 0, EFF18_PLAY_ON_VICTORY, 0 },
-    { 1, 2, 8518, -112, 57, 76, 25, 26, 1, 0, EFF18_SWING_ON_SPECIAL_MOVE, 1 },
+    { 1, 2, 326, 336, 80, 75, 20, 21, 1, 1, EFF18_SWING_ON_SPECIAL_MOVE, 1 },
+    { 1, 2, 326, 48, 48, 73, 28, 29, 1, 1, EFF18_PLAY_ON_VICTORY, 0 },
+    { 1, 2, 8518, -112, 57, 76, 25, 26, 1, 1, EFF18_SWING_ON_SPECIAL_MOVE, 1 },
 };
 
 /// NG picks each variant's data by `compel_flag` as well, but the data of variants 0 and 1 is the same for all of them.
