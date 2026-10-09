@@ -248,7 +248,7 @@ typedef struct {
     XY xyz[3];
     s16 old_pos[3];
     s16 sync_suzi;
-    u16* suzi_offset;
+    s16 suzi_offset; /// Line of the family's layer whose line scroll the object follows
     MVXY mvxy;
     s16 direction;
     s16 dir_old;

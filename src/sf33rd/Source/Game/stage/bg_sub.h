@@ -30,6 +30,7 @@ void bg_y_move_check();
 void zoom_ud_check();
 void suzi_offset_set(WORK_Other* ewk);
 void suzi_sync_pos_set(WORK_Other* ewk);
+s16 bg_suzi_line_scroll(s16 bgnm, s16 line);
 void Bg_Family_Set();
 void Bg_Family_Set_appoint(s32 num_of_bg);
 void Bg_Family_Set_2();

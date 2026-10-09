@@ -27,7 +27,7 @@ void (*scr_x_mv_jp[35])() = { scr_10_20,   scr_10_21,   scr_10_22,   scr_x_dummy
 
 // Forward decls
 static s16 remake_x_mvstep(s16 mvstep);
-static s32 suzi_offset_set_sub(WORK_Other* ewk);
+static void suzi_offset_set_sub(WORK_Other* ewk);
 
 void check_cg_zoom() {
     s16 i;
@@ -855,7 +855,8 @@ void suzi_offset_set(WORK_Other* ewk) {
     }
 }
 
-static s32 suzi_offset_set_sub(WORK_Other* ewk) {
+/// Remembers the line of the family's layer the object stands on
+static void suzi_offset_set_sub(WORK_Other* ewk) {
     s16 work, work2;
 
     work = ewk->wu.xyz[1].disp.pos & 0x300;
@@ -866,7 +867,7 @@ static s32 suzi_offset_set_sub(WORK_Other* ewk) {
 
     work += work2;
 
-    return 0;
+    ewk->wu.suzi_offset = work;
 }
 
 void suzi_sync_pos_set(WORK_Other* ewk) {
@@ -877,14 +878,58 @@ void suzi_sync_pos_set(WORK_Other* ewk) {
             suzi_offset_set_sub(ewk);
         }
 
-        work = *ewk->wu.suzi_offset;
-        work -= 0x200;
+        work = bg_suzi_line_scroll(ewk->wu.my_family - 1, ewk->wu.suzi_offset);
+        work -= LINE_SCROLL_BASE;
     } else {
         work = 0;
     }
 
     ewk->wu.position_x = ewk->wu.xyz[0].disp.pos - work & 0xFFFF;
     ewk->wu.position_y = ewk->wu.xyz[1].disp.pos & 0xFFFF;
+}
+
+/// How much a line's scroll moves per 16.16 unit of `zuubun * (pos - pos_x_work)`
+static s32 bg_suzi_line_weight(const BGW* bgw, s16 line) {
+    s16 rel;
+
+    if ((line >= 512) && (line < bgw->no_suzi_line)) {
+        line = bgw->start_suzi;
+    }
+
+    rel = line - bgw->start_suzi;
+
+    if (rel < 0) {
+        return 0;
+    }
+
+    if (rel < bgw->u_line) {
+        return rel - bgw->u_line;
+    }
+
+    rel -= bgw->u_line;
+
+    if (rel < bgw->d_line) {
+        return rel;
+    }
+
+    // Lines after the fan repeat its last line
+    return bgw->d_line - 1;
+}
+
+s16 bg_suzi_line_scroll(s16 bgnm, s16 line) {
+    const BGW* bgw = &bg_w.bgw[bgnm];
+    s16 pos;
+    u32 scroll;
+
+    if (bg_w.chase_flag & 0xF) {
+        pos = bgw->chase_xy[0].disp.pos;
+    } else {
+        pos = bgw->wxy[0].disp.pos;
+    }
+
+    scroll = (u32)bgw->zuubun * (u32)bg_suzi_line_weight(bgw, line) * (u32)(pos - bgw->pos_x_work);
+    scroll += LINE_SCROLL_BASE << 16;
+    return scroll >> 16;
 }
 
 void Bg_Family_Set() {

@@ -281,7 +281,6 @@ static void clean_work_pointers(WORK* work) {
     work->target_adrs = NULL;
     work->hit_adrs = NULL;
     work->dmg_adrs = NULL;
-    work->suzi_offset = NULL;
     SDL_zeroa(work->char_table);
     work->se_random_table = NULL;
     work->step_xy_table = NULL;
@@ -350,7 +349,6 @@ static void clean_state_pointers(State* state) {
     for (int i = 0; i < SDL_arraysize(state->gs.bg_w.bgw); i++) {
         state->gs.bg_w.bgw[i].bg_address = NULL;
         state->gs.bg_w.bgw[i].suzi_adrs = NULL;
-        state->gs.bg_w.bgw[i].start_suzi = NULL;
         state->gs.bg_w.bgw[i].suzi_adrs2 = NULL;
         state->gs.bg_w.bgw[i].start_suzi2 = NULL;
         state->gs.bg_w.bgw[i].deff_rl = NULL;

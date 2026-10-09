@@ -7,6 +7,7 @@
 
 #define BG_SCROLL_SPACE_COUNT 8
 #define LINE_SCROLL_BASE 0x200
+#define LINE_SCROLL_LINES 1024
 
 typedef struct {
     s8 be_flag;
@@ -24,11 +25,11 @@ typedef struct {
     u16* bg_address;
     u16* suzi_adrs;
     s16 old_pos_x;
-    s32 zuubun;
+    s32 zuubun; /// 16.16 line translation multiplier
     s16 no_suzi_line;
-    u16* start_suzi;
-    s16 u_line;
-    s16 d_line;
+    s16 start_suzi; /// First line of the perspective fan
+    s16 u_line;     /// Lines that lag behind the layer
+    s16 d_line;     /// Lines that run ahead of the layer
     s16 bg_adrs_c_no;
     s16 suzi_c_no;
     s16 pos_x_work;
