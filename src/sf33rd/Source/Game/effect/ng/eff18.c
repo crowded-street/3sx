@@ -103,14 +103,6 @@ static bool is_special_move_active() {
     return false;
 }
 
-static bool is_round_over() {
-    return !Allow_a_battle_f && Conclusion_Flag == 1 && C_No[0] > 1;
-}
-
-static bool is_round_won() {
-    return is_round_over() && Complete_Victory;
-}
-
 static void animate(WORK_Other* ewk) {
     if (ewk->wu.hit_stop) {
         char_move(&ewk->wu);

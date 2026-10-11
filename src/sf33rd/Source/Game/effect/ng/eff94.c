@@ -96,10 +96,6 @@ static void start_sit(WORK_Other* ewk) {
     reset_wait(ewk);
 }
 
-static bool is_round_over() {
-    return !Allow_a_battle_f && Conclusion_Flag == 1 && C_No[0] > 1;
-}
-
 /// @return Whether the tanuki has run past Ibuki
 static bool passed_master(WORK_Other* ewk) {
     const s16 master_x = master(ewk)->wu.xyz[0].disp.pos;

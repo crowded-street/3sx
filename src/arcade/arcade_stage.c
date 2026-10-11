@@ -273,6 +273,14 @@ static const CgGroupSource cg_group_sources[] = {
       .range_count = 1,
       .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
       .file = CACHE_FILE_NG_YUN_A_OBJECTS },
+
+    // Yun and Yang watching from NG Yun's stage (effect C1). Its char table is _ng_effc1_char_table.
+    { .game = ROM_GAME_SFIII,
+      .group = 106,
+      .ranges = { { 0x2B8D, 7 }, { 0xF8F, 22 } },
+      .range_count = 2,
+      .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
+      .file = CACHE_FILE_NG_EFC1 },
 };
 
 /// CPS3 graphics addresses start this far before the graphics region

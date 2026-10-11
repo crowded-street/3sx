@@ -11,6 +11,7 @@
 #include "sf33rd/Source/Game/effect/ng/eff18.h"
 #include "sf33rd/Source/Game/effect/ng/eff23.h"
 #include "sf33rd/Source/Game/effect/ng/eff87.h"
+#include "sf33rd/Source/Game/effect/ng/effc1.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
@@ -96,10 +97,10 @@ static void bg2801_init00() {
         effect_ng18_init(2); // Woman with a grocery bag and scared girls
         effect_ng87_init(2); // Men sitting at the table and merchant
         effect_ng23_init();  // Bird seller
+        effect_ngc1_init_for_players();
     }
 
-    // FIXME: NG also starts effect C1 (for players) in area 0,
-    // and effects 25(0, 1, 2), 29 and 60(0) in the other areas
+    // FIXME: NG also starts effects 25(0, 1, 2), 29 and 60(0) in the other areas
 }
 
 static void bg2801_move01() {

@@ -407,6 +407,14 @@ void eff_hit_flag_clear() {
     }
 }
 
+bool is_round_over() {
+    return !Allow_a_battle_f && Conclusion_Flag == 1 && C_No[0] > 1;
+}
+
+bool is_round_won() {
+    return is_round_over() && Complete_Victory;
+}
+
 s32 compel_dead_check(WORK_Other* ewk) {
     s32 var_s0 = 0;
 

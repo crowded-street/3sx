@@ -34,6 +34,13 @@ void add_x_sub_ng(WORK* wk);
 void add_y_sub_ng(WORK* wk);
 
 s32 compel_dead_check(WORK_Other* ewk);
+
+/// Whether a round has ended, before the next one starts
+bool is_round_over();
+
+/// Whether a round has ended with a winner
+bool is_round_won();
+
 void cal_bg_speed_data_x(s16 bg_num, s16 tm, s16 unk);
 void cal_bg_speed_data_y(s16 bg_num, s16 tm, s16 unk);
 s32 range_x_check(WORK_Other* ewk);
