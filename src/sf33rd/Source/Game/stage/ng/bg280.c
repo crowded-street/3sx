@@ -9,6 +9,7 @@
 #include "sf33rd/Source/Game/effect/eff05.h"
 #include "sf33rd/Source/Game/effect/eff06.h"
 #include "sf33rd/Source/Game/effect/ng/eff18.h"
+#include "sf33rd/Source/Game/effect/ng/eff87.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
@@ -91,10 +92,11 @@ static void bg2801_init00() {
     effect_06_init();
 
     if (bg_w.area == 0) {
-        effect_ng18_init(2); // Woman with grocery bag and scared girls
+        effect_ng18_init(2); // Woman with a grocery bag and scared girls
+        effect_ng87_init(2); // Men sitting at the table and merchant
     }
 
-    // FIXME: NG also starts effects 87(2), 23 and C1 (for players) in area 0,
+    // FIXME: NG also starts effects 23 and C1 (for players) in area 0,
     // and effects 25(0, 1, 2), 29 and 60(0) in the other areas
 }
 
