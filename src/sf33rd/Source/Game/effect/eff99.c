@@ -18,10 +18,10 @@ const s16 Pos_Data_99[5][3] = { { -144, 128, 23 }, { 48, 128, 23 }, { 8, 54, 23 
 const char* Letter_Data_99[5][VS_STAGE_RANDOM + 1] = {
     { ";;;;;;;#", ";;;;;;##", ";;;;;###", ";;;;####", ";;;#####", ";;######", ";#######", "########" },
     { "#;;;;;;;", "##;;;;;;", "###;;;;;", "####;;;;", "#####;;;", "######;;", "#######;", "########" },
-    { "UNKNOWN", "AMERICA",   "JAPAN",   "HONG KONG", "ENGLAND", "RUSSIA",  "GERMANY", "JAPAN", "KENYA",
-      "BRAZIL",  "HONG KONG", "AMERICA", "BRAZIL",    "MEXICO",  "JAPAN",   "JAPAN",   "CHINA", "JAPAN",
-      "",        "RUSSIA",    "FRANCE",  "",          "",        "UNKNOWN", "AMERICA", "JAPAN",
-      [VS_STAGE_RANDOM] = "RANDOM" },
+    { "UNKNOWN", "AMERICA", "JAPAN",   "HONG KONG", "ENGLAND", "RUSSIA",    "GERMANY",
+      "JAPAN",   "KENYA",   "BRAZIL",  "HONG KONG", "AMERICA", "BRAZIL",    "MEXICO",
+      "JAPAN",   "JAPAN",   "CHINA",   "JAPAN",     "",        "RUSSIA",    "FRANCE",
+      "",        "",        "UNKNOWN", "AMERICA",   "JAPAN",   "HONG KONG", [VS_STAGE_RANDOM] = "RANDOM" },
     { "GILL STAGE",
       "SUBWAY STATION",
       "SUZAKU CASTLE ROOFTOP",
@@ -48,6 +48,7 @@ const char* Letter_Data_99[5][VS_STAGE_RANDOM + 1] = {
       "UNDERGROUND CAVE",
       "NEW YORK ALLEYWAY",
       "HOT SPRING INN",
+      "BACK ALLEY",
       [VS_STAGE_RANDOM] = "" },
     { "",
       "ALEX STAGE",
@@ -75,6 +76,7 @@ const char* Letter_Data_99[5][VS_STAGE_RANDOM + 1] = {
       "GILL STAGE (NG)",
       "ALEX STAGE (NG)",
       "RYU STAGE (NG)",
+      "YUN STAGE (NG)",
       [VS_STAGE_RANDOM] = "" }
 };
 
