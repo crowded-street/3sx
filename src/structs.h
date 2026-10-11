@@ -1467,10 +1467,12 @@ typedef struct {
     PatternMap map;
 } PatternInstance;
 
+#define PATTERN_COLLECTION_SIZE 128
+
 typedef struct {
     s16 kazu;
-    PatternInstance* adr[64];
-    PatternInstance patt[64];
+    PatternInstance* adr[PATTERN_COLLECTION_SIZE];
+    PatternInstance patt[PATTERN_COLLECTION_SIZE];
 } PatternCollection;
 
 typedef struct {

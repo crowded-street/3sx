@@ -11,6 +11,7 @@
 #include "sf33rd/Source/Game/effect/eff25.h"
 #include "sf33rd/Source/Game/effect/ng/eff18.h"
 #include "sf33rd/Source/Game/effect/ng/eff23.h"
+#include "sf33rd/Source/Game/effect/ng/eff29.h"
 #include "sf33rd/Source/Game/effect/ng/eff87.h"
 #include "sf33rd/Source/Game/effect/ng/effc1.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
@@ -103,9 +104,10 @@ static void bg2801_init00() {
         effect_25_init(0);
         effect_25_init(1);
         effect_25_init(2);
+        effect_ng29_init(); // Fish in a tank
     }
 
-    // FIXME: NG also starts effects 29 and 60(0) in the other areas
+    // FIXME: NG also starts effect 60(0) in the other areas
 }
 
 static void bg2801_move01() {
