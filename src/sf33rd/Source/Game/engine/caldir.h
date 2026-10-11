@@ -8,6 +8,7 @@ extern const s32 rate_256_table[256][2];
 
 s16 caldir_pos_256(s16 x1, s16 x2, s16 y1, s16 y2);
 s16 caldir_pos_032(s16 x1, s16 x2, s16 y1, s16 y2);
+void add_pos_dir_032(WORK* wk, s16 sp);
 void add_pos_dir_064(WORK* wk, s16 sp);
 s16 cal_move_quantity2(s16 x1, s16 x2, s16 y1, s16 y2);
 s16 cal_move_quantity3(WORK* wk, s16 tm);
