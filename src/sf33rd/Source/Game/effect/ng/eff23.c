@@ -27,8 +27,6 @@
 #define CAGES_COLOR_CODE 0x212C   // NG 0x2040
 #define OBJECTS_COLOR_CODE 0x2141 // NG 0x2055
 
-static const s16 cages_hit_box[4] = { 12, 61, 16, 28 };
-
 typedef struct CageBird {
     s16 char_index;
     s16 x;
@@ -276,7 +274,7 @@ void effect_ng23_move(WORK_Other* ewk) {
 
     case 1:
         if (!is_paused()) {
-            if (eff_hit_check_box(ewk, 0, cages_hit_box)) {
+            if (eff_hit_check_ng(ewk, 0)) {
                 ewk->wu.routine_no[0]++;
                 set_char_move_init(&ewk->wu, 0, 12);
             } else {

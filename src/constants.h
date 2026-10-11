@@ -129,7 +129,7 @@ typedef enum Area {
     AREA_COUNT,
 } Area;
 
-/// A character's home stage has the same number as the character in the arcade version
+#define AREA_IS_NG(area) ((area) >= AREA_NG_GILL)
 #define STAGE_OF_CHAR(c) ((Stage)CHAR_3SX_TO_ARCADE(c))
 
 typedef enum JumpDir : uint8_t {

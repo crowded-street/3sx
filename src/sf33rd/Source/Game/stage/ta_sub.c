@@ -327,6 +327,23 @@ s16 eff_hit_check_box(WORK_Other* ewk, s16 type, const s16* box) {
     return eff_hit_flag[ewk->wu.type];
 }
 
+static const s16 ng_eff_hit_data[11][4] = { { -159, 48, 65, 93 }, { 90, 63, 98, 45 },   { 5, 61, 41, 40 },
+                                            { -117, 87, 19, 42 }, { -135, 25, 18, 37 }, { 33, 81, 58, 44 },
+                                            { -53, 39, 20, 25 },  { 6, 64, 33, 69 },    { 12, 61, 16, 28 },
+                                            { -28, 17, 21, 36 },  { -28, 17, 21, 36 } };
+
+s16 eff_hit_check_ng(WORK_Other* ewk, s16 type) {
+    if (ewk->wu.type == 5) {
+        return 0;
+    }
+
+    return eff_hit_check_box(ewk, type, ng_eff_hit_data[ewk->wu.type]);
+}
+
+s16 eff_hit_check_area(WORK_Other* ewk, s16 type) {
+    return AREA_IS_NG(bg_w.bg_index) ? eff_hit_check_ng(ewk, type) : eff_hit_check(ewk, type);
+}
+
 s16 eff_hit_check2(WORK_Other* ewk, s16 type, s16 where_type) {
     if (!EXE_obroll) {
         if (type) {

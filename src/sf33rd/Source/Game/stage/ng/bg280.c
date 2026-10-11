@@ -8,6 +8,7 @@
 #include "sf33rd/Source/Game/animation/appear.h"
 #include "sf33rd/Source/Game/effect/eff05.h"
 #include "sf33rd/Source/Game/effect/eff06.h"
+#include "sf33rd/Source/Game/effect/eff25.h"
 #include "sf33rd/Source/Game/effect/ng/eff18.h"
 #include "sf33rd/Source/Game/effect/ng/eff23.h"
 #include "sf33rd/Source/Game/effect/ng/eff87.h"
@@ -98,9 +99,13 @@ static void bg2801_init00() {
         effect_ng87_init(2); // Men sitting at the table and merchant
         effect_ng23_init();  // Bird seller
         effect_ngc1_init_for_players();
+    } else {
+        effect_25_init(0);
+        effect_25_init(1);
+        effect_25_init(2);
     }
 
-    // FIXME: NG also starts effects 25(0, 1, 2), 29 and 60(0) in the other areas
+    // FIXME: NG also starts effects 29 and 60(0) in the other areas
 }
 
 static void bg2801_move01() {

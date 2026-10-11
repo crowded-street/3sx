@@ -53,6 +53,13 @@ s16 eff_hit_check2(WORK_Other* ewk, s16 type, s16 where_type);
 
 /// Like eff_hit_check, but with a hitbox of the effect's own instead of one from eff_hit_data
 s16 eff_hit_check_box(WORK_Other* ewk, s16 type, const s16* box);
+
+/// New Generation's version of eff_hit_check
+s16 eff_hit_check_ng(WORK_Other* ewk, s16 type);
+
+/// Area-dependent version of eff_hit_check
+s16 eff_hit_check_area(WORK_Other* ewk, s16 type);
+
 s32 range_x_check3(WORK_Other* ewk, s16 optional_range);
 void eff_hit_flag_clear();
 
