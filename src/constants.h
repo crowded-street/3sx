@@ -90,6 +90,7 @@ typedef enum Stage {
     STAGE_NG_GILL = 23,
     STAGE_NG_ALEX = 24,
     STAGE_NG_RYU = 25,
+    STAGE_NG_YUN = 26,
     STAGE_COUNT,
 } Stage;
 
@@ -123,6 +124,7 @@ typedef enum Area {
     AREA_NG_ALEX = 24,
     AREA_NG_RYU_A = 25,
     AREA_NG_RYU_B = 26,
+    AREA_NG_YUN_A = 27,
     AREA_COUNT,
 } Area;
 

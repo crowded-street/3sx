@@ -688,6 +688,7 @@ const s8 bg_index_tbl[STAGE_COUNT][3] = {
     [STAGE_NG_GILL] = { AREA_NG_GILL, AREA_NG_GILL, AREA_NG_GILL },
     [STAGE_NG_ALEX] = { AREA_NG_ALEX, AREA_NG_ALEX, AREA_NG_ALEX },
     [STAGE_NG_RYU] = { AREA_NG_RYU_A, AREA_NG_RYU_B, AREA_NG_RYU_B },
+    [STAGE_NG_YUN] = { AREA_NG_YUN_A, AREA_NG_YUN_A, AREA_NG_YUN_A },
 };
 
 const s32 bg_pos_tbl2[7][3][2] = {
