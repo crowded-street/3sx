@@ -96,12 +96,6 @@ static void start_sit(WORK_Other* ewk) {
     reset_wait(ewk);
 }
 
-/// Like add_x_sub, but accelerates before moving
-static void add_x(WORK_Other* ewk) {
-    ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
-    ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
-}
-
 static bool is_round_over() {
     return !Allow_a_battle_f && Conclusion_Flag == 1 && C_No[0] > 1;
 }
@@ -207,7 +201,7 @@ static void eff94_run(WORK_Other* ewk) {
             if (--ewk->wu.old_rno[0] < 1) {
                 ewk->wu.routine_no[2]++;
             } else {
-                add_x(ewk);
+                add_x_sub_ng(&ewk->wu);
             }
 
             break;
@@ -224,7 +218,7 @@ static void eff94_run(WORK_Other* ewk) {
         char_move(&ewk->wu);
 
         if (ewk->wu.cg_type == 0) {
-            add_x(ewk);
+            add_x_sub_ng(&ewk->wu);
             break;
         }
 

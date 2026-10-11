@@ -16,6 +16,7 @@
 #include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "sf33rd/Source/Game/rendering/texcash.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
+#include "sf33rd/Source/Game/stage/ta_sub.h"
 
 #include <SDL3/SDL.h>
 
@@ -150,14 +151,6 @@ static void eff35_set_velocity(WORK_Other* ewk) {
     ewk->wu.mvxy.d[0].sp = right ? SDL_abs(accel) : accel;
 }
 
-/// Like add_x_sub and add_y_sub, but accelerates before moving, as NG does
-static void eff35_add_xy(WORK_Other* ewk) {
-    ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
-    ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
-    ewk->wu.mvxy.a[1].sp += ewk->wu.mvxy.d[1].sp;
-    ewk->wu.xyz[1].cal += ewk->wu.mvxy.a[1].sp;
-}
-
 /// Draws without the 1 pixel nudge or range check of disp_pos_trans_entry, like NG
 static void eff35_disp(WORK_Other* ewk) {
     sort_push_request4(&ewk->wu);
@@ -195,7 +188,8 @@ void effect_ng35_move(WORK_Other* ewk) {
         }
 
         char_move(&ewk->wu);
-        eff35_add_xy(ewk);
+        add_x_sub_ng(&ewk->wu);
+        add_y_sub_ng(&ewk->wu);
 
         if (ewk->wu.xyz[0].disp.pos < -X_RANGE || ewk->wu.xyz[0].disp.pos > X_RANGE) {
             ewk->wu.routine_no[0] += 2;

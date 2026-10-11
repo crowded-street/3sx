@@ -19,9 +19,20 @@ void disp_pos_trans_entry_r(WORK_Other* ewk);
 void disp_pos_trans_entry_r4(WORK_Other* ewk);
 void disp_pos_trans_entry_s(WORK_Other* ewk);
 void disp_pos_trans_entry_rs(WORK_Other* ewk);
+
+/// Like disp_pos_trans_entry, but with New Generation's range and positions that wrap at 0x400
+void disp_pos_trans_entry_ng(WORK_Other* ewk);
+
 void pl_eff_trans_entry(WORK_Other* ewk);
 void add_x_sub(WORK* wk);
 void add_x_sub2(WORK* wk);
+
+/// Like add_x_sub, but accelerates before moving, as New Generation does
+void add_x_sub_ng(WORK* wk);
+
+/// Like add_y_sub, but accelerates before moving, as New Generation does
+void add_y_sub_ng(WORK* wk);
+
 s32 compel_dead_check(WORK_Other* ewk);
 void cal_bg_speed_data_x(s16 bg_num, s16 tm, s16 unk);
 void cal_bg_speed_data_y(s16 bg_num, s16 tm, s16 unk);

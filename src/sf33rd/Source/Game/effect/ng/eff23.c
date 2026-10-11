@@ -60,24 +60,6 @@ static void set_position(WORK_Other* ewk) {
     ewk->wu.position_y = ewk->wu.xyz[1].disp.pos & 0x3FF;
 }
 
-/// Like add_x_sub and add_y_sub, but accelerates before moving, as NG does
-static void add_xy(WORK_Other* ewk) {
-    ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
-    ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
-    ewk->wu.mvxy.a[1].sp += ewk->wu.mvxy.d[1].sp;
-    ewk->wu.xyz[1].cal += ewk->wu.mvxy.a[1].sp;
-}
-
-/// Draws without the 1 pixel nudge of disp_pos_trans_entry and with NG's range
-static void trans_entry(WORK_Other* ewk) {
-    if (obr_no_disp_check() || !range_x_check_ng(ewk)) {
-        return;
-    }
-
-    set_position(ewk);
-    sort_push_request4(&ewk->wu);
-}
-
 static void init_common(WORK_Other* ewk, s16 id, WORK_Other* master) {
     ewk->wu.be_flag = 1;
     ewk->wu.id = id;
@@ -136,7 +118,8 @@ void effect_ng21_move(WORK_Other* ewk) {
     case 2:
         if (!is_paused()) {
             char_move(&ewk->wu);
-            add_xy(ewk);
+            add_x_sub_ng(&ewk->wu);
+            add_y_sub_ng(&ewk->wu);
 
             if (ewk->wu.xyz[0].disp.pos < 0x80 || ewk->wu.xyz[0].disp.pos > 0x380 || ewk->wu.xyz[1].disp.pos > 0x200) {
                 ewk->wu.routine_no[0]++;
@@ -323,7 +306,7 @@ void effect_ng23_move(WORK_Other* ewk) {
         return;
     }
 
-    trans_entry(ewk);
+    disp_pos_trans_entry_ng(ewk);
 }
 
 // MARK: - Seller (effect 24)
@@ -368,7 +351,7 @@ void effect_ng24_move(WORK_Other* ewk) {
         return;
     }
 
-    trans_entry(ewk);
+    disp_pos_trans_entry_ng(ewk);
 }
 
 static s32 effect_ng24_init(WORK_Other* master) {

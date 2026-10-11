@@ -170,6 +170,16 @@ void add_y_sub2(WORK* wk) {
     wk->mvxy.a[1].sp += wk->mvxy.d[1].sp;
 }
 
+void add_x_sub_ng(WORK* wk) {
+    wk->mvxy.a[0].sp += wk->mvxy.d[0].sp;
+    wk->xyz[0].cal += wk->mvxy.a[0].sp;
+}
+
+void add_y_sub_ng(WORK* wk) {
+    wk->mvxy.a[1].sp += wk->mvxy.d[1].sp;
+    wk->xyz[1].cal += wk->mvxy.a[1].sp;
+}
+
 s32 obr_no_disp_check() {
     if (aku_flag | akebono_flag | sa_pa_flag | seraph_flag) {
         return 1;
@@ -228,6 +238,16 @@ void disp_pos_trans_entry_rs(WORK_Other* ewk) {
         ewk->wu.position_x++;
         sort_push_request4(&ewk->wu);
     }
+}
+
+void disp_pos_trans_entry_ng(WORK_Other* ewk) {
+    if (obr_no_disp_check() || !range_x_check_ng(ewk)) {
+        return;
+    }
+
+    ewk->wu.position_x = ewk->wu.xyz[0].disp.pos & 0x3FF;
+    ewk->wu.position_y = ewk->wu.xyz[1].disp.pos & 0x3FF;
+    sort_push_request4(&ewk->wu);
 }
 
 void pl_eff_trans_entry(WORK_Other* ewk) {
