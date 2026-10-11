@@ -205,6 +205,13 @@ static const StageSource stage_sources[] = {
       .ppg_file = CACHE_FILE_NG_YUN_A_STAGE,
       .object_palettes = { 0x6A },
       .object_palette_count = 1 },
+    { .game = ROM_GAME_SFIII,
+      .bg_index = 6,
+      .area = AREA_NG_YUN_B,
+      .palette_file = CACHE_FILE_NG_YUN_B_BG_PALETTE,
+      .ppg_file = CACHE_FILE_NG_YUN_B_STAGE,
+      .object_palettes = { 0x6B },
+      .object_palette_count = 1 },
 };
 
 #define MAX_CG_RANGES 4
@@ -281,6 +288,14 @@ static const CgGroupSource cg_group_sources[] = {
       .range_count = 2,
       .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
       .file = CACHE_FILE_NG_EFC1 },
+
+    // Objects of the second area of NG Yun's stage. Its char table is _ng_hkg_b_char_table.
+    { .game = ROM_GAME_SFIII,
+      .group = 107,
+      .ranges = { { 0x47C0, 944 } },
+      .range_count = 1,
+      .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
+      .file = CACHE_FILE_NG_YUN_B_OBJECTS },
 };
 
 /// CPS3 graphics addresses start this far before the graphics region

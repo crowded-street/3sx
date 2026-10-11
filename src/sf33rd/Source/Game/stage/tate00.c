@@ -64,6 +64,7 @@ void (*ta_move_tbl[AREA_COUNT])() = {
     [AREA_NG_RYU_A] = BG260,
     [AREA_NG_RYU_B] = BG270,
     [AREA_NG_YUN_A] = BG280,
+    [AREA_NG_YUN_B] = BG280,
 };
 
 void ta0_init00();
