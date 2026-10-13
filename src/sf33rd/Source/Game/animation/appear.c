@@ -91,12 +91,10 @@ void appear_data_set(PLW* wk, const APPEAR_DATA* dtbl) {
 }
 
 void appear_data_init_set(PLW* wk) {
-    APPEAR_DATA* dtbl;
     s8 ap_work;
     s16 id_work;
 
     Appear_hv[wk->wu.id] = home_visitor_check(wk);
-
     id_work = wk->wu.id ^ 1;
 
     if (bg_w.area) {
@@ -107,9 +105,7 @@ void appear_data_init_set(PLW* wk) {
         ap_work = app_type_tbl[wk->player_number][plw[id_work].player_number][bg_w.stage];
     }
 
-    dtbl = (APPEAR_DATA*)&appear_data[ap_work];
-
-    appear_data_set(wk, dtbl);
+    appear_data_set(wk, &appear_data[ap_work]);
 }
 
 void appear_player(PLW* wk) {
@@ -487,8 +483,8 @@ const APPEAR_DATA appear_data[] = {
     // Yun skating in on his stage from New Generation
     { 592, 160, 592, 1, 0, 42, 0 },
 
-    // New Generation's regular intro
-    { -96, 0, -128, 0, 1, 2, 0 },
+    // New Generation's regular intro (its record 2)
+    { -96, 0, -128, 0, 1, 1, 0 },
 };
 
 void Appear_07000(PLW* wk) {
