@@ -16,7 +16,7 @@ extern const s16 Plate_Pos_Data_E0[][2];
 extern const s16 Pos_Data_69[][2];
 extern const u8 Voice_Random_Data[2][4][3];
 extern const u8 Voice_EM_Random_Data[16];
-extern const s16 EFF38_Correct_Data[2][2][22][2];
+extern const s16 EFF38_Correct_Data[2][2][24][2];
 extern const s16 EFF50_Correct_Data[2][2][2];
 extern const u16 EM_Select_Voice_Data[4];
 extern const s16 Pos_Data_76[][3];

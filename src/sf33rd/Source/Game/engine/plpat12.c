@@ -102,12 +102,6 @@ void Att_PL12_BONUS_STAGE(PLW* wk) { // 🟡
     case 0:
         wk->wu.routine_no[3]++;
         wk->wu.rl_flag = wk->wu.rl_waza;
-
-        // CPS3 initializes the movement-data index for this action.
-        if (ArcadeBalance_IsEnabled()) {
-            wk->wu.mvxy.index = wk->as->data_ix;
-        }
-
         wk->wu.cmwk[6] = 0;
         wk->wu.cmwk[7] = 0;
         set_char_move_init(&wk->wu, 5, wk->wu.char_index);
