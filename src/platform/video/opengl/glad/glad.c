@@ -165,7 +165,7 @@ struct gladGLversionStruct GLVersion = { 0, 0 };
 #endif
 
 static int max_loaded_major;
-static int max_loaded_minor;
+[[maybe_unused]] static int max_loaded_minor;
 
 static const char *exts = NULL;
 static int num_exts_i = 0;
