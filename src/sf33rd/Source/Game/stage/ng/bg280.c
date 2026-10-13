@@ -188,3 +188,7 @@ static bool bg280_demo_check() {
 
     return (plw[0].player_number != CHAR_YUN) && (plw[1].player_number != CHAR_YUN);
 }
+
+bool bg280_yun_intro_plays() {
+    return bg_w.bg_index == AREA_NG_YUN_A && !bg280_demo_check();
+}

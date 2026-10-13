@@ -15,7 +15,7 @@ typedef struct {
     s16 char_index;
 } APPEAR_DATA;
 
-extern const APPEAR_DATA appear_data[55];
+extern const APPEAR_DATA appear_data[57];
 extern const s16 smoke_check[AREA_COUNT];
 extern const u8 animal_decide_tbl[16];
 
@@ -31,7 +31,7 @@ extern s16 Appear_end;
 
 void appear_work_clear();
 s32 home_visitor_check(PLW* wk);
-void appear_data_set(PLW* wk, APPEAR_DATA* dtbl);
+void appear_data_set(PLW* wk, const APPEAR_DATA* dtbl);
 void appear_data_init_set(PLW* wk);
 void appear_player(PLW* wk);
 void Appear_00000(PLW* wk);

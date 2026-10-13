@@ -34,6 +34,7 @@ extern u32 _ng_j10_b_char_table[];
 extern u32 _ng_hkg_a_char_table[];
 extern u32 _ng_hkg_b_char_table[];
 extern u32 _ng_effc1_char_table[];
+extern u32 _ng_yun_appear_char_table[];
 extern u32 _ng_eff94_char_table[];
 extern u32 _effD4_char_table[];
 extern u32 _ag_00_char_table[];

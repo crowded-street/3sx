@@ -6,6 +6,7 @@
 #include "sf33rd/Source/Game/animation/appear.h"
 #include "common.h"
 #include "sf33rd/Source/Game/animation/app_data.h"
+#include "sf33rd/Source/Game/animation/ng/appear42.h"
 #include "sf33rd/Source/Game/effect/eff09.h"
 #include "sf33rd/Source/Game/effect/eff15.h"
 #include "sf33rd/Source/Game/effect/eff46.h"
@@ -70,7 +71,7 @@ s32 home_visitor_check(PLW* wk) {
     return hv_type;
 }
 
-void appear_data_set(PLW* wk, APPEAR_DATA* dtbl) {
+void appear_data_set(PLW* wk, const APPEAR_DATA* dtbl) {
     if (wk->wu.id) {
         wk->wu.xyz[0].disp.pos = bg_w.bgw[1].pos_x_work - dtbl->hx;
         wk->wu.xyz[1].disp.pos = dtbl->hy;
@@ -112,14 +113,16 @@ void appear_data_init_set(PLW* wk) {
 }
 
 void appear_player(PLW* wk) {
-    void (*appear_jmp_tbl[42])(
-        PLW* wk) = { Appear_00000, Appear_01000, Appear_01000, Appear_03000, Appear_04000, Appear_05000, Appear_06000,
-                     Appear_07000, Appear_08000, Appear_09000, Appear_10000, Appear_11000, Appear_12000, Appear_13000,
-                     Appear_14000, Appear_15000, Appear_16000, Appear_17000, Appear_18000, Appear_19000, Appear_20000,
-                     Appear_21000, Appear_22000, Appear_23000, Appear_24000, Appear_25000, Appear_26000, Appear_06000,
-                     Appear_28000, Appear_29000, Appear_30000, Appear_31000, Appear_32000, Appear_33000, Appear_34000,
-                     Appear_01000, Appear_36000, Appear_37000, Appear_38000, Appear_39000, Appear_06000, Appear_41000 };
-    appear_jmp_tbl[(short)wk->wu.routine_no[4]](wk);
+    void (*appear_jmp_tbl[43])(PLW* wk) = {
+        Appear_00000, Appear_01000, Appear_01000, Appear_03000, Appear_04000, Appear_05000, Appear_06000, Appear_07000,
+        Appear_08000, Appear_09000, Appear_10000, Appear_11000, Appear_12000, Appear_13000, Appear_14000, Appear_15000,
+        Appear_16000, Appear_17000, Appear_18000, Appear_19000, Appear_20000, Appear_21000, Appear_22000, Appear_23000,
+        Appear_24000, Appear_25000, Appear_26000, Appear_06000, Appear_28000, Appear_29000, Appear_30000, Appear_31000,
+        Appear_32000, Appear_33000, Appear_34000, Appear_01000, Appear_36000, Appear_37000, Appear_38000, Appear_39000,
+        Appear_06000, Appear_41000, Appear_42000
+    };
+
+    appear_jmp_tbl[wk->wu.routine_no[4]](wk);
 }
 
 void Appear_00000(PLW* wk) {
@@ -425,25 +428,67 @@ void Appear_06000(PLW* wk) {
 }
 
 const APPEAR_DATA appear_data[] = {
-    { -88, 0, -88, 0, 1, 0, 0 },    { -88, 0, -88, 0, 1, 1, 0 },     { -88, 0, -88, 0, 1, 2, 0 },
-    { -124, 0, -124, 0, 1, 3, 12 }, { -256, 144, -256, 0, 1, 4, 0 }, { 288, 0, 288, 1, 0, 5, 0 },
-    { -248, 0, -248, 0, 1, 6, 0 },  { -88, 0, -88, 0, 1, 7, 0 },     { -62, 0, -62, 0, 1, 8, 0 },
-    { -88, 200, -88, 0, 1, 9, 16 }, { -216, 0, -224, 0, 1, 10, 16 }, { -102, 0, -102, 0, 1, 1, 0 },
-    { -88, 0, -88, 0, 1, 11, 0 },   { -17, 0, -17, 0, 1, 1, 0 },     { -88, 384, -88, 0, 1, 13, 0 },
-    { -88, 0, -88, 0, 1, 14, 0 },   { -128, 0, -128, 0, 1, 15, 0 },  { -272, 0, -304, 0, 1, 12, 0 },
-    { -88, 0, -88, 0, 1, 16, 0 },   { -88, 0, -88, 0, 1, 17, 0 },    { -88, 0, -88, 0, 1, 21, 0 },
-    { -48, 0, -48, 0, 1, 18, 0 },   { -120, 0, -120, 0, 1, 1, 0 },   { -88, 0, -88, 0, 1, 3, 23 },
-    { 256, 0, 256, 0, 1, 20, 0 },   { -88, 0, -88, 0, 1, 22, 0 },    { -88, 0, -88, 0, 1, 23, 0 },
-    { -96, 0, -96, 0, 1, 24, 0 },   { -96, 0, -96, 0, 1, 25, 0 },    { 168, 80, 168, 0, 0, 26, 0 },
-    { 248, 0, 248, 0, 0, 27, 0 },   { -112, 0, -112, 0, 1, 28, 0 },  { -111, 0, -111, 0, 1, 1, 0 },
-    { -48, 0, -48, 0, 1, 3, 18 },   { -96, 0, -96, 0, 1, 3, 23 },    { -53, 0, -53, 0, 1, 3, 21 },
-    { -53, 0, -53, 0, 1, 3, 22 },   { -72, 0, -72, 0, 1, 38, 20 },   { -84, 0, -84, 0, 1, 3, 22 },
-    { -84, 0, -84, 0, 1, 3, 22 },   { -256, 0, -256, 0, 1, 29, 0 },  { -88, 0, -88, 0, 1, 30, 0 },
-    { -64, 0, -64, 0, 1, 31, 0 },   { -258, 0, -258, 0, 1, 32, 0 },  { -256, 0, -256, 0, 1, 33, 0 },
-    { -88, 0, -88, 0, 1, 34, 0 },   { -88, 0, -88, 0, 1, 35, 0 },    { -88, 0, -88, 0, 1, 3, 16 },
-    { -24, 0, -24, 0, 1, 36, 0 },   { -24, 0, -24, 0, 1, 37, 0 },    { -448, 0, -448, 0, 1, 39, 0 },
-    { -72, 0, -72, 0, 1, 3, 17 },   { -248, 0, -248, 0, 1, 40, 0 },  { -88, 0, -88, 0, 1, 41, 0 },
+    { -88, 0, -88, 0, 1, 0, 0 },
+    { -88, 0, -88, 0, 1, 1, 0 },
+    { -88, 0, -88, 0, 1, 2, 0 },
+    { -124, 0, -124, 0, 1, 3, 12 },
+    { -256, 144, -256, 0, 1, 4, 0 },
+    { 288, 0, 288, 1, 0, 5, 0 },
+    { -248, 0, -248, 0, 1, 6, 0 },
+    { -88, 0, -88, 0, 1, 7, 0 },
+    { -62, 0, -62, 0, 1, 8, 0 },
+    { -88, 200, -88, 0, 1, 9, 16 },
+    { -216, 0, -224, 0, 1, 10, 16 },
+    { -102, 0, -102, 0, 1, 1, 0 },
+    { -88, 0, -88, 0, 1, 11, 0 },
+    { -17, 0, -17, 0, 1, 1, 0 },
+    { -88, 384, -88, 0, 1, 13, 0 },
+    { -88, 0, -88, 0, 1, 14, 0 },
+    { -128, 0, -128, 0, 1, 15, 0 },
+    { -272, 0, -304, 0, 1, 12, 0 },
+    { -88, 0, -88, 0, 1, 16, 0 },
+    { -88, 0, -88, 0, 1, 17, 0 },
+    { -88, 0, -88, 0, 1, 21, 0 },
+    { -48, 0, -48, 0, 1, 18, 0 },
+    { -120, 0, -120, 0, 1, 1, 0 },
+    { -88, 0, -88, 0, 1, 3, 23 },
+    { 256, 0, 256, 0, 1, 20, 0 },
+    { -88, 0, -88, 0, 1, 22, 0 },
+    { -88, 0, -88, 0, 1, 23, 0 },
+    { -96, 0, -96, 0, 1, 24, 0 },
+    { -96, 0, -96, 0, 1, 25, 0 },
+    { 168, 80, 168, 0, 0, 26, 0 },
+    { 248, 0, 248, 0, 0, 27, 0 },
+    { -112, 0, -112, 0, 1, 28, 0 },
+    { -111, 0, -111, 0, 1, 1, 0 },
+    { -48, 0, -48, 0, 1, 3, 18 },
+    { -96, 0, -96, 0, 1, 3, 23 },
+    { -53, 0, -53, 0, 1, 3, 21 },
+    { -53, 0, -53, 0, 1, 3, 22 },
+    { -72, 0, -72, 0, 1, 38, 20 },
+    { -84, 0, -84, 0, 1, 3, 22 },
+    { -84, 0, -84, 0, 1, 3, 22 },
+    { -256, 0, -256, 0, 1, 29, 0 },
+    { -88, 0, -88, 0, 1, 30, 0 },
+    { -64, 0, -64, 0, 1, 31, 0 },
+    { -258, 0, -258, 0, 1, 32, 0 },
+    { -256, 0, -256, 0, 1, 33, 0 },
+    { -88, 0, -88, 0, 1, 34, 0 },
+    { -88, 0, -88, 0, 1, 35, 0 },
+    { -88, 0, -88, 0, 1, 3, 16 },
+    { -24, 0, -24, 0, 1, 36, 0 },
+    { -24, 0, -24, 0, 1, 37, 0 },
+    { -448, 0, -448, 0, 1, 39, 0 },
+    { -72, 0, -72, 0, 1, 3, 17 },
+    { -248, 0, -248, 0, 1, 40, 0 },
+    { -88, 0, -88, 0, 1, 41, 0 },
     { -88, 0, -88, 0, 1, 3, 17 },
+
+    // Yun skating in on his stage from New Generation
+    { 592, 160, 592, 1, 0, 42, 0 },
+
+    // New Generation's regular intro
+    { -96, 0, -128, 0, 1, 2, 0 },
 };
 
 void Appear_07000(PLW* wk) {
@@ -547,7 +592,7 @@ void Appear_08000(PLW* wk) {
             break;
         }
 
-        appear_data_set(wk, (APPEAR_DATA*)appear_data);
+        appear_data_set(wk, &appear_data[0]);
         wk->wu.routine_no[4] = 2;
         break;
 
@@ -928,7 +973,7 @@ void Appear_17000(PLW* wk) {
         wk->wu.disp_flag = 1;
 
         if (Gill_Appear_Flag) {
-            appear_data_set(wk, (APPEAR_DATA*)appear_data);
+            appear_data_set(wk, &appear_data[0]);
             Appear_00000(wk);
             return;
         }
@@ -1182,7 +1227,7 @@ void Appear_21000(PLW* wk) {
         work = random_16();
         work &= 7;
         if (work == 6 || work == 7) {
-            appear_data_set(wk, (APPEAR_DATA*)appear_data + 24);
+            appear_data_set(wk, &appear_data[24]);
             set_char_move_init(&wk->wu, 9, 0xE);
         } else {
             set_char_move_init(&wk->wu, 9, work + 8);
@@ -1611,7 +1656,7 @@ void Appear_30000(PLW* wk) {
         wk->wu.disp_flag = 1;
         bg_app_stop = 1;
         random_16(); // Although the result is unused, I'm keeping the call, because it changes RNG state
-        appear_data_set(wk, (APPEAR_DATA*)appear_data + 24);
+        appear_data_set(wk, &appear_data[24]);
         set_char_move_init(&wk->wu, 9, 0xE);
         break;
 
@@ -1632,7 +1677,7 @@ void Appear_31000(PLW* wk) {
         wk->wu.disp_flag = 1;
 
         if (Appear_flag[wk->wu.id]) {
-            appear_data_set(wk, (APPEAR_DATA*)appear_data);
+            appear_data_set(wk, &appear_data[0]);
             Appear_00000(wk);
         } else {
             set_char_move_init(&wk->wu, 9, 8);
@@ -1946,7 +1991,7 @@ void Appear_39000(PLW* wk) {
         wk->wu.disp_flag = 1;
 
         if (Gill_Appear_Flag) {
-            appear_data_set(wk, (APPEAR_DATA*)appear_data);
+            appear_data_set(wk, &appear_data[0]);
             Appear_00000(wk);
             return;
         }
