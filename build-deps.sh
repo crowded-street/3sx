@@ -66,7 +66,10 @@ else
         -DCMAKE_INSTALL_PREFIX="$SDL_BUILD" \
         -DBUILD_SHARED_LIBS=ON \
         -DSDL_SHARED=ON \
-        -DSDL_STATIC=ON
+        -DSDL_STATIC=ON \
+        -DSDL_TEST_LIBRARY=OFF \
+        -DSDL_TESTS=OFF \
+        -DSDL_EXAMPLES=OFF
 
     cmake --build "$SDL_SRC/cmake-build" -j"$BUILD_JOBS"
     cmake --install "$SDL_SRC/cmake-build"
@@ -131,6 +134,7 @@ else
             -DCMAKE_PREFIX_PATH="$SDL_BUILD" \
             -DBUILD_SHARED_LIBS=OFF \
             -DSDLNET_INSTALL=ON \
+            -DSDLNET_SAMPLES=OFF \
             "$@"
     }
 
@@ -184,7 +188,13 @@ else
         --enable-static \
         --disable-shared \
         --disable-cxx \
-        --disable-example-progs
+        --disable-example-progs \
+        --without-cd-drive \
+        --without-cd-info \
+        --without-cdda-player \
+        --without-cd-read \
+        --without-iso-info \
+        --without-iso-read
 
     make
     make install
