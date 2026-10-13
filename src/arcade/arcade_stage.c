@@ -198,6 +198,20 @@ static const StageSource stage_sources[] = {
                          { .layer = 1, .chip = 62, .block_writes = { { 0x30C0, 6 } }, .block_write_count = 1 },
                          { .layer = 1, .chip = 63, .block_writes = { { 0x30C0, 6 } }, .block_write_count = 1 } },
       .rewrite_chip_count = 4 },
+    { .game = ROM_GAME_SFIII,
+      .bg_index = 5,
+      .area = AREA_NG_YUN_A,
+      .palette_file = CACHE_FILE_NG_YUN_A_BG_PALETTE,
+      .ppg_file = CACHE_FILE_NG_YUN_A_STAGE,
+      .object_palettes = { 0x6A },
+      .object_palette_count = 1 },
+    { .game = ROM_GAME_SFIII,
+      .bg_index = 6,
+      .area = AREA_NG_YUN_B,
+      .palette_file = CACHE_FILE_NG_YUN_B_BG_PALETTE,
+      .ppg_file = CACHE_FILE_NG_YUN_B_STAGE,
+      .object_palettes = { 0x6B },
+      .object_palette_count = 1 },
 };
 
 #define MAX_CG_RANGES 4
@@ -258,6 +272,30 @@ static const CgGroupSource cg_group_sources[] = {
       .range_count = 1,
       .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
       .file = CACHE_FILE_NG_RYU_B_OBJECTS },
+
+    // Objects of the first area of NG Yun's stage. Its char table is _ng_hkg_a_char_table.
+    { .game = ROM_GAME_SFIII,
+      .group = 105,
+      .ranges = { { 0x4540, 462 } },
+      .range_count = 1,
+      .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
+      .file = CACHE_FILE_NG_YUN_A_OBJECTS },
+
+    // Yun and Yang watching from NG Yun's stage (effect C1). Its char table is _ng_effc1_char_table.
+    { .game = ROM_GAME_SFIII,
+      .group = 106,
+      .ranges = { { 0x2B8D, 7 }, { 0xF8F, 22 } },
+      .range_count = 2,
+      .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
+      .file = CACHE_FILE_NG_EFC1 },
+
+    // Objects of the second area of NG Yun's stage. Its char table is _ng_hkg_b_char_table.
+    { .game = ROM_GAME_SFIII,
+      .group = 107,
+      .ranges = { { 0x47C0, 944 } },
+      .range_count = 1,
+      .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
+      .file = CACHE_FILE_NG_YUN_B_OBJECTS },
 };
 
 /// CPS3 graphics addresses start this far before the graphics region

@@ -24,7 +24,8 @@ const s16 scr_obj_num6[AREA_COUNT] = {
     [AREA_3S_SEAN] = 3,   [AREA_3S_URIEN] = 0,     [AREA_3S_AKUMA] = 1,       [AREA_3S_SHIN_AKUMA] = 1,
     [AREA_3S_CHUNLI] = 1, [AREA_3S_MAKOTO] = 4,    [AREA_3S_Q] = 0,           [AREA_3S_TWELVE] = 1,
     [AREA_3S_REMY] = 1,   [AREA_3S_BONUS_CAR] = 0, [AREA_3S_BONUS_BALLS] = 0, [AREA_NG_GILL] = 10,
-    [AREA_NG_ALEX] = 8,   [AREA_NG_RYU_A] = 4,     [AREA_NG_RYU_B] = 11,
+    [AREA_NG_ALEX] = 8,   [AREA_NG_RYU_A] = 4,     [AREA_NG_RYU_B] = 11,      [AREA_NG_YUN_A] = 7,
+    [AREA_NG_YUN_B] = 3,
 };
 
 const s16 st0000_data_tbl[9] = {
@@ -136,6 +137,20 @@ const s16 ng_st0210_data_tbl[99] = {
     1, 2, 8518, 264,  97, 80, 22, 0, 1, 1, 2, 8518, 424,  97, 76, 23, 0, 1,
 };
 
+/// First area of New Generation's Yun stage. Colour codes are converted from palette rows 0x40 and 0x55 to the PS2 BG
+/// palette rows 0x12C and 0x141.
+const s16 ng_st0300_data_tbl[63] = {
+    0,   1,  8492, 736, 112, 102,  35,  0,  0,    0,   2,  8492, 640, 64, 93,   4,   0,   0,    1,   2,   8513,
+    272, 95, 76,   26,  1,   0,    0,   2,  8492, 852, 24, 23,   0,   0,  0,    0,   2,   8492, 624, 136, 95,
+    5,   0,  0,    1,   2,   8513, 336, 47, 77,   16,  1,  0,    1,   2,  8513, 231, 296, 92,   27,  0,   0,
+};
+
+/// Second area of New Generation's Yun stage (areas 1 and 2 in NG). Colour codes are converted from palette row 0x40 to
+/// the PS2 BG palette row 0x12C.
+const s16 ng_st0310_data_tbl[27] = {
+    1, 2, 8492, 288, 32, 88, 2, 0, 0, 0, 2, 8492, 512, 128, 103, 9, 0, 0, 1, 2, 8492, 736, 24, 23, 62, 0, 0,
+};
+
 const s16* scr_obj_data6[AREA_COUNT] = {
     [AREA_3S_GILL] = st0000_data_tbl,
     [AREA_3S_ALEX] = st0100_data_tbl,
@@ -164,6 +179,8 @@ const s16* scr_obj_data6[AREA_COUNT] = {
     [AREA_NG_ALEX] = ng_st0100_data_tbl,
     [AREA_NG_RYU_A] = ng_st0200_data_tbl,
     [AREA_NG_RYU_B] = ng_st0210_data_tbl,
+    [AREA_NG_YUN_A] = ng_st0300_data_tbl,
+    [AREA_NG_YUN_B] = ng_st0310_data_tbl,
 };
 
 void effect_06_move(WORK_Other* ewk) {

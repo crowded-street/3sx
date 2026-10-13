@@ -102,17 +102,15 @@ static void eff64_wait(WORK_Other* ewk) {
     }
 }
 
-/// Moves the object. Unlike add_x_sub and add_y_sub, NG accelerates before moving.
+/// Moves the object.
 /// @return Whether the object has passed its end x
 static bool eff64_step(WORK_Other* ewk) {
     if (ewk->wu.hit_stop) {
         char_move(&ewk->wu);
     }
 
-    ewk->wu.mvxy.a[0].sp += ewk->wu.mvxy.d[0].sp;
-    ewk->wu.xyz[0].cal += ewk->wu.mvxy.a[0].sp;
-    ewk->wu.mvxy.a[1].sp += ewk->wu.mvxy.d[1].sp;
-    ewk->wu.xyz[1].cal += ewk->wu.mvxy.a[1].sp;
+    add_x_sub_ng(&ewk->wu);
+    add_y_sub_ng(&ewk->wu);
 
     if (ewk->wu.routine_no[1] & 1) {
         return ewk->wu.xyz[0].disp.pos < ewk->wu.old_rno[0];

@@ -19,10 +19,28 @@ void disp_pos_trans_entry_r(WORK_Other* ewk);
 void disp_pos_trans_entry_r4(WORK_Other* ewk);
 void disp_pos_trans_entry_s(WORK_Other* ewk);
 void disp_pos_trans_entry_rs(WORK_Other* ewk);
+
+/// Like disp_pos_trans_entry, but with New Generation's range and positions that wrap at 0x400
+void disp_pos_trans_entry_ng(WORK_Other* ewk);
+
 void pl_eff_trans_entry(WORK_Other* ewk);
 void add_x_sub(WORK* wk);
 void add_x_sub2(WORK* wk);
+
+/// Like add_x_sub, but accelerates before moving, as New Generation does
+void add_x_sub_ng(WORK* wk);
+
+/// Like add_y_sub, but accelerates before moving, as New Generation does
+void add_y_sub_ng(WORK* wk);
+
 s32 compel_dead_check(WORK_Other* ewk);
+
+/// Whether a round has ended, before the next one starts
+bool is_round_over();
+
+/// Whether a round has ended with a winner
+bool is_round_won();
+
 void cal_bg_speed_data_x(s16 bg_num, s16 tm, s16 unk);
 void cal_bg_speed_data_y(s16 bg_num, s16 tm, s16 unk);
 s32 range_x_check(WORK_Other* ewk);
@@ -35,6 +53,13 @@ s16 eff_hit_check2(WORK_Other* ewk, s16 type, s16 where_type);
 
 /// Like eff_hit_check, but with a hitbox of the effect's own instead of one from eff_hit_data
 s16 eff_hit_check_box(WORK_Other* ewk, s16 type, const s16* box);
+
+/// New Generation's version of eff_hit_check
+s16 eff_hit_check_ng(WORK_Other* ewk, s16 type);
+
+/// Area-dependent version of eff_hit_check
+s16 eff_hit_check_area(WORK_Other* ewk, s16 type);
+
 s32 range_x_check3(WORK_Other* ewk, s16 optional_range);
 void eff_hit_flag_clear();
 

@@ -327,6 +327,17 @@ const LoadRequestEntry ldreq_tbl[LDREQ_TBL_SIZE] = {
     [308] = { .type = LDREQ_COLOR, .ix = 169, .frre = 1, .kokey = 2 },
     [309] = { .type = LDREQ_SCREEN, .ix = 170, .frre = 1, .kokey = 18 },
     [310] = { .type = LDREQ_TEXTURE, .ix = 104, .frre = 1, .kokey = 19 },
+
+    // First area of NG Yun's stage
+    [311] = { .type = LDREQ_COLOR, .ix = 171, .frre = 1, .kokey = 2 },
+    [312] = { .type = LDREQ_SCREEN, .ix = 172, .frre = 1, .kokey = 18 },
+    [313] = { .type = LDREQ_TEXTURE, .ix = 105, .frre = 1, .kokey = 19 },
+    [314] = { .type = LDREQ_TEXTURE, .ix = 106, .frre = 1, .kokey = 19 }, // Yun and Yang watching
+
+    // Second area of NG Yun's stage
+    [315] = { .type = LDREQ_COLOR, .ix = 173, .frre = 1, .kokey = 2 },
+    [316] = { .type = LDREQ_SCREEN, .ix = 174, .frre = 1, .kokey = 18 },
+    [317] = { .type = LDREQ_TEXTURE, .ix = 107, .frre = 1, .kokey = 19 },
 };
 
 /// Load request spans. Spans from 20 on hold the resources of area `index - 20`. AREA_3S_Q's span loads Ken's stage
@@ -347,5 +358,6 @@ const Span spans[] = {
     { .start = 175, .length = 3 }, { .start = 180, .length = 3 }, { .start = 185, .length = 3 },
     { .start = 190, .length = 3 }, { .start = 195, .length = 3 }, { .start = 200, .length = 5 },
     { .start = 206, .length = 4 }, { .start = 300, .length = 5 }, { .start = 297, .length = 5 },
-    { .start = 305, .length = 3 }, { .start = 308, .length = 3 },
+    { .start = 305, .length = 3 }, { .start = 308, .length = 3 }, { .start = 311, .length = 4 },
+    { .start = 315, .length = 3 },
 };

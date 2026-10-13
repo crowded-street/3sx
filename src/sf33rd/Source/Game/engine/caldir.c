@@ -762,6 +762,11 @@ s16 caldir_pos_032(s16 x1, s16 x2, s16 y1, s16 y2) {
     return (caldir_pos_256(x1, x2, y1, y2) + 4) >> 3 & 0x1F;
 }
 
+void add_pos_dir_032(WORK* wk, s16 sp) {
+    wk->xyz[0].cal += (sp * rate_256_table[wk->direction * 8][0]) >> 8;
+    wk->xyz[1].cal += (sp * rate_256_table[wk->direction * 8][1]) >> 8;
+}
+
 void add_pos_dir_064(WORK* wk, s16 sp) {
     wk->xyz[0].cal += (sp * rate_256_table[wk->direction * 4][0]) >> 8;
     wk->xyz[1].cal += (sp * rate_256_table[wk->direction * 4][1]) >> 8;

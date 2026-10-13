@@ -1935,6 +1935,7 @@ static bool Is_VS_Stage_Selectable(s8 stage) {
     case STAGE_NG_GILL:
     case STAGE_NG_ALEX:
     case STAGE_NG_RYU:
+    case STAGE_NG_YUN:
         return ArcadeStage_IsRomProcessed(ROM_GAME_SFIII);
 
     default:

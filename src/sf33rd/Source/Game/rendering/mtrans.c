@@ -1922,7 +1922,7 @@ static s16 check_patcash_ex_trans(PatternCollection* padr, u32 cg) {
 static s32 get_free_patcash_index(PatternCollection* padr) {
     s16 i;
 
-    for (i = 0; i < 0x40; i++) {
+    for (i = 0; i < PATTERN_COLLECTION_SIZE; i++) {
         if (padr->patt[i].time == 0) {
             return i;
         }

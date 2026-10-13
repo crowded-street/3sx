@@ -62,11 +62,35 @@ static const Eff18Data eff18_ryu_b_data[3] = {
     { 1, 2, 8518, -112, 57, 76, 25, 26, 1, 1, EFF18_SWING_ON_SPECIAL_MOVE, 1 },
 };
 
-/// NG picks each variant's data by `compel_flag` as well, but the data of variants 0 and 1 is the same for all of them.
-/// The other variants belong to stages that aren't ported yet.
-static const Eff18Variant eff18_variants[] = {
-    { eff18_ryu_a_data, SDL_arraysize(eff18_ryu_a_data) },
-    { eff18_ryu_b_data, SDL_arraysize(eff18_ryu_b_data) },
+/// First area of Yun's stage, for even `compel_flag`s. Colour codes are converted from palette row 0x55 to the PS2 BG
+/// palette row 0x141.
+static const Eff18Data eff18_yun_a_data_0[2] = {
+    { 1, 2, 8513, 608, 64, 85, 19, 20, 1, 0, EFF18_SWING_ON_SPECIAL_MOVE, 1 },
+    { 0, 2, 8513, 488, 48, 77, 21, 22, 1, 0, EFF18_SWING_ON_SPECIAL_MOVE, 1 },
+};
+
+/// First area of Yun's stage, for odd `compel_flag`s. NG picks `compel_flag` at random, but it's always 0 in 3S.
+static const Eff18Data eff18_yun_a_data_1[2] = {
+    { 0, 2, 8513, 496, 48, 75, 32, 33, 1, 0, EFF18_SWING_ON_SPECIAL_MOVE, 1 },
+    { 1, 2, 8513, 552, 56, 76, 30, 31, 1, 0, EFF18_SWING_ON_SPECIAL_MOVE, 1 },
+};
+
+#define EFF18_VARIANT(data) { data, SDL_arraysize(data) }
+
+/// Indexed by variant and `compel_flag`. The other variants belong to stages that aren't ported yet.
+static const Eff18Variant eff18_variants[][4] = {
+    { EFF18_VARIANT(eff18_ryu_a_data),
+      EFF18_VARIANT(eff18_ryu_a_data),
+      EFF18_VARIANT(eff18_ryu_a_data),
+      EFF18_VARIANT(eff18_ryu_a_data) },
+    { EFF18_VARIANT(eff18_ryu_b_data),
+      EFF18_VARIANT(eff18_ryu_b_data),
+      EFF18_VARIANT(eff18_ryu_b_data),
+      EFF18_VARIANT(eff18_ryu_b_data) },
+    { EFF18_VARIANT(eff18_yun_a_data_0),
+      EFF18_VARIANT(eff18_yun_a_data_1),
+      EFF18_VARIANT(eff18_yun_a_data_0),
+      EFF18_VARIANT(eff18_yun_a_data_1) },
 };
 
 static bool is_special_move_active() {
@@ -77,14 +101,6 @@ static bool is_special_move_active() {
     }
 
     return false;
-}
-
-static bool is_round_over() {
-    return !Allow_a_battle_f && Conclusion_Flag == 1 && C_No[0] > 1;
-}
-
-static bool is_round_won() {
-    return is_round_over() && Complete_Victory;
 }
 
 static void animate(WORK_Other* ewk) {
@@ -231,7 +247,7 @@ void effect_ng18_move(WORK_Other* ewk) {
 }
 
 s32 effect_ng18_init(s16 variant) {
-    const Eff18Variant* data = &eff18_variants[variant];
+    const Eff18Variant* data = &eff18_variants[variant][bg_w.compel_flag];
     WORK_Other* ewk;
     s16 ix;
     s16 i;

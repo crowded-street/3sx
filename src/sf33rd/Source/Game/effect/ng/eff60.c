@@ -1,7 +1,6 @@
 /**
  * @file eff60.c
- * Blinking stage objects from New Generation (effect 60 in the NG arcade ROM). Unlike 3S's effect 60, they always
- * blink and have no blink timer.
+ * Translucent stage objects from New Generation
  */
 
 #include "sf33rd/Source/Game/effect/ng/eff60.h"
@@ -21,11 +20,8 @@
 /// Same layout as the effect 05 records: dead_f, my_family, my_col_code, x, y, priority, char_index, animate,
 /// sync_suzi. Colour codes are converted from NG's stage palette rows like in eff64.c.
 static const s16 ng_eff60_data_tbl[2][9] = {
-    // Stage 2
-    { 1, 2, 8492, 272, 96, 86, 61, 1, 0 },
-
-    // Alex's stage, after the car breaks
-    { 1, 2, 8492, 304, 48, 76, 32, 1, 0 },
+    { 1, 2, 8492, 272, 96, 86, 61, 1, 0 }, // Water of the fish tank on the second area of Yun's stage
+    { 1, 2, 8492, 304, 48, 76, 32, 1, 0 }, // Alex's stage, after the car breaks
 };
 
 void effect_ng60_move(WORK_Other* ewk) {
@@ -33,8 +29,10 @@ void effect_ng60_move(WORK_Other* ewk) {
     case 0:
         ewk->wu.routine_no[0]++;
         set_char_move_init(&ewk->wu, 0, ewk->wu.char_index);
-        ewk->wu.disp_flag = 2;
-        ewk->wu.blink_timing = 1;
+
+        // NG blinks these objects every other frame to make them look translucent instead
+        ewk->wu.disp_flag = 1;
+        ewk->wu.my_clear_level = 128;
         break;
 
     case 1:

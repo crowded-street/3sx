@@ -33,6 +33,7 @@
 #include "sf33rd/Source/Game/stage/ng/bg240.h"
 #include "sf33rd/Source/Game/stage/ng/bg260.h"
 #include "sf33rd/Source/Game/stage/ng/bg270.h"
+#include "sf33rd/Source/Game/stage/ng/bg280.h"
 
 void (*ta_move_tbl[AREA_COUNT])() = {
     [AREA_3S_GILL] = BG000,
@@ -62,6 +63,8 @@ void (*ta_move_tbl[AREA_COUNT])() = {
     [AREA_NG_ALEX] = BG240,
     [AREA_NG_RYU_A] = BG260,
     [AREA_NG_RYU_B] = BG270,
+    [AREA_NG_YUN_A] = BG280,
+    [AREA_NG_YUN_B] = BG280,
 };
 
 void ta0_init00();
