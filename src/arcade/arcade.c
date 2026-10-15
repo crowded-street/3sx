@@ -17,28 +17,28 @@ static Rom* roms[ROM_GAME_COUNT] = { 0 };
 
 static Rom* load_rom(RomGame game) {
     char* path = Resources_GetPath(Rom_GetZipName(game));
-    Rom* rom = Rom_Create(game, path);
+    const bool exists = SDL_GetPathInfo(path, NULL);
+    Rom* rom = NULL;
 
-    if (rom == NULL) {
-        SDL_Log("Couldn't load arcade ROM %s: %s", Rom_GetZipName(game), SDL_GetError());
+    if (exists) {
+        rom = Rom_Create(game, path);
+
+        if (rom == NULL) {
+            SDL_Log("Couldn't load arcade ROM %s: %s", Rom_GetZipName(game), SDL_GetError());
+        }
+    } else {
+        SDL_Log("Skipping loading ROM at %s because it doesn't exist", Rom_GetZipName(game));
     }
 
     SDL_free(path);
     return rom;
 }
 
-static bool rom_exists(RomGame game) {
-    char* path = Resources_GetPath(Rom_GetZipName(game));
-    const bool exists = SDL_GetPathInfo(path, NULL);
-    SDL_free(path);
-    return exists;
-}
-
 void Arcade_Init() {
     ArcadeBalance_Init();
 
     bool needed[ROM_GAME_COUNT] = { false };
-    needed[ROM_GAME_SFIII] = rom_exists(ROM_GAME_SFIII) && ArcadeStage_NeedsRom(ROM_GAME_SFIII);
+    needed[ROM_GAME_SFIII] = ArcadeStage_NeedsRom(ROM_GAME_SFIII);
     needed[ROM_GAME_SFIII3] = true;
 
     for (int game = 0; game < ROM_GAME_COUNT; game++) {
