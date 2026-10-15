@@ -38,7 +38,7 @@ void Arcade_Init() {
     ArcadeBalance_Init();
 
     bool needed[ROM_GAME_COUNT] = { false };
-    needed[ROM_GAME_SFIII] = rom_exists(ROM_GAME_SFIII);
+    needed[ROM_GAME_SFIII] = rom_exists(ROM_GAME_SFIII) && ArcadeStage_NeedsRom(ROM_GAME_SFIII);
     needed[ROM_GAME_SFIII3] = true;
 
     for (int game = 0; game < ROM_GAME_COUNT; game++) {

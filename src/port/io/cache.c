@@ -5,6 +5,9 @@
 #include "stb/stb_ds.h"
 #include <SDL3/SDL.h>
 
+#define CACHE_VERSION 0
+#define VERSION_FILE "version"
+
 static const char* const paths[CACHE_FILE_COUNT] = {
     [CACHE_FILE_SHIN_AKUMA_BG_PALETTE] = "3s/bg15_palette.bin",
     [CACHE_FILE_NG_GILL_BG_PALETTE] = "ng/bg00_palette.bin",
@@ -77,17 +80,50 @@ static void remove_tree(const char* path) {
     }
 }
 
-// FIXME: Invalidate only stale files instead of clearing the whole cache on every start
 static void clear_cache() {
     char* path = Paths_GetCachePath(NULL);
     remove_tree(path);
     SDL_free(path);
 }
 
+static bool is_cache_current() {
+    char* path = Paths_GetCachePath(VERSION_FILE);
+    char* text = SDL_LoadFile(path, NULL);
+    bool current = false;
+
+    if (text != NULL) {
+        char* end = NULL;
+        const long version = SDL_strtol(text, &end, 10);
+        current = end != text && *end == '\0' && version == CACHE_VERSION;
+    }
+
+    SDL_free(text);
+    SDL_free(path);
+    return current;
+}
+
+static void write_version() {
+    char* dir = Paths_GetCachePath(NULL);
+    char* path = Paths_GetCachePath(VERSION_FILE);
+    char text[16];
+    SDL_snprintf(text, sizeof(text), "%d", CACHE_VERSION);
+
+    if (!SDL_CreateDirectory(dir) || !SDL_SaveFile(path, text, SDL_strlen(text))) {
+        SDL_Log("Couldn't write %s: %s", path, SDL_GetError());
+    }
+
+    SDL_free(path);
+    SDL_free(dir);
+}
+
 void Cache_Init(size_t read_chunk_size) {
     SDL_assert(read_chunk_size > 0);
     _read_chunk_size = read_chunk_size;
-    clear_cache();
+
+    if (!is_cache_current()) {
+        clear_cache();
+        write_version();
+    }
 }
 
 void Cache_Finish() {
@@ -126,13 +162,18 @@ bool Cache_Write(CacheFile file, const void* data, size_t size) {
     char* path = Cache_GetFullPath(file);
     char* dir = SDL_strdup(path);
     *SDL_strrchr(dir, '/') = '\0';
+    char* temp_path = NULL;
+    SDL_asprintf(&temp_path, "%s.tmp", path);
 
-    const bool success = SDL_CreateDirectory(dir) && SDL_SaveFile(path, data, size);
+    // Files that exist are never rebuilt, so an interrupted write mustn't leave a partial file behind
+    const bool success =
+        SDL_CreateDirectory(dir) && SDL_SaveFile(temp_path, data, size) && SDL_RenamePath(temp_path, path);
 
     if (!success) {
         SDL_Log("Couldn't write %s: %s", path, SDL_GetError());
     }
 
+    SDL_free(temp_path);
     SDL_free(dir);
     SDL_free(path);
     return success;

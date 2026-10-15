@@ -903,17 +903,45 @@ static bool make_stage_rom(const Rom* const roms[ROM_GAME_COUNT], RomGame game, 
     return true;
 }
 
-void ArcadeStage_Init(const Rom* const roms[ROM_GAME_COUNT]) {
-    for (int game = 0; game < ROM_GAME_COUNT; game++) {
-        rom_processed[game] = roms[game] != NULL;
+static bool is_rom_cached(RomGame game) {
+    for (int i = 0; i < SDL_arraysize(palette_sources); i++) {
+        const PaletteSource* source = &palette_sources[i];
+
+        if (source->game == game && !Cache_Exists(source->file)) {
+            return false;
+        }
     }
 
+    for (int i = 0; i < SDL_arraysize(stage_sources); i++) {
+        const StageSource* source = &stage_sources[i];
+
+        if (source->game == game && (!Cache_Exists(source->palette_file) || !Cache_Exists(source->ppg_file))) {
+            return false;
+        }
+    }
+
+    for (int i = 0; i < SDL_arraysize(cg_group_sources); i++) {
+        const CgGroupSource* source = &cg_group_sources[i];
+
+        if (source->game == game && !Cache_Exists(source->file)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool ArcadeStage_NeedsRom(RomGame game) {
+    return !is_rom_cached(game);
+}
+
+void ArcadeStage_Init(const Rom* const roms[ROM_GAME_COUNT]) {
     for (int i = 0; i < SDL_arraysize(palette_sources); i++) {
         const PaletteSource* source = &palette_sources[i];
         StageRom stage_rom;
 
-        if (make_stage_rom(roms, source->game, &stage_rom) && !write_palette(source, stage_rom.graphics)) {
-            rom_processed[source->game] = false;
+        if (!Cache_Exists(source->file) && make_stage_rom(roms, source->game, &stage_rom)) {
+            write_palette(source, stage_rom.graphics);
         }
     }
 
@@ -921,8 +949,9 @@ void ArcadeStage_Init(const Rom* const roms[ROM_GAME_COUNT]) {
         const StageSource* source = &stage_sources[i];
         StageRom stage_rom;
 
-        if (make_stage_rom(roms, source->game, &stage_rom) && !write_stage(source, &stage_rom)) {
-            rom_processed[source->game] = false;
+        if ((!Cache_Exists(source->palette_file) || !Cache_Exists(source->ppg_file)) &&
+            make_stage_rom(roms, source->game, &stage_rom)) {
+            write_stage(source, &stage_rom);
         }
     }
 
@@ -930,9 +959,13 @@ void ArcadeStage_Init(const Rom* const roms[ROM_GAME_COUNT]) {
         const CgGroupSource* source = &cg_group_sources[i];
         StageRom stage_rom;
 
-        if (make_stage_rom(roms, source->game, &stage_rom) && !write_cg_group(source, &stage_rom)) {
-            rom_processed[source->game] = false;
+        if (!Cache_Exists(source->file) && make_stage_rom(roms, source->game, &stage_rom)) {
+            write_cg_group(source, &stage_rom);
         }
+    }
+
+    for (int game = 0; game < ROM_GAME_COUNT; game++) {
+        rom_processed[game] = is_rom_cached(game);
     }
 }
 
