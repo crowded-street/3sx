@@ -21,7 +21,8 @@ const char* Letter_Data_99[5][VS_STAGE_RANDOM + 1] = {
     { "UNKNOWN", "AMERICA", "JAPAN",   "HONG KONG", "ENGLAND", "RUSSIA",    "GERMANY",
       "JAPAN",   "KENYA",   "BRAZIL",  "HONG KONG", "AMERICA", "BRAZIL",    "MEXICO",
       "JAPAN",   "JAPAN",   "CHINA",   "JAPAN",     "",        "RUSSIA",    "FRANCE",
-      "",        "",        "UNKNOWN", "AMERICA",   "JAPAN",   "HONG KONG", [VS_STAGE_RANDOM] = "RANDOM" },
+      "",        "",        "UNKNOWN", "AMERICA",   "JAPAN",   "HONG KONG", "ENGLAND",
+      [VS_STAGE_RANDOM] = "RANDOM" },
     { "GILL STAGE",
       "SUBWAY STATION",
       "SUZAKU CASTLE ROOFTOP",
@@ -49,6 +50,7 @@ const char* Letter_Data_99[5][VS_STAGE_RANDOM + 1] = {
       "NEW YORK ALLEYWAY",
       "HOT SPRING INN",
       "BACK ALLEY",
+      "LONDON STREET",
       [VS_STAGE_RANDOM] = "" },
     { "",
       "ALEX STAGE",
@@ -77,6 +79,7 @@ const char* Letter_Data_99[5][VS_STAGE_RANDOM + 1] = {
       "ALEX STAGE (NG)",
       "RYU STAGE (NG)",
       "YUN STAGE (NG)",
+      "DUDLEY STAGE (NG)",
       [VS_STAGE_RANDOM] = "" }
 };
 
