@@ -31,7 +31,9 @@ static const char* const paths[CACHE_FILE_COUNT] = {
     [CACHE_FILE_NG_YUN_B_OBJECTS] = "ng/bg06.bin",
     [CACHE_FILE_NG_DUDLEY_A_BG_PALETTE] = "ng/bg07_palette.bin",
     [CACHE_FILE_NG_DUDLEY_A_STAGE] = "ng/stage07.ppg",
-    [CACHE_FILE_NG_DUDLEY_A_OBJECTS] = "ng/bg07.bin",
+    [CACHE_FILE_NG_DUDLEY_OBJECTS] = "ng/bg07.bin",
+    [CACHE_FILE_NG_DUDLEY_B_BG_PALETTE] = "ng/bg08_palette.bin",
+    [CACHE_FILE_NG_DUDLEY_B_STAGE] = "ng/stage08.ppg",
     [CACHE_FILE_NG_EF94] = "ng/ef94.bin",
     [CACHE_FILE_NG_EF94_PALETTE] = "ng/ef94_palette.bin",
 };

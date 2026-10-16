@@ -25,7 +25,7 @@ const s16 scr_obj_num6[AREA_COUNT] = {
     [AREA_3S_CHUNLI] = 1, [AREA_3S_MAKOTO] = 4,    [AREA_3S_Q] = 0,           [AREA_3S_TWELVE] = 1,
     [AREA_3S_REMY] = 1,   [AREA_3S_BONUS_CAR] = 0, [AREA_3S_BONUS_BALLS] = 0, [AREA_NG_GILL] = 10,
     [AREA_NG_ALEX] = 8,   [AREA_NG_RYU_A] = 4,     [AREA_NG_RYU_B] = 11,      [AREA_NG_YUN_A] = 7,
-    [AREA_NG_YUN_B] = 3,  [AREA_NG_DUDLEY_A] = 12,
+    [AREA_NG_YUN_B] = 3,  [AREA_NG_DUDLEY_A] = 12, [AREA_NG_DUDLEY_B] = 15,
 };
 
 const s16 st0000_data_tbl[9] = {
@@ -160,6 +160,16 @@ const s16 ng_st0400_data_tbl[108] = {
     1, 2, 8492, -273, 160, 78,  1,  1, 1, 1, 2, 8492, -257, 48,  79,  2,  0, 1, 0, 2, 8492, -160, 48,  79,  4,  0, 1,
 };
 
+/// Second area of New Generation's Dudley stage (areas 1 and 2 in NG). Colour codes are converted from palette rows
+/// 0x40 and 0x58 to the PS2 BG palette rows 0x12C and 0x144.
+const s16 ng_st0410_data_tbl[135] = {
+    1, 2, 8492, -273, 160, 78,  1,  1, 1, 0, 2, 8492, 79,   49,  78,  28, 0, 1, 0, 2, 8492, 191,  128, 78,  29, 0, 1,
+    0, 2, 8492, 256,  48,  78,  3,  0, 1, 0, 2, 300,  -146, 224, 80,  9,  0, 1, 0, 2, 300,  -256, 224, 80,  33, 0, 1,
+    0, 2, 300,  -352, 224, 80,  34, 0, 1, 0, 2, 300,  208,  160, 102, 7,  0, 1, 0, 2, 300,  112,  160, 102, 30, 0, 1,
+    0, 2, 300,  160,  160, 102, 31, 0, 1, 0, 2, 300,  320,  160, 102, 32, 0, 1, 1, 2, 8492, -257, 48,  79,  2,  0, 1,
+    0, 2, 8492, -128, 80,  80,  5,  0, 1, 1, 2, 8516, 224,  48,  76,  24, 0, 1, 1, 2, 8516, 224,  160, 100, 25, 0, 1,
+};
+
 const s16* scr_obj_data6[AREA_COUNT] = {
     [AREA_3S_GILL] = st0000_data_tbl,
     [AREA_3S_ALEX] = st0100_data_tbl,
@@ -191,6 +201,7 @@ const s16* scr_obj_data6[AREA_COUNT] = {
     [AREA_NG_YUN_A] = ng_st0300_data_tbl,
     [AREA_NG_YUN_B] = ng_st0310_data_tbl,
     [AREA_NG_DUDLEY_A] = ng_st0400_data_tbl,
+    [AREA_NG_DUDLEY_B] = ng_st0410_data_tbl,
 };
 
 void effect_06_move(WORK_Other* ewk) {

@@ -285,6 +285,16 @@ static const StageSource stage_sources[] = {
                          NG_DUDLEY_RAIN_CHIP(3, 51), NG_DUDLEY_RAIN_CHIP(3, 55), NG_DUDLEY_RAIN_CHIP(3, 56),
                          NG_DUDLEY_RAIN_CHIP(3, 57), NG_DUDLEY_RAIN_CHIP(3, 58), NG_DUDLEY_RAIN_CHIP(3, 63) },
       .rewrite_chip_count = 126 },
+    { .game = ROM_GAME_SFIII,
+      .bg_index = 8,
+      .area = AREA_NG_DUDLEY_B,
+      .palette_file = CACHE_FILE_NG_DUDLEY_B_BG_PALETTE,
+      .ppg_file = CACHE_FILE_NG_DUDLEY_B_STAGE,
+      .object_palettes = { 0x65 },
+      .object_palette_count = 1,
+      .layer_writes = { { .layer = 1, .offset = 0x3000, .block = 1, .first_column = 8, .columns = 8 },
+                        { .layer = 1, .offset = 0x30E0, .block = 5, .first_column = 0, .columns = 8 } },
+      .layer_write_count = 2 },
 };
 
 #define MAX_CG_RANGES 4
@@ -376,7 +386,7 @@ static const CgGroupSource cg_group_sources[] = {
       .ranges = { { 0x52D0, 176 } },
       .range_count = 1,
       .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
-      .file = CACHE_FILE_NG_DUDLEY_A_OBJECTS },
+      .file = CACHE_FILE_NG_DUDLEY_OBJECTS },
 };
 
 /// CPS3 graphics addresses start this far before the graphics region
