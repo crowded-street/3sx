@@ -4,7 +4,7 @@
 #include "structs.h"
 #include "types.h"
 
-#define EFFECT_NG87_ID 246
+#define EFFECT_NG87_ID 247
 
 s32 effect_ng87_init(s16 variant);
 
