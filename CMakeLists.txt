@@ -294,6 +294,17 @@ if(APPLE)
     install(DIRECTORY "${ASSETS_DIR}/"
         DESTINATION 3SX.app/Contents/Resources/assets
     )
+
+    # Seal the complete bundle after installation adds its frameworks and assets.
+    install(CODE "
+        execute_process(
+            COMMAND /usr/bin/codesign --force --deep --sign - \"\${CMAKE_INSTALL_PREFIX}/3SX.app\"
+            RESULT_VARIABLE sign_result
+        )
+        if(NOT sign_result EQUAL 0)
+            message(FATAL_ERROR \"Failed to sign 3SX.app\")
+        endif()
+    ")
 elseif(WIN32)
     install(TARGETS 3sx
 		RUNTIME_DEPENDENCY_SET deps
