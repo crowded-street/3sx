@@ -338,6 +338,20 @@ const LoadRequestEntry ldreq_tbl[LDREQ_TBL_SIZE] = {
     [315] = { .type = LDREQ_COLOR, .ix = 173, .frre = 1, .kokey = 2 },
     [316] = { .type = LDREQ_SCREEN, .ix = 174, .frre = 1, .kokey = 18 },
     [317] = { .type = LDREQ_TEXTURE, .ix = 107, .frre = 1, .kokey = 19 },
+
+    // First area of NG Dudley's stage
+    [318] = { .type = LDREQ_COLOR, .ix = 175, .frre = 1, .kokey = 2 },
+    [319] = { .type = LDREQ_SCREEN, .ix = 176, .frre = 1, .kokey = 18 },
+    [320] = { .type = LDREQ_TEXTURE, .ix = 108, .frre = 1, .kokey = 19 },
+    [321] = { .type = LDREQ_TEXTURE, .ix = 101, .frre = 1, .kokey = 19 }, // Ibuki's tanuki
+    [322] = { .type = LDREQ_COLOR, .ix = 164, .frre = 1, .kokey = 2 },    // Ibuki's tanuki palette
+
+    // Second area of NG Dudley's stage. Its objects use the first area's texture group.
+    [323] = { .type = LDREQ_COLOR, .ix = 177, .frre = 1, .kokey = 2 },
+    [324] = { .type = LDREQ_SCREEN, .ix = 178, .frre = 1, .kokey = 18 },
+    [325] = { .type = LDREQ_TEXTURE, .ix = 108, .frre = 1, .kokey = 19 },
+    [326] = { .type = LDREQ_TEXTURE, .ix = 101, .frre = 1, .kokey = 19 }, // Ibuki's tanuki
+    [327] = { .type = LDREQ_COLOR, .ix = 164, .frre = 1, .kokey = 2 },    // Ibuki's tanuki palette
 };
 
 /// Load request spans. Spans from 20 on hold the resources of area `index - 20`. AREA_3S_Q's span loads Ken's stage
@@ -359,5 +373,5 @@ const Span spans[] = {
     { .start = 190, .length = 3 }, { .start = 195, .length = 3 }, { .start = 200, .length = 5 },
     { .start = 206, .length = 4 }, { .start = 300, .length = 5 }, { .start = 297, .length = 5 },
     { .start = 305, .length = 3 }, { .start = 308, .length = 3 }, { .start = 311, .length = 4 },
-    { .start = 315, .length = 3 },
+    { .start = 315, .length = 3 }, { .start = 318, .length = 5 }, { .start = 323, .length = 5 },
 };

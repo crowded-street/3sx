@@ -491,4 +491,9 @@ const TexGroupData texgrpdat[TEXGROUP_COUNT] = {
               .mode = TEXGROUP_MODE_NORMAL,
               .to_tex = 0xD900,
               .to_chd = 0x0 }, // ng/bg06.bin
+    [108] = { .num_of_1st = 40629,
+              .apfn = RESOURCE_CACHE_FNUM(CACHE_FILE_NG_DUDLEY_OBJECTS),
+              .mode = TEXGROUP_MODE_NORMAL,
+              .to_tex = 0x4200,
+              .to_chd = 0x0 }, // ng/bg07.bin
 };

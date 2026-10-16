@@ -75,9 +75,10 @@ static const StageTables stage_tables[ROM_GAME_COUNT] = {
 };
 
 #define MAX_OBJECT_PALETTES 4
-#define MAX_REWRITE_CHIPS 16
+#define MAX_REWRITE_CHIPS 128
 #define MAX_PALETTE_STEPS 2
 #define MAX_BLOCK_WRITES 2
+#define MAX_LAYER_WRITES 2
 
 /// A step of NG's effect 14, which animates a layer by cycling the palettes of a rectangle of tilemap cells
 typedef struct PaletteStep {
@@ -90,6 +91,15 @@ typedef struct BlockWrite {
     Uint32 offset; // Tilemap offset in bytes
     int block;     // Index of the stage's map block
 } BlockWrite;
+
+/// Columns of a map block that stage setup code writes over part of a layer's tilemap (NG's `bg0701_rewrite`)
+typedef struct LayerWrite {
+    int layer;
+    Uint32 offset; // Tilemap offset in bytes
+    int block;     // Index of the stage's map block
+    int first_column;
+    int columns;
+} LayerWrite;
 
 /// A chip of an alternate tilemap that the stage swaps in to animate a layer. It becomes a rewrite chip, which the PPG
 /// stores after the layer chips.
@@ -120,6 +130,10 @@ typedef struct StageSource {
     int object_palettes[MAX_OBJECT_PALETTES];
     int object_palette_count;
 
+    /// Writes over the layer tilemaps. They stay for the whole stage, so the layer chips include them.
+    LayerWrite layer_writes[MAX_LAYER_WRITES];
+    int layer_write_count;
+
     /// Must match `rewrite_scr` and the stage's `bgrw_data_tbl` entries
     RewriteChip rewrite_chips[MAX_REWRITE_CHIPS];
     int rewrite_chip_count;
@@ -128,6 +142,10 @@ typedef struct StageSource {
 /// Alternate tilemaps of Gill's stage. NG's effect 12 cycles through them to animate the lava of layer 0.
 #define NG_GILL_LAVA_MAP_0 0x0643275C
 #define NG_GILL_LAVA_MAP_1 0x064327DC
+
+#define NG_DUDLEY_RAIN_MAPS 0x06432464
+#define NG_DUDLEY_RAIN_CHIP(map_index, chip_index)                                                                     \
+    { .blocks = NG_DUDLEY_RAIN_MAPS + (map_index) * 0x80, .block_count = 16, .chip = (chip_index) }
 
 /// Variants of NG's effect 14 (20 bytes each): {u8[3], u8 layer, u8[4], u32 palette sequence, u32 cell mask,
 /// u32 size}. The sequence holds {u8, u8 frames, u16 palette row} steps, the mask a byte per cell (1 if the cell
@@ -212,6 +230,71 @@ static const StageSource stage_sources[] = {
       .ppg_file = CACHE_FILE_NG_YUN_B_STAGE,
       .object_palettes = { 0x6B },
       .object_palette_count = 1 },
+    { .game = ROM_GAME_SFIII,
+      .bg_index = 7,
+      .area = AREA_NG_DUDLEY_A,
+      .palette_file = CACHE_FILE_NG_DUDLEY_A_BG_PALETTE,
+      .ppg_file = CACHE_FILE_NG_DUDLEY_A_STAGE,
+      .object_palettes = { 0x64 },
+      .object_palette_count = 1,
+      // bg0701_rewrite fills the left edge of layer 1 with the right half of block 1 and its right edge with the left
+      // half of block 78
+      .layer_writes = { { .layer = 1, .offset = 0x3000, .block = 1, .first_column = 8, .columns = 8 },
+                        { .layer = 1, .offset = 0x30E0, .block = 78, .first_column = 0, .columns = 8 } },
+      .layer_write_count = 2,
+      .rewrite_chips = { NG_DUDLEY_RAIN_CHIP(0, 0),  NG_DUDLEY_RAIN_CHIP(0, 1),  NG_DUDLEY_RAIN_CHIP(0, 7),
+                         NG_DUDLEY_RAIN_CHIP(0, 8),  NG_DUDLEY_RAIN_CHIP(0, 9),  NG_DUDLEY_RAIN_CHIP(0, 10),
+                         NG_DUDLEY_RAIN_CHIP(0, 11), NG_DUDLEY_RAIN_CHIP(0, 15), NG_DUDLEY_RAIN_CHIP(0, 16),
+                         NG_DUDLEY_RAIN_CHIP(0, 17), NG_DUDLEY_RAIN_CHIP(0, 18), NG_DUDLEY_RAIN_CHIP(0, 19),
+                         NG_DUDLEY_RAIN_CHIP(0, 21), NG_DUDLEY_RAIN_CHIP(0, 22), NG_DUDLEY_RAIN_CHIP(0, 23),
+                         NG_DUDLEY_RAIN_CHIP(0, 24), NG_DUDLEY_RAIN_CHIP(0, 25), NG_DUDLEY_RAIN_CHIP(0, 31),
+                         NG_DUDLEY_RAIN_CHIP(0, 32), NG_DUDLEY_RAIN_CHIP(0, 33), NG_DUDLEY_RAIN_CHIP(0, 34),
+                         NG_DUDLEY_RAIN_CHIP(0, 39), NG_DUDLEY_RAIN_CHIP(0, 40), NG_DUDLEY_RAIN_CHIP(0, 41),
+                         NG_DUDLEY_RAIN_CHIP(0, 42), NG_DUDLEY_RAIN_CHIP(0, 43), NG_DUDLEY_RAIN_CHIP(0, 47),
+                         NG_DUDLEY_RAIN_CHIP(0, 48), NG_DUDLEY_RAIN_CHIP(0, 49), NG_DUDLEY_RAIN_CHIP(0, 50),
+                         NG_DUDLEY_RAIN_CHIP(0, 51), NG_DUDLEY_RAIN_CHIP(0, 53), NG_DUDLEY_RAIN_CHIP(0, 54),
+                         NG_DUDLEY_RAIN_CHIP(0, 55), NG_DUDLEY_RAIN_CHIP(0, 56), NG_DUDLEY_RAIN_CHIP(0, 57),
+                         NG_DUDLEY_RAIN_CHIP(0, 63), NG_DUDLEY_RAIN_CHIP(1, 0),  NG_DUDLEY_RAIN_CHIP(1, 1),
+                         NG_DUDLEY_RAIN_CHIP(1, 7),  NG_DUDLEY_RAIN_CHIP(1, 8),  NG_DUDLEY_RAIN_CHIP(1, 9),
+                         NG_DUDLEY_RAIN_CHIP(1, 10), NG_DUDLEY_RAIN_CHIP(1, 11), NG_DUDLEY_RAIN_CHIP(1, 15),
+                         NG_DUDLEY_RAIN_CHIP(1, 16), NG_DUDLEY_RAIN_CHIP(1, 17), NG_DUDLEY_RAIN_CHIP(1, 18),
+                         NG_DUDLEY_RAIN_CHIP(1, 19), NG_DUDLEY_RAIN_CHIP(1, 21), NG_DUDLEY_RAIN_CHIP(1, 22),
+                         NG_DUDLEY_RAIN_CHIP(1, 23), NG_DUDLEY_RAIN_CHIP(1, 24), NG_DUDLEY_RAIN_CHIP(1, 25),
+                         NG_DUDLEY_RAIN_CHIP(1, 31), NG_DUDLEY_RAIN_CHIP(1, 32), NG_DUDLEY_RAIN_CHIP(1, 33),
+                         NG_DUDLEY_RAIN_CHIP(1, 34), NG_DUDLEY_RAIN_CHIP(1, 39), NG_DUDLEY_RAIN_CHIP(1, 40),
+                         NG_DUDLEY_RAIN_CHIP(1, 41), NG_DUDLEY_RAIN_CHIP(1, 42), NG_DUDLEY_RAIN_CHIP(1, 43),
+                         NG_DUDLEY_RAIN_CHIP(1, 47), NG_DUDLEY_RAIN_CHIP(1, 48), NG_DUDLEY_RAIN_CHIP(1, 49),
+                         NG_DUDLEY_RAIN_CHIP(1, 50), NG_DUDLEY_RAIN_CHIP(1, 51), NG_DUDLEY_RAIN_CHIP(1, 53),
+                         NG_DUDLEY_RAIN_CHIP(1, 54), NG_DUDLEY_RAIN_CHIP(1, 55), NG_DUDLEY_RAIN_CHIP(1, 56),
+                         NG_DUDLEY_RAIN_CHIP(1, 57), NG_DUDLEY_RAIN_CHIP(1, 63), NG_DUDLEY_RAIN_CHIP(2, 32),
+                         NG_DUDLEY_RAIN_CHIP(2, 33), NG_DUDLEY_RAIN_CHIP(2, 39), NG_DUDLEY_RAIN_CHIP(2, 40),
+                         NG_DUDLEY_RAIN_CHIP(2, 41), NG_DUDLEY_RAIN_CHIP(2, 42), NG_DUDLEY_RAIN_CHIP(2, 43),
+                         NG_DUDLEY_RAIN_CHIP(2, 47), NG_DUDLEY_RAIN_CHIP(2, 48), NG_DUDLEY_RAIN_CHIP(2, 49),
+                         NG_DUDLEY_RAIN_CHIP(2, 50), NG_DUDLEY_RAIN_CHIP(2, 51), NG_DUDLEY_RAIN_CHIP(2, 55),
+                         NG_DUDLEY_RAIN_CHIP(2, 56), NG_DUDLEY_RAIN_CHIP(2, 57), NG_DUDLEY_RAIN_CHIP(2, 63),
+                         NG_DUDLEY_RAIN_CHIP(3, 0),  NG_DUDLEY_RAIN_CHIP(3, 1),  NG_DUDLEY_RAIN_CHIP(3, 7),
+                         NG_DUDLEY_RAIN_CHIP(3, 8),  NG_DUDLEY_RAIN_CHIP(3, 9),  NG_DUDLEY_RAIN_CHIP(3, 10),
+                         NG_DUDLEY_RAIN_CHIP(3, 11), NG_DUDLEY_RAIN_CHIP(3, 12), NG_DUDLEY_RAIN_CHIP(3, 15),
+                         NG_DUDLEY_RAIN_CHIP(3, 16), NG_DUDLEY_RAIN_CHIP(3, 17), NG_DUDLEY_RAIN_CHIP(3, 18),
+                         NG_DUDLEY_RAIN_CHIP(3, 19), NG_DUDLEY_RAIN_CHIP(3, 20), NG_DUDLEY_RAIN_CHIP(3, 23),
+                         NG_DUDLEY_RAIN_CHIP(3, 24), NG_DUDLEY_RAIN_CHIP(3, 25), NG_DUDLEY_RAIN_CHIP(3, 27),
+                         NG_DUDLEY_RAIN_CHIP(3, 31), NG_DUDLEY_RAIN_CHIP(3, 32), NG_DUDLEY_RAIN_CHIP(3, 33),
+                         NG_DUDLEY_RAIN_CHIP(3, 39), NG_DUDLEY_RAIN_CHIP(3, 40), NG_DUDLEY_RAIN_CHIP(3, 41),
+                         NG_DUDLEY_RAIN_CHIP(3, 42), NG_DUDLEY_RAIN_CHIP(3, 43), NG_DUDLEY_RAIN_CHIP(3, 47),
+                         NG_DUDLEY_RAIN_CHIP(3, 48), NG_DUDLEY_RAIN_CHIP(3, 49), NG_DUDLEY_RAIN_CHIP(3, 50),
+                         NG_DUDLEY_RAIN_CHIP(3, 51), NG_DUDLEY_RAIN_CHIP(3, 55), NG_DUDLEY_RAIN_CHIP(3, 56),
+                         NG_DUDLEY_RAIN_CHIP(3, 57), NG_DUDLEY_RAIN_CHIP(3, 58), NG_DUDLEY_RAIN_CHIP(3, 63) },
+      .rewrite_chip_count = 126 },
+    { .game = ROM_GAME_SFIII,
+      .bg_index = 8,
+      .area = AREA_NG_DUDLEY_B,
+      .palette_file = CACHE_FILE_NG_DUDLEY_B_BG_PALETTE,
+      .ppg_file = CACHE_FILE_NG_DUDLEY_B_STAGE,
+      .object_palettes = { 0x65 },
+      .object_palette_count = 1,
+      .layer_writes = { { .layer = 1, .offset = 0x3000, .block = 1, .first_column = 8, .columns = 8 },
+                        { .layer = 1, .offset = 0x30E0, .block = 5, .first_column = 0, .columns = 8 } },
+      .layer_write_count = 2 },
 };
 
 #define MAX_CG_RANGES 4
@@ -296,6 +379,14 @@ static const CgGroupSource cg_group_sources[] = {
       .range_count = 1,
       .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
       .file = CACHE_FILE_NG_YUN_B_OBJECTS },
+
+    // Objects of NG Dudley's stage. Its char table is _ng_eng_char_table.
+    { .game = ROM_GAME_SFIII,
+      .group = 108,
+      .ranges = { { 0x52D0, 176 } },
+      .range_count = 1,
+      .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
+      .file = CACHE_FILE_NG_DUDLEY_OBJECTS },
 };
 
 /// CPS3 graphics addresses start this far before the graphics region
@@ -488,21 +579,25 @@ static Uint16* load_stage_palette(const StageRom* rom, const StageSource* source
     return palette;
 }
 
-/// Copies a 16x16 map block of the stage into the tilemap at a byte offset
-static bool write_block(const StageRom* rom, int bg_index, Uint32 offset, Uint32 block, Uint32* tilemap) {
+/// Copies columns of a 16x16 map block of the stage into the tilemap at a byte offset
+static bool write_block_columns(
+    const StageRom* rom, int bg_index, Uint32 offset, Uint32 block, int first_column, int columns, Uint32* tilemap
+) {
     const int top = offset / 0x100;
     const int left = (offset % 0x100) / 4;
     Uint32 map_base;
 
-    if (top + 16 > TILEMAP_SIZE || left + 16 > TILEMAP_SIZE ||
+    if (top + 16 > TILEMAP_SIZE || left + columns > TILEMAP_SIZE || first_column + columns > 16 ||
         !program_u32(rom, rom->tables->bg_map_base + bg_index * 4, &map_base)) {
         return false;
     }
 
     for (int y = 0; y < 16; y++) {
-        for (int x = 0; x < 16; x++) {
+        for (int x = 0; x < columns; x++) {
             if (!program_u32(
-                    rom, map_base + block * 0x400 + (y * 16 + x) * 4, &tilemap[(top + y) * TILEMAP_SIZE + left + x]
+                    rom,
+                    map_base + block * 0x400 + (y * 16 + first_column + x) * 4,
+                    &tilemap[(top + y) * TILEMAP_SIZE + left + x]
                 )) {
                 return false;
             }
@@ -510,6 +605,11 @@ static bool write_block(const StageRom* rom, int bg_index, Uint32 offset, Uint32
     }
 
     return true;
+}
+
+/// Copies a 16x16 map block of the stage into the tilemap at a byte offset
+static bool write_block(const StageRom* rom, int bg_index, Uint32 offset, Uint32 block, Uint32* tilemap) {
+    return write_block_columns(rom, bg_index, offset, block, 0, 16, tilemap);
 }
 
 /// Builds a 64x64 tilemap from a {u32 tilemap offset, u32 block index} list. Each entry holds the tile number in the
@@ -750,6 +850,16 @@ static bool build_ppg(
     for (int layer = 0; layer < layer_count && success; layer++) {
         const Uint32 mask = bgtex_stage_gbix[source->area][layer];
         success = build_tilemap(rom, source->bg_index, layer, tilemap);
+
+        for (int i = 0; i < source->layer_write_count && success; i++) {
+            const LayerWrite* write = &source->layer_writes[i];
+
+            if (write->layer == layer) {
+                success = write_block_columns(
+                    rom, source->bg_index, write->offset, write->block, write->first_column, write->columns, tilemap
+                );
+            }
+        }
 
         for (int i = 0; i < PPG_LAYER_CHIPS && success; i++) {
             if (!(mask & (0x80000000 >> i))) {
