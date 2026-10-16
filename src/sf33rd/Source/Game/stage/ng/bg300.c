@@ -7,6 +7,7 @@
 #include "common.h"
 #include "sf33rd/Source/Game/effect/eff05.h"
 #include "sf33rd/Source/Game/effect/eff06.h"
+#include "sf33rd/Source/Game/effect/ng/eff65.h"
 #include "sf33rd/Source/Game/effect/ng/eff94.h"
 #include "sf33rd/Source/Game/engine/slowf.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
@@ -68,8 +69,8 @@ static void bg3000_init00() {
     bgw_ptr->zuubun = 0;
 
     if (bg_w.area == 0) {
-        // FIXME: Port NG effect 65 and the stage's sound 0x6D
         bg300_rain_init();
+        effect_ng65_init(); // Horse-drawn carriage
         effect_ng94_init_for_players(0);
     } else {
         // FIXME: Port NG effects 66 (variant 0) and 68

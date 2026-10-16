@@ -4,7 +4,7 @@
 #include "structs.h"
 #include "types.h"
 
-#define EFFECT_NGC1_ID 247
+#define EFFECT_NGC1_ID 248
 
 void effect_ngc1_move(WORK_Other* ewk);
 void effect_ngc1_init_for_players();
