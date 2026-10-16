@@ -8,6 +8,7 @@
 #include "sf33rd/Source/Game/effect/eff05.h"
 #include "sf33rd/Source/Game/effect/eff06.h"
 #include "sf33rd/Source/Game/effect/ng/eff65.h"
+#include "sf33rd/Source/Game/effect/ng/eff66.h"
 #include "sf33rd/Source/Game/effect/ng/eff94.h"
 #include "sf33rd/Source/Game/engine/slowf.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
@@ -73,8 +74,9 @@ static void bg3000_init00() {
         effect_ng65_init(); // Horse-drawn carriage
         effect_ng94_init_for_players(0);
     } else {
-        // FIXME: Port NG effects 66 (variant 0) and 68
+        // FIXME: Port NG effect 68
         effect_ng94_init_for_players(1);
+        effect_ng66_init(0); // Squatting punk
     }
 
     effect_05_init();
