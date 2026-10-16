@@ -90,6 +90,12 @@ typedef struct {
     s16 max_x;
     u8 bg_opaque;
     BGW bgw[7];
+
+    s8 layer_frame;      /// Frame of the area's `bg_layer_frames_tbl` layer
+    s8 layer_frame_step; /// Animation state of the layer frames, kept by the stage code
+    s8 layer_frame_sequence;
+    s8 layer_frame_cycles;
+    s8 layer_frame_timer;
 } BG;
 
 // MARK: - Serialized

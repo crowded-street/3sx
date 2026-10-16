@@ -9,7 +9,7 @@
 #define VRAM_CONTROL_SIZE 1344
 #define VRAM_BLOCK_HEADER_SIZE 3
 #define FL_PALETTE_MAX 1088
-#define FL_TEXTURE_MAX 256
+#define FL_TEXTURE_MAX 512
 
 extern s32 flVramStaticNum;
 extern FL_FMS flFMS;

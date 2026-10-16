@@ -1102,6 +1102,20 @@ static void bgDrawOuterChips(s32 bgnum, const s32 yy[2], s32 ofsPal, PPGDataList
     ppgSetupCurrentDataList(curDataList);
 }
 
+/// Replaces `gbix` with the chip that the current frame of the area's `bg_layer_frames_tbl` layer shows there.
+/// @return Whether the layer has frames
+static bool bgLayerFrameChip(s32 bgnum, s32 gixbase, s32* gbix) {
+    const bg_layer_frames_elem* frames = &bg_layer_frames_tbl[bg_w.bg_index];
+    const s32 chip = *gbix - gixbase;
+
+    if (ending_flag != 0 || frames->chips == NULL || frames->bg_num != bgnum || chip < 32) {
+        return false;
+    }
+
+    *gbix = frames->chips[bg_w.layer_frame][chip - 32];
+    return true;
+}
+
 static void bgDrawOneScreen(
     s32 bgnum, s32 gixbase, const s32 xx[2], const s32 yy[2], s32 ofsPal, PPGDataList* curDataList
 ) {
@@ -1118,7 +1132,11 @@ static void bgDrawOneScreen(
         for (x = xx[0]; x < xx[1]; x += 128) {
             gbix = ((y >> 7) << 3) + (x >> 7) + gixbase;
 
-            if (rw_bg_flag[bgnum] && rw_num) {
+            if (bgLayerFrameChip(bgnum, gixbase, &gbix)) {
+                if (!(ppgCheckTextureNumber(0, gbix))) {
+                    ppgSetupCurrentDataList(&ppgRwBgList);
+                }
+            } else if (rw_bg_flag[bgnum] && rw_num) {
                 for (i = 0; i < rw_num; i++) {
                     if (bgnum == rw_dat[i].bg_num && gbix == rw_dat[i].rwgbix) {
                         gbix = rw_dat[i].gbix;
