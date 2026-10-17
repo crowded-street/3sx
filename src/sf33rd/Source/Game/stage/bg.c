@@ -1102,18 +1102,32 @@ static void bgDrawOuterChips(s32 bgnum, const s32 yy[2], s32 ofsPal, PPGDataList
     ppgSetupCurrentDataList(curDataList);
 }
 
-/// Replaces `gbix` with the chip that the current frame of the area's `bg_layer_frames_tbl` shows there.
-/// @return Whether the layer has frames
+/// Replaces `gbix` with the chip that the current frames of the area's `bg_layer_frames_tbl` show there.
+/// @return Whether an animation replaced the chip
 static bool bgLayerFrameChip(s32 bgnum, s32 gixbase, s32* gbix) {
     const bg_layer_frames_elem* frames = &bg_layer_frames_tbl[bg_w.bg_index];
     const s32 chip = *gbix - gixbase;
 
-    if (ending_flag != 0 || bgnum >= SDL_arraysize(frames->chips) || frames->chips[bgnum] == NULL || chip < 32) {
+    if (ending_flag != 0 || chip < 32) {
         return false;
     }
 
-    *gbix = frames->chips[bgnum][bg_w.layer_frame][chip - 32];
-    return true;
+    for (int i = 0; i < BG_LAYER_ANIMS; i++) {
+        const bg_layer_anim_elem* anim = &frames->anims[i];
+
+        if (anim->chips == NULL || anim->bg_num != bgnum) {
+            continue;
+        }
+
+        const s16 frame_gbix = anim->chips[bg_w.layer_frame[i]][chip - 32];
+
+        if (frame_gbix != *gbix) {
+            *gbix = frame_gbix;
+            return true;
+        }
+    }
+
+    return false;
 }
 
 static void bgDrawOneScreen(

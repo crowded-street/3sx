@@ -26,8 +26,43 @@
 #define INTRO_ZOOM_X 192
 #define INTRO_ZOOM_Y 224
 
-static const s8 sway_frames[20] = { 0, 1, 2, 1, 0, 1, 0, 1, 2, 3, 2, 3, 2, 1, 0, 1, 0, 1, 0, 1 };
-static const s8 sway_times[20] = { 11, 11, 10, 9, 10, 11, 11, 10, 9, 9, 9, 9, 9, 10, 11, 11, 11, 11, 11, 11 };
+typedef struct LayerStep {
+    s8 frame;
+    s8 time;
+} LayerStep;
+
+typedef struct LayerAnim {
+    const LayerStep* steps;
+    s8 step_count;
+} LayerAnim;
+
+enum {
+    ANIM_SWAY,       // NG effect 48
+    ANIM_LANTERN_10, // NG effect 14, variant 10. Shown together with ANIM_SWAY, whose chips it overlaps.
+    ANIM_WATERFALL,  // NG effect 14, variants 4-8
+    ANIM_LANTERN_9,  // NG effect 14, variant 9
+    ANIM_COUNT,
+};
+
+static const LayerStep sway_steps[] = { { 0, 11 }, { 1, 11 }, { 2, 10 }, { 1, 9 },  { 0, 10 }, { 1, 11 }, { 0, 11 },
+                                        { 1, 10 }, { 2, 9 },  { 3, 9 },  { 2, 9 },  { 3, 9 },  { 2, 9 },  { 1, 10 },
+                                        { 0, 11 }, { 1, 11 }, { 0, 11 }, { 1, 11 }, { 0, 11 }, { 1, 11 } };
+static const LayerStep waterfall_steps[] = { { 0, 4 }, { 1, 4 }, { 2, 4 }, { 3, 4 }, { 4, 4 }, { 5, 4 } };
+static const LayerStep lantern_9_steps[] = { { 0, 4 }, { 1, 4 }, { 0, 4 }, { 1, 4 }, { 0, 2 }, { 1, 2 }, { 0, 4 },
+                                             { 1, 4 }, { 0, 5 }, { 1, 3 }, { 0, 4 }, { 1, 4 }, { 0, 4 }, { 1, 4 },
+                                             { 0, 6 }, { 1, 5 }, { 0, 4 }, { 1, 4 }, { 0, 4 }, { 1, 4 }, { 0, 5 },
+                                             { 1, 4 }, { 0, 4 }, { 1, 4 }, { 0, 6 }, { 1, 6 } };
+static const LayerStep lantern_10_steps[] = { { 0, 4 }, { 1, 4 }, { 0, 4 }, { 1, 4 }, { 0, 3 }, { 1, 3 }, { 0, 2 },
+                                              { 1, 3 }, { 0, 4 }, { 1, 5 }, { 0, 4 }, { 1, 4 }, { 0, 4 }, { 1, 4 },
+                                              { 0, 2 }, { 1, 3 }, { 0, 4 }, { 1, 5 }, { 0, 4 }, { 1, 4 }, { 0, 4 },
+                                              { 1, 4 }, { 0, 5 }, { 1, 6 }, { 0, 5 }, { 1, 4 } };
+
+static const LayerAnim anims[ANIM_COUNT] = {
+    [ANIM_SWAY] = { sway_steps, SDL_arraysize(sway_steps) },
+    [ANIM_LANTERN_10] = { lantern_10_steps, SDL_arraysize(lantern_10_steps) },
+    [ANIM_WATERFALL] = { waterfall_steps, SDL_arraysize(waterfall_steps) },
+    [ANIM_LANTERN_9] = { lantern_9_steps, SDL_arraysize(lantern_9_steps) },
+};
 
 static void bg3400();
 static void bg3400_init00();
@@ -43,9 +78,8 @@ static void bg3404_init00();
 static void bg3404_move00();
 static void bg340_init_layer();
 static void bg340_move_layer();
-static void bg340_sway_init();
-static void bg340_sway_update();
-static s8 bg340_sway_time();
+static void bg340_anims_init();
+static void bg340_anims_update();
 static bool is_cpu_ibuki_present();
 
 void BG340() {
@@ -74,9 +108,7 @@ static void bg3400_init00() {
 static void bg3400_move00() {
     bg340_move_layer();
 
-    if (!EXE_flag && !Game_pause) {
-        bg340_sway_update();
-    }
+    bg340_anims_update();
 }
 
 static void bg3401() {
@@ -89,7 +121,7 @@ static void bg3401_init00() {
     effect_05_init();
     effect_06_init();
 
-    bg340_sway_init();
+    bg340_anims_init(); // NG effects 48 and 14
 
     switch (bg_w.area) {
     case 0:
@@ -106,9 +138,7 @@ static void bg3401_init00() {
 
     case 1:
         bgw_ptr->r_no_0++;
-        // NG starts a second effect 48 for layer 1 here, which does the same as the first one.
         effect_ng82_init(); // Spectators
-        // NG also starts effect 75 here, which is unfinished: it never triggers and only draws placeholder graphics.
         effect_ng83_init(); // Clouds
         effect_ng94_init_for_players(0);
         break;
@@ -120,8 +150,6 @@ static void bg3401_init00() {
         effect_ng20_init(); // Falling leaves
         break;
     }
-
-    // FIXME: NG effect 14 (variants 4-10)
 }
 
 static void bg3401_move00() {
@@ -201,30 +229,56 @@ static bool is_cpu_ibuki_present() {
     return false;
 }
 
-static s8 bg340_sway_time() {
+static s8 anim_time(int anim) {
     const s8 speed_up[3] = { 0, 2, 3 };
-    return sway_times[bg_w.layer_frame_step] - speed_up[bg_w.area];
+    const s8 time = anims[anim].steps[bg_w.layer_frame_step[anim]].time;
+
+    // NG's effect 48 runs faster in later areas
+    return (anim == ANIM_SWAY) ? time - speed_up[bg_w.area] : time;
 }
 
-static void bg340_sway_init() {
-    bg_w.layer_frame_step = 0;
-    bg_w.layer_frame_timer = bg340_sway_time();
-    bg_w.layer_frame = sway_frames[0];
+static s8 anim_frame(int anim) {
+    return anims[anim].steps[bg_w.layer_frame_step[anim]].frame;
 }
 
-static void bg340_sway_update() {
-    bg_w.layer_frame_timer--;
-
-    if (bg_w.layer_frame_timer != 0) {
+static void anim_update(int anim) {
+    if (--bg_w.layer_frame_timer[anim] != 0) {
         return;
     }
 
-    bg_w.layer_frame_step++;
+    bg_w.layer_frame_step[anim] = (bg_w.layer_frame_step[anim] + 1) % anims[anim].step_count;
+    bg_w.layer_frame_timer[anim] = anim_time(anim);
+}
 
-    if (bg_w.layer_frame_step >= SDL_arraysize(sway_frames)) {
-        bg_w.layer_frame_step = 0;
+static void set_layer_frames() {
+    bg_w.layer_frame[ANIM_SWAY] = anim_frame(ANIM_SWAY);
+    bg_w.layer_frame[ANIM_LANTERN_10] = anim_frame(ANIM_SWAY) + 4 * anim_frame(ANIM_LANTERN_10);
+    bg_w.layer_frame[ANIM_WATERFALL] = anim_frame(ANIM_WATERFALL);
+    bg_w.layer_frame[ANIM_LANTERN_9] = anim_frame(ANIM_LANTERN_9);
+}
+
+static void bg340_anims_init() {
+    for (int i = 0; i < ANIM_COUNT; i++) {
+        bg_w.layer_frame_step[i] = 0;
+        bg_w.layer_frame_timer[i] = anim_time(i);
     }
 
-    bg_w.layer_frame_timer = bg340_sway_time();
-    bg_w.layer_frame = sway_frames[bg_w.layer_frame_step];
+    set_layer_frames();
+}
+
+static void bg340_anims_update() {
+    if (EXE_flag || Game_pause) {
+        return;
+    }
+
+    anim_update(ANIM_SWAY);
+
+    // NG's effect 14 also stops while these backgrounds are up
+    if (!aku_flag && akebono_flag != 1) {
+        anim_update(ANIM_LANTERN_10);
+        anim_update(ANIM_WATERFALL);
+        anim_update(ANIM_LANTERN_9);
+    }
+
+    set_layer_frames();
 }

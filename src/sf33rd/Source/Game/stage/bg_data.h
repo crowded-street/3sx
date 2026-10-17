@@ -18,8 +18,15 @@ typedef struct {
     s16 gbix; // -1 ends a list
 } bg_outer_chip_elem;
 
+/// An animation that shows other chips in place of a layer's chips 32-63, indexed by frame and chip. A chip equal to
+/// the layer's own leaves it to the area's other animations.
 typedef struct {
-    const s16 (*chips[3])[32];
+    s16 bg_num;
+    const s16 (*chips)[32];
+} bg_layer_anim_elem;
+
+typedef struct {
+    bg_layer_anim_elem anims[BG_LAYER_ANIMS];
 } bg_layer_frames_elem;
 
 extern const u8 use_scr[AREA_COUNT];

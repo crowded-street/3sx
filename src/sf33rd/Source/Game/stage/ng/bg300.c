@@ -136,28 +136,28 @@ static void bg3002_move00() {
 }
 
 static const RainStep* bg300_rain_step() {
-    return &rain_variants[rain_sequence[bg_w.layer_frame_sequence][1]][bg_w.layer_frame_step];
+    return &rain_variants[rain_sequence[bg_w.layer_frame_sequence][1]][bg_w.layer_frame_step[0]];
 }
 
 static void bg300_rain_init() {
     bg_w.layer_frame_sequence = 0;
     bg_w.layer_frame_cycles = rain_sequence[0][0];
-    bg_w.layer_frame_step = 0;
-    bg_w.layer_frame_timer = bg300_rain_step()->time;
-    bg_w.layer_frame = bg300_rain_step()->frame;
+    bg_w.layer_frame_step[0] = 0;
+    bg_w.layer_frame_timer[0] = bg300_rain_step()->time;
+    bg_w.layer_frame[0] = bg300_rain_step()->frame;
 }
 
 static void bg300_rain_update() {
-    bg_w.layer_frame_timer--;
+    bg_w.layer_frame_timer[0]--;
 
-    if (bg_w.layer_frame_timer != 0) {
+    if (bg_w.layer_frame_timer[0] != 0) {
         return;
     }
 
-    bg_w.layer_frame_step++;
+    bg_w.layer_frame_step[0]++;
 
-    if (bg_w.layer_frame_step > 3) {
-        bg_w.layer_frame_step = 0;
+    if (bg_w.layer_frame_step[0] > 3) {
+        bg_w.layer_frame_step[0] = 0;
         bg_w.layer_frame_cycles--;
 
         if (bg_w.layer_frame_cycles == 0) {
@@ -171,6 +171,6 @@ static void bg300_rain_update() {
         }
     }
 
-    bg_w.layer_frame_timer = bg300_rain_step()->time;
-    bg_w.layer_frame = bg300_rain_step()->frame;
+    bg_w.layer_frame_timer[0] = bg300_rain_step()->time;
+    bg_w.layer_frame[0] = bg300_rain_step()->frame;
 }

@@ -153,27 +153,70 @@ typedef struct StageSource {
     { .blocks = NG_IBUKI_LAYER0_MAPS + (map_index) * 0x60, .block_count = 12, .chip = (chip_index) }
 #define NG_IBUKI_LAYER1_CHIP(map_index, chip_index)                                                                    \
     { .blocks = NG_IBUKI_LAYER1_MAPS + (map_index) * 0x40, .block_count = 8, .chip = (chip_index) }
-#define NG_IBUKI_REWRITE_CHIPS                                                                                         \
-    { NG_IBUKI_LAYER0_CHIP(0, 33), NG_IBUKI_LAYER0_CHIP(0, 34), NG_IBUKI_LAYER0_CHIP(0, 41),                           \
-      NG_IBUKI_LAYER0_CHIP(0, 42), NG_IBUKI_LAYER0_CHIP(0, 49), NG_IBUKI_LAYER0_CHIP(0, 50),                           \
-      NG_IBUKI_LAYER0_CHIP(0, 57), NG_IBUKI_LAYER0_CHIP(0, 58), NG_IBUKI_LAYER0_CHIP(1, 1),                            \
-      NG_IBUKI_LAYER0_CHIP(1, 2),  NG_IBUKI_LAYER0_CHIP(1, 9),  NG_IBUKI_LAYER0_CHIP(1, 10),                           \
-      NG_IBUKI_LAYER0_CHIP(1, 17), NG_IBUKI_LAYER0_CHIP(1, 18), NG_IBUKI_LAYER0_CHIP(1, 33),                           \
-      NG_IBUKI_LAYER0_CHIP(1, 34), NG_IBUKI_LAYER0_CHIP(1, 41), NG_IBUKI_LAYER0_CHIP(1, 42),                           \
-      NG_IBUKI_LAYER0_CHIP(1, 49), NG_IBUKI_LAYER0_CHIP(1, 50), NG_IBUKI_LAYER1_CHIP(1, 32),                           \
-      NG_IBUKI_LAYER1_CHIP(1, 33), NG_IBUKI_LAYER1_CHIP(1, 34), NG_IBUKI_LAYER1_CHIP(1, 35),                           \
-      NG_IBUKI_LAYER1_CHIP(1, 40), NG_IBUKI_LAYER1_CHIP(1, 41), NG_IBUKI_LAYER1_CHIP(1, 42),                           \
-      NG_IBUKI_LAYER1_CHIP(1, 43), NG_IBUKI_LAYER1_CHIP(1, 48), NG_IBUKI_LAYER1_CHIP(1, 49),                           \
-      NG_IBUKI_LAYER1_CHIP(1, 50), NG_IBUKI_LAYER1_CHIP(1, 56), NG_IBUKI_LAYER1_CHIP(2, 32),                           \
-      NG_IBUKI_LAYER1_CHIP(2, 33), NG_IBUKI_LAYER1_CHIP(2, 34), NG_IBUKI_LAYER1_CHIP(2, 35),                           \
-      NG_IBUKI_LAYER1_CHIP(2, 40), NG_IBUKI_LAYER1_CHIP(2, 41), NG_IBUKI_LAYER1_CHIP(2, 42),                           \
-      NG_IBUKI_LAYER1_CHIP(2, 43), NG_IBUKI_LAYER1_CHIP(2, 48), NG_IBUKI_LAYER1_CHIP(2, 49),                           \
-      NG_IBUKI_LAYER1_CHIP(2, 50), NG_IBUKI_LAYER1_CHIP(2, 56), NG_IBUKI_LAYER1_CHIP(3, 32),                           \
-      NG_IBUKI_LAYER1_CHIP(3, 33), NG_IBUKI_LAYER1_CHIP(3, 34), NG_IBUKI_LAYER1_CHIP(3, 35),                           \
-      NG_IBUKI_LAYER1_CHIP(3, 40), NG_IBUKI_LAYER1_CHIP(3, 41), NG_IBUKI_LAYER1_CHIP(3, 42),                           \
-      NG_IBUKI_LAYER1_CHIP(3, 43), NG_IBUKI_LAYER1_CHIP(3, 48), NG_IBUKI_LAYER1_CHIP(3, 49),                           \
-      NG_IBUKI_LAYER1_CHIP(3, 50) }
-#define NG_IBUKI_REWRITE_CHIP_COUNT 55
+#define NG_IBUKI_SWAY_CHIPS                                                                                            \
+    NG_IBUKI_LAYER0_CHIP(0, 33), NG_IBUKI_LAYER0_CHIP(0, 34), NG_IBUKI_LAYER0_CHIP(0, 41),                             \
+        NG_IBUKI_LAYER0_CHIP(0, 42), NG_IBUKI_LAYER0_CHIP(0, 49), NG_IBUKI_LAYER0_CHIP(0, 50),                         \
+        NG_IBUKI_LAYER0_CHIP(0, 57), NG_IBUKI_LAYER0_CHIP(0, 58), NG_IBUKI_LAYER0_CHIP(1, 1),                          \
+        NG_IBUKI_LAYER0_CHIP(1, 2), NG_IBUKI_LAYER0_CHIP(1, 9), NG_IBUKI_LAYER0_CHIP(1, 10),                           \
+        NG_IBUKI_LAYER0_CHIP(1, 17), NG_IBUKI_LAYER0_CHIP(1, 18), NG_IBUKI_LAYER0_CHIP(1, 33),                         \
+        NG_IBUKI_LAYER0_CHIP(1, 34), NG_IBUKI_LAYER0_CHIP(1, 41), NG_IBUKI_LAYER0_CHIP(1, 42),                         \
+        NG_IBUKI_LAYER0_CHIP(1, 49), NG_IBUKI_LAYER0_CHIP(1, 50), NG_IBUKI_LAYER1_CHIP(1, 32),                         \
+        NG_IBUKI_LAYER1_CHIP(1, 33), NG_IBUKI_LAYER1_CHIP(1, 34), NG_IBUKI_LAYER1_CHIP(1, 35),                         \
+        NG_IBUKI_LAYER1_CHIP(1, 40), NG_IBUKI_LAYER1_CHIP(1, 41), NG_IBUKI_LAYER1_CHIP(1, 42),                         \
+        NG_IBUKI_LAYER1_CHIP(1, 43), NG_IBUKI_LAYER1_CHIP(1, 48), NG_IBUKI_LAYER1_CHIP(1, 49),                         \
+        NG_IBUKI_LAYER1_CHIP(1, 50), NG_IBUKI_LAYER1_CHIP(1, 56), NG_IBUKI_LAYER1_CHIP(2, 32),                         \
+        NG_IBUKI_LAYER1_CHIP(2, 33), NG_IBUKI_LAYER1_CHIP(2, 34), NG_IBUKI_LAYER1_CHIP(2, 35),                         \
+        NG_IBUKI_LAYER1_CHIP(2, 40), NG_IBUKI_LAYER1_CHIP(2, 41), NG_IBUKI_LAYER1_CHIP(2, 42),                         \
+        NG_IBUKI_LAYER1_CHIP(2, 43), NG_IBUKI_LAYER1_CHIP(2, 48), NG_IBUKI_LAYER1_CHIP(2, 49),                         \
+        NG_IBUKI_LAYER1_CHIP(2, 50), NG_IBUKI_LAYER1_CHIP(2, 56), NG_IBUKI_LAYER1_CHIP(3, 32),                         \
+        NG_IBUKI_LAYER1_CHIP(3, 33), NG_IBUKI_LAYER1_CHIP(3, 34), NG_IBUKI_LAYER1_CHIP(3, 35),                         \
+        NG_IBUKI_LAYER1_CHIP(3, 40), NG_IBUKI_LAYER1_CHIP(3, 41), NG_IBUKI_LAYER1_CHIP(3, 42),                         \
+        NG_IBUKI_LAYER1_CHIP(3, 43), NG_IBUKI_LAYER1_CHIP(3, 48), NG_IBUKI_LAYER1_CHIP(3, 49),                         \
+        NG_IBUKI_LAYER1_CHIP(3, 50)
+
+/// Chips that NG's effect 14 recolours: variants 4-8 cycle layer 0 through 5 more palettes, variants 9 and 10 swap
+/// layer 1 between 2. Variant 10 covers chips that effect 48 also animates, so those get a chip for each of its maps.
+#define NG_IBUKI_PALETTE_CHIP(layer_index, chip_index, step_count, ...)                                                \
+    { .layer = (layer_index),                                                                                          \
+      .chip = (chip_index),                                                                                            \
+      .palette_steps = { __VA_ARGS__ },                                                                                \
+      .palette_step_count = (step_count) }
+#define NG_IBUKI_LAYER1_PALETTE_CHIP(map_index, chip_index)                                                            \
+    { .blocks = NG_IBUKI_LAYER1_MAPS + (map_index) * 0x40,                                                             \
+      .block_count = 8,                                                                                                \
+      .layer = 1,                                                                                                      \
+      .chip = (chip_index),                                                                                            \
+      .palette_steps = { { 10, 1 } },                                                                                  \
+      .palette_step_count = 1 }
+#define NG_IBUKI_PALETTE_CHIPS                                                                                         \
+    NG_IBUKI_PALETTE_CHIP(0, 45, 2, { 6, 1 }, { 7, 1 }), NG_IBUKI_PALETTE_CHIP(0, 46, 2, { 6, 1 }, { 8, 1 }),          \
+        NG_IBUKI_PALETTE_CHIP(0, 52, 2, { 4, 1 }, { 5, 1 }), NG_IBUKI_PALETTE_CHIP(0, 53, 1, { 6, 1 }),                \
+        NG_IBUKI_PALETTE_CHIP(0, 54, 1, { 6, 1 }), NG_IBUKI_PALETTE_CHIP(0, 60, 1, { 4, 1 }),                          \
+        NG_IBUKI_PALETTE_CHIP(0, 61, 1, { 6, 1 }), NG_IBUKI_PALETTE_CHIP(0, 62, 1, { 6, 1 }),                          \
+        NG_IBUKI_PALETTE_CHIP(0, 45, 2, { 6, 2 }, { 7, 2 }), NG_IBUKI_PALETTE_CHIP(0, 46, 2, { 6, 2 }, { 8, 2 }),      \
+        NG_IBUKI_PALETTE_CHIP(0, 52, 2, { 4, 2 }, { 5, 2 }), NG_IBUKI_PALETTE_CHIP(0, 53, 1, { 6, 2 }),                \
+        NG_IBUKI_PALETTE_CHIP(0, 54, 1, { 6, 2 }), NG_IBUKI_PALETTE_CHIP(0, 60, 1, { 4, 2 }),                          \
+        NG_IBUKI_PALETTE_CHIP(0, 61, 1, { 6, 2 }), NG_IBUKI_PALETTE_CHIP(0, 62, 1, { 6, 2 }),                          \
+        NG_IBUKI_PALETTE_CHIP(0, 45, 2, { 6, 3 }, { 7, 3 }), NG_IBUKI_PALETTE_CHIP(0, 46, 2, { 6, 3 }, { 8, 3 }),      \
+        NG_IBUKI_PALETTE_CHIP(0, 52, 2, { 4, 3 }, { 5, 3 }), NG_IBUKI_PALETTE_CHIP(0, 53, 1, { 6, 3 }),                \
+        NG_IBUKI_PALETTE_CHIP(0, 54, 1, { 6, 3 }), NG_IBUKI_PALETTE_CHIP(0, 60, 1, { 4, 3 }),                          \
+        NG_IBUKI_PALETTE_CHIP(0, 61, 1, { 6, 3 }), NG_IBUKI_PALETTE_CHIP(0, 62, 1, { 6, 3 }),                          \
+        NG_IBUKI_PALETTE_CHIP(0, 45, 2, { 6, 4 }, { 7, 4 }), NG_IBUKI_PALETTE_CHIP(0, 46, 2, { 6, 4 }, { 8, 4 }),      \
+        NG_IBUKI_PALETTE_CHIP(0, 52, 2, { 4, 4 }, { 5, 4 }), NG_IBUKI_PALETTE_CHIP(0, 53, 1, { 6, 4 }),                \
+        NG_IBUKI_PALETTE_CHIP(0, 54, 1, { 6, 4 }), NG_IBUKI_PALETTE_CHIP(0, 60, 1, { 4, 4 }),                          \
+        NG_IBUKI_PALETTE_CHIP(0, 61, 1, { 6, 4 }), NG_IBUKI_PALETTE_CHIP(0, 62, 1, { 6, 4 }),                          \
+        NG_IBUKI_PALETTE_CHIP(0, 45, 2, { 6, 5 }, { 7, 5 }), NG_IBUKI_PALETTE_CHIP(0, 46, 2, { 6, 5 }, { 8, 5 }),      \
+        NG_IBUKI_PALETTE_CHIP(0, 52, 2, { 4, 5 }, { 5, 5 }), NG_IBUKI_PALETTE_CHIP(0, 53, 1, { 6, 5 }),                \
+        NG_IBUKI_PALETTE_CHIP(0, 54, 1, { 6, 5 }), NG_IBUKI_PALETTE_CHIP(0, 60, 1, { 4, 5 }),                          \
+        NG_IBUKI_PALETTE_CHIP(0, 61, 1, { 6, 5 }), NG_IBUKI_PALETTE_CHIP(0, 62, 1, { 6, 5 }),                          \
+        NG_IBUKI_PALETTE_CHIP(1, 61, 1, { 9, 1 }), NG_IBUKI_PALETTE_CHIP(1, 62, 1, { 9, 1 }),                          \
+        NG_IBUKI_PALETTE_CHIP(1, 48, 1, { 10, 1 }), NG_IBUKI_PALETTE_CHIP(1, 49, 1, { 10, 1 }),                        \
+        NG_IBUKI_PALETTE_CHIP(1, 56, 1, { 10, 1 }), NG_IBUKI_PALETTE_CHIP(1, 57, 1, { 10, 1 }),                        \
+        NG_IBUKI_LAYER1_PALETTE_CHIP(1, 48), NG_IBUKI_LAYER1_PALETTE_CHIP(1, 49), NG_IBUKI_LAYER1_PALETTE_CHIP(1, 56), \
+        NG_IBUKI_LAYER1_PALETTE_CHIP(2, 48), NG_IBUKI_LAYER1_PALETTE_CHIP(2, 49), NG_IBUKI_LAYER1_PALETTE_CHIP(2, 56), \
+        NG_IBUKI_LAYER1_PALETTE_CHIP(3, 48), NG_IBUKI_LAYER1_PALETTE_CHIP(3, 49)
+#define NG_IBUKI_REWRITE_CHIPS { NG_IBUKI_SWAY_CHIPS, NG_IBUKI_PALETTE_CHIPS }
+#define NG_IBUKI_REWRITE_CHIP_COUNT 109
 
 /// Variants of NG's effect 14 (20 bytes each): {u8[3], u8 layer, u8[4], u32 palette sequence, u32 cell mask,
 /// u32 size}. The sequence holds {u8, u8 frames, u16 palette row} steps, the mask a byte per cell (1 if the cell
