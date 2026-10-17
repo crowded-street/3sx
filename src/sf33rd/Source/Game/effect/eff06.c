@@ -26,7 +26,7 @@ const s16 scr_obj_num6[AREA_COUNT] = {
     [AREA_3S_REMY] = 1,    [AREA_3S_BONUS_CAR] = 0, [AREA_3S_BONUS_BALLS] = 0, [AREA_NG_GILL] = 10,
     [AREA_NG_ALEX] = 8,    [AREA_NG_RYU_A] = 4,     [AREA_NG_RYU_B] = 11,      [AREA_NG_YUN_A] = 7,
     [AREA_NG_YUN_B] = 3,   [AREA_NG_DUDLEY_A] = 12, [AREA_NG_DUDLEY_B] = 15,   [AREA_NG_NECRO] = 17,
-    [AREA_NG_IBUKI_A] = 2,
+    [AREA_NG_IBUKI_A] = 2, [AREA_NG_IBUKI_B] = 2,   [AREA_NG_IBUKI_C] = 2,
 };
 
 const s16 st0000_data_tbl[9] = {
@@ -221,6 +221,8 @@ const s16* scr_obj_data6[AREA_COUNT] = {
     [AREA_NG_DUDLEY_B] = ng_st0410_data_tbl,
     [AREA_NG_NECRO] = ng_st0500_data_tbl,
     [AREA_NG_IBUKI_A] = ng_st0700_data_tbl,
+    [AREA_NG_IBUKI_B] = ng_st0700_data_tbl,
+    [AREA_NG_IBUKI_C] = ng_st0700_data_tbl,
 };
 
 void effect_06_move(WORK_Other* ewk) {

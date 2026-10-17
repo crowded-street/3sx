@@ -8,6 +8,7 @@
 #include "constants.h"
 #include "sf33rd/Source/Game/effect/eff05.h"
 #include "sf33rd/Source/Game/effect/eff06.h"
+#include "sf33rd/Source/Game/effect/ng/eff94.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/stage/bg.h"
@@ -69,8 +70,8 @@ static void bg3401_init00() {
 
     // FIXME: NG effect 48 (variants 0 and 1). NG also preloads CGs into sprite RAM here, which we don't need.
 
-    // FIXME: Areas B and C (NG bgs 12 and 13) aren't ported. Their code is in NG's BG110 too.
-    if (bg_w.area == 0) {
+    switch (bg_w.area) {
+    case 0:
         // FIXME: NG effect 82
 
         // A CPU Ibuki gets a zoomed-in view that zooms out when the round starts
@@ -80,6 +81,20 @@ static void bg3401_init00() {
         } else {
             bgw_ptr->r_no_0++;
         }
+
+        break;
+
+    case 1:
+        bgw_ptr->r_no_0++;
+        // FIXME: NG effects 82, 48 (variant 1, a second one), 75 and 83
+        effect_ng94_init_for_players(0);
+        break;
+
+    case 2:
+        bgw_ptr->r_no_0++;
+        effect_ng94_init_for_players(1);
+        // FIXME: NG effects 83 and 20
+        break;
     }
 
     // FIXME: NG effect 14 (variants 4-10)

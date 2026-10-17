@@ -309,6 +309,20 @@ static const StageSource stage_sources[] = {
       .ppg_file = CACHE_FILE_NG_IBUKI_A_STAGE,
       .object_palettes = { 0x6D },
       .object_palette_count = 1 },
+    { .game = ROM_GAME_SFIII,
+      .bg_index = 12,
+      .area = AREA_NG_IBUKI_B,
+      .palette_file = CACHE_FILE_NG_IBUKI_B_BG_PALETTE,
+      .ppg_file = CACHE_FILE_NG_IBUKI_B_STAGE,
+      .object_palettes = { 0x6E },
+      .object_palette_count = 1 },
+    { .game = ROM_GAME_SFIII,
+      .bg_index = 13,
+      .area = AREA_NG_IBUKI_C,
+      .palette_file = CACHE_FILE_NG_IBUKI_C_BG_PALETTE,
+      .ppg_file = CACHE_FILE_NG_IBUKI_C_STAGE,
+      .object_palettes = { 0x6F },
+      .object_palette_count = 1 },
 };
 
 #define MAX_CG_RANGES 4

@@ -25,7 +25,7 @@ const s16 scr_obj_num[AREA_COUNT] = {
     [AREA_3S_REMY] = 4,    [AREA_3S_BONUS_CAR] = 1, [AREA_3S_BONUS_BALLS] = 4, [AREA_NG_GILL] = 5,
     [AREA_NG_ALEX] = 4,    [AREA_NG_RYU_A] = 1,     [AREA_NG_RYU_B] = 4,       [AREA_NG_YUN_A] = 6,
     [AREA_NG_YUN_B] = 3,   [AREA_NG_DUDLEY_A] = 3,  [AREA_NG_DUDLEY_B] = 5,    [AREA_NG_NECRO] = 9,
-    [AREA_NG_IBUKI_A] = 2,
+    [AREA_NG_IBUKI_A] = 2, [AREA_NG_IBUKI_B] = 2,   [AREA_NG_IBUKI_C] = 2,
 };
 
 const s16 stg_dum_data_tbl[1] = { 0 };
@@ -181,7 +181,8 @@ u32* char_add[AREA_COUNT] = {
     [AREA_NG_RYU_B] = _ng_j10_b_char_table,  [AREA_NG_YUN_A] = _ng_hkg_a_char_table,
     [AREA_NG_YUN_B] = _ng_hkg_b_char_table,  [AREA_NG_DUDLEY_A] = _ng_eng_char_table,
     [AREA_NG_DUDLEY_B] = _ng_eng_char_table, [AREA_NG_NECRO] = _ng_rca_char_table,
-    [AREA_NG_IBUKI_A] = _ng_j11_char_table,
+    [AREA_NG_IBUKI_A] = _ng_j11_char_table,  [AREA_NG_IBUKI_B] = _ng_j11_char_table,
+    [AREA_NG_IBUKI_C] = _ng_j11_char_table,
 };
 
 const s16* scr_obj_data[AREA_COUNT] = {
@@ -201,7 +202,8 @@ const s16* scr_obj_data[AREA_COUNT] = {
     [AREA_NG_RYU_B] = ng_stg0210_data_tbl,    [AREA_NG_YUN_A] = ng_stg0300_data_tbl,
     [AREA_NG_YUN_B] = ng_stg0310_data_tbl,    [AREA_NG_DUDLEY_A] = ng_stg0400_data_tbl,
     [AREA_NG_DUDLEY_B] = ng_stg0410_data_tbl, [AREA_NG_NECRO] = ng_stg0500_data_tbl,
-    [AREA_NG_IBUKI_A] = ng_stg0700_data_tbl,
+    [AREA_NG_IBUKI_A] = ng_stg0700_data_tbl,  [AREA_NG_IBUKI_B] = ng_stg0700_data_tbl,
+    [AREA_NG_IBUKI_C] = ng_stg0700_data_tbl,
 };
 
 void effect_05_move(WORK_Other* ewk) {
