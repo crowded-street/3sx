@@ -9,6 +9,7 @@
 #include "sf33rd/Source/Game/effect/eff05.h"
 #include "sf33rd/Source/Game/effect/eff06.h"
 #include "sf33rd/Source/Game/effect/ng/eff82.h"
+#include "sf33rd/Source/Game/effect/ng/eff83.h"
 #include "sf33rd/Source/Game/effect/ng/eff94.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/slowf.h"
@@ -106,14 +107,16 @@ static void bg3401_init00() {
         bgw_ptr->r_no_0++;
         // NG starts a second effect 48 for layer 1 here, which does the same as the first one.
         effect_ng82_init(); // Spectators
-        // FIXME: NG effects 75 and 83
+        // NG also starts effect 75 here, which is unfinished: it never triggers and only draws placeholder graphics.
+        effect_ng83_init(); // Clouds
         effect_ng94_init_for_players(0);
         break;
 
     case 2:
         bgw_ptr->r_no_0++;
         effect_ng94_init_for_players(1);
-        // FIXME: NG effects 83 and 20
+        effect_ng83_init(); // Clouds
+        // FIXME: NG effect 20
         break;
     }
 
