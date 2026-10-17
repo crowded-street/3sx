@@ -501,4 +501,9 @@ const TexGroupData texgrpdat[TEXGROUP_COUNT] = {
               .mode = TEXGROUP_MODE_NORMAL,
               .to_tex = 0x3300,
               .to_chd = 0x0 }, // ng/bg09.bin
+    [110] = { .num_of_1st = 41245,
+              .apfn = RESOURCE_CACHE_FNUM(CACHE_FILE_NG_IBUKI_OBJECTS),
+              .mode = TEXGROUP_MODE_NORMAL,
+              .to_tex = 0x6000,
+              .to_chd = 0x0 }, // ng/bg11.bin
 };

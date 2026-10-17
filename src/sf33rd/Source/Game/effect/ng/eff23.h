@@ -4,10 +4,10 @@
 #include "structs.h"
 #include "types.h"
 
-#define EFFECT_NG21_ID 234
-#define EFFECT_NG22_ID 235
-#define EFFECT_NG23_ID 236
-#define EFFECT_NG24_ID 237
+#define EFFECT_NG21_ID 235
+#define EFFECT_NG22_ID 236
+#define EFFECT_NG23_ID 237
+#define EFFECT_NG24_ID 238
 
 void effect_ng21_move(WORK_Other* ewk);
 void effect_ng22_move(WORK_Other* ewk);

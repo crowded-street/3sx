@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-extern const u8 obj_group_table[41245];
+extern const u8 obj_group_table[41632];
 
 #endif

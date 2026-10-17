@@ -8,6 +8,7 @@
 #define BG_SCROLL_SPACE_COUNT 8
 #define LINE_SCROLL_BASE 0x200
 #define LINE_SCROLL_LINES 1024
+#define BG_LAYER_ANIMS 4
 
 typedef struct {
     s8 be_flag;
@@ -92,11 +93,11 @@ typedef struct {
     u8 bg_opaque;
     BGW bgw[7];
 
-    s8 layer_frame;      /// Frame of the area's `bg_layer_frames_tbl` layer
-    s8 layer_frame_step; /// Animation state of the layer frames, kept by the stage code
+    s8 layer_frame[BG_LAYER_ANIMS];      /// Frame of each animation of the area's `bg_layer_frames_tbl`
+    s8 layer_frame_step[BG_LAYER_ANIMS]; /// Animation state of the layer frames, kept by the stage code
+    s8 layer_frame_timer[BG_LAYER_ANIMS];
     s8 layer_frame_sequence;
     s8 layer_frame_cycles;
-    s8 layer_frame_timer;
 } BG;
 
 // MARK: - Serialized
