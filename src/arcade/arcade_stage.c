@@ -462,7 +462,7 @@ static const CgGroupSource cg_group_sources[] = {
     // table follows the stage's in the ROM.
     { .game = ROM_GAME_SFIII,
       .group = 110,
-      .ranges = { { 0x6240, 280 }, { 0x6510, 93 }, { 0x7738, 6 } },
+      .ranges = { { 0x6240, 280 }, { 0x6510, 93 }, { 0x7738, 14 } },
       .range_count = 3,
       .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
       .file = CACHE_FILE_NG_IBUKI_OBJECTS },

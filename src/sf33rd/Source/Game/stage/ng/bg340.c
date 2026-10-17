@@ -8,6 +8,7 @@
 #include "constants.h"
 #include "sf33rd/Source/Game/effect/eff05.h"
 #include "sf33rd/Source/Game/effect/eff06.h"
+#include "sf33rd/Source/Game/effect/ng/eff20.h"
 #include "sf33rd/Source/Game/effect/ng/eff82.h"
 #include "sf33rd/Source/Game/effect/ng/eff83.h"
 #include "sf33rd/Source/Game/effect/ng/eff94.h"
@@ -116,7 +117,7 @@ static void bg3401_init00() {
         bgw_ptr->r_no_0++;
         effect_ng94_init_for_players(1);
         effect_ng83_init(); // Clouds
-        // FIXME: NG effect 20
+        effect_ng20_init(); // Falling leaves
         break;
     }
 
