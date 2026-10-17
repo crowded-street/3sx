@@ -26,7 +26,7 @@ jobs:
           - name: Build for macOS
             run: |
                 set -o pipefail
-                cmake -B build -DCMAKE_BUILD_TYPE=Release
+                cmake -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo
                 cmake --build build --parallel 2>&1 | tee build.log
             shell: bash
 

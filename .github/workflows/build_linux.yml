@@ -37,7 +37,7 @@ jobs:
           - name: Build for Linux (${{ matrix.runner.arch }})
             run: |
                 set -o pipefail
-                CC=clang CXX=clang++ cmake -B build -DCMAKE_BUILD_TYPE=Release
+                CC=clang CXX=clang++ cmake -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo
                 cmake --build build --parallel $(nproc) 2>&1 | tee build.log
             shell: bash
 

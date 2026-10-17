@@ -41,7 +41,7 @@ jobs:
                 set -o pipefail
 
                 CC=clang CXX=clang++ cmake -B build \
-                    -DCMAKE_BUILD_TYPE=Release \
+                    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
                     -DMSYS2_LOCATION=${{ steps.msys2.outputs.msys2-location }}
 
                 cmake --build build --parallel 2>&1 | tee build.log

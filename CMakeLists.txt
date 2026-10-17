@@ -154,6 +154,14 @@ if(PSP)
     target_link_options(3sx PRIVATE -G0)
 endif()
 
+if(APPLE)
+    add_custom_command(TARGET 3sx POST_BUILD
+        COMMAND "$<$<CONFIG:RelWithDebInfo>:dsymutil;$<TARGET_FILE:3sx>;-o;$<TARGET_BUNDLE_DIR:3sx>.dSYM>"
+        COMMAND_EXPAND_LISTS
+        VERBATIM
+    )
+endif()
+
 set_target_properties(3sx PROPERTIES
     MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/cmake/Info.plist"
 )
@@ -274,6 +282,11 @@ if(APPLE)
     install(FILES
         ${SDL3_ROOT}/lib/libSDL3.0.dylib
         DESTINATION 3SX.app/Contents/Frameworks
+    )
+
+    install(DIRECTORY "$<TARGET_BUNDLE_DIR:3sx>.dSYM"
+        DESTINATION .
+        CONFIGURATIONS RelWithDebInfo
     )
 
     install(FILES
