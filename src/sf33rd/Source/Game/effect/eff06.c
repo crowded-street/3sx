@@ -247,7 +247,12 @@ void effect_06_move(WORK_Other* ewk) {
             char_move(&ewk->wu);
         }
 
-        disp_pos_trans_entry_rs(ewk);
+        if (AREA_IS_NG(bg_w.bg_index)) {
+            disp_pos_trans_entry_rs_ng(ewk);
+        } else {
+            disp_pos_trans_entry_rs(ewk);
+        }
+
         break;
 
     default:
