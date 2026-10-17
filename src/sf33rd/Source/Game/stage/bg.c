@@ -1102,17 +1102,17 @@ static void bgDrawOuterChips(s32 bgnum, const s32 yy[2], s32 ofsPal, PPGDataList
     ppgSetupCurrentDataList(curDataList);
 }
 
-/// Replaces `gbix` with the chip that the current frame of the area's `bg_layer_frames_tbl` layer shows there.
+/// Replaces `gbix` with the chip that the current frame of the area's `bg_layer_frames_tbl` shows there.
 /// @return Whether the layer has frames
 static bool bgLayerFrameChip(s32 bgnum, s32 gixbase, s32* gbix) {
     const bg_layer_frames_elem* frames = &bg_layer_frames_tbl[bg_w.bg_index];
     const s32 chip = *gbix - gixbase;
 
-    if (ending_flag != 0 || frames->chips == NULL || frames->bg_num != bgnum || chip < 32) {
+    if (ending_flag != 0 || bgnum >= SDL_arraysize(frames->chips) || frames->chips[bgnum] == NULL || chip < 32) {
         return false;
     }
 
-    *gbix = frames->chips[bg_w.layer_frame][chip - 32];
+    *gbix = frames->chips[bgnum][bg_w.layer_frame][chip - 32];
     return true;
 }
 

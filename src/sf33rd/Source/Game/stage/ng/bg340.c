@@ -10,18 +10,25 @@
 #include "sf33rd/Source/Game/effect/eff06.h"
 #include "sf33rd/Source/Game/effect/ng/eff94.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
+#include "sf33rd/Source/Game/engine/slowf.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
 
+#include <SDL3/SDL.h>
+
 #define INTRO_ZOOM 80
 #define INTRO_ZOOM_X 192
 #define INTRO_ZOOM_Y 224
 
+static const s8 sway_frames[20] = { 0, 1, 2, 1, 0, 1, 0, 1, 2, 3, 2, 3, 2, 1, 0, 1, 0, 1, 0, 1 };
+static const s8 sway_times[20] = { 11, 11, 10, 9, 10, 11, 11, 10, 9, 9, 9, 9, 9, 10, 11, 11, 11, 11, 11, 11 };
+
 static void bg3400();
 static void bg3400_init00();
+static void bg3400_move00();
 static void bg3401();
 static void bg3401_init00();
 static void bg3401_move00();
@@ -33,6 +40,9 @@ static void bg3404_init00();
 static void bg3404_move00();
 static void bg340_init_layer();
 static void bg340_move_layer();
+static void bg340_sway_init();
+static void bg340_sway_update();
+static s8 bg340_sway_time();
 static bool is_cpu_ibuki_present();
 
 void BG340() {
@@ -50,12 +60,20 @@ void BG340() {
 }
 
 static void bg3400() {
-    void (*bg3400_jmp[2])() = { bg3400_init00, bg340_move_layer };
+    void (*bg3400_jmp[2])() = { bg3400_init00, bg3400_move00 };
     bg3400_jmp[bgw_ptr->r_no_0]();
 }
 
 static void bg3400_init00() {
     bg340_init_layer();
+}
+
+static void bg3400_move00() {
+    bg340_move_layer();
+
+    if (!EXE_flag && !Game_pause) {
+        bg340_sway_update();
+    }
 }
 
 static void bg3401() {
@@ -68,13 +86,12 @@ static void bg3401_init00() {
     effect_05_init();
     effect_06_init();
 
-    // FIXME: NG effect 48 (variants 0 and 1). NG also preloads CGs into sprite RAM here, which we don't need.
+    bg340_sway_init();
 
     switch (bg_w.area) {
     case 0:
         // FIXME: NG effect 82
 
-        // A CPU Ibuki gets a zoomed-in view that zooms out when the round starts
         if (is_cpu_ibuki_present()) {
             bg_w.bg_f_x = bg_w.bg_f_y = INTRO_ZOOM;
             Frame_Down(INTRO_ZOOM_X, INTRO_ZOOM_Y, INTRO_ZOOM - 64);
@@ -86,7 +103,8 @@ static void bg3401_init00() {
 
     case 1:
         bgw_ptr->r_no_0++;
-        // FIXME: NG effects 82, 48 (variant 1, a second one), 75 and 83
+        // NG starts a second effect 48 for layer 1 here, which does the same as the first one.
+        // FIXME: NG effects 82, 75 and 83
         effect_ng94_init_for_players(0);
         break;
 
@@ -175,4 +193,32 @@ static bool is_cpu_ibuki_present() {
     }
 
     return false;
+}
+
+static s8 bg340_sway_time() {
+    const s8 speed_up[3] = { 0, 2, 3 };
+    return sway_times[bg_w.layer_frame_step] - speed_up[bg_w.area];
+}
+
+static void bg340_sway_init() {
+    bg_w.layer_frame_step = 0;
+    bg_w.layer_frame_timer = bg340_sway_time();
+    bg_w.layer_frame = sway_frames[0];
+}
+
+static void bg340_sway_update() {
+    bg_w.layer_frame_timer--;
+
+    if (bg_w.layer_frame_timer != 0) {
+        return;
+    }
+
+    bg_w.layer_frame_step++;
+
+    if (bg_w.layer_frame_step >= SDL_arraysize(sway_frames)) {
+        bg_w.layer_frame_step = 0;
+    }
+
+    bg_w.layer_frame_timer = bg340_sway_time();
+    bg_w.layer_frame = sway_frames[bg_w.layer_frame_step];
 }

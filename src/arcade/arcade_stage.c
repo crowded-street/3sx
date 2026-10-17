@@ -147,6 +147,34 @@ typedef struct StageSource {
 #define NG_DUDLEY_RAIN_CHIP(map_index, chip_index)                                                                     \
     { .blocks = NG_DUDLEY_RAIN_MAPS + (map_index) * 0x80, .block_count = 16, .chip = (chip_index) }
 
+#define NG_IBUKI_LAYER0_MAPS 0x06434924
+#define NG_IBUKI_LAYER1_MAPS 0x064349E4
+#define NG_IBUKI_LAYER0_CHIP(map_index, chip_index)                                                                    \
+    { .blocks = NG_IBUKI_LAYER0_MAPS + (map_index) * 0x60, .block_count = 12, .chip = (chip_index) }
+#define NG_IBUKI_LAYER1_CHIP(map_index, chip_index)                                                                    \
+    { .blocks = NG_IBUKI_LAYER1_MAPS + (map_index) * 0x40, .block_count = 8, .chip = (chip_index) }
+#define NG_IBUKI_REWRITE_CHIPS                                                                                         \
+    { NG_IBUKI_LAYER0_CHIP(0, 33), NG_IBUKI_LAYER0_CHIP(0, 34), NG_IBUKI_LAYER0_CHIP(0, 41),                           \
+      NG_IBUKI_LAYER0_CHIP(0, 42), NG_IBUKI_LAYER0_CHIP(0, 49), NG_IBUKI_LAYER0_CHIP(0, 50),                           \
+      NG_IBUKI_LAYER0_CHIP(0, 57), NG_IBUKI_LAYER0_CHIP(0, 58), NG_IBUKI_LAYER0_CHIP(1, 1),                            \
+      NG_IBUKI_LAYER0_CHIP(1, 2),  NG_IBUKI_LAYER0_CHIP(1, 9),  NG_IBUKI_LAYER0_CHIP(1, 10),                           \
+      NG_IBUKI_LAYER0_CHIP(1, 17), NG_IBUKI_LAYER0_CHIP(1, 18), NG_IBUKI_LAYER0_CHIP(1, 33),                           \
+      NG_IBUKI_LAYER0_CHIP(1, 34), NG_IBUKI_LAYER0_CHIP(1, 41), NG_IBUKI_LAYER0_CHIP(1, 42),                           \
+      NG_IBUKI_LAYER0_CHIP(1, 49), NG_IBUKI_LAYER0_CHIP(1, 50), NG_IBUKI_LAYER1_CHIP(1, 32),                           \
+      NG_IBUKI_LAYER1_CHIP(1, 33), NG_IBUKI_LAYER1_CHIP(1, 34), NG_IBUKI_LAYER1_CHIP(1, 35),                           \
+      NG_IBUKI_LAYER1_CHIP(1, 40), NG_IBUKI_LAYER1_CHIP(1, 41), NG_IBUKI_LAYER1_CHIP(1, 42),                           \
+      NG_IBUKI_LAYER1_CHIP(1, 43), NG_IBUKI_LAYER1_CHIP(1, 48), NG_IBUKI_LAYER1_CHIP(1, 49),                           \
+      NG_IBUKI_LAYER1_CHIP(1, 50), NG_IBUKI_LAYER1_CHIP(1, 56), NG_IBUKI_LAYER1_CHIP(2, 32),                           \
+      NG_IBUKI_LAYER1_CHIP(2, 33), NG_IBUKI_LAYER1_CHIP(2, 34), NG_IBUKI_LAYER1_CHIP(2, 35),                           \
+      NG_IBUKI_LAYER1_CHIP(2, 40), NG_IBUKI_LAYER1_CHIP(2, 41), NG_IBUKI_LAYER1_CHIP(2, 42),                           \
+      NG_IBUKI_LAYER1_CHIP(2, 43), NG_IBUKI_LAYER1_CHIP(2, 48), NG_IBUKI_LAYER1_CHIP(2, 49),                           \
+      NG_IBUKI_LAYER1_CHIP(2, 50), NG_IBUKI_LAYER1_CHIP(2, 56), NG_IBUKI_LAYER1_CHIP(3, 32),                           \
+      NG_IBUKI_LAYER1_CHIP(3, 33), NG_IBUKI_LAYER1_CHIP(3, 34), NG_IBUKI_LAYER1_CHIP(3, 35),                           \
+      NG_IBUKI_LAYER1_CHIP(3, 40), NG_IBUKI_LAYER1_CHIP(3, 41), NG_IBUKI_LAYER1_CHIP(3, 42),                           \
+      NG_IBUKI_LAYER1_CHIP(3, 43), NG_IBUKI_LAYER1_CHIP(3, 48), NG_IBUKI_LAYER1_CHIP(3, 49),                           \
+      NG_IBUKI_LAYER1_CHIP(3, 50) }
+#define NG_IBUKI_REWRITE_CHIP_COUNT 55
+
 /// Variants of NG's effect 14 (20 bytes each): {u8[3], u8 layer, u8[4], u32 palette sequence, u32 cell mask,
 /// u32 size}. The sequence holds {u8, u8 frames, u16 palette row} steps, the mask a byte per cell (1 if the cell
 /// changes) and the size {u8 width, u8 height} in cells.
@@ -308,21 +336,27 @@ static const StageSource stage_sources[] = {
       .palette_file = CACHE_FILE_NG_IBUKI_A_BG_PALETTE,
       .ppg_file = CACHE_FILE_NG_IBUKI_A_STAGE,
       .object_palettes = { 0x6D },
-      .object_palette_count = 1 },
+      .object_palette_count = 1,
+      .rewrite_chips = NG_IBUKI_REWRITE_CHIPS,
+      .rewrite_chip_count = NG_IBUKI_REWRITE_CHIP_COUNT },
     { .game = ROM_GAME_SFIII,
       .bg_index = 12,
       .area = AREA_NG_IBUKI_B,
       .palette_file = CACHE_FILE_NG_IBUKI_B_BG_PALETTE,
       .ppg_file = CACHE_FILE_NG_IBUKI_B_STAGE,
       .object_palettes = { 0x6E },
-      .object_palette_count = 1 },
+      .object_palette_count = 1,
+      .rewrite_chips = NG_IBUKI_REWRITE_CHIPS,
+      .rewrite_chip_count = NG_IBUKI_REWRITE_CHIP_COUNT },
     { .game = ROM_GAME_SFIII,
       .bg_index = 13,
       .area = AREA_NG_IBUKI_C,
       .palette_file = CACHE_FILE_NG_IBUKI_C_BG_PALETTE,
       .ppg_file = CACHE_FILE_NG_IBUKI_C_STAGE,
       .object_palettes = { 0x6F },
-      .object_palette_count = 1 },
+      .object_palette_count = 1,
+      .rewrite_chips = NG_IBUKI_REWRITE_CHIPS,
+      .rewrite_chip_count = NG_IBUKI_REWRITE_CHIP_COUNT },
 };
 
 #define MAX_CG_RANGES 4

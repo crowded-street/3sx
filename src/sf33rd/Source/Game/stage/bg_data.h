@@ -19,8 +19,7 @@ typedef struct {
 } bg_outer_chip_elem;
 
 typedef struct {
-    s16 bg_num;
-    const s16 (*chips)[32];
+    const s16 (*chips[3])[32];
 } bg_layer_frames_elem;
 
 extern const u8 use_scr[AREA_COUNT];
