@@ -1216,6 +1216,7 @@ void bg_initialize() {
 
     bg_w.scr_stop = 0;
     bg_w.frame_flag = 0;
+    bg_w.intro_direction = 0;
     bg_w.bg_f_x = 0x40;
     bg_w.bg_f_y = 0x40;
     bg_w.bg2_sp_x2 = bg_w.bg2_sp_x = 0;

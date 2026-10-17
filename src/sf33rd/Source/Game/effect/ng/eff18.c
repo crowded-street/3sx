@@ -75,22 +75,31 @@ static const Eff18Data eff18_yun_a_data_1[2] = {
     { 1, 2, 8513, 552, 56, 76, 30, 31, 1, 0, EFF18_SWING_ON_SPECIAL_MOVE, 1 },
 };
 
+/// Necro's stage. Colour codes are converted from palette row 0x59 to the PS2 BG palette row 0x145.
+static const Eff18Data eff18_necro_data[1] = {
+    { 1, 2, 8517, 304, 48, 75, 25, 42, 1, 0, EFF18_SWING_ON_SPECIAL_MOVE, 1 },
+};
+
 #define EFF18_VARIANT(data) { data, SDL_arraysize(data) }
 
-/// Indexed by variant and `compel_flag`. The other variants belong to stages that aren't ported yet.
-static const Eff18Variant eff18_variants[][4] = {
-    { EFF18_VARIANT(eff18_ryu_a_data),
-      EFF18_VARIANT(eff18_ryu_a_data),
-      EFF18_VARIANT(eff18_ryu_a_data),
-      EFF18_VARIANT(eff18_ryu_a_data) },
-    { EFF18_VARIANT(eff18_ryu_b_data),
-      EFF18_VARIANT(eff18_ryu_b_data),
-      EFF18_VARIANT(eff18_ryu_b_data),
-      EFF18_VARIANT(eff18_ryu_b_data) },
-    { EFF18_VARIANT(eff18_yun_a_data_0),
-      EFF18_VARIANT(eff18_yun_a_data_1),
-      EFF18_VARIANT(eff18_yun_a_data_0),
-      EFF18_VARIANT(eff18_yun_a_data_1) },
+/// Indexed by variant and `compel_flag`. The empty variants belong to stages that aren't ported yet.
+static const Eff18Variant eff18_variants[6][4] = {
+    [0] = { EFF18_VARIANT(eff18_ryu_a_data),
+            EFF18_VARIANT(eff18_ryu_a_data),
+            EFF18_VARIANT(eff18_ryu_a_data),
+            EFF18_VARIANT(eff18_ryu_a_data) },
+    [1] = { EFF18_VARIANT(eff18_ryu_b_data),
+            EFF18_VARIANT(eff18_ryu_b_data),
+            EFF18_VARIANT(eff18_ryu_b_data),
+            EFF18_VARIANT(eff18_ryu_b_data) },
+    [2] = { EFF18_VARIANT(eff18_yun_a_data_0),
+            EFF18_VARIANT(eff18_yun_a_data_1),
+            EFF18_VARIANT(eff18_yun_a_data_0),
+            EFF18_VARIANT(eff18_yun_a_data_1) },
+    [5] = { EFF18_VARIANT(eff18_necro_data),
+            EFF18_VARIANT(eff18_necro_data),
+            EFF18_VARIANT(eff18_necro_data),
+            EFF18_VARIANT(eff18_necro_data) },
 };
 
 static bool is_special_move_active() {
@@ -203,16 +212,6 @@ static void play_on_victory(WORK_Other* ewk) {
     }
 }
 
-/// Like disp_pos_trans_entry_s and disp_pos_trans_entry_rs, but without the 1 pixel nudge and with NG's range
-static void eff18_trans_entry(WORK_Other* ewk) {
-    if (obr_no_disp_check() || (ewk->wu.old_rno[0] && !range_x_check_ng(ewk))) {
-        return;
-    }
-
-    suzi_sync_pos_set(ewk);
-    sort_push_request4(&ewk->wu);
-}
-
 void effect_ng18_move(WORK_Other* ewk) {
     void (*const behaviors[2])(WORK_Other*) = { swing_on_special_move, play_on_victory };
 
@@ -243,7 +242,11 @@ void effect_ng18_move(WORK_Other* ewk) {
         behaviors[ewk->wu.routine_no[1]](ewk);
     }
 
-    eff18_trans_entry(ewk);
+    if (ewk->wu.old_rno[0]) {
+        disp_pos_trans_entry_rs_ng(ewk);
+    } else {
+        disp_pos_trans_entry_s_ng(ewk);
+    }
 }
 
 s32 effect_ng18_init(s16 variant) {

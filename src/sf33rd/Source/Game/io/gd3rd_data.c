@@ -352,6 +352,10 @@ const LoadRequestEntry ldreq_tbl[LDREQ_TBL_SIZE] = {
     [325] = { .type = LDREQ_TEXTURE, .ix = 108, .frre = 1, .kokey = 19 },
     [326] = { .type = LDREQ_TEXTURE, .ix = 101, .frre = 1, .kokey = 19 }, // Ibuki's tanuki
     [327] = { .type = LDREQ_COLOR, .ix = 164, .frre = 1, .kokey = 2 },    // Ibuki's tanuki palette
+    // NG Necro's stage
+    [328] = { .type = LDREQ_COLOR, .ix = 179, .frre = 1, .kokey = 2 },
+    [329] = { .type = LDREQ_SCREEN, .ix = 180, .frre = 1, .kokey = 18 },
+    [330] = { .type = LDREQ_TEXTURE, .ix = 109, .frre = 1, .kokey = 19 },
 };
 
 /// Load request spans. Spans from 20 on hold the resources of area `index - 20`. AREA_3S_Q's span loads Ken's stage
@@ -374,4 +378,5 @@ const Span spans[] = {
     { .start = 206, .length = 4 }, { .start = 300, .length = 5 }, { .start = 297, .length = 5 },
     { .start = 305, .length = 3 }, { .start = 308, .length = 3 }, { .start = 311, .length = 4 },
     { .start = 315, .length = 3 }, { .start = 318, .length = 5 }, { .start = 323, .length = 5 },
+    { .start = 328, .length = 3 },
 };

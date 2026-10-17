@@ -4,8 +4,8 @@
 #include "structs.h"
 #include "types.h"
 
-#define EFFECT_NG69_ID 245
-#define EFFECT_NG70_ID 246
+#define EFFECT_NG69_ID 248
+#define EFFECT_NG70_ID 249
 
 void effect_ng69_move(WORK_Other* ewk);
 void effect_ng70_move(WORK_Other* ewk);

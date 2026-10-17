@@ -250,6 +250,23 @@ void disp_pos_trans_entry_ng(WORK_Other* ewk) {
     sort_push_request4(&ewk->wu);
 }
 
+void disp_pos_trans_entry_s_ng(WORK_Other* ewk) {
+    if (obr_no_disp_check()) {
+        return;
+    }
+
+    suzi_sync_pos_set(ewk);
+    sort_push_request4(&ewk->wu);
+}
+
+void disp_pos_trans_entry_rs_ng(WORK_Other* ewk) {
+    if (!range_x_check_ng(ewk)) {
+        return;
+    }
+
+    disp_pos_trans_entry_s_ng(ewk);
+}
+
 void pl_eff_trans_entry(WORK_Other* ewk) {
     if (obr_no_disp_check() == 0) {
         ewk->wu.position_x = ewk->wu.xyz[0].disp.pos & 0xFFFF;

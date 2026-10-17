@@ -210,6 +210,8 @@
 #include "sf33rd/Source/Game/effect/effm6.h"
 #include "sf33rd/Source/Game/effect/effm7.h"
 #include "sf33rd/Source/Game/effect/effm8.h"
+#include "sf33rd/Source/Game/effect/ng/eff07.h"
+#include "sf33rd/Source/Game/effect/ng/eff09.h"
 #include "sf33rd/Source/Game/effect/ng/eff124.h"
 #include "sf33rd/Source/Game/effect/ng/eff18.h"
 #include "sf33rd/Source/Game/effect/ng/eff19.h"
@@ -238,7 +240,7 @@ void effect_dummy_move(WORK_Other* /* unused */) {
     // Do nothing
 }
 
-EffectMoveCallback const effmovejptbl[252] = {
+EffectMoveCallback const effmovejptbl[255] = {
     (EffectMoveCallback)effect_00_move,
     effect_01_move,
     effect_02_move,
@@ -470,6 +472,9 @@ EffectMoveCallback const effmovejptbl[252] = {
     effect_M8_move,
 
     // New Generation
+    [EFFECT_NG07_ID] = effect_ng07_move,
+    [EFFECT_NG08_ID] = effect_ng08_move,
+    [EFFECT_NG09_ID] = effect_ng09_move,
     [EFFECT_NG18_ID] = effect_ng18_move,
     [EFFECT_NG19_ID] = effect_ng19_move,
     [EFFECT_NG21_ID] = effect_ng21_move,
@@ -495,7 +500,7 @@ EffectMoveCallback const effmovejptbl[252] = {
     [EFFECT_NG124_ID] = effect_ng124_move,
 };
 
-EffectInitCallback const effinitjptbl[59] = {
+EffectInitCallback const effinitjptbl[60] = {
     NULL,
     effect_03_init,
     effect_13_init,
@@ -555,4 +560,7 @@ EffectInitCallback const effinitjptbl[59] = {
     effect_M2_init,
     effect_M8_init,
     (EffectInitCallback)effect_F0_init,
+
+    // New Generation
+    [EFFINIT_NG09] = effect_ng09_init,
 };

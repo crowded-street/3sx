@@ -1331,7 +1331,7 @@ const s16 smoke_check[AREA_COUNT] = {
     [AREA_3S_CHUNLI] = 0, [AREA_3S_MAKOTO] = 0,    [AREA_3S_Q] = 1,           [AREA_3S_TWELVE] = 1,
     [AREA_3S_REMY] = 0,   [AREA_3S_BONUS_CAR] = 0, [AREA_3S_BONUS_BALLS] = 0, [AREA_NG_GILL] = 1,
     [AREA_NG_ALEX] = 1,   [AREA_NG_RYU_A] = 0,     [AREA_NG_RYU_B] = 0,       [AREA_NG_YUN_A] = 0,
-    [AREA_NG_YUN_B] = 0,  [AREA_NG_DUDLEY_A] = 0,  [AREA_NG_DUDLEY_B] = 0,
+    [AREA_NG_YUN_B] = 0,  [AREA_NG_DUDLEY_A] = 0,  [AREA_NG_DUDLEY_B] = 0,    [AREA_NG_NECRO] = 1,
 };
 
 void Appear_26000(PLW* wk) {

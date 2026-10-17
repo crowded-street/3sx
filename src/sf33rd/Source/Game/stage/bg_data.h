@@ -102,6 +102,7 @@ extern const u16* bg_map_tbl[][3];
 extern const u16* bg_map_tbl2[];
 extern const bg_outer_chip_elem* bg_outer_chip_tbl[AREA_COUNT];
 extern const bg_layer_frames_elem bg_layer_frames_tbl[AREA_COUNT];
+extern const u8 bg_repeat_x_tbl[AREA_COUNT];
 
 // MARK: - Unhandled
 

@@ -295,6 +295,13 @@ static const StageSource stage_sources[] = {
       .layer_writes = { { .layer = 1, .offset = 0x3000, .block = 1, .first_column = 8, .columns = 8 },
                         { .layer = 1, .offset = 0x30E0, .block = 5, .first_column = 0, .columns = 8 } },
       .layer_write_count = 2 },
+    { .game = ROM_GAME_SFIII,
+      .bg_index = 9,
+      .area = AREA_NG_NECRO,
+      .palette_file = CACHE_FILE_NG_NECRO_BG_PALETTE,
+      .ppg_file = CACHE_FILE_NG_NECRO_STAGE,
+      .object_palettes = { 0x61 },
+      .object_palette_count = 1 },
 };
 
 #define MAX_CG_RANGES 4
@@ -387,6 +394,14 @@ static const CgGroupSource cg_group_sources[] = {
       .range_count = 1,
       .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
       .file = CACHE_FILE_NG_DUDLEY_OBJECTS },
+
+    // Objects of NG Necro's stage. Its char table is _ng_rca_char_table.
+    { .game = ROM_GAME_SFIII,
+      .group = 109,
+      .ranges = { { 0x4C08, 440 } },
+      .range_count = 1,
+      .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
+      .file = CACHE_FILE_NG_NECRO_OBJECTS },
 };
 
 /// CPS3 graphics addresses start this far before the graphics region

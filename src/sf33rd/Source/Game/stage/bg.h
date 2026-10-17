@@ -61,6 +61,7 @@ typedef struct {
     s8 bg_routine;
     s8 bg_r_1;
     s8 bg_r_2;
+    s8 intro_direction;
     s8 stage;
     s8 area;
     s8 compel_flag;

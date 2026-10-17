@@ -4,7 +4,7 @@
 #include "structs.h"
 #include "types.h"
 
-#define EFFECT_NG65_ID 242
+#define EFFECT_NG65_ID 245
 
 void effect_ng65_move(WORK_Other* ewk);
 s32 effect_ng65_init();
