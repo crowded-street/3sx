@@ -153,6 +153,10 @@ void Init_Task_Aload(struct _TASK* task_ptr) {
 
     case 2:
         if (SaveMove() <= 0) {
+            bgm_level = save_w[1].BGM_Level;
+            se_level = save_w[1].SE_Level;
+            setSeVolume();
+
             task_ptr->r_no[0] += 1;
             task_ptr->r_no[1] = 0;
             mpp_w.cutAnalogStickData = 0;
