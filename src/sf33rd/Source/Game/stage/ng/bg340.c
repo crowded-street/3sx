@@ -8,6 +8,7 @@
 #include "constants.h"
 #include "sf33rd/Source/Game/effect/eff05.h"
 #include "sf33rd/Source/Game/effect/eff06.h"
+#include "sf33rd/Source/Game/effect/ng/eff82.h"
 #include "sf33rd/Source/Game/effect/ng/eff94.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/slowf.h"
@@ -90,7 +91,7 @@ static void bg3401_init00() {
 
     switch (bg_w.area) {
     case 0:
-        // FIXME: NG effect 82
+        effect_ng82_init(); // Spectators
 
         if (is_cpu_ibuki_present()) {
             bg_w.bg_f_x = bg_w.bg_f_y = INTRO_ZOOM;
@@ -104,7 +105,8 @@ static void bg3401_init00() {
     case 1:
         bgw_ptr->r_no_0++;
         // NG starts a second effect 48 for layer 1 here, which does the same as the first one.
-        // FIXME: NG effects 82, 75 and 83
+        effect_ng82_init(); // Spectators
+        // FIXME: NG effects 75 and 83
         effect_ng94_init_for_players(0);
         break;
 
