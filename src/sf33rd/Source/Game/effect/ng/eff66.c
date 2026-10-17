@@ -72,16 +72,11 @@ static const Eff66Variant* get_variant(WORK_Other* ewk) {
 }
 
 static void eff66_disp(WORK_Other* ewk) {
-    if (get_variant(ewk)->range_check && !range_x_check_ng(ewk)) {
-        return;
+    if (get_variant(ewk)->range_check) {
+        disp_pos_trans_entry_rs_ng(ewk);
+    } else {
+        disp_pos_trans_entry_s_ng(ewk);
     }
-
-    if (obr_no_disp_check()) {
-        return;
-    }
-
-    suzi_sync_pos_set(ewk);
-    sort_push_request4(&ewk->wu);
 }
 
 static void eff66_near_drawn(WORK_Other* ewk) {

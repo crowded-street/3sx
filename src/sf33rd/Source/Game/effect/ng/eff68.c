@@ -35,15 +35,6 @@ static bool is_near(s16 a, s16 b) {
     return distance < REACTION_RANGE;
 }
 
-static void eff68_disp(WORK_Other* ewk, bool range_check) {
-    if (obr_no_disp_check() || (range_check && !range_x_check_ng(ewk))) {
-        return;
-    }
-
-    suzi_sync_pos_set(ewk);
-    sort_push_request4(&ewk->wu);
-}
-
 static void eff68_pace(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
@@ -97,7 +88,7 @@ void effect_ng68_move(WORK_Other* ewk) {
             eff68_pace(ewk);
         }
 
-        eff68_disp(ewk, true);
+        disp_pos_trans_entry_rs_ng(ewk);
         break;
 
     case 1:
@@ -111,7 +102,7 @@ void effect_ng68_move(WORK_Other* ewk) {
             eff68_react(ewk);
         }
 
-        eff68_disp(ewk, false);
+        disp_pos_trans_entry_s_ng(ewk);
         break;
 
     default:

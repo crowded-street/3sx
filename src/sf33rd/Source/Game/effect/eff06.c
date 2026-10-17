@@ -25,7 +25,7 @@ const s16 scr_obj_num6[AREA_COUNT] = {
     [AREA_3S_CHUNLI] = 1, [AREA_3S_MAKOTO] = 4,    [AREA_3S_Q] = 0,           [AREA_3S_TWELVE] = 1,
     [AREA_3S_REMY] = 1,   [AREA_3S_BONUS_CAR] = 0, [AREA_3S_BONUS_BALLS] = 0, [AREA_NG_GILL] = 10,
     [AREA_NG_ALEX] = 8,   [AREA_NG_RYU_A] = 4,     [AREA_NG_RYU_B] = 11,      [AREA_NG_YUN_A] = 7,
-    [AREA_NG_YUN_B] = 3,  [AREA_NG_DUDLEY_A] = 12, [AREA_NG_DUDLEY_B] = 15,
+    [AREA_NG_YUN_B] = 3,  [AREA_NG_DUDLEY_A] = 12, [AREA_NG_DUDLEY_B] = 15,   [AREA_NG_NECRO] = 17,
 };
 
 const s16 st0000_data_tbl[9] = {
@@ -170,6 +170,17 @@ const s16 ng_st0410_data_tbl[135] = {
     0, 2, 8492, -128, 80,  80,  5,  0, 1, 1, 2, 8516, 224,  48,  76,  24, 0, 1, 1, 2, 8516, 224,  160, 100, 25, 0, 1,
 };
 
+/// New Generation's Necro stage. Colour codes are converted from palette rows 0x40 and 0x59 to the PS2 BG palette rows
+/// 0x12C and 0x145.
+const s16 ng_st0500_data_tbl[153] = {
+    0, 2, 8492, 663, 136, 75, 8,  1, 0, 0, 2, 8492, 683, 123, 75, 9,  1, 0, 1, 2, 8492, 775, 144, 75, 10, 1, 0,
+    1, 2, 8492, 640, 48,  75, 11, 1, 0, 1, 2, 8492, 224, 64,  80, 5,  0, 0, 1, 2, 300,  168, 16,  6,  0,  0, 0,
+    1, 2, 300,  96,  107, 75, 1,  0, 0, 1, 2, 300,  96,  107, 75, 2,  0, 0, 1, 2, 8492, 360, 104, 75, 13, 1, 0,
+    1, 2, 8492, 372, 104, 75, 20, 1, 0, 1, 2, 8492, 908, 101, 75, 6,  1, 0, 1, 2, 8492, 53,  145, 75, 7,  1, 0,
+    1, 2, 8492, 880, 16,  6,  17, 0, 0, 1, 2, 8517, 364, 146, 79, 23, 0, 0, 1, 2, 8517, 288, 256, 75, 24, 0, 0,
+    1, 2, 8517, 352, 225, 75, 26, 1, 0, 0, 2, 8517, 368, 147, 75, 27, 1, 0,
+};
+
 const s16* scr_obj_data6[AREA_COUNT] = {
     [AREA_3S_GILL] = st0000_data_tbl,
     [AREA_3S_ALEX] = st0100_data_tbl,
@@ -202,6 +213,7 @@ const s16* scr_obj_data6[AREA_COUNT] = {
     [AREA_NG_YUN_B] = ng_st0310_data_tbl,
     [AREA_NG_DUDLEY_A] = ng_st0400_data_tbl,
     [AREA_NG_DUDLEY_B] = ng_st0410_data_tbl,
+    [AREA_NG_NECRO] = ng_st0500_data_tbl,
 };
 
 void effect_06_move(WORK_Other* ewk) {

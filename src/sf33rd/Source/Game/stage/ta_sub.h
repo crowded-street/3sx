@@ -23,6 +23,12 @@ void disp_pos_trans_entry_rs(WORK_Other* ewk);
 /// Like disp_pos_trans_entry, but with New Generation's range and positions that wrap at 0x400
 void disp_pos_trans_entry_ng(WORK_Other* ewk);
 
+/// Like disp_pos_trans_entry_s, but without the 1 pixel nudge
+void disp_pos_trans_entry_s_ng(WORK_Other* ewk);
+
+/// Like disp_pos_trans_entry_rs, but without the 1 pixel nudge and with New Generation's range
+void disp_pos_trans_entry_rs_ng(WORK_Other* ewk);
+
 void pl_eff_trans_entry(WORK_Other* ewk);
 void add_x_sub(WORK* wk);
 void add_x_sub2(WORK* wk);

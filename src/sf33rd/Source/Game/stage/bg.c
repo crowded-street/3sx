@@ -62,7 +62,7 @@ static void bgDrawLineScroll(
     u8 bgnm, s32 gixbase, const f32 left_right[2], const s32 yy[2], s32 ofsPal, PPGDataList* curDataList
 );
 
-static void bgClipChipColumns(s32 xx[2], f32 left, f32 right);
+static void bgClipChipColumns(s32 bgnum, s32 xx[2], f32 left, f32 right);
 static void bgAkebonoDraw();
 static void ppgCalScrPosition(s32 x, s32 y, s32 xs, s32 ys);
 
@@ -585,7 +585,7 @@ void scr_trans(u8 bgnm) {
     njCalcPoints(NULL, point, point, SDL_arraysize(point));
     left_right[0] = point[0].x;
     left_right[1] = point[1].x;
-    bgClipChipColumns(xx, left_right[0], left_right[1]);
+    bgClipChipColumns(bgnm, xx, left_right[0], left_right[1]);
     yy[0] = (s32)point[0].y & ~0x7F;
     yy[1] = ((s32)point[1].y + 0x7F) & ~0x7F;
     yy[0] = SDL_clamp(yy[0], 0, 1023);
@@ -1130,7 +1130,7 @@ static void bgDrawOneScreen(
         }
 
         for (x = xx[0]; x < xx[1]; x += 128) {
-            gbix = ((y >> 7) << 3) + (x >> 7) + gixbase;
+            gbix = ((y >> 7) << 3) + ((x & 0x3FF) >> 7) + gixbase;
 
             if (bgLayerFrameChip(bgnum, gixbase, &gbix)) {
                 if (!(ppgCheckTextureNumber(0, gbix))) {
@@ -1154,10 +1154,20 @@ static void bgDrawOneScreen(
     }
 }
 
+/// Whether the layer repeats its plane horizontally every 1024 pixels
+static bool bgRepeatsX(s32 bgnum) {
+    return ending_flag == 0 && (bg_repeat_x_tbl[bg_w.bg_index] & (1 << bgnum));
+}
+
 /// Columns of chips that cover the tilemap from `left` to `right`
-static void bgClipChipColumns(s32 xx[2], f32 left, f32 right) {
-    xx[0] = ((s32)left) & ~0x7F;
+static void bgClipChipColumns(s32 bgnum, s32 xx[2], f32 left, f32 right) {
+    xx[0] = ((s32)SDL_floorf(left)) & ~0x7F;
     xx[1] = ((s32)right + 0x7F) & ~0x7F;
+
+    if (bgRepeatsX(bgnum)) {
+        return;
+    }
+
     xx[0] = SDL_clamp(xx[0], 0, 1023);
     xx[1] = SDL_clamp(xx[1], 0, 1023);
 }
@@ -1180,7 +1190,7 @@ static void bgDrawLineScroll(
         njScale(NULL, 1.0, -1.0, 1.0);
 
         s32 xx[2];
-        bgClipChipColumns(xx, left_right[0] + scroll, left_right[1] + scroll);
+        bgClipChipColumns(bgnm, xx, left_right[0] + scroll, left_right[1] + scroll);
         bgDrawOneScreen(bgnm, gixbase, xx, strip, ofsPal, curDataList);
         bgDrawOuterChips(bgnm, strip, ofsPal, curDataList);
     }

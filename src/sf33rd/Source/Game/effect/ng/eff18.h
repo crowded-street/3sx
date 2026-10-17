@@ -4,7 +4,7 @@
 #include "structs.h"
 #include "types.h"
 
-#define EFFECT_NG18_ID 229
+#define EFFECT_NG18_ID 232
 
 void effect_ng18_move(WORK_Other* ewk);
 s32 effect_ng18_init(s16 variant);
