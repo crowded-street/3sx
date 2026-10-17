@@ -3,6 +3,7 @@
 #include "main.h"
 #include "port/paths.h"
 #include "port/utils.h"
+#include "sf33rd/Source/Game/sound/sound3rd.h"
 #include "sf33rd/Source/Game/system/sys_sub.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
 
@@ -175,6 +176,9 @@ static bool deserialize_settings(SDL_IOStream* io) {
     Copy_Save_w();
     Copy_Check_w();
     sys_w.bgm_type = save_w[1].BgmType;
+    bgm_level = save_w[1].BGM_Level;
+    se_level = save_w[1].SE_Level;
+    setSeVolume();
     return true;
 }
 
