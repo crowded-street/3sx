@@ -37,6 +37,9 @@ static const char* const paths[CACHE_FILE_COUNT] = {
     [CACHE_FILE_NG_NECRO_BG_PALETTE] = "ng/bg09_palette.bin",
     [CACHE_FILE_NG_NECRO_STAGE] = "ng/stage09.ppg",
     [CACHE_FILE_NG_NECRO_OBJECTS] = "ng/bg09.bin",
+    [CACHE_FILE_NG_IBUKI_A_BG_PALETTE] = "ng/bg11_palette.bin",
+    [CACHE_FILE_NG_IBUKI_A_STAGE] = "ng/stage11.ppg",
+    [CACHE_FILE_NG_IBUKI_OBJECTS] = "ng/bg11.bin",
     [CACHE_FILE_NG_EF94] = "ng/ef94.bin",
     [CACHE_FILE_NG_EF94_PALETTE] = "ng/ef94_palette.bin",
 };

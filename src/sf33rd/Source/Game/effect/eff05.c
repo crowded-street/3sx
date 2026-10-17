@@ -17,14 +17,15 @@
 #include "sf33rd/Source/Game/stage/ta_sub.h"
 
 const s16 scr_obj_num[AREA_COUNT] = {
-    [AREA_3S_GILL] = 0,   [AREA_3S_ALEX] = 2,      [AREA_3S_RYU] = 0,         [AREA_3S_YUN] = 0,
-    [AREA_3S_DUDLEY] = 0, [AREA_3S_NECRO] = 2,     [AREA_3S_HUGO] = 1,        [AREA_3S_IBUKI] = 0,
-    [AREA_3S_ELENA] = 3,  [AREA_3S_ORO] = 1,       [AREA_3S_YANG] = 0,        [AREA_3S_KEN] = 1,
-    [AREA_3S_SEAN] = 1,   [AREA_3S_URIEN] = 1,     [AREA_3S_AKUMA] = 1,       [AREA_3S_SHIN_AKUMA] = 1,
-    [AREA_3S_CHUNLI] = 2, [AREA_3S_MAKOTO] = 2,    [AREA_3S_Q] = 0,           [AREA_3S_TWELVE] = 2,
-    [AREA_3S_REMY] = 4,   [AREA_3S_BONUS_CAR] = 1, [AREA_3S_BONUS_BALLS] = 4, [AREA_NG_GILL] = 5,
-    [AREA_NG_ALEX] = 4,   [AREA_NG_RYU_A] = 1,     [AREA_NG_RYU_B] = 4,       [AREA_NG_YUN_A] = 6,
-    [AREA_NG_YUN_B] = 3,  [AREA_NG_DUDLEY_A] = 3,  [AREA_NG_DUDLEY_B] = 5,    [AREA_NG_NECRO] = 9,
+    [AREA_3S_GILL] = 0,    [AREA_3S_ALEX] = 2,      [AREA_3S_RYU] = 0,         [AREA_3S_YUN] = 0,
+    [AREA_3S_DUDLEY] = 0,  [AREA_3S_NECRO] = 2,     [AREA_3S_HUGO] = 1,        [AREA_3S_IBUKI] = 0,
+    [AREA_3S_ELENA] = 3,   [AREA_3S_ORO] = 1,       [AREA_3S_YANG] = 0,        [AREA_3S_KEN] = 1,
+    [AREA_3S_SEAN] = 1,    [AREA_3S_URIEN] = 1,     [AREA_3S_AKUMA] = 1,       [AREA_3S_SHIN_AKUMA] = 1,
+    [AREA_3S_CHUNLI] = 2,  [AREA_3S_MAKOTO] = 2,    [AREA_3S_Q] = 0,           [AREA_3S_TWELVE] = 2,
+    [AREA_3S_REMY] = 4,    [AREA_3S_BONUS_CAR] = 1, [AREA_3S_BONUS_BALLS] = 4, [AREA_NG_GILL] = 5,
+    [AREA_NG_ALEX] = 4,    [AREA_NG_RYU_A] = 1,     [AREA_NG_RYU_B] = 4,       [AREA_NG_YUN_A] = 6,
+    [AREA_NG_YUN_B] = 3,   [AREA_NG_DUDLEY_A] = 3,  [AREA_NG_DUDLEY_B] = 5,    [AREA_NG_NECRO] = 9,
+    [AREA_NG_IBUKI_A] = 2,
 };
 
 const s16 stg_dum_data_tbl[1] = { 0 };
@@ -158,6 +159,11 @@ const s16 ng_stg0500_data_tbl[81] = {
     0, 2, 300,  472, 168, 76, 39, 1, 0, 0, 2, 300,  499, 168, 76, 40, 1, 0, 0, 2, 300,  528, 168, 76, 41, 1, 0,
 };
 
+/// New Generation's Ibuki stage. Colour codes are converted from palette row 0x40 to the PS2 BG palette row 0x12C.
+const s16 ng_stg0700_data_tbl[18] = {
+    1, 1, 8492, 304, 112, 88, 0, 0, 0, 1, 5, 8492, 288, 96, 73, 1, 0, 0,
+};
+
 u32* char_add[AREA_COUNT] = {
     [AREA_3S_GILL] = _fnl_char_table,        [AREA_3S_ALEX] = _usa_char_table,
     [AREA_3S_RYU] = _j10_char_table,         [AREA_3S_YUN] = _hkg_char_table,
@@ -175,6 +181,7 @@ u32* char_add[AREA_COUNT] = {
     [AREA_NG_RYU_B] = _ng_j10_b_char_table,  [AREA_NG_YUN_A] = _ng_hkg_a_char_table,
     [AREA_NG_YUN_B] = _ng_hkg_b_char_table,  [AREA_NG_DUDLEY_A] = _ng_eng_char_table,
     [AREA_NG_DUDLEY_B] = _ng_eng_char_table, [AREA_NG_NECRO] = _ng_rca_char_table,
+    [AREA_NG_IBUKI_A] = _ng_j11_char_table,
 };
 
 const s16* scr_obj_data[AREA_COUNT] = {
@@ -194,6 +201,7 @@ const s16* scr_obj_data[AREA_COUNT] = {
     [AREA_NG_RYU_B] = ng_stg0210_data_tbl,    [AREA_NG_YUN_A] = ng_stg0300_data_tbl,
     [AREA_NG_YUN_B] = ng_stg0310_data_tbl,    [AREA_NG_DUDLEY_A] = ng_stg0400_data_tbl,
     [AREA_NG_DUDLEY_B] = ng_stg0410_data_tbl, [AREA_NG_NECRO] = ng_stg0500_data_tbl,
+    [AREA_NG_IBUKI_A] = ng_stg0700_data_tbl,
 };
 
 void effect_05_move(WORK_Other* ewk) {

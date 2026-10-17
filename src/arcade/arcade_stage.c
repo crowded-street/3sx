@@ -302,6 +302,13 @@ static const StageSource stage_sources[] = {
       .ppg_file = CACHE_FILE_NG_NECRO_STAGE,
       .object_palettes = { 0x61 },
       .object_palette_count = 1 },
+    { .game = ROM_GAME_SFIII,
+      .bg_index = 11,
+      .area = AREA_NG_IBUKI_A,
+      .palette_file = CACHE_FILE_NG_IBUKI_A_BG_PALETTE,
+      .ppg_file = CACHE_FILE_NG_IBUKI_A_STAGE,
+      .object_palettes = { 0x6D },
+      .object_palette_count = 1 },
 };
 
 #define MAX_CG_RANGES 4
@@ -402,6 +409,15 @@ static const CgGroupSource cg_group_sources[] = {
       .range_count = 1,
       .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
       .file = CACHE_FILE_NG_NECRO_OBJECTS },
+
+    // Objects of NG Ibuki's stage. The stage's char table is _ng_j11_char_table. 0x6240 is for NG effect 77, whose char
+    // table follows the stage's in the ROM.
+    { .game = ROM_GAME_SFIII,
+      .group = 110,
+      .ranges = { { 0x6240, 280 }, { 0x6510, 93 }, { 0x7738, 6 } },
+      .range_count = 3,
+      .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
+      .file = CACHE_FILE_NG_IBUKI_OBJECTS },
 };
 
 /// CPS3 graphics addresses start this far before the graphics region

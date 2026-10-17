@@ -62,7 +62,6 @@ typedef enum Character : uint16_t {
 #define CHAR_3SX_TO_ARCADE(c) ((c) > CHAR_AKUMA ? (c) + 1 : (c))
 #define CHAR_ARCADE_TO_3SX(c) ((c) > CHAR_AKUMA ? (c) - 1 : (c))
 
-/// Overarching stage
 typedef enum Stage {
     STAGE_3S_GILL = 0,
     STAGE_3S_ALEX = 1,
@@ -93,11 +92,10 @@ typedef enum Stage {
     STAGE_NG_YUN = 26,
     STAGE_NG_DUDLEY = 27,
     STAGE_NG_NECRO = 28,
+    STAGE_NG_IBUKI = 29,
     STAGE_COUNT,
 } Stage;
 
-/// Concrete background. A stage is made up of one or more areas (e.g. one per round).
-/// 3S uses the same area for all rounds; Q's stage reuses Dudley's area.
 typedef enum Area {
     AREA_3S_GILL = 0,
     AREA_3S_ALEX = 1,
@@ -131,6 +129,7 @@ typedef enum Area {
     AREA_NG_DUDLEY_A = 29,
     AREA_NG_DUDLEY_B = 30,
     AREA_NG_NECRO = 31,
+    AREA_NG_IBUKI_A = 32,
     AREA_COUNT,
 } Area;
 
