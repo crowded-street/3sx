@@ -9,6 +9,7 @@
 #include "sf33rd/Source/Game/effect/eff05.h"
 #include "sf33rd/Source/Game/effect/eff06.h"
 #include "sf33rd/Source/Game/effect/ng/eff45.h"
+#include "sf33rd/Source/Game/effect/ng/eff53.h"
 #include "sf33rd/Source/Game/effect/ng/effc2.h"
 #include "sf33rd/Source/Game/effect/ng/effc3.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
@@ -72,7 +73,8 @@ static void bg3700_init00() {
     bg_w.line_scroll_frames = 0;
 
     effect_ng45_init();
-    // FIXME: NG effects 53 and 56 start here
+    effect_ng53_init();
+    // FIXME: NG effect 56 starts here
     effect_ngc2_init();
     effect_ngc3_init(0);
     effect_05_init();

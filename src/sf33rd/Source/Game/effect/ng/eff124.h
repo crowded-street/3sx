@@ -4,7 +4,7 @@
 #include "structs.h"
 #include "types.h"
 
-#define EFFECT_NG124_ID 265
+#define EFFECT_NG124_ID 267
 
 void effect_ng124_move(WORK_Other* ewk);
 s32 effect_ng124_init(PLW* wk);
