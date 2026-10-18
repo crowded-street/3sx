@@ -4,7 +4,7 @@
 #include "structs.h"
 #include "types.h"
 
-#define EFFECT_NG67_ID 251
+#define EFFECT_NG67_ID 252
 
 void effect_ng67_move(WORK_Other* ewk);
 s32 effect_ng67_init(WORK_Other* spawner, s16 group);
