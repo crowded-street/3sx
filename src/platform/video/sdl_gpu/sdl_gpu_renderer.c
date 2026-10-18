@@ -63,13 +63,12 @@ typedef struct _Texture {
 } _Texture;
 
 typedef struct _TextureCreateInfo {
-    Uint16 index;
+    bool pending;
     SDL_GPUTextureFormat format;
     Uint16 width;
     Uint16 height;
     Uint32 size;
     _PaletteType palette_type;
-    bool is_palette;
     const void* pixels;
 } _TextureCreateInfo;
 
@@ -123,7 +122,8 @@ typedef struct _ScanlineUniforms {
     float padding[3];
 } _ScanlineUniforms;
 
-static _TextureCreateInfo* textures_to_create = NULL;
+static _TextureCreateInfo texture_creates[FL_TEXTURE_MAX] = { 0 };
+static _TextureCreateInfo palette_creates[FL_PALETTE_MAX] = { 0 };
 static SDL_GPUTexture** textures_to_delete = NULL;
 
 static SDL_GPUShaderFormat shader_format = SDL_GPU_SHADERFORMAT_INVALID;
@@ -341,11 +341,10 @@ static void SDLGPURenderer_CreateTexture(Uint32 th) {
     }
 
     _TextureCreateInfo tex_create_info = { 0 };
-    tex_create_info.index = texture_index;
+    tex_create_info.pending = true;
     tex_create_info.width = fl_texture->width;
     tex_create_info.height = fl_texture->height;
     tex_create_info.pixels = flPS2GetSystemBuffAdrs(fl_texture->mem_handle);
-    tex_create_info.is_palette = false;
 
     switch (fl_texture->format) {
     case SCE_GS_PSMT8:
@@ -378,7 +377,7 @@ static void SDLGPURenderer_CreateTexture(Uint32 th) {
         break;
     }
 
-    arrpush(textures_to_create, tex_create_info);
+    texture_creates[texture_index] = tex_create_info;
 }
 
 static void SDLGPURenderer_DestroyTexture(Uint32 texture_handle) {
@@ -401,11 +400,10 @@ static void SDLGPURenderer_CreatePalette(Uint32 ph) {
     const int num_colors = fl_palette->width * fl_palette->height;
 
     _TextureCreateInfo tex_create_info = { 0 };
-    tex_create_info.index = palette_index;
+    tex_create_info.pending = true;
     tex_create_info.width = num_colors;
     tex_create_info.height = 1;
     tex_create_info.pixels = flPS2GetSystemBuffAdrs(fl_palette->mem_handle);
-    tex_create_info.is_palette = true;
 
     switch (fl_palette->format) {
     case SCE_GS_PSMCT32:
@@ -423,7 +421,7 @@ static void SDLGPURenderer_CreatePalette(Uint32 ph) {
         break;
     }
 
-    arrpush(textures_to_create, tex_create_info);
+    palette_creates[palette_index] = tex_create_info;
 }
 
 static void SDLGPURenderer_DestroyPalette(Uint32 palette_handle) {
@@ -826,6 +824,41 @@ static void SDLGPURenderer_Quit() {
     SDL_DestroyWindow(window);
 }
 
+static SDL_GPUTexture* create_texture(const _TextureCreateInfo* info, _TextureUploadInfo** uploads) {
+    SDL_GPUTransferBuffer* texture_transfer_buffer = SDL_CreateGPUTransferBuffer(
+        device,
+        &(SDL_GPUTransferBufferCreateInfo) {
+            .usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
+            .size = info->size,
+        }
+    );
+
+    void* texture_transfer_ptr = SDL_MapGPUTransferBuffer(device, texture_transfer_buffer, false);
+    SDL_memcpy(texture_transfer_ptr, info->pixels, info->size);
+    SDL_UnmapGPUTransferBuffer(device, texture_transfer_buffer);
+
+    SDL_GPUTexture* texture = SDL_CreateGPUTexture(
+        device,
+        &(SDL_GPUTextureCreateInfo) {
+            .type = SDL_GPU_TEXTURETYPE_2D,
+            .format = info->format,
+            .usage = SDL_GPU_TEXTUREUSAGE_SAMPLER,
+            .width = info->width,
+            .height = info->height,
+            .layer_count_or_depth = 1,
+            .num_levels = 1,
+        }
+    );
+
+    _TextureUploadInfo* upload = arraddnptr(*uploads, 1);
+    upload->texture = texture;
+    upload->transfer_buffer = texture_transfer_buffer;
+    upload->w = info->width;
+    upload->h = info->height;
+
+    return texture;
+}
+
 static void SDLGPURenderer_RenderFrame(SDL_Rect viewport) {
     SDL_GPUCommandBuffer* command_buffer = SDL_AcquireGPUCommandBuffer(device);
 
@@ -839,58 +872,32 @@ static void SDLGPURenderer_RenderFrame(SDL_Rect viewport) {
 
     _TextureUploadInfo* texture_uploads = NULL;
 
-    for (int i = 0; i < arrlen(textures_to_create); i++) {
-        const _TextureCreateInfo* info = &textures_to_create[i];
+    for (int i = 0; i < FL_TEXTURE_MAX; i++) {
+        _TextureCreateInfo* info = &texture_creates[i];
 
-        SDL_GPUTransferBuffer* texture_transfer_buffer = SDL_CreateGPUTransferBuffer(
-            device,
-            &(SDL_GPUTransferBufferCreateInfo) {
-                .usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
-                .size = info->size,
-            }
-        );
-
-        void* texture_transfer_ptr = SDL_MapGPUTransferBuffer(device, texture_transfer_buffer, false);
-        SDL_memcpy(texture_transfer_ptr, info->pixels, info->size);
-        SDL_UnmapGPUTransferBuffer(device, texture_transfer_buffer);
-
-        SDL_GPUTexture* texture = SDL_CreateGPUTexture(
-            device,
-            &(SDL_GPUTextureCreateInfo) {
-                .type = SDL_GPU_TEXTURETYPE_2D,
-                .format = info->format,
-                .usage = SDL_GPU_TEXTUREUSAGE_SAMPLER,
-                .width = info->width,
-                .height = info->height,
-                .layer_count_or_depth = 1,
-                .num_levels = 1,
-            }
-        );
-
-        _TextureUploadInfo* upload = arraddnptr(texture_uploads, 1);
-        upload->texture = texture;
-        upload->transfer_buffer = texture_transfer_buffer;
-        upload->w = info->width;
-        upload->h = info->height;
-
-        if (info->is_palette) {
-            if (palettes[info->index] != NULL) {
-                SDL_ReleaseGPUTexture(device, palettes[info->index]);
-            }
-
-            palettes[info->index] = texture;
-        } else {
-            if (textures[info->index].handle != NULL) {
-                SDL_ReleaseGPUTexture(device, textures[info->index].handle);
-            }
-
-            textures[info->index] = (_Texture) {
-                .handle = texture,
-                .width = info->width,
-                .height = info->height,
-                .palette_type = info->palette_type,
-            };
+        if (!info->pending) {
+            continue;
         }
+
+        textures[i] = (_Texture) {
+            .handle = create_texture(info, &texture_uploads),
+            .width = info->width,
+            .height = info->height,
+            .palette_type = info->palette_type,
+        };
+
+        info->pending = false;
+    }
+
+    for (int i = 0; i < FL_PALETTE_MAX; i++) {
+        _TextureCreateInfo* info = &palette_creates[i];
+
+        if (!info->pending) {
+            continue;
+        }
+
+        palettes[i] = create_texture(info, &texture_uploads);
+        info->pending = false;
     }
 
     if (arrlen(quads) > 0) {
@@ -1174,7 +1181,6 @@ static void SDLGPURenderer_RenderFrame(SDL_Rect viewport) {
     arrfree(texture_uploads);
     arrsetlen(quads, 0);
     arrsetlen(textures_to_delete, 0);
-    arrsetlen(textures_to_create, 0);
 }
 
 // Internal
