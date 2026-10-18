@@ -26,7 +26,7 @@ const s16 scr_obj_num6[AREA_COUNT] = {
     [AREA_3S_REMY] = 1,    [AREA_3S_BONUS_CAR] = 0, [AREA_3S_BONUS_BALLS] = 0, [AREA_NG_GILL] = 10,
     [AREA_NG_ALEX] = 8,    [AREA_NG_RYU_A] = 4,     [AREA_NG_RYU_B] = 11,      [AREA_NG_YUN_A] = 7,
     [AREA_NG_YUN_B] = 3,   [AREA_NG_DUDLEY_A] = 12, [AREA_NG_DUDLEY_B] = 15,   [AREA_NG_NECRO] = 17,
-    [AREA_NG_IBUKI_A] = 2, [AREA_NG_IBUKI_B] = 2,   [AREA_NG_IBUKI_C] = 2,
+    [AREA_NG_IBUKI_A] = 2, [AREA_NG_IBUKI_B] = 2,   [AREA_NG_IBUKI_C] = 2,     [AREA_NG_ELENA_A] = 9,
 };
 
 const s16 st0000_data_tbl[9] = {
@@ -187,6 +187,14 @@ const s16 ng_st0700_data_tbl[18] = {
     0, 2, 8492, 737, 16, 18, 5, 1, 0, 0, 2, 8492, 640, 176, 82, 6, 1, 0,
 };
 
+/// New Generation's Elena stage, first area: the cliffs on both sides of the rope bridge. Colour codes are converted
+/// from palette row 0x40 to the PS2 BG palette row 0x12C.
+const s16 ng_st0800_data_tbl[81] = {
+    0, 2, 300,  720, 0,  78, 2,  0, 0, 0, 2, 300,  752, 96,   20, 14, 0, 0, 0, 2, 8492, 752, 0, 78, 3,  0, 0,
+    0, 2, 8492, 272, 96, 20, 15, 0, 0, 0, 2, 8492, 752, -256, 78, 4,  0, 0, 0, 2, 300,  304, 0, 78, 5,  0, 0,
+    0, 2, 8492, 272, 0,  78, 6,  0, 0, 0, 2, 8492, 272, -256, 78, 7,  0, 0, 0, 3, 8492, 656, 0, 79, 13, 1, 0,
+};
+
 const s16* scr_obj_data6[AREA_COUNT] = {
     [AREA_3S_GILL] = st0000_data_tbl,
     [AREA_3S_ALEX] = st0100_data_tbl,
@@ -223,6 +231,7 @@ const s16* scr_obj_data6[AREA_COUNT] = {
     [AREA_NG_IBUKI_A] = ng_st0700_data_tbl,
     [AREA_NG_IBUKI_B] = ng_st0700_data_tbl,
     [AREA_NG_IBUKI_C] = ng_st0700_data_tbl,
+    [AREA_NG_ELENA_A] = ng_st0800_data_tbl,
 };
 
 void effect_06_move(WORK_Other* ewk) {

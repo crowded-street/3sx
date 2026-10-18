@@ -220,7 +220,11 @@
 #include "sf33rd/Source/Game/effect/ng/eff28.h"
 #include "sf33rd/Source/Game/effect/ng/eff29.h"
 #include "sf33rd/Source/Game/effect/ng/eff34.h"
+#include "sf33rd/Source/Game/effect/ng/eff45.h"
 #include "sf33rd/Source/Game/effect/ng/eff47.h"
+#include "sf33rd/Source/Game/effect/ng/eff53.h"
+#include "sf33rd/Source/Game/effect/ng/eff54.h"
+#include "sf33rd/Source/Game/effect/ng/eff56.h"
 #include "sf33rd/Source/Game/effect/ng/eff60.h"
 #include "sf33rd/Source/Game/effect/ng/eff64.h"
 #include "sf33rd/Source/Game/effect/ng/eff65.h"
@@ -234,6 +238,8 @@
 #include "sf33rd/Source/Game/effect/ng/eff88.h"
 #include "sf33rd/Source/Game/effect/ng/eff94.h"
 #include "sf33rd/Source/Game/effect/ng/effc1.h"
+#include "sf33rd/Source/Game/effect/ng/effc2.h"
+#include "sf33rd/Source/Game/effect/ng/effc3.h"
 #include "sf33rd/Source/Game/engine/plpat09.h"
 
 s32 effect_dummy_init() {
@@ -244,7 +250,7 @@ void effect_dummy_move(WORK_Other* /* unused */) {
     // Do nothing
 }
 
-EffectMoveCallback const effmovejptbl[263] = {
+EffectMoveCallback const effmovejptbl[269] = {
     (EffectMoveCallback)effect_00_move,
     effect_01_move,
     effect_02_move,
@@ -490,7 +496,11 @@ EffectMoveCallback const effmovejptbl[263] = {
     [EFFECT_NG29_ID] = effect_ng29_move,
     [EFFECT_NG34_ID] = effect_ng34_move,
     [EFFECT_NG35_ID] = effect_ng35_move,
+    [EFFECT_NG45_ID] = effect_ng45_move,
     [EFFECT_NG47_ID] = effect_ng47_move,
+    [EFFECT_NG53_ID] = effect_ng53_move,
+    [EFFECT_NG54_ID] = effect_ng54_move,
+    [EFFECT_NG56_ID] = effect_ng56_move,
     [EFFECT_NG60_ID] = effect_ng60_move,
     [EFFECT_NG64_ID] = effect_ng64_move,
     [EFFECT_NG65_ID] = effect_ng65_move,
@@ -509,10 +519,12 @@ EffectMoveCallback const effmovejptbl[263] = {
     [EFFECT_NG88_ID] = effect_06_move,
     [EFFECT_NG94_ID] = effect_ng94_move,
     [EFFECT_NGC1_ID] = effect_ngc1_move,
+    [EFFECT_NGC2_ID] = effect_ngc2_move,
+    [EFFECT_NGC3_ID] = effect_ngc3_move,
     [EFFECT_NG124_ID] = effect_ng124_move,
 };
 
-EffectInitCallback const effinitjptbl[60] = {
+EffectInitCallback const effinitjptbl[61] = {
     NULL,
     effect_03_init,
     effect_13_init,
@@ -575,4 +587,5 @@ EffectInitCallback const effinitjptbl[60] = {
 
     // New Generation
     [EFFINIT_NG09] = effect_ng09_init,
+    [EFFINIT_NG54] = effect_ng54_init,
 };

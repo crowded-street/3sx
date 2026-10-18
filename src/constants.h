@@ -93,6 +93,7 @@ typedef enum Stage {
     STAGE_NG_DUDLEY = 27,
     STAGE_NG_NECRO = 28,
     STAGE_NG_IBUKI = 29,
+    STAGE_NG_ELENA = 30,
     STAGE_COUNT,
 } Stage;
 
@@ -132,6 +133,7 @@ typedef enum Area {
     AREA_NG_IBUKI_A = 32,
     AREA_NG_IBUKI_B = 33,
     AREA_NG_IBUKI_C = 34,
+    AREA_NG_ELENA_A = 35,
     AREA_COUNT,
 } Area;
 

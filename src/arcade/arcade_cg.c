@@ -105,9 +105,9 @@ static Uint8* decode_cram(const ArcadeCgSource* source, const CgDescriptor* desc
     return cram;
 }
 
-static int signed10(Uint16 value) {
-    value &= 0x3ff;
-    return value & 0x200 ? (int)value - 0x400 : value;
+static int part_position(int origin, Uint16 offset) {
+    const int position = origin + (offset & 0x3FF);
+    return ((position + 0x200) & 0x3FF) - 0x200;
 }
 
 /// Index of a pixel within a 32x32 texture, in the PS2's swizzled order. Same as `dctex_linear`.
@@ -224,8 +224,8 @@ static bool add_cg(
         const int shape = be16(part + 6) >> 12;
         const int tiles_x = size_table[shape & 3];
         const int tiles_y = size_table[shape >> 2];
-        const int left = origin_x + signed10(be16(part + 4)) - tiles_x * 8;
-        const int top = origin_y + signed10(be16(part + 6)) - tiles_y * 8;
+        const int left = part_position(origin_x, be16(part + 4)) - tiles_x * 8;
+        const int top = part_position(origin_y, be16(part + 6)) - tiles_y * 8;
         const bool flip_x = (attributes & 0x1000) != 0;
         const bool flip_y = (attributes & 0x0800) != 0;
 

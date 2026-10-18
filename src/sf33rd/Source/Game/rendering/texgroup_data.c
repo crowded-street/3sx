@@ -506,4 +506,9 @@ const TexGroupData texgrpdat[TEXGROUP_COUNT] = {
               .mode = TEXGROUP_MODE_NORMAL,
               .to_tex = 0x6000,
               .to_chd = 0x0 }, // ng/bg11.bin
+    [111] = { .num_of_1st = 41632,
+              .apfn = RESOURCE_CACHE_FNUM(CACHE_FILE_NG_ELENA_OBJECTS),
+              .mode = TEXGROUP_MODE_NORMAL,
+              .to_tex = 0x7200,
+              .to_chd = 0x0 }, // ng/bg14.bin
 };

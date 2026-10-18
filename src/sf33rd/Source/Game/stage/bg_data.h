@@ -110,6 +110,12 @@ extern const bg_outer_chip_elem* bg_outer_chip_tbl[AREA_COUNT];
 extern const bg_layer_frames_elem bg_layer_frames_tbl[AREA_COUNT];
 extern const u8 bg_repeat_x_tbl[AREA_COUNT];
 
+/// Line scroll of an area's layer, for areas whose line scroll doesn't follow `zuubun`
+typedef s16 (*BgLineScroll)(s16 bgnm, s16 line);
+
+/// Line scroll of each area. NULL for areas that use bg_suzi_line_scroll's.
+extern const BgLineScroll bg_line_scroll_tbl[AREA_COUNT];
+
 // MARK: - Unhandled
 
 extern const u16* scr_bcm[4];

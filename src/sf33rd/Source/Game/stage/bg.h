@@ -58,6 +58,20 @@ typedef struct {
     s16 abs_y;
 } BGW;
 
+/// State of the bridge on New Generation Elena's stage
+typedef struct {
+    s8 breaking;         /// The bridge has started to break
+    s8 quake;            /// Which way the screen shakes this frame
+    s16 timer;           /// Frames left of the current step of the break
+    s16 y;               /// Height of the bridge, which a lying loser follows
+    s8 winner_step;      /// Step of the winner's fall
+    s16 winner_timer[2]; /// Frames left of the winner's fall, by player
+    s8 loser_step;       /// Step of the loser's fall
+    s8 loser_fall_step;  /// Step of a standing loser's fall
+    s8 loser_lying;      /// The loser was lying down when the round ended, so they ride the bridge down
+    s16 loser_timer[2];  /// Frames left of a standing loser's fall, by player
+} BGBridge;
+
 typedef struct {
     s8 bg_routine;
     s8 bg_r_1;
@@ -98,6 +112,8 @@ typedef struct {
     s8 layer_frame_timer[BG_LAYER_ANIMS];
     s8 layer_frame_sequence;
     s8 layer_frame_cycles;
+    u32 line_scroll_frames; /// Frames of line scroll for areas whose lines scroll by time (`bg_line_scroll_tbl`)
+    BGBridge bridge;
 } BG;
 
 // MARK: - Serialized

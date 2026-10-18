@@ -6,6 +6,7 @@
 #include "sf33rd/Source/Game/stage/bg_data.h"
 #include "common.h"
 #include "constants.h"
+#include "sf33rd/Source/Game/stage/ng/bg370.h"
 #include "structs.h"
 
 s16 base_y_pos;
@@ -46,7 +47,7 @@ const u8 use_scr[AREA_COUNT] = {
     [AREA_3S_REMY] = 2,    [AREA_3S_BONUS_CAR] = 2, [AREA_3S_BONUS_BALLS] = 2, [AREA_NG_GILL] = 2,
     [AREA_NG_ALEX] = 3,    [AREA_NG_RYU_A] = 3,     [AREA_NG_RYU_B] = 3,       [AREA_NG_YUN_A] = 3,
     [AREA_NG_YUN_B] = 2,   [AREA_NG_DUDLEY_A] = 3,  [AREA_NG_DUDLEY_B] = 2,    [AREA_NG_NECRO] = 3,
-    [AREA_NG_IBUKI_A] = 3, [AREA_NG_IBUKI_B] = 3,   [AREA_NG_IBUKI_C] = 3,
+    [AREA_NG_IBUKI_A] = 3, [AREA_NG_IBUKI_B] = 3,   [AREA_NG_IBUKI_C] = 3,     [AREA_NG_ELENA_A] = 2,
 };
 
 const u8 use_real_scr[AREA_COUNT] = {
@@ -58,7 +59,7 @@ const u8 use_real_scr[AREA_COUNT] = {
     [AREA_3S_REMY] = 1,    [AREA_3S_BONUS_CAR] = 2, [AREA_3S_BONUS_BALLS] = 1, [AREA_NG_GILL] = 2,
     [AREA_NG_ALEX] = 3,    [AREA_NG_RYU_A] = 3,     [AREA_NG_RYU_B] = 3,       [AREA_NG_YUN_A] = 3,
     [AREA_NG_YUN_B] = 2,   [AREA_NG_DUDLEY_A] = 3,  [AREA_NG_DUDLEY_B] = 2,    [AREA_NG_NECRO] = 3,
-    [AREA_NG_IBUKI_A] = 3, [AREA_NG_IBUKI_B] = 3,   [AREA_NG_IBUKI_C] = 3,
+    [AREA_NG_IBUKI_A] = 3, [AREA_NG_IBUKI_B] = 3,   [AREA_NG_IBUKI_C] = 3,     [AREA_NG_ELENA_A] = 2,
 };
 
 const u8 use_family[AREA_COUNT] = {
@@ -73,19 +74,19 @@ const u8 use_family[AREA_COUNT] = {
     [AREA_NG_ALEX] = 232,     [AREA_NG_RYU_A] = 224,       [AREA_NG_RYU_B] = 224,
     [AREA_NG_YUN_A] = 224,    [AREA_NG_YUN_B] = 192,       [AREA_NG_DUDLEY_A] = 224,
     [AREA_NG_DUDLEY_B] = 192, [AREA_NG_NECRO] = 224,       [AREA_NG_IBUKI_A] = 232,
-    [AREA_NG_IBUKI_B] = 232,  [AREA_NG_IBUKI_C] = 232,
+    [AREA_NG_IBUKI_B] = 232,  [AREA_NG_IBUKI_C] = 232,     [AREA_NG_ELENA_A] = 224,
 };
 
 const u8 rewrite_scr[AREA_COUNT] = {
-    [AREA_3S_GILL] = 0,     [AREA_3S_ALEX] = 0,       [AREA_3S_RYU] = 0,         [AREA_3S_YUN] = 25,
-    [AREA_3S_DUDLEY] = 0,   [AREA_3S_NECRO] = 0,      [AREA_3S_HUGO] = 0,        [AREA_3S_IBUKI] = 12,
-    [AREA_3S_ELENA] = 24,   [AREA_3S_ORO] = 0,        [AREA_3S_YANG] = 96,       [AREA_3S_KEN] = 0,
-    [AREA_3S_SEAN] = 0,     [AREA_3S_URIEN] = 0,      [AREA_3S_AKUMA] = 1,       [AREA_3S_SHIN_AKUMA] = 1,
-    [AREA_3S_CHUNLI] = 0,   [AREA_3S_MAKOTO] = 0,     [AREA_3S_Q] = 0,           [AREA_3S_TWELVE] = 10,
-    [AREA_3S_REMY] = 18,    [AREA_3S_BONUS_CAR] = 0,  [AREA_3S_BONUS_BALLS] = 0, [AREA_NG_GILL] = 13,
-    [AREA_NG_ALEX] = 0,     [AREA_NG_RYU_A] = 6,      [AREA_NG_RYU_B] = 4,       [AREA_NG_YUN_A] = 0,
-    [AREA_NG_YUN_B] = 0,    [AREA_NG_DUDLEY_A] = 126, [AREA_NG_DUDLEY_B] = 0,    [AREA_NG_NECRO] = 0,
-    [AREA_NG_IBUKI_A] = 109, [AREA_NG_IBUKI_B] = 109,  [AREA_NG_IBUKI_C] = 109,
+    [AREA_3S_GILL] = 0,      [AREA_3S_ALEX] = 0,       [AREA_3S_RYU] = 0,         [AREA_3S_YUN] = 25,
+    [AREA_3S_DUDLEY] = 0,    [AREA_3S_NECRO] = 0,      [AREA_3S_HUGO] = 0,        [AREA_3S_IBUKI] = 12,
+    [AREA_3S_ELENA] = 24,    [AREA_3S_ORO] = 0,        [AREA_3S_YANG] = 96,       [AREA_3S_KEN] = 0,
+    [AREA_3S_SEAN] = 0,      [AREA_3S_URIEN] = 0,      [AREA_3S_AKUMA] = 1,       [AREA_3S_SHIN_AKUMA] = 1,
+    [AREA_3S_CHUNLI] = 0,    [AREA_3S_MAKOTO] = 0,     [AREA_3S_Q] = 0,           [AREA_3S_TWELVE] = 10,
+    [AREA_3S_REMY] = 18,     [AREA_3S_BONUS_CAR] = 0,  [AREA_3S_BONUS_BALLS] = 0, [AREA_NG_GILL] = 13,
+    [AREA_NG_ALEX] = 0,      [AREA_NG_RYU_A] = 6,      [AREA_NG_RYU_B] = 4,       [AREA_NG_YUN_A] = 0,
+    [AREA_NG_YUN_B] = 0,     [AREA_NG_DUDLEY_A] = 126, [AREA_NG_DUDLEY_B] = 0,    [AREA_NG_NECRO] = 0,
+    [AREA_NG_IBUKI_A] = 109, [AREA_NG_IBUKI_B] = 109,  [AREA_NG_IBUKI_C] = 109,   [AREA_NG_ELENA_A] = 0,
 };
 
 const u8 use_scr2[7] = { 1, 1, 1, 1, 1, 1, 1 };
@@ -102,7 +103,7 @@ const u8 stage_bgw_number[AREA_COUNT][3] = {
     [AREA_NG_ALEX] = { 1, 2, 3 },       [AREA_NG_RYU_A] = { 1, 2, 3 },       [AREA_NG_RYU_B] = { 1, 2, 3 },
     [AREA_NG_YUN_A] = { 1, 2, 3 },      [AREA_NG_YUN_B] = { 1, 2, 0 },       [AREA_NG_DUDLEY_A] = { 1, 2, 3 },
     [AREA_NG_DUDLEY_B] = { 1, 2, 0 },   [AREA_NG_NECRO] = { 1, 2, 3 },       [AREA_NG_IBUKI_A] = { 1, 2, 3 },
-    [AREA_NG_IBUKI_B] = { 1, 2, 3 },    [AREA_NG_IBUKI_C] = { 1, 2, 3 },
+    [AREA_NG_IBUKI_B] = { 1, 2, 3 },    [AREA_NG_IBUKI_C] = { 1, 2, 3 },     [AREA_NG_ELENA_A] = { 1, 2, 0 },
 };
 
 const s32 msp[AREA_COUNT][3][2] = {
@@ -141,6 +142,7 @@ const s32 msp[AREA_COUNT][3][2] = {
     [AREA_NG_IBUKI_A] = { { 0xC000, 0x10000 }, { 0x10000, 0x10000 }, { 0x8000, 0xA000 } },
     [AREA_NG_IBUKI_B] = { { 0xC000, 0x10000 }, { 0x10000, 0x10000 }, { 0x8000, 0xA000 } },
     [AREA_NG_IBUKI_C] = { { 0xC000, 0x10000 }, { 0x10000, 0x10000 }, { 0x8000, 0xA000 } },
+    [AREA_NG_ELENA_A] = { { 0x1000, 0x8000 }, { 0x10000, 0x10000 }, { 0x0, 0x0 } },
 };
 
 const s32 msp2[7][3][2] = { { { 0x10000, 0x10000 }, { 0x10000, 0x10000 }, { 0xF800, 0xF000 } },
@@ -480,6 +482,7 @@ const u32 bgtex_stage_gbix[AREA_COUNT][3] = {
     [AREA_NG_IBUKI_A] = { 0x60667E7E, 0xFFFFFFFF, 0x7E7E7E7C },
     [AREA_NG_IBUKI_B] = { 0x60667E7E, 0xFFFFFFFF, 0x7E7E00 },
     [AREA_NG_IBUKI_C] = { 0x60667E7E, 0xFFFFFFFF, 0x7E7E00 },
+    [AREA_NG_ELENA_A] = { 0xFFFFFF3C, 0x0, 0x0 },
 };
 
 const u32 bgtex_etc_gbix[7] = { 0xFFFF, 0xF0F0, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xF0F0 };
@@ -496,7 +499,7 @@ const u32 stage_priority[AREA_COUNT] = {
     [AREA_NG_ALEX] = 0x5E546800,       [AREA_NG_RYU_A] = 0x5E546800,       [AREA_NG_RYU_B] = 0x5E546800,
     [AREA_NG_YUN_A] = 0x685E7200,      [AREA_NG_YUN_B] = 0x72680000,       [AREA_NG_DUDLEY_A] = 0x14546800,
     [AREA_NG_DUDLEY_B] = 0x685E0000,   [AREA_NG_NECRO] = 0x5E546800,       [AREA_NG_IBUKI_A] = 0x5E546800,
-    [AREA_NG_IBUKI_B] = 0x5E546800,    [AREA_NG_IBUKI_C] = 0x5E546800,
+    [AREA_NG_IBUKI_B] = 0x5E546800,    [AREA_NG_IBUKI_C] = 0x5E546800,     [AREA_NG_ELENA_A] = 0x5E540000,
 };
 
 const u32 etc_bg_priority[7] = { 0x54540000, 0x5E000000, 0x54540000, 0x54540000, 0x54540000, 0x54540000, 0x5E540000 };
@@ -510,7 +513,7 @@ const u8 stage_opaque[AREA_COUNT] = {
     [AREA_3S_REMY] = 0x80,    [AREA_3S_BONUS_CAR] = 0x80, [AREA_3S_BONUS_BALLS] = 0x80, [AREA_NG_GILL] = 0x80,
     [AREA_NG_ALEX] = 0x80,    [AREA_NG_RYU_A] = 0x80,     [AREA_NG_RYU_B] = 0x80,       [AREA_NG_YUN_A] = 0x80,
     [AREA_NG_YUN_B] = 0x80,   [AREA_NG_DUDLEY_A] = 0x80,  [AREA_NG_DUDLEY_B] = 0x80,    [AREA_NG_NECRO] = 0x80,
-    [AREA_NG_IBUKI_A] = 0x80, [AREA_NG_IBUKI_B] = 0x80,   [AREA_NG_IBUKI_C] = 0x80,
+    [AREA_NG_IBUKI_A] = 0x80, [AREA_NG_IBUKI_B] = 0x80,   [AREA_NG_IBUKI_C] = 0x80,     [AREA_NG_ELENA_A] = 0x80,
 };
 
 const s8 bgrw_on[AREA_COUNT][8] = {
@@ -549,6 +552,7 @@ const s8 bgrw_on[AREA_COUNT][8] = {
     [AREA_NG_IBUKI_A] = { -1, -1, -1, -1, -1, -1, -1, -1 },
     [AREA_NG_IBUKI_B] = { -1, -1, -1, -1, -1, -1, -1, -1 },
     [AREA_NG_IBUKI_C] = { -1, -1, -1, -1, -1, -1, -1, -1 },
+    [AREA_NG_ELENA_A] = { -1, -1, -1, -1, -1, -1, -1, -1 },
 };
 
 const s16 rw070[9] = { 0x6, 0x9E, 0x6, 0xE4, 0x6, 0xE8, 0x6, 0xEC, -0x1 };
@@ -668,7 +672,7 @@ const u8 ake_bg_off[AREA_COUNT] = {
     [AREA_3S_REMY] = 2,    [AREA_3S_BONUS_CAR] = 0, [AREA_3S_BONUS_BALLS] = 0, [AREA_NG_GILL] = 3,
     [AREA_NG_ALEX] = 7,    [AREA_NG_RYU_A] = 7,     [AREA_NG_RYU_B] = 7,       [AREA_NG_YUN_A] = 7,
     [AREA_NG_YUN_B] = 3,   [AREA_NG_DUDLEY_A] = 7,  [AREA_NG_DUDLEY_B] = 3,    [AREA_NG_NECRO] = 7,
-    [AREA_NG_IBUKI_A] = 7, [AREA_NG_IBUKI_B] = 7,   [AREA_NG_IBUKI_C] = 7,
+    [AREA_NG_IBUKI_A] = 7, [AREA_NG_IBUKI_B] = 7,   [AREA_NG_IBUKI_C] = 7,     [AREA_NG_ELENA_A] = 3,
 };
 
 const s16 limit_tbl3[AREA_COUNT][3][4] = {
@@ -709,6 +713,9 @@ const s16 limit_tbl3[AREA_COUNT][3][4] = {
     [AREA_NG_IBUKI_A] = { { 0x158, 0x2A8, 0xE0, 0xE0 }, { 0x122, 0x2DA, 0xF0, 0xE0 }, { 0x122, 0x2DA, 0x80, 0x80 } },
     [AREA_NG_IBUKI_B] = { { 0x158, 0x2A8, 0xE0, 0xE0 }, { 0x122, 0x2DA, 0xF0, 0xE0 }, { 0x122, 0x2DA, 0x80, 0x80 } },
     [AREA_NG_IBUKI_C] = { { 0x158, 0x2A8, 0xE0, 0xE0 }, { 0x122, 0x2DA, 0xF0, 0xE0 }, { 0x122, 0x2DA, 0x80, 0x80 } },
+    [AREA_NG_ELENA_A] = { { 0x154, 0x2B4, 0x80, 0x80 },
+                          { 0x154, 0x2B4, 0x100, 0x100 },
+                          { 0x154, 0x2B4, 0x100, 0x100 } },
 };
 
 const s8 bg_index_tbl[STAGE_COUNT][3] = {
@@ -742,6 +749,7 @@ const s8 bg_index_tbl[STAGE_COUNT][3] = {
     [STAGE_NG_DUDLEY] = { AREA_NG_DUDLEY_A, AREA_NG_DUDLEY_B, AREA_NG_DUDLEY_B },
     [STAGE_NG_NECRO] = { AREA_NG_NECRO, AREA_NG_NECRO, AREA_NG_NECRO },
     [STAGE_NG_IBUKI] = { AREA_NG_IBUKI_A, AREA_NG_IBUKI_B, AREA_NG_IBUKI_C },
+    [STAGE_NG_ELENA] = { AREA_NG_ELENA_A, AREA_NG_ELENA_A, AREA_NG_ELENA_A },
 };
 
 const s32 bg_pos_tbl2[7][3][2] = {
@@ -803,6 +811,7 @@ const u16* bg_map_tbl[AREA_COUNT][3] = {
     [AREA_NG_IBUKI_A] = { NULL, NULL, NULL },
     [AREA_NG_IBUKI_B] = { NULL, NULL, NULL },
     [AREA_NG_IBUKI_C] = { NULL, NULL, NULL },
+    [AREA_NG_ELENA_A] = { NULL, NULL, NULL },
 };
 
 const u16* bg_map_tbl2[7] = { win_lose_map, rank_map, select_map, win_lose_map, win_lose_map, win_lose_map, rank_map };
@@ -915,6 +924,11 @@ const bg_layer_frames_elem bg_layer_frames_tbl[AREA_COUNT] = {
 
 const u8 bg_repeat_x_tbl[AREA_COUNT] = {
     [AREA_NG_NECRO] = 1 << 2,
+    [AREA_NG_ELENA_A] = 1 << 0,
+};
+
+const BgLineScroll bg_line_scroll_tbl[AREA_COUNT] = {
+    [AREA_NG_ELENA_A] = bg370_line_scroll,
 };
 
 s32 etcBgPalCnvTable[7] = { 0, 43, 0, 33, -13, 37, 44 };

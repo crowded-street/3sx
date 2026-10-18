@@ -4,7 +4,7 @@
 #include "structs.h"
 #include "types.h"
 
-#define EFFECT_NG66_ID 247
+#define EFFECT_NG66_ID 251
 
 void effect_ng66_move(WORK_Other* ewk);
 s32 effect_ng66_init(s16 variant_index);

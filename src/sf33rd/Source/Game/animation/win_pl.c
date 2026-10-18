@@ -5,6 +5,7 @@
 
 #include "sf33rd/Source/Game/animation/win_pl.h"
 #include "common.h"
+#include "sf33rd/Source/Game/animation/ng/bridge_fall.h"
 #include "sf33rd/Source/Game/effect/eff30.h"
 #include "sf33rd/Source/Game/effect/eff31.h"
 #include "sf33rd/Source/Game/effect/eff32.h"
@@ -71,6 +72,10 @@ void win_player(PLW* wk) {
 
     if (Bonus_Game_Flag) {
         bonus_game_win_pause(wk);
+        return;
+    }
+
+    if (bridge_fall_winner(wk)) {
         return;
     }
 
@@ -322,7 +327,7 @@ const s16 win_2000_tbl[AREA_COUNT] = {
     [AREA_3S_REMY] = 1,    [AREA_3S_BONUS_CAR] = 0, [AREA_3S_BONUS_BALLS] = 0, [AREA_NG_GILL] = 1,
     [AREA_NG_ALEX] = 1,    [AREA_NG_RYU_A] = 1,     [AREA_NG_RYU_B] = 1,       [AREA_NG_YUN_A] = 1,
     [AREA_NG_YUN_B] = 0,   [AREA_NG_DUDLEY_A] = 1,  [AREA_NG_DUDLEY_B] = 1,    [AREA_NG_NECRO] = 0,
-    [AREA_NG_IBUKI_A] = 1, [AREA_NG_IBUKI_B] = 1,   [AREA_NG_IBUKI_C] = 1,
+    [AREA_NG_IBUKI_A] = 1, [AREA_NG_IBUKI_B] = 1,   [AREA_NG_IBUKI_C] = 1,     [AREA_NG_ELENA_A] = 1,
 };
 
 /// Dudley's win routine

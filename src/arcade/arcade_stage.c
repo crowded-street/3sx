@@ -400,6 +400,13 @@ static const StageSource stage_sources[] = {
       .object_palette_count = 1,
       .rewrite_chips = NG_IBUKI_REWRITE_CHIPS,
       .rewrite_chip_count = NG_IBUKI_REWRITE_CHIP_COUNT },
+    { .game = ROM_GAME_SFIII,
+      .bg_index = 14,
+      .area = AREA_NG_ELENA_A,
+      .palette_file = CACHE_FILE_NG_ELENA_A_BG_PALETTE,
+      .ppg_file = CACHE_FILE_NG_ELENA_A_STAGE,
+      .object_palettes = { 0x62 },
+      .object_palette_count = 1 },
 };
 
 #define MAX_CG_RANGES 4
@@ -509,6 +516,14 @@ static const CgGroupSource cg_group_sources[] = {
       .range_count = 3,
       .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
       .file = CACHE_FILE_NG_IBUKI_OBJECTS },
+
+    // Objects of NG Elena's stage. Its char table is _ng_afc_a_char_table.
+    { .game = ROM_GAME_SFIII,
+      .group = 111,
+      .ranges = { { 0x4F60, 263 } },
+      .range_count = 1,
+      .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
+      .file = CACHE_FILE_NG_ELENA_OBJECTS },
 };
 
 /// CPS3 graphics addresses start this far before the graphics region
