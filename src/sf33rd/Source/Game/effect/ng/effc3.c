@@ -1,9 +1,6 @@
 /**
  * @file effc3.c
- * Bridge of Elena's stage from New Generation.
- *
- * FIXME: NG also keeps the bridge's y in 0x0201c258 for the players, falls with the bridge when it breaks (states 2-3
- * of variant 0) and has variant 1, which drops the bridge in after the players in the second area.
+ * Bridge of Elena's stage from New Generation. It falls when the screen starts to scroll down after the break.
  */
 
 #include "sf33rd/Source/Game/effect/ng/effc3.h"
@@ -11,9 +8,11 @@
 #include "common.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/engine/charset.h"
+#include "sf33rd/Source/Game/engine/slowf.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "sf33rd/Source/Game/rendering/texcash.h"
+#include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
 
 #define COLOR_CODE 0x212C // NG 0x2040
@@ -31,14 +30,34 @@ void effect_ngc3_move(WORK_Other* ewk) {
         break;
 
     case 1:
+        if (bg_w.bgw[1].r_no_1 == 1) {
+            ewk->wu.routine_no[0]++;
+            ewk->wu.mvxy.a[1].sp = -0x68000;
+            ewk->wu.mvxy.d[1].sp = -0xA80;
+        }
+
+        disp_pos_trans_entry(ewk);
+        break;
+
+    case 2:
+        if (!EXE_flag && !Game_pause) {
+            if (bg_w.bgw[1].r_no_1 < 2) {
+                add_y_sub_ng(&ewk->wu);
+            } else {
+                ewk->wu.routine_no[0]++;
+            }
+        }
+
         disp_pos_trans_entry(ewk);
         break;
 
     default:
         all_cgps_put_back(&ewk->wu);
         push_effect_work(&ewk->wu);
-        break;
+        return;
     }
+
+    bg_w.bridge.y = ewk->wu.xyz[1].disp.pos;
 }
 
 s32 effect_ngc3_init(u8 variant) {

@@ -1,9 +1,6 @@
 /**
  * @file effc2.c
  * Ropes of the bridge on Elena's stage from New Generation.
- *
- * FIXME: When the bridge breaks, NG plays each rope's animation and removes it once the screen has scrolled down
- * (states 2-4 of 0x060a94f4).
  */
 
 #include "sf33rd/Source/Game/effect/ng/effc2.h"
@@ -14,6 +11,7 @@
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/rendering/aboutspr.h"
 #include "sf33rd/Source/Game/rendering/texcash.h"
+#include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
 
 #include <SDL3/SDL.h>
@@ -43,7 +41,34 @@ void effect_ngc2_move(WORK_Other* ewk) {
         break;
 
     case 1:
+        if (bg_w.bridge.breaking) {
+            ewk->wu.routine_no[0]++;
+        }
+
         disp_pos_trans_entry(ewk);
+        break;
+
+    case 2:
+        char_move(&ewk->wu);
+
+        if (ewk->wu.cg_type != 0) {
+            ewk->wu.routine_no[0]++;
+            bg_w.bridge.timer = 0;
+        }
+
+        disp_pos_trans_entry(ewk);
+        break;
+
+    case 3:
+        if (bg_w.bgw[1].r_no_1 > 1) {
+            ewk->wu.routine_no[0]++;
+        }
+
+        disp_pos_trans_entry(ewk);
+        break;
+
+    case 4:
+        ewk->wu.routine_no[0]++;
         break;
 
     default:

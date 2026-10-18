@@ -35,6 +35,7 @@
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
+#include "sf33rd/Source/Game/stage/ng/bg370.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
 #include "sf33rd/Source/Game/system/pause.h"
 #include "sf33rd/Source/Game/system/sys_sub.h"
@@ -1071,13 +1072,13 @@ void Game_Manage_9th() {
         }
 
         C_No[1]++;
-        C_Timer = 60;
+        C_Timer = bg370_is_on_bridge() ? 150 : 60;
         Stop_Combo = 1;
         BGM_Timer[1] = 1;
         break;
 
     case 1:
-        if (Scene_Cut) {
+        if (Scene_Cut && !bg370_is_on_bridge()) {
             C_Timer = 1;
         }
 

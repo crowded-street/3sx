@@ -5,6 +5,7 @@
 
 #include "sf33rd/Source/Game/animation/win_pl.h"
 #include "common.h"
+#include "sf33rd/Source/Game/animation/ng/bridge_fall.h"
 #include "sf33rd/Source/Game/effect/eff30.h"
 #include "sf33rd/Source/Game/effect/eff31.h"
 #include "sf33rd/Source/Game/effect/eff32.h"
@@ -71,6 +72,10 @@ void win_player(PLW* wk) {
 
     if (Bonus_Game_Flag) {
         bonus_game_win_pause(wk);
+        return;
+    }
+
+    if (bridge_fall_winner(wk)) {
         return;
     }
 

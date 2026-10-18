@@ -5,6 +5,7 @@
 
 #include "sf33rd/Source/Game/animation/lose_pl.h"
 #include "common.h"
+#include "sf33rd/Source/Game/animation/ng/bridge_fall.h"
 #include "sf33rd/Source/Game/effect/effc1.h"
 #include "sf33rd/Source/Game/engine/charset.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
@@ -22,6 +23,10 @@ void lose_player(PLW* wk) {
 
     if (My_char[wk->wu.id] != wk->player_number) {
         meta_lose_pause(wk);
+        return;
+    }
+
+    if (bridge_fall_loser(wk)) {
         return;
     }
 
