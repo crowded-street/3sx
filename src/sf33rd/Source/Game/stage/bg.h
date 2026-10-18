@@ -98,6 +98,7 @@ typedef struct {
     s8 layer_frame_timer[BG_LAYER_ANIMS];
     s8 layer_frame_sequence;
     s8 layer_frame_cycles;
+    u32 line_scroll_frames; /// Frames of line scroll for areas whose lines scroll by time (`bg_line_scroll_tbl`)
 } BG;
 
 // MARK: - Serialized

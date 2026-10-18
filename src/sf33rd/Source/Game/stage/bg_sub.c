@@ -921,6 +921,10 @@ s16 bg_suzi_line_scroll(s16 bgnm, s16 line) {
     s16 pos;
     u32 scroll;
 
+    if (bg_line_scroll_tbl[bg_w.bg_index] != NULL) {
+        return bg_line_scroll_tbl[bg_w.bg_index](bgnm, line);
+    }
+
     if (bg_w.chase_flag & 0xF) {
         pos = bgw->chase_xy[0].disp.pos;
     } else {

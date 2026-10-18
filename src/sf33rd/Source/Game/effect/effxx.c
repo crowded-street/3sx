@@ -234,6 +234,8 @@
 #include "sf33rd/Source/Game/effect/ng/eff88.h"
 #include "sf33rd/Source/Game/effect/ng/eff94.h"
 #include "sf33rd/Source/Game/effect/ng/effc1.h"
+#include "sf33rd/Source/Game/effect/ng/effc2.h"
+#include "sf33rd/Source/Game/effect/ng/effc3.h"
 #include "sf33rd/Source/Game/engine/plpat09.h"
 
 s32 effect_dummy_init() {
@@ -244,7 +246,7 @@ void effect_dummy_move(WORK_Other* /* unused */) {
     // Do nothing
 }
 
-EffectMoveCallback const effmovejptbl[263] = {
+EffectMoveCallback const effmovejptbl[265] = {
     (EffectMoveCallback)effect_00_move,
     effect_01_move,
     effect_02_move,
@@ -509,6 +511,8 @@ EffectMoveCallback const effmovejptbl[263] = {
     [EFFECT_NG88_ID] = effect_06_move,
     [EFFECT_NG94_ID] = effect_ng94_move,
     [EFFECT_NGC1_ID] = effect_ngc1_move,
+    [EFFECT_NGC2_ID] = effect_ngc2_move,
+    [EFFECT_NGC3_ID] = effect_ngc3_move,
     [EFFECT_NG124_ID] = effect_ng124_move,
 };
 

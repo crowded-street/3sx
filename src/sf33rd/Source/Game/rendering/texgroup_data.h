@@ -16,7 +16,7 @@ typedef enum TexGroupMode {
     TEXGROUP_MODE_SHARED,
 } TexGroupMode;
 
-#define TEXGROUP_COUNT 111
+#define TEXGROUP_COUNT 112
 
 typedef struct TexGroupData {
     u16 num_of_1st;

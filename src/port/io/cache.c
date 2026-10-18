@@ -44,6 +44,9 @@ static const char* const paths[CACHE_FILE_COUNT] = {
     [CACHE_FILE_NG_IBUKI_C_BG_PALETTE] = "ng/bg13_palette.bin",
     [CACHE_FILE_NG_IBUKI_C_STAGE] = "ng/stage13.ppg",
     [CACHE_FILE_NG_IBUKI_OBJECTS] = "ng/bg11.bin",
+    [CACHE_FILE_NG_ELENA_A_BG_PALETTE] = "ng/bg14_palette.bin",
+    [CACHE_FILE_NG_ELENA_A_STAGE] = "ng/stage14.ppg",
+    [CACHE_FILE_NG_ELENA_OBJECTS] = "ng/bg14.bin",
     [CACHE_FILE_NG_EF94] = "ng/ef94.bin",
     [CACHE_FILE_NG_EF94_PALETTE] = "ng/ef94_palette.bin",
 };
