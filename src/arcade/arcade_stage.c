@@ -453,6 +453,13 @@ static const StageSource stage_sources[] = {
       .object_palette_count = 1,
       .rewrite_chips = NG_ELENA_B_REWRITE_CHIPS,
       .rewrite_chip_count = NG_ELENA_B_REWRITE_CHIP_COUNT },
+    { .game = ROM_GAME_SFIII,
+      .bg_index = 16,
+      .area = AREA_NG_ORO,
+      .palette_file = CACHE_FILE_NG_ORO_BG_PALETTE,
+      .ppg_file = CACHE_FILE_NG_ORO_STAGE,
+      .object_palettes = { 0x6C },
+      .object_palette_count = 1 },
 };
 
 #define MAX_CG_RANGES 4
@@ -578,6 +585,14 @@ static const CgGroupSource cg_group_sources[] = {
       .range_count = 1,
       .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
       .file = CACHE_FILE_NG_ELENA_B_OBJECTS },
+
+    // Objects of NG Oro's stage. Its char table is _ng_bra_char_table.
+    { .game = ROM_GAME_SFIII,
+      .group = 113,
+      .ranges = { { 0x53C0, 441 } },
+      .range_count = 1,
+      .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
+      .file = CACHE_FILE_NG_ORO_OBJECTS },
 };
 
 /// CPS3 graphics addresses start this far before the graphics region

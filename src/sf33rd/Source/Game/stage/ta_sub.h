@@ -47,6 +47,9 @@ bool is_round_over();
 /// Whether a round has ended with a winner
 bool is_round_won();
 
+bool is_special_move_active();
+bool is_near(s16 a, s16 b, s16 range);
+
 void cal_bg_speed_data_x(s16 bg_num, s16 tm, s16 unk);
 void cal_bg_speed_data_y(s16 bg_num, s16 tm, s16 unk);
 s32 range_x_check(WORK_Other* ewk);

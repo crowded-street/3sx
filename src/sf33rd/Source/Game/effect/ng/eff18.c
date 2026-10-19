@@ -80,6 +80,11 @@ static const Eff18Data eff18_necro_data[1] = {
     { 1, 2, 8517, 304, 48, 75, 25, 42, 1, 0, EFF18_SWING_ON_SPECIAL_MOVE, 1 },
 };
 
+/// Oro's stage: a kitten. Colour codes are converted from palette row 0x58 to the PS2 BG palette row 0x144.
+static const Eff18Data eff18_oro_data[1] = {
+    { 0, 2, 8516, 464, 104, 77, 15, 16, 1, 0, EFF18_SWING_ON_SPECIAL_MOVE, 1 },
+};
+
 #define EFF18_VARIANT(data) { data, SDL_arraysize(data) }
 
 /// Indexed by variant and `bg_w.object_set`. The empty variants belong to stages that aren't ported yet.
@@ -96,21 +101,15 @@ static const Eff18Variant eff18_variants[6][4] = {
             EFF18_VARIANT(eff18_yun_a_data_1),
             EFF18_VARIANT(eff18_yun_a_data_0),
             EFF18_VARIANT(eff18_yun_a_data_1) },
+    [4] = { EFF18_VARIANT(eff18_oro_data),
+            EFF18_VARIANT(eff18_oro_data),
+            EFF18_VARIANT(eff18_oro_data),
+            EFF18_VARIANT(eff18_oro_data) },
     [5] = { EFF18_VARIANT(eff18_necro_data),
             EFF18_VARIANT(eff18_necro_data),
             EFF18_VARIANT(eff18_necro_data),
             EFF18_VARIANT(eff18_necro_data) },
 };
-
-static bool is_special_move_active() {
-    for (int i = 0; i < 2; i++) {
-        if (plw[i].wu.routine_no[1] == 4 && plw[i].wu.routine_no[2] > 15) {
-            return true;
-        }
-    }
-
-    return false;
-}
 
 static void animate(WORK_Other* ewk) {
     if (ewk->wu.hit_stop) {

@@ -25,16 +25,6 @@ static bool is_paused() {
     return EXE_flag || Game_pause;
 }
 
-static bool is_near(s16 a, s16 b) {
-    s16 distance = a - b;
-
-    if (distance < 0) {
-        distance = -distance;
-    }
-
-    return distance < REACTION_RANGE;
-}
-
 static void eff68_pace(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[1]) {
     case 0:
@@ -47,7 +37,8 @@ static void eff68_pace(WORK_Other* ewk) {
         char_move(&ewk->wu);
 
         if (ewk->wu.cg_type == STANDING_CG_TYPE &&
-            (is_near(plw[0].wu.position_x, ewk->wu.position_x) || is_near(plw[1].wu.position_x, ewk->wu.position_x))) {
+            (is_near(plw[0].wu.position_x, ewk->wu.position_x, REACTION_RANGE) ||
+             is_near(plw[1].wu.position_x, ewk->wu.position_x, REACTION_RANGE))) {
             ewk->wu.routine_no[0] = 1;
             ewk->wu.routine_no[1] = 0;
         }
