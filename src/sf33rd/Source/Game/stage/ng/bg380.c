@@ -8,6 +8,7 @@
 #include "constants.h"
 #include "sf33rd/Source/Game/effect/eff05.h"
 #include "sf33rd/Source/Game/effect/eff06.h"
+#include "sf33rd/Source/Game/effect/ng/eff85.h"
 #include "sf33rd/Source/Game/effect/ng/eff87.h"
 #include "sf33rd/Source/Game/effect/ng/eff88.h"
 #include "sf33rd/Source/Game/effect/ng/effc3.h"
@@ -65,7 +66,8 @@ static void bg3800_init00() {
     waterfall_init();
     effect_ng87_init(4);
     effect_ng88_init(1);
-    // NG also starts effect 85 when compel_flag is 3, which never happens in 3S
+    // NG starts the sparring fighters only when its random compel_flag is 3, which 3S doesn't keep
+    effect_ng85_init();
     effect_05_init();
     effect_06_init();
 }
