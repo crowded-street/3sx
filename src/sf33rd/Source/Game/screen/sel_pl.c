@@ -52,6 +52,7 @@
 #include "sf33rd/Source/Game/system/work_sys.h"
 #include "sf33rd/Source/Game/ui/sc_sub.h"
 
+static void Route_Handicap_Pad();
 void Switch_Work();
 void Sel_PL_Control();
 void Sel_PL_Cont_1st();
@@ -136,6 +137,9 @@ u16 Color7[2];
 u8 Decide_Stage;
 u8 hc3alpha;
 
+/// Side whose pad makes the selections in VS mode against a CPU
+static s16 VS_Lead_ID;
+
 const s16 Cursor_Y_Data[6] = { 80, 104, 128, 80, 104, 128 };
 
 const u8 Arts_Y_Data[3][3] = { { 0, 1, 2 }, { 2, 0, 1 }, { 1, 2, 0 } };
@@ -152,6 +156,7 @@ s16 Select_Player() {
     }
 
     Scene_Cut = Cut_Cut_Cut();
+    Route_Handicap_Pad();
     Sel_PL_Control();
     Switch_Work();
     ID = 0;
@@ -162,14 +167,87 @@ s16 Select_Player() {
     return SEL_PL_X;
 }
 
-void Switch_Work() {
-    if (Mode_Type != MODE_NORMAL_TRAINING && Mode_Type != MODE_PARRY_TRAINING) {
+bool Sel_PL_Is_Sequential() {
+    if (Is_Training_Mode(Mode_Type)) {
+        return true;
+    }
+
+    return Mode_Type == MODE_VERSUS && (save_w[1].Partner_Type[0] || save_w[1].Partner_Type[1]);
+}
+
+s16 Sel_PL_Lead_ID() {
+    return Is_Training_Mode(Mode_Type) ? Champion : VS_Lead_ID;
+}
+
+static void Setup_VS_Lead_ID() {
+    if (save_w[1].Partner_Type[0] && !save_w[1].Partner_Type[1]) {
+        VS_Lead_ID = 1;
+    } else if (save_w[1].Partner_Type[1] && !save_w[1].Partner_Type[0]) {
+        VS_Lead_ID = 0;
+    } else {
+        // CPU vs CPU
+        VS_Lead_ID = (Interface_Type[0] == 0 && Interface_Type[1] != 0) ? 1 : 0;
+    }
+}
+
+/// Which side the lead pad controls during VS handicap selection
+static s16 Handicap_Focus(s16 lead_id) {
+    const s16 other_id = lead_id ^ 1;
+
+    // The lead sets its vital first, then the other side's.
+    // Whoever ends up choosing the stage keeps the pad until it's decided
+    if (SP_No[lead_id][2] == 0) {
+        return lead_id;
+    }
+
+    if (SP_No[other_id][2] == 0 || SP_No[other_id][2] == 2) {
+        return other_id;
+    }
+
+    return lead_id;
+}
+
+/// Lets the lead pad make the handicap selections for both sides in VS mode against a CPU
+static void Route_Handicap_Pad() {
+    if (Mode_Type != MODE_VERSUS || !Sel_PL_Is_Sequential() || Exit_No < 7) {
         return;
     }
 
+    const s16 lead_id = VS_Lead_ID;
+    const s16 focus_id = Handicap_Focus(lead_id);
+    const u16 sw = (lead_id == 0) ? p1sw_buff : p2sw_buff;
+
+    // Last frame the pad went to one side and the other got nothing, so its previous
+    // state is whatever either side had. Using it for the side in focus keeps a button
+    // still held when the focus moves from counting as a new press
+    const u16 prev_sw = p1sw_1 | p2sw_1;
+    const u16 prev_PLsw = PLsw[0][1] | PLsw[1][1];
+
+    if (focus_id == 0) {
+        p1sw_0 = PLsw[0][0] = sw;
+        p1sw_1 = prev_sw;
+        PLsw[0][1] = prev_PLsw;
+        p2sw_0 = p2sw_1 = PLsw[1][0] = PLsw[1][1] = 0;
+    } else {
+        p2sw_0 = PLsw[1][0] = sw;
+        p2sw_1 = prev_sw;
+        PLsw[1][1] = prev_PLsw;
+        p1sw_0 = p1sw_1 = PLsw[0][0] = PLsw[0][1] = 0;
+    }
+}
+
+void Switch_Work() {
+    s16 lead_id;
+
+    if (!Sel_PL_Is_Sequential() || Exit_No >= 7) {
+        return;
+    }
+
+    lead_id = Sel_PL_Lead_ID();
+
     switch (S_No[3]) {
     case 0:
-        if (Champion) {
+        if (lead_id) {
             p1sw_0 = 0;
         } else {
             p2sw_0 = 0;
@@ -179,13 +257,16 @@ void Switch_Work() {
 
     case 1:
         S_No[3]++;
-        Default_Training_Data(0);
-        Record_Data_Tr = 0;
-        Training_Disp_Work_Clear();
-        Menu_Cursor_X[0] = 0;
-        Training_Cursor = 0;
 
-        if (Champion) {
+        if (Is_Training_Mode(Mode_Type)) {
+            Default_Training_Data(0);
+            Record_Data_Tr = 0;
+            Training_Disp_Work_Clear();
+            Menu_Cursor_X[0] = 0;
+            Training_Cursor = 0;
+        }
+
+        if (lead_id) {
             p1sw_0 = p2sw_0;
             p1sw_1 = p2sw_0;
         } else {
@@ -196,7 +277,7 @@ void Switch_Work() {
         break;
 
     case 2:
-        if (Champion) {
+        if (lead_id) {
             p1sw_0 = p2sw_0;
         } else {
             p2sw_0 = p1sw_0;
@@ -256,6 +337,7 @@ void Sel_PL_Cont_1st() {
     Unit_Of_Timer = UNIT_OF_TIMER_MAX;
     Setup_Face_ID();
     Setup_1st_Play_Type();
+    Setup_VS_Lead_ID();
     Setup_Face_Sub();
     Time_Stop = 1;
     effect_A5_init();
@@ -810,7 +892,7 @@ void PL_Sel_2nd() {
             Cursor_Timer[ID2] = 40;
             Go_Away_Red_Lines();
 
-            if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
+            if (Sel_PL_Is_Sequential()) {
                 S_No[3] = 1;
                 break;
             }
@@ -1068,7 +1150,7 @@ void Sel_PL_5th() {
 
     SP_No[ID][0]++;
 
-    if (Mode_Type == MODE_NORMAL_TRAINING || Mode_Type == MODE_PARRY_TRAINING) {
+    if (Sel_PL_Is_Sequential()) {
         S_No[3] = 1;
     }
 

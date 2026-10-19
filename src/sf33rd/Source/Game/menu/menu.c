@@ -202,7 +202,10 @@ void Menu_Task(struct _TASK* task_ptr) {
         return;
     }
 
-    if (Interface_Type[0] == 0 || Interface_Type[1] == 0) {
+    // VS mode needs a pad for every human side. A side set to CPU can go without one,
+    // its character is then picked with the other pad (see Sel_PL_Is_Sequential)
+    if ((Interface_Type[0] == 0 && !save_w[1].Partner_Type[0]) ||
+        (Interface_Type[1] == 0 && !save_w[1].Partner_Type[1])) {
         Connect_Status = 0;
     } else {
         Connect_Status = 1;
