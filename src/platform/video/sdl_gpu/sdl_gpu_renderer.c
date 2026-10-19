@@ -69,7 +69,7 @@ typedef struct _TextureCreateInfo {
     Uint16 height;
     Uint32 size;
     _PaletteType palette_type;
-    const void* pixels;
+    Uint32 mem_handle;
 } _TextureCreateInfo;
 
 typedef struct _TextureUploadInfo {
@@ -344,7 +344,7 @@ static void SDLGPURenderer_CreateTexture(Uint32 th) {
     tex_create_info.pending = true;
     tex_create_info.width = fl_texture->width;
     tex_create_info.height = fl_texture->height;
-    tex_create_info.pixels = flPS2GetSystemBuffAdrs(fl_texture->mem_handle);
+    tex_create_info.mem_handle = fl_texture->mem_handle;
 
     switch (fl_texture->format) {
     case SCE_GS_PSMT8:
@@ -381,7 +381,7 @@ static void SDLGPURenderer_CreateTexture(Uint32 th) {
 }
 
 static void SDLGPURenderer_DestroyTexture(Uint32 texture_handle) {
-    // Do nothing
+    texture_creates[texture_handle - 1].pending = false;
 }
 
 static void SDLGPURenderer_UnlockTexture(Uint32 th) {
@@ -403,7 +403,7 @@ static void SDLGPURenderer_CreatePalette(Uint32 ph) {
     tex_create_info.pending = true;
     tex_create_info.width = num_colors;
     tex_create_info.height = 1;
-    tex_create_info.pixels = flPS2GetSystemBuffAdrs(fl_palette->mem_handle);
+    tex_create_info.mem_handle = fl_palette->mem_handle;
 
     switch (fl_palette->format) {
     case SCE_GS_PSMCT32:
@@ -425,7 +425,7 @@ static void SDLGPURenderer_CreatePalette(Uint32 ph) {
 }
 
 static void SDLGPURenderer_DestroyPalette(Uint32 palette_handle) {
-    // Do nothing
+    palette_creates[palette_handle - 1].pending = false;
 }
 
 static void SDLGPURenderer_UnlockPalette(Uint32 ph) {
@@ -833,8 +833,10 @@ static SDL_GPUTexture* create_texture(const _TextureCreateInfo* info, _TextureUp
         }
     );
 
+    const void* pixels = flPS2GetSystemBuffAdrs(info->mem_handle);
+
     void* texture_transfer_ptr = SDL_MapGPUTransferBuffer(device, texture_transfer_buffer, false);
-    SDL_memcpy(texture_transfer_ptr, info->pixels, info->size);
+    SDL_memcpy(texture_transfer_ptr, pixels, info->size);
     SDL_UnmapGPUTransferBuffer(device, texture_transfer_buffer);
 
     SDL_GPUTexture* texture = SDL_CreateGPUTexture(
