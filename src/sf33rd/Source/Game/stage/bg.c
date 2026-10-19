@@ -49,6 +49,10 @@ s32 bgPalCodeOffset[8];
 BG bg_w;
 RW_DATA rw_dat[20];
 
+/// Whether the layers hold the area's own tilemap, so that `bg_layer_frames_tbl` applies to them.
+/// Other screens (VS, results) load their tilemaps into the same layers without changing `bg_w.bg_index`
+static bool bg_layer_frames_active;
+
 static void bgRWWorkUpdate(s32 bgnm);
 
 static void bgDrawOneScreen(
@@ -230,6 +234,7 @@ void Bg_Close() {
 
     tokusyu_stage = 0;
     rw_num = 0;
+    bg_layer_frames_active = false;
 
     for (i = 0; i < 3; i++) {
         ppgReleaseTextureHandle(&ppgBgTex[i], -1);
@@ -274,6 +279,7 @@ void Bg_Texture_Load_EX() {
     }
 
     ending_flag = 0;
+    bg_layer_frames_active = true;
 
     for (stg = 0; stg < 3; stg++) {
         if (stage_bgw_number[bg_w.bg_index][stg] != 0) {
@@ -389,6 +395,7 @@ void Bg_Texture_Load2(u8 type) {
     ending_flag = 0;
     tokusyu_stage = 0;
     rw_num = 0;
+    bg_layer_frames_active = false;
 
     for (i = 0; i < 4; i++) {
         rw_bg_flag[i] = 0;
@@ -1108,7 +1115,7 @@ static bool bgLayerFrameChip(s32 bgnum, s32 gixbase, s32* gbix) {
     const bg_layer_frames_elem* frames = &bg_layer_frames_tbl[bg_w.bg_index];
     const s32 chip = *gbix - gixbase;
 
-    if (ending_flag != 0 || chip < 32) {
+    if (!bg_layer_frames_active || ending_flag != 0 || chip < 32) {
         return false;
     }
 
