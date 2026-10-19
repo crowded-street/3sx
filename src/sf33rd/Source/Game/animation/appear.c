@@ -4,6 +4,7 @@
  */
 
 #include "sf33rd/Source/Game/animation/appear.h"
+#include "arcade/arcade_balance.h"
 #include "common.h"
 #include "sf33rd/Source/Game/animation/app_data.h"
 #include "sf33rd/Source/Game/animation/ng/appear42.h"
@@ -915,13 +916,19 @@ void Appear_15000(PLW* wk) {
 }
 
 void Appear_16000(PLW* wk) {
+    s16 smoke = smoke_check[bg_w.bg_index];
+
+    if (ArcadeBalance_IsEnabled() && (bg_w.bg_index == AREA_3S_MAKOTO || bg_w.bg_index == AREA_3S_TWELVE)) {
+        smoke = bg_w.bg_index == AREA_3S_MAKOTO;
+    }
+
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
         wk->wu.disp_flag = 1;
         bg_app_stop = 1;
 
-        if (smoke_check[bg_w.bg_index]) {
+        if (smoke) {
             set_char_move_init(&wk->wu, 9, 14);
         } else {
             set_char_move_init(&wk->wu, 9, 12);
