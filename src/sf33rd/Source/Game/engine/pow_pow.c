@@ -4,6 +4,7 @@
  */
 
 #include "sf33rd/Source/Game/engine/pow_pow.h"
+#include "arcade/arcade_balance.h"
 #include "common.h"
 #include "sf33rd/Source/Game/engine/plcnt.h"
 #include "sf33rd/Source/Game/engine/pow_data.h"
@@ -14,7 +15,7 @@ void cal_damage_vitality(PLW* as, PLW* ds) {
     s16 yy;
     s16 power = Power_Data[xx];
 
-    if (Play_Type == 1) {
+    if (Play_Type == 1 && !ArcadeBalance_IsEnabled()) {
         yy = Pow_Control_Data_1[0][3];
     } else {
         yy = Pow_Control_Data_1[0][Round_Level];
@@ -36,7 +37,7 @@ void cal_damage_vitality_eff(WORK_Other* as, PLW* ds) {
     s16 yy;
     s16 power = Power_Data[xx];
 
-    if (Play_Type == 1) {
+    if (Play_Type == 1 && !ArcadeBalance_IsEnabled()) {
         yy = Pow_Control_Data_1[0][3];
     } else {
         yy = Pow_Control_Data_1[0][Round_Level];
