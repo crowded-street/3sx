@@ -4,6 +4,7 @@
  */
 
 #include "sf33rd/Source/Game/engine/caldir.h"
+#include "arcade/arcade_balance.h"
 #include "common.h"
 
 const s32 rate_256_table[256][2] = {
@@ -1066,9 +1067,14 @@ s16 cal_move_dir_forecast(WORK* wk, s16 tm) {
         return 0;
     }
 
-    ps[0].dp = (wk->mvxy.d[0].sp * (tm * tm)) / 2;
+    if (ArcadeBalance_IsEnabled()) {
+        ps[0].dp = (tm * tm / 2) * wk->mvxy.d[0].sp;
+        ps[1].dp = (tm * tm / 2) * wk->mvxy.d[1].sp;
+    } else {
+        ps[0].dp = (wk->mvxy.d[0].sp * (tm * tm)) / 2;
+        ps[1].dp = (wk->mvxy.d[1].sp * (tm * tm)) / 2;
+    }
     ps[0].dp = wk->xyz[0].cal + (ps[0].dp + (wk->mvxy.a[0].sp * tm));
-    ps[1].dp = (wk->mvxy.d[1].sp * (tm * tm)) / 2;
     ps[1].dp = wk->xyz[1].cal + (ps[1].dp + (wk->mvxy.a[1].sp * tm));
     return caldir_pos_032(wk->xyz[0].disp.pos, wk->xyz[1].disp.pos, ps[0].rp.h, ps[1].rp.h);
 }
