@@ -57,16 +57,6 @@ static bool is_paused() {
     return EXE_flag || Game_pause;
 }
 
-static bool is_near(s16 a, s16 b, s16 range) {
-    s16 distance = a - b;
-
-    if (distance < 0) {
-        distance = -distance;
-    }
-
-    return distance < range;
-}
-
 static const Eff66Variant* get_variant(WORK_Other* ewk) {
     return &eff66_variants[ewk->wu.old_rno[3]];
 }

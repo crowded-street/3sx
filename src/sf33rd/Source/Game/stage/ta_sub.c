@@ -449,6 +449,26 @@ bool is_round_won() {
     return is_round_over() && Complete_Victory;
 }
 
+bool is_special_move_active() {
+    for (int i = 0; i < 2; i++) {
+        if (plw[i].wu.routine_no[1] == 4 && plw[i].wu.routine_no[2] > 15) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool is_near(s16 a, s16 b, s16 range) {
+    s16 distance = a - b;
+
+    if (distance < 0) {
+        distance = -distance;
+    }
+
+    return distance < range;
+}
+
 s32 compel_dead_check(WORK_Other* ewk) {
     return bg_w.compel_flag && ewk->wu.dead_f;
 }

@@ -15,7 +15,7 @@ typedef struct {
     s16 char_index;
 } APPEAR_DATA;
 
-extern const APPEAR_DATA appear_data[58];
+extern const APPEAR_DATA appear_data[59];
 extern const s16 smoke_check[AREA_COUNT];
 extern const u8 animal_decide_tbl[16];
 

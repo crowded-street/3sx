@@ -26,7 +26,7 @@ const s16 scr_obj_num[AREA_COUNT] = {
     [AREA_NG_ALEX] = 4,    [AREA_NG_RYU_A] = 1,     [AREA_NG_RYU_B] = 4,       [AREA_NG_YUN_A] = 6,
     [AREA_NG_YUN_B] = 3,   [AREA_NG_DUDLEY_A] = 3,  [AREA_NG_DUDLEY_B] = 5,    [AREA_NG_NECRO] = 9,
     [AREA_NG_IBUKI_A] = 2, [AREA_NG_IBUKI_B] = 2,   [AREA_NG_IBUKI_C] = 2,     [AREA_NG_ELENA_A] = 0,
-    [AREA_NG_ELENA_B] = 4,
+    [AREA_NG_ELENA_B] = 4, [AREA_NG_ORO] = 2,
 };
 
 const s16 stg_dum_data_tbl[1] = { 0 };
@@ -168,30 +168,54 @@ const s16 ng_stg0700_data_tbl[18] = {
 /// New Generation's Elena stage, second and third areas. Colour codes are converted from palette row 0x40 to the PS2
 /// BG palette row 0x12C.
 const s16 ng_stg0810_data_tbl[36] = {
-    0, 2, 8492, 480, 80, 81, 3, 0, 0, 0, 2, 8492, 687, 64, 81, 18, 0, 0,
-    0, 1, 8492, 535, 192, 93, 1, 1, 0, 0, 2, 8492, 559, 62, 82, 5, 1, 0,
+    0, 2, 8492, 480, 80,  81, 3, 0, 0, 0, 2, 8492, 687, 64, 81, 18, 0, 0,
+    0, 1, 8492, 535, 192, 93, 1, 1, 0, 0, 2, 8492, 559, 62, 82, 5,  1, 0,
+};
+
+/// New Generation's Oro stage. Colour codes are converted from palette row 0x58 to the PS2 BG palette row 0x144.
+const s16 ng_stg0900_data_tbl[18] = {
+    1, 2, 8516, 416, 112, 79, 14, 0, 0, 1, 2, 8516, 472, 88, 76, 19, 1, 0,
 };
 
 u32* char_add[AREA_COUNT] = {
-    [AREA_3S_GILL] = _fnl_char_table,        [AREA_3S_ALEX] = _usa_char_table,
-    [AREA_3S_RYU] = _j10_char_table,         [AREA_3S_YUN] = _hkg_char_table,
-    [AREA_3S_DUDLEY] = _eng_char_table,      [AREA_3S_NECRO] = _rca_char_table,
-    [AREA_3S_HUGO] = _grm_char_table,        [AREA_3S_IBUKI] = _j11_char_table,
-    [AREA_3S_ELENA] = _afc_char_table,       [AREA_3S_ORO] = _brz_char_table,
-    [AREA_3S_YANG] = _hkg_char_table,        [AREA_3S_KEN] = _usa_char_table,
-    [AREA_3S_SEAN] = _brz_char_table,        [AREA_3S_URIEN] = _orm_char_table,
-    [AREA_3S_AKUMA] = _jp2_char_table,       [AREA_3S_SHIN_AKUMA] = _jp2_char_table,
-    [AREA_3S_CHUNLI] = _chn_char_table,      [AREA_3S_MAKOTO] = _jp3_char_table,
-    [AREA_3S_Q] = _usa_char_table,           [AREA_3S_TWELVE] = _rca_char_table,
-    [AREA_3S_REMY] = _frc_char_table,        [AREA_3S_BONUS_CAR] = _bns_char_table,
-    [AREA_3S_BONUS_BALLS] = _bns_char_table, [AREA_NG_GILL] = _ng_fnl_char_table,
-    [AREA_NG_ALEX] = _ng_usa_char_table,     [AREA_NG_RYU_A] = _ng_j10_a_char_table,
-    [AREA_NG_RYU_B] = _ng_j10_b_char_table,  [AREA_NG_YUN_A] = _ng_hkg_a_char_table,
-    [AREA_NG_YUN_B] = _ng_hkg_b_char_table,  [AREA_NG_DUDLEY_A] = _ng_eng_char_table,
-    [AREA_NG_DUDLEY_B] = _ng_eng_char_table, [AREA_NG_NECRO] = _ng_rca_char_table,
-    [AREA_NG_IBUKI_A] = _ng_j11_char_table,  [AREA_NG_IBUKI_B] = _ng_j11_char_table,
-    [AREA_NG_IBUKI_C] = _ng_j11_char_table,  [AREA_NG_ELENA_A] = _ng_afc_a_char_table,
+    [AREA_3S_GILL] = _fnl_char_table,
+    [AREA_3S_ALEX] = _usa_char_table,
+    [AREA_3S_RYU] = _j10_char_table,
+    [AREA_3S_YUN] = _hkg_char_table,
+    [AREA_3S_DUDLEY] = _eng_char_table,
+    [AREA_3S_NECRO] = _rca_char_table,
+    [AREA_3S_HUGO] = _grm_char_table,
+    [AREA_3S_IBUKI] = _j11_char_table,
+    [AREA_3S_ELENA] = _afc_char_table,
+    [AREA_3S_ORO] = _brz_char_table,
+    [AREA_3S_YANG] = _hkg_char_table,
+    [AREA_3S_KEN] = _usa_char_table,
+    [AREA_3S_SEAN] = _brz_char_table,
+    [AREA_3S_URIEN] = _orm_char_table,
+    [AREA_3S_AKUMA] = _jp2_char_table,
+    [AREA_3S_SHIN_AKUMA] = _jp2_char_table,
+    [AREA_3S_CHUNLI] = _chn_char_table,
+    [AREA_3S_MAKOTO] = _jp3_char_table,
+    [AREA_3S_Q] = _usa_char_table,
+    [AREA_3S_TWELVE] = _rca_char_table,
+    [AREA_3S_REMY] = _frc_char_table,
+    [AREA_3S_BONUS_CAR] = _bns_char_table,
+    [AREA_3S_BONUS_BALLS] = _bns_char_table,
+    [AREA_NG_GILL] = _ng_fnl_char_table,
+    [AREA_NG_ALEX] = _ng_usa_char_table,
+    [AREA_NG_RYU_A] = _ng_j10_a_char_table,
+    [AREA_NG_RYU_B] = _ng_j10_b_char_table,
+    [AREA_NG_YUN_A] = _ng_hkg_a_char_table,
+    [AREA_NG_YUN_B] = _ng_hkg_b_char_table,
+    [AREA_NG_DUDLEY_A] = _ng_eng_char_table,
+    [AREA_NG_DUDLEY_B] = _ng_eng_char_table,
+    [AREA_NG_NECRO] = _ng_rca_char_table,
+    [AREA_NG_IBUKI_A] = _ng_j11_char_table,
+    [AREA_NG_IBUKI_B] = _ng_j11_char_table,
+    [AREA_NG_IBUKI_C] = _ng_j11_char_table,
+    [AREA_NG_ELENA_A] = _ng_afc_a_char_table,
     [AREA_NG_ELENA_B] = _ng_afc_b_char_table,
+    [AREA_NG_ORO] = _ng_brz_char_table,
 };
 
 const s16* scr_obj_data[AREA_COUNT] = {
@@ -213,7 +237,7 @@ const s16* scr_obj_data[AREA_COUNT] = {
     [AREA_NG_DUDLEY_B] = ng_stg0410_data_tbl, [AREA_NG_NECRO] = ng_stg0500_data_tbl,
     [AREA_NG_IBUKI_A] = ng_stg0700_data_tbl,  [AREA_NG_IBUKI_B] = ng_stg0700_data_tbl,
     [AREA_NG_IBUKI_C] = ng_stg0700_data_tbl,  [AREA_NG_ELENA_A] = stg_dum_data_tbl,
-    [AREA_NG_ELENA_B] = ng_stg0810_data_tbl,
+    [AREA_NG_ELENA_B] = ng_stg0810_data_tbl,  [AREA_NG_ORO] = ng_stg0900_data_tbl,
 };
 
 void effect_05_move(WORK_Other* ewk) {

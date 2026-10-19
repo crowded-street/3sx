@@ -4,7 +4,7 @@
 #include "structs.h"
 #include "types.h"
 
-#define EFFECT_NGC3_ID 269
+#define EFFECT_NGC3_ID 274
 
 void effect_ngc3_move(WORK_Other* ewk);
 s32 effect_ngc3_init(u8 variant);

@@ -493,6 +493,8 @@ const APPEAR_DATA appear_data[] = {
     { -96, 0, -128, 0, 1, 1, 0 },
     // New Generation's fall onto the bridge in the second area of Elena's stage (its record 14)
     { -96, 384, -128, 0, 1, 43, 0 },
+    // New Generation's drop from the ceiling on Oro's stage (its record 9)
+    { -96, 200, -128, 0, 1, 9, 16 },
 };
 
 void Appear_07000(PLW* wk) {
@@ -1341,7 +1343,7 @@ const s16 smoke_check[AREA_COUNT] = {
     [AREA_NG_ALEX] = 1,    [AREA_NG_RYU_A] = 0,     [AREA_NG_RYU_B] = 0,       [AREA_NG_YUN_A] = 0,
     [AREA_NG_YUN_B] = 0,   [AREA_NG_DUDLEY_A] = 0,  [AREA_NG_DUDLEY_B] = 0,    [AREA_NG_NECRO] = 1,
     [AREA_NG_IBUKI_A] = 1, [AREA_NG_IBUKI_B] = 0,   [AREA_NG_IBUKI_C] = 0,     [AREA_NG_ELENA_A] = 1,
-    [AREA_NG_ELENA_B] = 0,
+    [AREA_NG_ELENA_B] = 0, [AREA_NG_ORO] = 0,
 };
 
 void Appear_26000(PLW* wk) {
