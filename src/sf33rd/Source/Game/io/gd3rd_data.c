@@ -376,6 +376,11 @@ const LoadRequestEntry ldreq_tbl[LDREQ_TBL_SIZE] = {
     [344] = { .type = LDREQ_COLOR, .ix = 187, .frre = 1, .kokey = 2 },
     [345] = { .type = LDREQ_SCREEN, .ix = 188, .frre = 1, .kokey = 18 },
     [346] = { .type = LDREQ_TEXTURE, .ix = 111, .frre = 1, .kokey = 19 },
+    // Second and third areas of NG Elena's stage. The bridge that falls into the second area is an object of the first.
+    [347] = { .type = LDREQ_COLOR, .ix = 189, .frre = 1, .kokey = 2 },
+    [348] = { .type = LDREQ_SCREEN, .ix = 190, .frre = 1, .kokey = 18 },
+    [349] = { .type = LDREQ_TEXTURE, .ix = 112, .frre = 1, .kokey = 19 },
+    [350] = { .type = LDREQ_TEXTURE, .ix = 111, .frre = 1, .kokey = 19 },
 };
 
 /// Load request spans. Spans from 20 on hold the resources of area `index - 20`. AREA_3S_Q's span loads Ken's stage
@@ -399,5 +404,5 @@ const Span spans[] = {
     { .start = 305, .length = 3 }, { .start = 308, .length = 3 }, { .start = 311, .length = 4 },
     { .start = 315, .length = 3 }, { .start = 318, .length = 5 }, { .start = 323, .length = 5 },
     { .start = 328, .length = 3 }, { .start = 331, .length = 3 }, { .start = 334, .length = 5 },
-    { .start = 339, .length = 5 }, { .start = 344, .length = 3 },
+    { .start = 339, .length = 5 }, { .start = 344, .length = 3 }, { .start = 347, .length = 4 },
 };

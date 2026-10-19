@@ -24,8 +24,16 @@ static const s16 eff87_yun_a_data[1][9] = {
     { 1, 2, 8513, 416, 72, 80, 28, 0, 0 },
 };
 
+/// Second and third areas of Elena's stage, for `compel_flag`s 0-2 (NG has none for 3, but it's always 0 in 3S).
+/// Colour codes are converted from palette row 0x60 to the PS2 BG palette row 0x14C.
+static const s16 eff87_elena_b_data[2][9] = {
+    { 1, 2, 8524, 389, 183, 81, 7, 0, 0 },
+    { 1, 2, 8524, 704, 49, 81, 15, 1, 0 },
+};
+
 static const Eff87Variant eff87_variants[] = {
     [2] = { eff87_yun_a_data, SDL_arraysize(eff87_yun_a_data) },
+    [4] = { eff87_elena_b_data, SDL_arraysize(eff87_elena_b_data) },
 };
 
 s32 effect_ng87_init(s16 variant) {

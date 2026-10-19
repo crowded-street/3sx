@@ -134,6 +134,7 @@ typedef enum Area {
     AREA_NG_IBUKI_B = 33,
     AREA_NG_IBUKI_C = 34,
     AREA_NG_ELENA_A = 35,
+    AREA_NG_ELENA_B = 36,
     AREA_COUNT,
 } Area;
 

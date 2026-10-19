@@ -328,6 +328,7 @@ const s16 win_2000_tbl[AREA_COUNT] = {
     [AREA_NG_ALEX] = 1,    [AREA_NG_RYU_A] = 1,     [AREA_NG_RYU_B] = 1,       [AREA_NG_YUN_A] = 1,
     [AREA_NG_YUN_B] = 0,   [AREA_NG_DUDLEY_A] = 1,  [AREA_NG_DUDLEY_B] = 1,    [AREA_NG_NECRO] = 0,
     [AREA_NG_IBUKI_A] = 1, [AREA_NG_IBUKI_B] = 1,   [AREA_NG_IBUKI_C] = 1,     [AREA_NG_ELENA_A] = 1,
+    [AREA_NG_ELENA_B] = 1,
 };
 
 /// Dudley's win routine

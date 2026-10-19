@@ -61,6 +61,7 @@ typedef struct {
 /// State of the bridge on New Generation Elena's stage
 typedef struct {
     s8 breaking;         /// The bridge has started to break
+    s8 landed;           /// The bridge that falls into the second area has landed
     s8 quake;            /// Which way the screen shakes this frame
     s16 timer;           /// Frames left of the current step of the break
     s16 y;               /// Height of the bridge, which a lying loser follows

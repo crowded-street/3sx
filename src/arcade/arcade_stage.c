@@ -218,6 +218,43 @@ typedef struct StageSource {
 #define NG_IBUKI_REWRITE_CHIPS { NG_IBUKI_SWAY_CHIPS, NG_IBUKI_PALETTE_CHIPS }
 #define NG_IBUKI_REWRITE_CHIP_COUNT 109
 
+/// Steps 1-11 of NG's effect 14 variant 0, which cycles the waterfall of layer 0 (chips 51, 52, 59, 60 and 61) through
+/// 12 palettes. The regular tilemap already shows step 0.
+#define NG_ELENA_WATERFALL_CHIP(chip_index, step)                                                                      \
+    { .layer = 0, .chip = (chip_index), .palette_steps = { { 0, (step) } }, .palette_step_count = 1 }
+#define NG_ELENA_WATERFALL_STEP(step)                                                                                  \
+    NG_ELENA_WATERFALL_CHIP(51, step), NG_ELENA_WATERFALL_CHIP(52, step), NG_ELENA_WATERFALL_CHIP(59, step),           \
+        NG_ELENA_WATERFALL_CHIP(60, step), NG_ELENA_WATERFALL_CHIP(61, step)
+
+/// Layer 1 without the bridge, which NG shows in the second area until the falling bridge lands. bg1501_init00 points
+/// the layer at a tilemap with blocks 11-13 in place of the lower row (blocks 6, 7 and 14).
+#define NG_ELENA_NO_BRIDGE_CHIP(chip_index, offset, block_index)                                                       \
+    { .layer = 1, .chip = (chip_index), .block_writes = { { (offset), (block_index) } }, .block_write_count = 1 }
+
+#define NG_ELENA_B_REWRITE_CHIPS                                                                                       \
+    { NG_ELENA_WATERFALL_STEP(1),                                                                                      \
+      NG_ELENA_WATERFALL_STEP(2),                                                                                      \
+      NG_ELENA_WATERFALL_STEP(3),                                                                                      \
+      NG_ELENA_WATERFALL_STEP(4),                                                                                      \
+      NG_ELENA_WATERFALL_STEP(5),                                                                                      \
+      NG_ELENA_WATERFALL_STEP(6),                                                                                      \
+      NG_ELENA_WATERFALL_STEP(7),                                                                                      \
+      NG_ELENA_WATERFALL_STEP(8),                                                                                      \
+      NG_ELENA_WATERFALL_STEP(9),                                                                                      \
+      NG_ELENA_WATERFALL_STEP(10),                                                                                     \
+      NG_ELENA_WATERFALL_STEP(11),                                                                                     \
+      NG_ELENA_NO_BRIDGE_CHIP(50, 0x3020, 11),                                                                         \
+      NG_ELENA_NO_BRIDGE_CHIP(51, 0x3060, 12),                                                                         \
+      NG_ELENA_NO_BRIDGE_CHIP(52, 0x3060, 12),                                                                         \
+      NG_ELENA_NO_BRIDGE_CHIP(53, 0x30A0, 13),                                                                         \
+      NG_ELENA_NO_BRIDGE_CHIP(57, 0x3020, 11),                                                                         \
+      NG_ELENA_NO_BRIDGE_CHIP(58, 0x3020, 11),                                                                         \
+      NG_ELENA_NO_BRIDGE_CHIP(59, 0x3060, 12),                                                                         \
+      NG_ELENA_NO_BRIDGE_CHIP(60, 0x3060, 12),                                                                         \
+      NG_ELENA_NO_BRIDGE_CHIP(61, 0x30A0, 13),                                                                         \
+      NG_ELENA_NO_BRIDGE_CHIP(62, 0x30A0, 13) }
+#define NG_ELENA_B_REWRITE_CHIP_COUNT 65
+
 /// Variants of NG's effect 14 (20 bytes each): {u8[3], u8 layer, u8[4], u32 palette sequence, u32 cell mask,
 /// u32 size}. The sequence holds {u8, u8 frames, u16 palette row} steps, the mask a byte per cell (1 if the cell
 /// changes) and the size {u8 width, u8 height} in cells.
@@ -407,6 +444,15 @@ static const StageSource stage_sources[] = {
       .ppg_file = CACHE_FILE_NG_ELENA_A_STAGE,
       .object_palettes = { 0x62 },
       .object_palette_count = 1 },
+    { .game = ROM_GAME_SFIII,
+      .bg_index = 15,
+      .area = AREA_NG_ELENA_B,
+      .palette_file = CACHE_FILE_NG_ELENA_B_BG_PALETTE,
+      .ppg_file = CACHE_FILE_NG_ELENA_B_STAGE,
+      .object_palettes = { 0x63 },
+      .object_palette_count = 1,
+      .rewrite_chips = NG_ELENA_B_REWRITE_CHIPS,
+      .rewrite_chip_count = NG_ELENA_B_REWRITE_CHIP_COUNT },
 };
 
 #define MAX_CG_RANGES 4
@@ -517,13 +563,21 @@ static const CgGroupSource cg_group_sources[] = {
       .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
       .file = CACHE_FILE_NG_IBUKI_OBJECTS },
 
-    // Objects of NG Elena's stage. Its char table is _ng_afc_a_char_table.
+    // Objects of NG Elena's stage, first area. Its char table is _ng_afc_a_char_table.
     { .game = ROM_GAME_SFIII,
       .group = 111,
       .ranges = { { 0x4F60, 263 } },
       .range_count = 1,
       .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
-      .file = CACHE_FILE_NG_ELENA_OBJECTS },
+      .file = CACHE_FILE_NG_ELENA_A_OBJECTS },
+
+    // Objects of NG Elena's stage, second and third areas. Its char table is _ng_afc_b_char_table.
+    { .game = ROM_GAME_SFIII,
+      .group = 112,
+      .ranges = { { 0x50B0, 489 } },
+      .range_count = 1,
+      .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
+      .file = CACHE_FILE_NG_ELENA_B_OBJECTS },
 };
 
 /// CPS3 graphics addresses start this far before the graphics region

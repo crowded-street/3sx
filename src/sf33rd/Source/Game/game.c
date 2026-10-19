@@ -48,6 +48,7 @@
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
 #include "sf33rd/Source/Game/stage/bg_sub.h"
+#include "sf33rd/Source/Game/stage/ng/bg380.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
 #include "sf33rd/Source/Game/stage/tate00.h"
 #include "sf33rd/Source/Game/system/reset.h"
@@ -653,7 +654,6 @@ void Game2_5() {
         break;
 
     case 2:
-        // Load the next area behind the black screen
         Switch_Screen(0);
 
         if (!Check_LDREQ_Queue_BG(bg_index_tbl[bg_w.stage][bg_w.area])) {
@@ -661,6 +661,11 @@ void Game2_5() {
         }
 
         bg_next_area_finish();
+
+        if (bg380_is_bridge_falling()) {
+            appear_type = APPEAR_TYPE_ANIMATED;
+        }
+
         TATE00();
         G_No[3] = 1;
         break;
