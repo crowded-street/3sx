@@ -4,6 +4,7 @@
  */
 
 #include "sf33rd/Source/Game/animation/lose_pl.h"
+#include "arcade/arcade_balance.h"
 #include "common.h"
 #include "sf33rd/Source/Game/animation/ng/bridge_fall.h"
 #include "sf33rd/Source/Game/effect/effc1.h"
@@ -156,6 +157,10 @@ void Lose_30000(PLW* wk) {
 void Normal_normal_Loser(PLW* wk) {
     s16 work;
 
+    if (ArcadeBalance_IsEnabled() && set_field_hosei_flag(&plw[wk->wu.id], scrr, 1) != 0) {
+        set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
+    }
+
     if ((pcon_rno[1] == 0) || (pcon_rno[1] == 4)) {
         return;
     }
@@ -174,7 +179,7 @@ void Normal_normal_Loser(PLW* wk) {
         break;
     }
 
-    if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1) != 0) {
+    if (!ArcadeBalance_IsEnabled() && set_field_hosei_flag(&plw[wk->wu.id], scrr, 1) != 0) {
         set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
     }
 }
