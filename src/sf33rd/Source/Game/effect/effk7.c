@@ -4,6 +4,7 @@
  */
 
 #include "sf33rd/Source/Game/effect/effk7.h"
+#include "arcade/arcade_balance.h"
 #include "common.h"
 #include "sf33rd/Source/Game/com/com_pl.h"
 #include "sf33rd/Source/Game/effect/effect.h"
@@ -109,7 +110,7 @@ void K7_move_type_0(WORK_Other* ewk, PLW* mwk) {
             break;
         }
 
-        if (pcon_rno[0] != 1) {
+        if (!ArcadeBalance_IsEnabled() && pcon_rno[0] != 1) {
             ewk->wu.routine_no[1] = 9;
             break;
         }
