@@ -81,6 +81,7 @@ typedef struct {
     s8 stage;
     s8 area;
     s8 compel_flag;
+    s8 object_set; /// Random 0-3 that picks between alternate sets of stage objects
     s32 scroll_cg_adr;
     s32 ake_cg_adr;
     u8 scno;  /// How many layers the background scrolls

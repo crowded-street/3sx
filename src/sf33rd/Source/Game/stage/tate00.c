@@ -100,10 +100,7 @@ void TATE00() {
 
 void ta0_init00() {
     bg_w.bg_routine++;
-
-    // Calling this function is necessary for Random_ix16 to be in sync with the arcade version
-    random_16();
-
+    bg_w.object_set = random_16() & 3;
     bg_initialize();
 }
 

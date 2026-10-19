@@ -24,20 +24,30 @@ static const s16 eff87_yun_a_data[1][9] = {
     { 1, 2, 8513, 416, 72, 80, 28, 0, 0 },
 };
 
-/// Second and third areas of Elena's stage, for `compel_flag`s 0-2 (NG has none for 3, but it's always 0 in 3S).
-/// Colour codes are converted from palette row 0x60 to the PS2 BG palette row 0x14C.
+/// Second and third areas of Elena's stage, for object sets 0-2. Set 3 has none. Colour codes are converted from palette
+/// row 0x60 to the PS2 BG palette row 0x14C.
 static const s16 eff87_elena_b_data[2][9] = {
     { 1, 2, 8524, 389, 183, 81, 7, 0, 0 },
     { 1, 2, 8524, 704, 49, 81, 15, 1, 0 },
 };
 
-static const Eff87Variant eff87_variants[] = {
-    [2] = { eff87_yun_a_data, SDL_arraysize(eff87_yun_a_data) },
-    [4] = { eff87_elena_b_data, SDL_arraysize(eff87_elena_b_data) },
+#define EFF87_VARIANT(data) { data, SDL_arraysize(data) }
+#define EFF87_NO_OBJECTS { NULL, 0 }
+
+/// Indexed by variant and `bg_w.object_set`. The empty variants belong to stages that aren't ported yet.
+static const Eff87Variant eff87_variants[5][4] = {
+    [2] = { EFF87_VARIANT(eff87_yun_a_data),
+            EFF87_VARIANT(eff87_yun_a_data),
+            EFF87_VARIANT(eff87_yun_a_data),
+            EFF87_VARIANT(eff87_yun_a_data) },
+    [4] = { EFF87_VARIANT(eff87_elena_b_data),
+            EFF87_VARIANT(eff87_elena_b_data),
+            EFF87_VARIANT(eff87_elena_b_data),
+            EFF87_NO_OBJECTS },
 };
 
 s32 effect_ng87_init(s16 variant) {
-    const Eff87Variant* data = &eff87_variants[variant];
+    const Eff87Variant* data = &eff87_variants[variant][bg_w.object_set];
     WORK_Other* ewk;
     s16 ix;
     s16 i;

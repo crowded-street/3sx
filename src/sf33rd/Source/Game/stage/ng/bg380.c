@@ -66,8 +66,11 @@ static void bg3800_init00() {
     waterfall_init();
     effect_ng87_init(4);
     effect_ng88_init(1);
-    // NG starts the sparring fighters only when its random compel_flag is 3, which 3S doesn't keep
-    effect_ng85_init();
+
+    if (bg_w.object_set == 3) {
+        effect_ng85_init(); // Sparring fighters
+    }
+
     effect_05_init();
     effect_06_init();
 }

@@ -24,22 +24,38 @@ static const s16 eff88_ryu_b_data[3][9] = {
     { 0, 2, 300, 208, 65, 82, 31, 0, 1 },
 };
 
-/// Second and third areas of Elena's stage. 
-/// Colour codes are converted from palette row 0x60 to the PS2 BG palette row 0x14C.
-static const s16 eff88_elena_b_data[4][9] = {
+static const s16 eff88_elena_b_data_0[4][9] = {
     { 1, 2, 8524, 265, 89, 80, 6, 0, 0 },
     { 1, 2, 8524, 327, 88, 81, 8, 0, 0 },
     { 1, 2, 8524, 272, 80, 72, 9, 0, 0 },
     { 1, 2, 8524, 352, 56, 71, 16, 1, 0 },
 };
 
-static const Eff88Variant eff88_variants[] = {
-    [1] = { eff88_elena_b_data, SDL_arraysize(eff88_elena_b_data) },
-    [4] = { eff88_ryu_b_data, SDL_arraysize(eff88_ryu_b_data) },
+static const s16 eff88_elena_b_data_2[3][9] = {
+    { 1, 2, 8524, 265, 89, 80, 6, 0, 0 },
+    { 1, 2, 8524, 327, 88, 81, 8, 0, 0 },
+    { 1, 2, 8524, 319, 65, 71, 11, 1, 0 },
+};
+
+static const s16 eff88_elena_b_data_3[1][9] = {
+    { 1, 2, 8524, 319, 65, 71, 11, 1, 0 },
+};
+
+#define EFF88_VARIANT(data) { data, SDL_arraysize(data) }
+
+static const Eff88Variant eff88_variants[5][4] = {
+    [1] = { EFF88_VARIANT(eff88_elena_b_data_0),
+            EFF88_VARIANT(eff88_elena_b_data_0),
+            EFF88_VARIANT(eff88_elena_b_data_2),
+            EFF88_VARIANT(eff88_elena_b_data_3) },
+    [4] = { EFF88_VARIANT(eff88_ryu_b_data),
+            EFF88_VARIANT(eff88_ryu_b_data),
+            EFF88_VARIANT(eff88_ryu_b_data),
+            EFF88_VARIANT(eff88_ryu_b_data) },
 };
 
 s32 effect_ng88_init(s16 variant) {
-    const Eff88Variant* data = &eff88_variants[variant];
+    const Eff88Variant* data = &eff88_variants[variant][bg_w.object_set];
     WORK_Other* ewk;
     s16 ix;
     s16 i;
