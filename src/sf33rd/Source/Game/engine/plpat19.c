@@ -4,6 +4,7 @@
  */
 
 #include "sf33rd/Source/Game/engine/plpat19.h"
+#include "arcade/arcade_balance.h"
 #include "common.h"
 #include "sf33rd/Source/Game/effect/effi3.h"
 #include "sf33rd/Source/Game/effect/effk7.h"
@@ -469,12 +470,14 @@ void Att_AIR_A_X_E(PLW* wk) {
         set_char_move_init(&wk->wu, 5, wk->as->char_ix);
         wk->wu.mvxy.index = wk->as->r_no;
 
-        if (wk->wu.mvxy.d[1].sp >= 0) {
-            wk->wu.mvxy.d[1].sp = wk->wu.move_xy_table[64];
-            wk->wu.mvxy.d[1].sp <<= 8;
-        }
+        if (!ArcadeBalance_IsEnabled()) {
+            if (wk->wu.mvxy.d[1].sp >= 0) {
+                wk->wu.mvxy.d[1].sp = wk->wu.move_xy_table[64];
+                wk->wu.mvxy.d[1].sp <<= 8;
+            }
 
-        wk->wu.mvxy.kop[1] = 0;
+            wk->wu.mvxy.kop[1] = 0;
+        }
         break;
 
     case 1:
