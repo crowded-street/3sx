@@ -53,7 +53,11 @@ s32 Check_Play_Status(s16 PL_id);
 static PauseActivationType get_pause_activation_type() {
     switch (Mode_Type) {
     case MODE_VERSUS:
-        return PAUSE_ACTIVATION_HOLD;
+        if (save_w[1].Partner_Type[0] || save_w[1].Partner_Type[1]) {
+            return PAUSE_ACTIVATION_PRESS;
+        } else {
+            return PAUSE_ACTIVATION_HOLD;
+        }
 
     case MODE_ARCADE:
         if (Round_Operator[0] != 0 && Round_Operator[1] != 0) {
