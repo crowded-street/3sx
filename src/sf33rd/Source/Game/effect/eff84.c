@@ -4,9 +4,11 @@
  */
 
 #include "sf33rd/Source/Game/effect/eff84.h"
+#include "arcade/arcade_balance.h"
 #include "common.h"
 #include "sf33rd/Source/Game/effect/eff56.h"
 #include "sf33rd/Source/Game/effect/effect.h"
+#include "sf33rd/Source/Game/engine/cmb_win.h"
 #include "sf33rd/Source/Game/engine/pls02.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/stage/bg.h"
@@ -40,6 +42,11 @@ void effect_84_move(WORK_Other* ewk) {
 
             case 1:
                 Game_pause = 1;
+
+                if (ArcadeBalance_IsEnabled() && cmb_all_stock[0] != 0) {
+                    break;
+                }
+
                 ewk->wu.routine_no[1]++;
                 effect_56_init(1, 0);
                 break;
