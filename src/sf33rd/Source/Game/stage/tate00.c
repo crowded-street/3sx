@@ -38,6 +38,7 @@
 #include "sf33rd/Source/Game/stage/ng/bg320.h"
 #include "sf33rd/Source/Game/stage/ng/bg340.h"
 #include "sf33rd/Source/Game/stage/ng/bg370.h"
+#include "sf33rd/Source/Game/stage/ng/bg380.h"
 
 void (*ta_move_tbl[AREA_COUNT])() = {
     [AREA_3S_GILL] = BG000,
@@ -76,6 +77,7 @@ void (*ta_move_tbl[AREA_COUNT])() = {
     [AREA_NG_IBUKI_B] = BG340,
     [AREA_NG_IBUKI_C] = BG340,
     [AREA_NG_ELENA_A] = BG370,
+    [AREA_NG_ELENA_B] = BG380,
 };
 
 void ta0_init00();
@@ -98,10 +100,7 @@ void TATE00() {
 
 void ta0_init00() {
     bg_w.bg_routine++;
-
-    // Calling this function is necessary for Random_ix16 to be in sync with the arcade version
-    random_16();
-
+    bg_w.object_set = random_16() & 3;
     bg_initialize();
 }
 

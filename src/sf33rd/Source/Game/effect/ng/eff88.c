@@ -1,7 +1,6 @@
 /**
  * @file eff88.c
- * Extra stage objects from New Generation (effect 88 in the NG arcade ROM). They behave exactly like effect 06's, so
- * they move with effect_06_move. Stages start them only in some regions.
+ * Extra stage objects from New Generation.
  */
 
 #include "sf33rd/Source/Game/effect/ng/eff88.h"
@@ -25,12 +24,38 @@ static const s16 eff88_ryu_b_data[3][9] = {
     { 0, 2, 300, 208, 65, 82, 31, 0, 1 },
 };
 
-static const Eff88Variant eff88_variants[] = {
-    [4] = { eff88_ryu_b_data, SDL_arraysize(eff88_ryu_b_data) },
+static const s16 eff88_elena_b_data_0[4][9] = {
+    { 1, 2, 8524, 265, 89, 80, 6, 0, 0 },
+    { 1, 2, 8524, 327, 88, 81, 8, 0, 0 },
+    { 1, 2, 8524, 272, 80, 72, 9, 0, 0 },
+    { 1, 2, 8524, 352, 56, 71, 16, 1, 0 },
+};
+
+static const s16 eff88_elena_b_data_2[3][9] = {
+    { 1, 2, 8524, 265, 89, 80, 6, 0, 0 },
+    { 1, 2, 8524, 327, 88, 81, 8, 0, 0 },
+    { 1, 2, 8524, 319, 65, 71, 11, 1, 0 },
+};
+
+static const s16 eff88_elena_b_data_3[1][9] = {
+    { 1, 2, 8524, 319, 65, 71, 11, 1, 0 },
+};
+
+#define EFF88_VARIANT(data) { data, SDL_arraysize(data) }
+
+static const Eff88Variant eff88_variants[5][4] = {
+    [1] = { EFF88_VARIANT(eff88_elena_b_data_0),
+            EFF88_VARIANT(eff88_elena_b_data_0),
+            EFF88_VARIANT(eff88_elena_b_data_2),
+            EFF88_VARIANT(eff88_elena_b_data_3) },
+    [4] = { EFF88_VARIANT(eff88_ryu_b_data),
+            EFF88_VARIANT(eff88_ryu_b_data),
+            EFF88_VARIANT(eff88_ryu_b_data),
+            EFF88_VARIANT(eff88_ryu_b_data) },
 };
 
 s32 effect_ng88_init(s16 variant) {
-    const Eff88Variant* data = &eff88_variants[variant];
+    const Eff88Variant* data = &eff88_variants[variant][bg_w.object_set];
     WORK_Other* ewk;
     s16 ix;
     s16 i;

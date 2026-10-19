@@ -7,6 +7,7 @@
 #include "common.h"
 #include "sf33rd/Source/Game/animation/app_data.h"
 #include "sf33rd/Source/Game/animation/ng/appear42.h"
+#include "sf33rd/Source/Game/animation/ng/appear43.h"
 #include "sf33rd/Source/Game/effect/eff09.h"
 #include "sf33rd/Source/Game/effect/eff15.h"
 #include "sf33rd/Source/Game/effect/eff46.h"
@@ -27,6 +28,7 @@
 #include "sf33rd/Source/Game/sound/sound3rd.h"
 #include "sf33rd/Source/Game/stage/bg.h"
 #include "sf33rd/Source/Game/stage/bg_data.h"
+#include "sf33rd/Source/Game/stage/ng/bg380.h"
 #include "sf33rd/Source/Game/stage/ta_sub.h"
 #include "sf33rd/Source/Game/system/work_sys.h"
 
@@ -90,6 +92,8 @@ void appear_data_set(PLW* wk, const APPEAR_DATA* dtbl) {
     }
 }
 
+#define BRIDGE_FALL_APPEAR_DATA 57
+
 void appear_data_init_set(PLW* wk) {
     s8 ap_work;
     s16 id_work;
@@ -97,7 +101,9 @@ void appear_data_init_set(PLW* wk) {
     Appear_hv[wk->wu.id] = home_visitor_check(wk);
     id_work = wk->wu.id ^ 1;
 
-    if (bg_w.area) {
+    if (bg380_is_bridge_falling()) {
+        ap_work = BRIDGE_FALL_APPEAR_DATA;
+    } else if (bg_w.area) {
         ap_work = 0;
     } else if (Appear_hv[wk->wu.id]) {
         ap_work = app_type_tbl2[wk->player_number][plw[id_work].player_number][bg_w.stage];
@@ -109,13 +115,13 @@ void appear_data_init_set(PLW* wk) {
 }
 
 void appear_player(PLW* wk) {
-    void (*appear_jmp_tbl[43])(PLW* wk) = {
+    void (*appear_jmp_tbl[44])(PLW* wk) = {
         Appear_00000, Appear_01000, Appear_01000, Appear_03000, Appear_04000, Appear_05000, Appear_06000, Appear_07000,
         Appear_08000, Appear_09000, Appear_10000, Appear_11000, Appear_12000, Appear_13000, Appear_14000, Appear_15000,
         Appear_16000, Appear_17000, Appear_18000, Appear_19000, Appear_20000, Appear_21000, Appear_22000, Appear_23000,
         Appear_24000, Appear_25000, Appear_26000, Appear_06000, Appear_28000, Appear_29000, Appear_30000, Appear_31000,
         Appear_32000, Appear_33000, Appear_34000, Appear_01000, Appear_36000, Appear_37000, Appear_38000, Appear_39000,
-        Appear_06000, Appear_41000, Appear_42000
+        Appear_06000, Appear_41000, Appear_42000, Appear_43000
     };
 
     appear_jmp_tbl[wk->wu.routine_no[4]](wk);
@@ -485,6 +491,8 @@ const APPEAR_DATA appear_data[] = {
 
     // New Generation's regular intro (its record 2)
     { -96, 0, -128, 0, 1, 1, 0 },
+    // New Generation's fall onto the bridge in the second area of Elena's stage (its record 14)
+    { -96, 384, -128, 0, 1, 43, 0 },
 };
 
 void Appear_07000(PLW* wk) {
@@ -1333,6 +1341,7 @@ const s16 smoke_check[AREA_COUNT] = {
     [AREA_NG_ALEX] = 1,    [AREA_NG_RYU_A] = 0,     [AREA_NG_RYU_B] = 0,       [AREA_NG_YUN_A] = 0,
     [AREA_NG_YUN_B] = 0,   [AREA_NG_DUDLEY_A] = 0,  [AREA_NG_DUDLEY_B] = 0,    [AREA_NG_NECRO] = 1,
     [AREA_NG_IBUKI_A] = 1, [AREA_NG_IBUKI_B] = 0,   [AREA_NG_IBUKI_C] = 0,     [AREA_NG_ELENA_A] = 1,
+    [AREA_NG_ELENA_B] = 0,
 };
 
 void Appear_26000(PLW* wk) {

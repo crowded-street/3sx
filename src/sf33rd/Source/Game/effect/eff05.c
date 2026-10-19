@@ -26,6 +26,7 @@ const s16 scr_obj_num[AREA_COUNT] = {
     [AREA_NG_ALEX] = 4,    [AREA_NG_RYU_A] = 1,     [AREA_NG_RYU_B] = 4,       [AREA_NG_YUN_A] = 6,
     [AREA_NG_YUN_B] = 3,   [AREA_NG_DUDLEY_A] = 3,  [AREA_NG_DUDLEY_B] = 5,    [AREA_NG_NECRO] = 9,
     [AREA_NG_IBUKI_A] = 2, [AREA_NG_IBUKI_B] = 2,   [AREA_NG_IBUKI_C] = 2,     [AREA_NG_ELENA_A] = 0,
+    [AREA_NG_ELENA_B] = 4,
 };
 
 const s16 stg_dum_data_tbl[1] = { 0 };
@@ -164,6 +165,13 @@ const s16 ng_stg0700_data_tbl[18] = {
     1, 1, 8492, 304, 112, 88, 0, 0, 0, 1, 5, 8492, 288, 96, 73, 1, 0, 0,
 };
 
+/// New Generation's Elena stage, second and third areas. Colour codes are converted from palette row 0x40 to the PS2
+/// BG palette row 0x12C.
+const s16 ng_stg0810_data_tbl[36] = {
+    0, 2, 8492, 480, 80, 81, 3, 0, 0, 0, 2, 8492, 687, 64, 81, 18, 0, 0,
+    0, 1, 8492, 535, 192, 93, 1, 1, 0, 0, 2, 8492, 559, 62, 82, 5, 1, 0,
+};
+
 u32* char_add[AREA_COUNT] = {
     [AREA_3S_GILL] = _fnl_char_table,        [AREA_3S_ALEX] = _usa_char_table,
     [AREA_3S_RYU] = _j10_char_table,         [AREA_3S_YUN] = _hkg_char_table,
@@ -183,6 +191,7 @@ u32* char_add[AREA_COUNT] = {
     [AREA_NG_DUDLEY_B] = _ng_eng_char_table, [AREA_NG_NECRO] = _ng_rca_char_table,
     [AREA_NG_IBUKI_A] = _ng_j11_char_table,  [AREA_NG_IBUKI_B] = _ng_j11_char_table,
     [AREA_NG_IBUKI_C] = _ng_j11_char_table,  [AREA_NG_ELENA_A] = _ng_afc_a_char_table,
+    [AREA_NG_ELENA_B] = _ng_afc_b_char_table,
 };
 
 const s16* scr_obj_data[AREA_COUNT] = {
@@ -204,6 +213,7 @@ const s16* scr_obj_data[AREA_COUNT] = {
     [AREA_NG_DUDLEY_B] = ng_stg0410_data_tbl, [AREA_NG_NECRO] = ng_stg0500_data_tbl,
     [AREA_NG_IBUKI_A] = ng_stg0700_data_tbl,  [AREA_NG_IBUKI_B] = ng_stg0700_data_tbl,
     [AREA_NG_IBUKI_C] = ng_stg0700_data_tbl,  [AREA_NG_ELENA_A] = stg_dum_data_tbl,
+    [AREA_NG_ELENA_B] = ng_stg0810_data_tbl,
 };
 
 void effect_05_move(WORK_Other* ewk) {

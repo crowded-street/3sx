@@ -61,6 +61,7 @@ typedef struct {
 /// State of the bridge on New Generation Elena's stage
 typedef struct {
     s8 breaking;         /// The bridge has started to break
+    s8 landed;           /// The bridge that falls into the second area has landed
     s8 quake;            /// Which way the screen shakes this frame
     s16 timer;           /// Frames left of the current step of the break
     s16 y;               /// Height of the bridge, which a lying loser follows
@@ -80,6 +81,7 @@ typedef struct {
     s8 stage;
     s8 area;
     s8 compel_flag;
+    s8 object_set; /// Random 0-3 that picks between alternate sets of stage objects
     s32 scroll_cg_adr;
     s32 ake_cg_adr;
     u8 scno;  /// How many layers the background scrolls

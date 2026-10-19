@@ -450,15 +450,7 @@ bool is_round_won() {
 }
 
 s32 compel_dead_check(WORK_Other* ewk) {
-    s32 var_s0 = 0;
-
-    if (bg_w.compel_flag) {
-        if (ewk->wu.dead_f) {
-            var_s0 = 1;
-        }
-    }
-
-    return var_s0;
+    return bg_w.compel_flag && ewk->wu.dead_f;
 }
 
 void win_lose_work_clear() {

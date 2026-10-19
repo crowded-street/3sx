@@ -62,14 +62,14 @@ static const Eff18Data eff18_ryu_b_data[3] = {
     { 1, 2, 8518, -112, 57, 76, 25, 26, 1, 1, EFF18_SWING_ON_SPECIAL_MOVE, 1 },
 };
 
-/// First area of Yun's stage, for even `compel_flag`s. Colour codes are converted from palette row 0x55 to the PS2 BG
+/// First area of Yun's stage, for even object sets. Colour codes are converted from palette row 0x55 to the PS2 BG
 /// palette row 0x141.
 static const Eff18Data eff18_yun_a_data_0[2] = {
     { 1, 2, 8513, 608, 64, 85, 19, 20, 1, 0, EFF18_SWING_ON_SPECIAL_MOVE, 1 },
     { 0, 2, 8513, 488, 48, 77, 21, 22, 1, 0, EFF18_SWING_ON_SPECIAL_MOVE, 1 },
 };
 
-/// First area of Yun's stage, for odd `compel_flag`s. NG picks `compel_flag` at random, but it's always 0 in 3S.
+/// First area of Yun's stage, for odd object sets.
 static const Eff18Data eff18_yun_a_data_1[2] = {
     { 0, 2, 8513, 496, 48, 75, 32, 33, 1, 0, EFF18_SWING_ON_SPECIAL_MOVE, 1 },
     { 1, 2, 8513, 552, 56, 76, 30, 31, 1, 0, EFF18_SWING_ON_SPECIAL_MOVE, 1 },
@@ -82,7 +82,7 @@ static const Eff18Data eff18_necro_data[1] = {
 
 #define EFF18_VARIANT(data) { data, SDL_arraysize(data) }
 
-/// Indexed by variant and `compel_flag`. The empty variants belong to stages that aren't ported yet.
+/// Indexed by variant and `bg_w.object_set`. The empty variants belong to stages that aren't ported yet.
 static const Eff18Variant eff18_variants[6][4] = {
     [0] = { EFF18_VARIANT(eff18_ryu_a_data),
             EFF18_VARIANT(eff18_ryu_a_data),
@@ -250,7 +250,7 @@ void effect_ng18_move(WORK_Other* ewk) {
 }
 
 s32 effect_ng18_init(s16 variant) {
-    const Eff18Variant* data = &eff18_variants[variant][bg_w.compel_flag];
+    const Eff18Variant* data = &eff18_variants[variant][bg_w.object_set];
     WORK_Other* ewk;
     s16 ix;
     s16 i;
