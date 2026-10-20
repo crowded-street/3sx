@@ -1688,7 +1688,7 @@ void Jump(PLW* wk, s16 Jump_Dir) {
             break;
         }
 
-        if (wk->spmv_ng_flag & 0x30000) {
+        if (wk->spmv_ng_flag & (DIP_JUMP_DISABLED | DIP_HIGH_JUMP_DISABLED)) {
             Next_Be_Free(wk);
             break;
         }
@@ -1751,7 +1751,7 @@ void Hi_Jump(PLW* wk, s16 Pl_Number, s16 Jump_Dir) {
             break;
         }
 
-        if (wk->spmv_ng_flag & 0x30000) {
+        if (wk->spmv_ng_flag & (DIP_JUMP_DISABLED | DIP_HIGH_JUMP_DISABLED)) {
             Next_Be_Free(wk);
             break;
         }
@@ -1903,7 +1903,7 @@ void Jump_Attack(PLW* wk, s16 Reaction, s16 Time_Data, u16 Lever_Data, s16 Jump_
             break;
         }
 
-        if (wk->spmv_ng_flag & 0x30000) {
+        if (wk->spmv_ng_flag & (DIP_JUMP_DISABLED | DIP_HIGH_JUMP_DISABLED)) {
             Next_Be_Free(wk);
             break;
         }
@@ -1984,7 +1984,7 @@ void Jump_Attack_Term(
     case 0:
         Setup_Lever_LR(wk, wk->wu.id, Reaction & 0xF000);
 
-        if (wk->spmv_ng_flag & 0x30000) {
+        if (wk->spmv_ng_flag & (DIP_JUMP_DISABLED | DIP_HIGH_JUMP_DISABLED)) {
             Next_Be_Free(wk);
             break;
         }
@@ -2157,7 +2157,7 @@ void Hi_Jump_Attack(PLW* wk, s16 Reaction, s16 Time_Data, u16 Lever_Data, s16 Ju
             break;
         }
 
-        if (wk->spmv_ng_flag & 0x30000) {
+        if (wk->spmv_ng_flag & (DIP_JUMP_DISABLED | DIP_HIGH_JUMP_DISABLED)) {
             Next_Be_Free(wk);
             break;
         }
@@ -2287,7 +2287,7 @@ void Hi_Jump_Attack_Term(
             break;
         }
 
-        if (wk->spmv_ng_flag & 0x30000) {
+        if (wk->spmv_ng_flag & (DIP_JUMP_DISABLED | DIP_HIGH_JUMP_DISABLED)) {
             Next_Be_Free(wk);
             break;
         }
@@ -2491,7 +2491,7 @@ void ORO_JA_Term(
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
-        if (wk->spmv_ng_flag & 0x30000) {
+        if (wk->spmv_ng_flag & (DIP_JUMP_DISABLED | DIP_HIGH_JUMP_DISABLED)) {
             Next_Be_Free(wk);
             break;
         }
@@ -2634,7 +2634,7 @@ void ORO_HJA_Term(
             break;
         }
 
-        if (wk->spmv_ng_flag & 0x30000) {
+        if (wk->spmv_ng_flag & (DIP_JUMP_DISABLED | DIP_HIGH_JUMP_DISABLED)) {
             Next_Be_Free(wk);
             break;
         }
@@ -2933,7 +2933,7 @@ void J_Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s
     switch (CP_Index[wk->wu.id][1]) {
 
     case 0:
-        if (wk->spmv_ng_flag & 0x30000) {
+        if (wk->spmv_ng_flag & (DIP_JUMP_DISABLED | DIP_HIGH_JUMP_DISABLED)) {
             Next_Be_Free(wk);
             break;
         }
@@ -3399,7 +3399,7 @@ void ORO_HJCA_Term(
             break;
         }
 
-        if (wk->spmv_ng_flag & 0x30000) {
+        if (wk->spmv_ng_flag & (DIP_JUMP_DISABLED | DIP_HIGH_JUMP_DISABLED)) {
             Next_Be_Free(wk);
             break;
         }
@@ -3538,7 +3538,7 @@ void Jump_Command_Attack_Term(
             break;
         }
 
-        if (wk->spmv_ng_flag & 0x30000) {
+        if (wk->spmv_ng_flag & (DIP_JUMP_DISABLED | DIP_HIGH_JUMP_DISABLED)) {
             Next_Be_Free(wk);
             break;
         }
@@ -3645,7 +3645,7 @@ void Hi_Jump_Command_Attack_Term(
             break;
         }
 
-        if (wk->spmv_ng_flag & 0x30000) {
+        if (wk->spmv_ng_flag & (DIP_JUMP_DISABLED | DIP_HIGH_JUMP_DISABLED)) {
             Next_Be_Free(wk);
             break;
         }

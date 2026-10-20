@@ -36,6 +36,7 @@
 #include "sf33rd/Source/Game/engine/pls02.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/io/pulpul.h"
+#include "sf33rd/Source/Game/system/sysdir.h"
 
 s16 ja_nmj_rno_change(WORK* wk);
 void Attack_07000(PLW* wk);
@@ -239,7 +240,7 @@ void Attack_03000(PLW* wk) { // 🟢
             check_ja_nmj_dummy_RTNM(wk);
 
             if (wk->wu.cg_type == 0x40) {
-                if (!(wk->spmv_ng_flag & 0x100000) && ja_nmj_rno_change(&wk->wu)) {
+                if (!(wk->spmv_ng_flag & DIP_JUMP_ATTACK_RETURN_TO_JUMP_DISABLED) && ja_nmj_rno_change(&wk->wu)) {
                     wk->wu.routine_no[1] = 0;
                     wk->wu.routine_no[3] = 1;
                 }

@@ -1213,7 +1213,7 @@ s32 check_sa_resurrection(PLW* wk) { // 🟡
 }
 
 s32 check_sa_type_rebirth(PLW* wk) { // 🟢
-    if ((wk->spmv_ng_flag & DIP_UNKNOWN_30) || (wk->spmv_ng_flag & DIP_UNKNOWN_31)) {
+    if ((wk->spmv_ng_flag & DIP_GROUND_SUPER_ARTS_DISABLED) || (wk->spmv_ng_flag & DIP_AIR_SUPER_ARTS_DISABLED)) {
         return 0;
     }
 

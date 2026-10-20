@@ -1208,7 +1208,7 @@ s32 defense_ground_cps3(PLW* as, PLW* ds, s8 gddir) { // 🟢
     }
 
     if (ds->py->flag == 0 && !(ds->guard_flag & 2) && as->wu.att.guard & 3) {
-        if ((as->wu.att.guard & 2) && !(ds->spmv_ng_flag & DIP_UNKNOWN_8)) {
+        if ((as->wu.att.guard & 2) && !(ds->spmv_ng_flag & DIP_HIGH_PARRY_DISABLED)) {
             if (just_now) {
                 if (ds->cp->waza_flag[3] >= grdb[ds->wu.id][attr_att][0]) {
                     blocking_point_count_up(ds);
@@ -1261,7 +1261,7 @@ s32 defense_ground_cps3(PLW* as, PLW* ds, s8 gddir) { // 🟢
             }
         }
 
-        if ((as->wu.att.guard & 1) && !(ds->spmv_ng_flag & DIP_UNKNOWN_9)) {
+        if ((as->wu.att.guard & 1) && !(ds->spmv_ng_flag & DIP_LOW_PARRY_DISABLED)) {
             if (just_now) {
                 if (ds->cp->waza_flag[4] >= grdb[ds->wu.id][attr_att][1]) {
                     blocking_point_count_up(ds);
@@ -1390,7 +1390,7 @@ s32 defense_ground_ps2(PLW* as, PLW* ds, s8 gddir) { // 🔴
 
                     return 0;
                 }
-            } else if (!(ds->spmv_ng_flag & DIP_UNKNOWN_8)) {
+            } else if (!(ds->spmv_ng_flag & DIP_HIGH_PARRY_DISABLED)) {
                 if (as->wu.jump_att_flag) {
                     if (!(ds->spmv_ng_flag & DIP_ANTI_AIR_PARRY_DISABLED) && (ds->cp->waza_flag[12] != 0 || abs)) {
                         blocking_point_count_up(ds);
@@ -1441,7 +1441,7 @@ s32 defense_ground_ps2(PLW* as, PLW* ds, s8 gddir) { // 🔴
 
                     return 0;
                 }
-            } else if (!(ds->spmv_ng_flag & DIP_UNKNOWN_9)) {
+            } else if (!(ds->spmv_ng_flag & DIP_LOW_PARRY_DISABLED)) {
                 if (as->wu.jump_att_flag) {
                     if (!(ds->spmv_ng_flag & DIP_ANTI_AIR_PARRY_DISABLED) && (ds->cp->waza_flag[4] != 0 || abs)) {
                         blocking_point_count_up(ds);

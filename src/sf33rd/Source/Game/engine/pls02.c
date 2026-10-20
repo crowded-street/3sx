@@ -1030,13 +1030,13 @@ void add_sp_arts_gauge_maxbit(PLW* wk) { // 🔴
         return;
     }
 
-    if (!(wk->spmv_ng_flag2 & 0x80000)) {
+    if (!(wk->spmv_ng_flag2 & DIP2_SA_GAUGE_AUTO_MAX_DISABLED)) {
         sag_inc_timer[wk->wu.id] = 2;
         add_super_arts_gauge(wk->sa, wk->wu.id, wk->sa->gauge_len, wk->metamorphose);
         return;
     }
 
-    if (!(wk->spmv_ng_flag2 & 0x10000)) {
+    if (!(wk->spmv_ng_flag2 & DIP2_SA_GAUGE_AUTO_FILL_DISABLED)) {
         if (sag_inc_timer[wk->wu.id]) {
             sag_inc_timer[wk->wu.id]--;
             return;

@@ -67,55 +67,60 @@ void effect_E3_move(WORK_Other* ewk) {
                 case 0:
                 case 1:
                 case 6:
-                    mwk->spmv_ng_flag &= 0xFFFFFFEF;
-                    mwk->spmv_ng_flag |= 0xC0;
+                    mwk->spmv_ng_flag &= ~DIP_GUARD_DISABLED;
+                    mwk->spmv_ng_flag |= (DIP_AUTO_GUARD_DISABLED | DIP_AUTO_PARRY_DISABLED);
                     break;
 
                 case 2:
                 case 4:
-                    mwk->spmv_ng_flag |= 0x80;
-                    mwk->spmv_ng_flag &= 0xFFFFFFBF;
-                    mwk->spmv_ng_flag &= 0xFFFFFFEF;
+                    mwk->spmv_ng_flag |= DIP_AUTO_PARRY_DISABLED;
+                    mwk->spmv_ng_flag &= ~DIP_AUTO_GUARD_DISABLED;
+                    mwk->spmv_ng_flag &= ~DIP_GUARD_DISABLED;
                     break;
 
                 case 3:
                 case 5:
-                    mwk->spmv_ng_flag |= 0x40;
-                    mwk->spmv_ng_flag &= 0xFFFFFF7F;
-                    mwk->spmv_ng_flag &= 0xFFFFF0FF;
+                    mwk->spmv_ng_flag |= DIP_AUTO_GUARD_DISABLED;
+                    mwk->spmv_ng_flag &= ~DIP_AUTO_PARRY_DISABLED;
+                    mwk->spmv_ng_flag &=
+                        ~(DIP_HIGH_PARRY_DISABLED | DIP_LOW_PARRY_DISABLED | DIP_AIR_PARRY_DISABLED |
+                          DIP_ANTI_AIR_PARRY_DISABLED);
                     break;
                 }
             } else {
-                mwk->spmv_ng_flag |= 0xC0;
-                mwk->spmv_ng_flag &= 0xFFFFFFEF;
-                mwk->spmv_ng_flag &= 0xFFFFF0FF;
+                mwk->spmv_ng_flag |= (DIP_AUTO_GUARD_DISABLED | DIP_AUTO_PARRY_DISABLED);
+                mwk->spmv_ng_flag &= ~DIP_GUARD_DISABLED;
+                mwk->spmv_ng_flag &=
+                    ~(DIP_HIGH_PARRY_DISABLED | DIP_LOW_PARRY_DISABLED | DIP_AIR_PARRY_DISABLED |
+                      DIP_ANTI_AIR_PARRY_DISABLED);
             }
         }
 
         switch (Training[0].contents[0][1][TRAINING_OPTION_SA_GAUGE]) {
         case 1:
-            mwk->spmv_ng_flag2 &= 0xFFFBFFFF;
-            mwk->spmv_ng_flag2 |= 0x90000;
+            mwk->spmv_ng_flag2 &= ~DIP2_SA_GAUGE_MAX_START_DISABLED;
+            mwk->spmv_ng_flag2 |= (DIP2_SA_GAUGE_AUTO_FILL_DISABLED | DIP2_SA_GAUGE_AUTO_MAX_DISABLED);
             demo_set_sa_full(mwk->sa);
             tr_spgauge_cont_init2(mwk->wu.id);
             break;
 
         case 3:
-            mwk->spmv_ng_flag2 &= 0xFFF7FFFF;
-            mwk->spmv_ng_flag2 |= 0x50000;
+            mwk->spmv_ng_flag2 &= ~DIP2_SA_GAUGE_AUTO_MAX_DISABLED;
+            mwk->spmv_ng_flag2 |= (DIP2_SA_GAUGE_AUTO_FILL_DISABLED | DIP2_SA_GAUGE_MAX_START_DISABLED);
             demo_set_sa_full(mwk->sa);
             tr_spgauge_cont_init2(mwk->wu.id);
             break;
 
         case 2:
-            mwk->spmv_ng_flag2 &= 0xFFFEFFFF;
-            mwk->spmv_ng_flag2 |= 0xC0000;
+            mwk->spmv_ng_flag2 &= ~DIP2_SA_GAUGE_AUTO_FILL_DISABLED;
+            mwk->spmv_ng_flag2 |= (DIP2_SA_GAUGE_MAX_START_DISABLED | DIP2_SA_GAUGE_AUTO_MAX_DISABLED);
             clear_super_arts_point(mwk);
             tr_spgauge_cont_init(mwk->wu.id);
             break;
 
         case 0:
-            mwk->spmv_ng_flag2 |= 0xD0000;
+            mwk->spmv_ng_flag2 |=
+                (DIP2_SA_GAUGE_AUTO_FILL_DISABLED | DIP2_SA_GAUGE_MAX_START_DISABLED | DIP2_SA_GAUGE_AUTO_MAX_DISABLED);
             clear_super_arts_point(mwk);
             tr_spgauge_cont_init(mwk->wu.id);
             break;
@@ -150,12 +155,12 @@ void effect_E3_move(WORK_Other* ewk) {
             switch (Training[0].contents[0][0][2]) {
             case 0:
             sw1_case_0:
-                mwk->spmv_ng_flag2 |= DIP_UNKNOWN_9;
+                mwk->spmv_ng_flag2 |= DIP2_QUICK_STAND_DISABLED;
                 break;
 
             case 1:
             sw1_case_1:
-                mwk->spmv_ng_flag2 &= ~DIP_UNKNOWN_9;
+                mwk->spmv_ng_flag2 &= ~DIP2_QUICK_STAND_DISABLED;
                 break;
 
             default:
@@ -230,7 +235,8 @@ void effect_E3_move(WORK_Other* ewk) {
                 mwk->spmv_ng_flag |= DIP_AUTO_GUARD_DISABLED;
                 mwk->spmv_ng_flag &= ~DIP_AUTO_PARRY_DISABLED;
                 mwk->spmv_ng_flag &=
-                    (DIP_UNKNOWN_8 | DIP_UNKNOWN_9 | DIP_AIR_PARRY_DISABLED | DIP_ANTI_AIR_PARRY_DISABLED);
+                    ~(DIP_HIGH_PARRY_DISABLED | DIP_LOW_PARRY_DISABLED | DIP_AIR_PARRY_DISABLED |
+                      DIP_ANTI_AIR_PARRY_DISABLED);
                 break;
 
             case 4:
