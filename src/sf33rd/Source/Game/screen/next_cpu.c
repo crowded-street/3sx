@@ -1097,7 +1097,7 @@ void Sel_CPU_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
 }
 
 void Setup_EM_List() {
-    if (My_char[Player_id] == 0) {
+    if (My_char[Player_id] == CHAR_GILL) {
         EM_Candidate[Player_id][0][9] = 1;
         EM_Candidate[Player_id][1][9] = 1;
     } else {
@@ -1120,7 +1120,7 @@ void Setup_Next_Fighter() {
     } else {
         Battle_Country = STAGE_OF_CHAR(EM_id);
 
-        if (My_char[Player_id] == 0 && EM_id == 1) {
+        if (My_char[Player_id] == CHAR_GILL && EM_id == 1) {
             Battle_Country = STAGE_3S_GILL;
         }
 

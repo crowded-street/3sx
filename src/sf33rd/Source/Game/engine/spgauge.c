@@ -306,7 +306,7 @@ void spgauge_control(s8 Spg_Num) {
                     spg_dat[Spg_Num].time_no_clear = 1;
                 }
 
-                if (My_char[Spg_Num] == 0 && ((plw[Spg_Num].sa->ok) == -1)) {
+                if (My_char[Spg_Num] == CHAR_GILL && (plw[Spg_Num].sa->ok == -1)) {
                     spg_dat[Spg_Num].sa_mukou = 0;
                 } else {
                     spg_dat[Spg_Num].sa_mukou = 1;

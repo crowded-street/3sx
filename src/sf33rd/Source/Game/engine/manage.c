@@ -493,7 +493,7 @@ void Game_Manage_2_4() {
         vital_dec_timer = 40;
         sag_inc_timer[0] = sag_inc_timer[1] = 0;
 
-        if (Play_Type == PLAY_TYPE_PLAYER_VS_CPU && (EM_id == 0 || (My_char[Player_id] == 0 && EM_id == 1)) &&
+        if (Play_Type == PLAY_TYPE_PLAYER_VS_CPU && (EM_id == 0 || (My_char[Player_id] == CHAR_GILL && EM_id == 1)) &&
             !(Introduce_Boss[Player_id][1] & 0x80)) {
             Introduce_Boss[Player_id][1] |= 128;
             Check_Stage_BGM();

@@ -1690,7 +1690,7 @@ void Setup_Candidate_Buff(s16 PL_id) {
     s16 s2;
 
     for (em = 0, s2 = ix = 1; ix <= 19; ix++) {
-        if (My_char[PL_id] == 0 && ix == 1) {
+        if (My_char[PL_id] == CHAR_GILL && ix == 1) {
             continue;
         }
 

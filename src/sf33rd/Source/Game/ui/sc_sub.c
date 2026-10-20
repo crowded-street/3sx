@@ -1481,7 +1481,7 @@ void player_face() {
         TopHUDPriority
     );
 
-    if (My_char[1] == 0) {
+    if (My_char[1] == CHAR_GILL) {
         scfont_sqput_face(
             0x2B,
             3,
@@ -2046,12 +2046,12 @@ void sa_fullstock_trans(s16 St_Num, s16 Spg_Col, s8 Stpl_Num) {
 
 void sa_number_write(s8 Stpl_Num, u16 x) {
     if (Stpl_Num == 0) {
-        if (My_char[0] == 0) {
+        if (My_char[0] == CHAR_GILL) {
             scfont_sqput2(x, 26, 14, 0, 2, 27, 2, 2, 2);
         } else {
             scfont_sqput2(x, 26, 14, 0, 2, (Super_Arts[0] * 2) + 21, 2, 2, 2);
         }
-    } else if (My_char[1] == 0) {
+    } else if (My_char[1] == CHAR_GILL) {
         scfont_sqput2(x, 26, 142, 1, 2, 27, 2, 2, 2);
     } else {
         scfont_sqput2(x, 26, 142, 1, 2, (Super_Arts[1] * 2) + 21, 2, 2, 2);

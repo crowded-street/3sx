@@ -2445,7 +2445,7 @@ s32 Check_Term_ABS_Distance(PLW* wk) {
         return 1;
     }
 
-    if (My_char[wk->wu.id] == 5) {
+    if (My_char[wk->wu.id] == CHAR_NECRO) {
         return 0;
     }
 
@@ -3908,7 +3908,7 @@ s32 Command_Type_00(PLW* wk, s16 Power_Level, u16 Tech_Number, s16 Ex_Shot) {
             Lever_Buff[wk->wu.id] |= renbanshot_conpaneshot(Tech_Address[wk->wu.id], Power_Level);
         }
 
-        if ((My_char[wk->wu.id] == 2) && ((Tech_Number) == 0x8015) && (Power_Level != 8)) {
+        if ((My_char[wk->wu.id] == CHAR_RYU) && ((Tech_Number) == 0x8015) && (Power_Level != 8)) {
             CP_Index[wk->wu.id][0]++;
             Lever_LR[wk->wu.id] = Lever_Buff[wk->wu.id] & 0xFF0;
 
@@ -3947,7 +3947,7 @@ s32 Command_Type_06(PLW* wk, s16 Power_Level, u16 Tech_Number, s16 Ex_Shot) {
     xx = 0;
 
     if (Tech_Number & 0x8000) {
-        if ((My_char[wk->wu.id] == 6) && (Super_Arts[wk->wu.id] == 0)) {
+        if ((My_char[wk->wu.id] == CHAR_HUGO) && (Super_Arts[wk->wu.id] == 0)) {
             xx = 1;
         }
     }
@@ -4549,21 +4549,27 @@ s32 Check_SA_Active(PLW* wk, s16* pl_id) {
     if (wk->sa->ok != -1) {
         return 0;
     }
-    if (My_char[wk->wu.id] == 9) {
+
+    if (My_char[wk->wu.id] == CHAR_ORO) {
         if (plw[wk->wu.id].sa->kind_of_arts == 0) {
             return *pl_id = 3;
         }
+
         return *pl_id = 2;
     }
-    if ((My_char[wk->wu.id] == 3) && (plw[wk->wu.id].sa->kind_of_arts == 2)) {
+
+    if ((My_char[wk->wu.id] == CHAR_YUN) && (plw[wk->wu.id].sa->kind_of_arts == 2)) {
         return *pl_id = 1;
     }
-    if ((My_char[wk->wu.id] == 0xA) && (plw[wk->wu.id].sa->kind_of_arts == 2)) {
+
+    if ((My_char[wk->wu.id] == CHAR_YANG) && (plw[wk->wu.id].sa->kind_of_arts == 2)) {
         return *pl_id = 1;
     }
-    if ((My_char[wk->wu.id] == 0x11) && (plw[wk->wu.id].sa->kind_of_arts == 2)) {
+
+    if ((My_char[wk->wu.id] == CHAR_Q) && (plw[wk->wu.id].sa->kind_of_arts == 2)) {
         return *pl_id = 4;
     }
+
     return 0;
 }
 

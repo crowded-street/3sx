@@ -538,7 +538,7 @@ void grade_makeup_stage_parameter(s16 ix) {
 }
 
 s32 rannyuu_Q_check(s16 ix) {
-    if ((Round_Operator[ix] == 0) && (My_char[ix] == 17)) {
+    if ((Round_Operator[ix] == 0) && (My_char[ix] == CHAR_Q)) {
         return 1;
     }
 
