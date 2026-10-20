@@ -4,7 +4,6 @@
  */
 
 #include "sf33rd/Source/Game/animation/win_pl.h"
-#include "arcade/arcade_balance.h"
 #include "common.h"
 #include "sf33rd/Source/Game/animation/ng/bridge_fall.h"
 #include "sf33rd/Source/Game/effect/eff30.h"
@@ -1620,7 +1619,15 @@ const s16 meta_win_tbl[20] = { 33, 32, 32, 32, 32, 32, 33, 32, 32, 37, 32, 32, 3
 void meta_win_pause(PLW* wk) {
     bg_app_stop = 1;
 
-    if (ArcadeBalance_IsEnabled() && !Bonus_Game_Flag) {
+    if (Bonus_Game_Flag) {
+        if (set_field_hosei_flag(&plw[1], bs_scrrrl[1][0], 1)) {
+            set_field_hosei_flag(&plw[1], bs_scrrrl[1][1], 0);
+        }
+
+        if (set_field_hosei_flag(&plw[0], bs_scrrrl[0][0], 1)) {
+            set_field_hosei_flag(&plw[0], bs_scrrrl[0][1], 0);
+        }
+    } else {
         if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1)) {
             set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
         }
@@ -1636,19 +1643,5 @@ void meta_win_pause(PLW* wk) {
     case 9:
         char_move(&wk->wu);
         break;
-    }
-
-    if (Bonus_Game_Flag) {
-        if (set_field_hosei_flag(&plw[1], bs_scrrrl[1][0], 1)) {
-            set_field_hosei_flag(&plw[1], bs_scrrrl[1][1], 0);
-        }
-
-        if (set_field_hosei_flag(&plw[0], bs_scrrrl[0][0], 1)) {
-            set_field_hosei_flag(&plw[0], bs_scrrrl[0][1], 0);
-        }
-    } else if (!ArcadeBalance_IsEnabled()) {
-        if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1)) {
-            set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
-        }
     }
 }
