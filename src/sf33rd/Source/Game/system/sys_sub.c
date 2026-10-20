@@ -1685,12 +1685,10 @@ void Initialize_EM_Candidate(s16 PL_id) {
 }
 
 void Setup_Candidate_Buff(s16 PL_id) {
-    s16 em;
-    s16 ix;
-    s16 s2;
+    s16 em = 0;
 
-    for (em = 0, s2 = ix = 1; ix <= 19; ix++) {
-        if (My_char[PL_id] == CHAR_GILL && ix == 1) {
+    for (Character ix = CHAR_ALEX; ix < CHAR_COUNT; ix++) {
+        if (My_char[PL_id] == CHAR_GILL && ix == CHAR_ALEX) {
             continue;
         }
 
@@ -1698,7 +1696,7 @@ void Setup_Candidate_Buff(s16 PL_id) {
             continue;
         }
 
-        if (ix == 17) {
+        if (ix == CHAR_Q) {
             continue;
         }
 
@@ -1711,9 +1709,9 @@ void Setup_Candidate_Buff(s16 PL_id) {
         }
 
         Candidate_Buff[em] = ix;
-        em++;
+        em += 1;
 
-        if (em >= 16) {
+        if (em >= SDL_arraysize(Candidate_Buff)) {
             break;
         }
     }
