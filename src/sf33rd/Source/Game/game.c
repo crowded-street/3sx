@@ -381,9 +381,9 @@ void Game01() {
             }
 
             if ((plw[0].wu.operator != 0) && (plw[1].wu.operator != 0)) {
-                Play_Type = 1;
+                Play_Type = PLAY_TYPE_PLAYER_VS_PLAYER;
             } else {
-                Play_Type = 0;
+                Play_Type = PLAY_TYPE_PLAYER_VS_CPU;
             }
         }
 

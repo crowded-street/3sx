@@ -65,7 +65,7 @@ typedef struct GameState {
     s8 Time_Stop;
     s8 Suicide[8];
     s8 Complete_Face;
-    u8 Play_Type;
+    PlayType Play_Type;
     s16 Sel_PL_Complete[2];
     s8 New_Challenger;
     u8 S_No[4];
@@ -175,7 +175,7 @@ typedef struct GameState {
     s8 aiuchi_flag;
     u8 paring_counter[2];
     u8 paring_bonus_r[2];
-    u8 paring_ctr_vs[2][2];
+    u8 paring_ctr_vs[PLAY_TYPE_COUNT][2];
     u8 paring_ctr_ori[2];
     u8 Attack_Count_Buff[2][4];
     u8 Attack_Count_Index[2];
@@ -254,7 +254,7 @@ typedef struct GameState {
     u8 Q_Country;
     u8 Continue_Cut[2];
     u8 Introduce_Boss[2][2];
-    u8 Final_Play_Type[2];
+    PlayType Final_Play_Type[2];
     s8 Rank_In[2][4];
     s8 Request_Disp_Rank[2][4];
     u8 Reset_Timer[2];
@@ -263,7 +263,7 @@ typedef struct GameState {
     u8 kakushi_ix;
     u8 kakushi_op;
     u8 RO_backup[2];
-    u8 PT_backup;
+    PlayType PT_backup;
     u8 E_Number[2][4];
     u8 E_No[4];
     u8 C_No[4];
@@ -533,8 +533,8 @@ typedef struct GameState {
     JudgeGals judge_gals[2];
     JudgeCom judge_com[2];
     s16 last_judge_dada[2][5];
-    GradeFinalData judge_final[2][2];
-    GradeData judge_item[2][2];
+    GradeFinalData judge_final[2][PLAY_TYPE_COUNT];
+    GradeData judge_item[2][PLAY_TYPE_COUNT];
     u8 ji_sat[2][384];
 
     // spgauge

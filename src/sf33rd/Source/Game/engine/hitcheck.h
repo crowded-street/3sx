@@ -23,7 +23,7 @@ extern const s16 grd_hand_damage_tbl[83];
 extern const u8 hddm_damage_tbl[83];
 extern const u8 trdm_damage_tbl[83];
 extern const u8 ttk_damage_req_tbl[83];
-extern const u8 parisucc_pts[2][40];
+extern const u8 parisucc_pts[PLAY_TYPE_COUNT][40];
 extern const u8 dm_oiuchi_catch[32];
 
 extern HS hs[32];

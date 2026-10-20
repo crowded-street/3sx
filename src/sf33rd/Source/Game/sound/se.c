@@ -31,7 +31,7 @@ const u16 BGM_Stage_Data[STAGE_COUNT] = {
     [STAGE_3S_CHUNLI] = 10, [STAGE_3S_MAKOTO] = 19,    [STAGE_3S_Q] = 40,           [STAGE_3S_TWELVE] = 4,
     [STAGE_3S_REMY] = 37,   [STAGE_3S_BONUS_CAR] = 61, [STAGE_3S_BONUS_BALLS] = 62, [STAGE_NG_GILL] = 46,
     [STAGE_NG_ALEX] = 1,    [STAGE_NG_RYU] = 13,       [STAGE_NG_YUN] = 34,         [STAGE_NG_DUDLEY] = 31,
-    [STAGE_NG_NECRO] = 4,   [STAGE_NG_IBUKI] = 16,     [STAGE_NG_ELENA] = 25,     [STAGE_NG_ORO] = 28,
+    [STAGE_NG_NECRO] = 4,   [STAGE_NG_IBUKI] = 16,     [STAGE_NG_ELENA] = 25,       [STAGE_NG_ORO] = 28,
 };
 const s16 SE_Shock_Data[7] = { 285, 286, 287, 288, 289, 305, 306 };
 const s16 Finish_SE_Data[2][7] = { { 305, 306, 285, 286, 287, 288, 272 }, { 292, 293, 290, 291, 287, 288, 272 } };
@@ -39,7 +39,8 @@ const s16 Finish_SE_Data[2][7] = { { 305, 306, 285, 286, 287, 288, 272 }, { 292,
 void Stage_BGM(u16 Stage_Number, u16 Round_Number) {
     u16 code;
 
-    if (Mode_Type == MODE_ARCADE && Play_Type == 0 && My_char[COM_id] == 17 && Bonus_Game_Flag == 0) {
+    if (Mode_Type == MODE_ARCADE && Play_Type == PLAY_TYPE_PLAYER_VS_CPU && My_char[COM_id] == 17 &&
+        Bonus_Game_Flag == 0) {
         code = BGM_Stage_Data[STAGE_3S_Q] + bgm_selector[sys_w.bgm_type][Round_Number & 7];
     } else {
         code = BGM_Stage_Data[Stage_Number] + bgm_selector[sys_w.bgm_type][Round_Number & 7];

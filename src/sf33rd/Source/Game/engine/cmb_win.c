@@ -391,7 +391,7 @@ void SCORE_PLUS(s8 PL, u32 PTS) { // 🟡
         // CPS3 caps only the active single-player score column.
         Score[PL][2] += PTS;
 
-        if (Play_Type == 0) {
+        if (Play_Type == PLAY_TYPE_PLAYER_VS_CPU) {
             Score[PL][0] += PTS;
 
             if (Score[PL][0] >= 99999900) {

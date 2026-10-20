@@ -30,7 +30,7 @@ s32 Move_X_Sub_38(WORK_Other* ewk);
 s32 Move_Y_Sub_38(WORK_Other* ewk, s16 Target_Y);
 void EFF38_MOVE(WORK_Other* ewk);
 
-const s16 EFF38_Base_XY[2][2][2] = { { { -64, 16 }, { -128, 32 } }, { { 64, 16 }, { 128, -32 } } };
+const s16 EFF38_Base_XY[2][PLAY_TYPE_COUNT][2] = { { { -64, 16 }, { -128, 32 } }, { { 64, 16 }, { 128, -32 } } };
 
 void (*const EFF38_Jmp_Tbl[7])(WORK_Other*) = { EFF38_WAIT,  EFF38_SLIDE_IN, EFF38_SLIDE_OUT, EFF38_SUDDENLY,
                                                 EFF38_SHIFT, EFF38_MOVE,     EFF38_KILL };
