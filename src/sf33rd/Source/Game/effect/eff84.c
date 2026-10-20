@@ -7,6 +7,7 @@
 #include "common.h"
 #include "sf33rd/Source/Game/effect/eff56.h"
 #include "sf33rd/Source/Game/effect/effect.h"
+#include "sf33rd/Source/Game/engine/cmb_win.h"
 #include "sf33rd/Source/Game/engine/pls02.h"
 #include "sf33rd/Source/Game/engine/workuser.h"
 #include "sf33rd/Source/Game/stage/bg.h"
@@ -40,6 +41,11 @@ void effect_84_move(WORK_Other* ewk) {
 
             case 1:
                 Game_pause = 1;
+
+                if (cmb_all_stock[0] != 0) {
+                    break;
+                }
+
                 ewk->wu.routine_no[1]++;
                 effect_56_init(1, 0);
                 break;
@@ -56,6 +62,10 @@ void effect_84_move(WORK_Other* ewk) {
                 break;
 
             case 3:
+                if (cmb_all_stock[0] != 0 || cmb_calc_now[0] != 0 || cmb_calc_now[1] != 0) {
+                    break;
+                }
+
                 ewk->wu.routine_no[1]++;
                 effect_56_init(3, 3);
                 break;
