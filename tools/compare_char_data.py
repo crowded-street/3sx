@@ -196,7 +196,7 @@ def calculate_cps3_array_offsets(rom_path: Path, character: int) -> dict[str, in
 def calculate_cps3_array_lengths() -> list[dict[str, int]]:
     source_path = Path(__file__).parents[1] / "src/arcade/arcade_char_data.c"
     source = source_path.read_text()
-    table = source.split("static const LocationData location_data[NUM_CHARS] = {", 1)[1]
+    table = source.split("static const LocationData location_data[CHAR_COUNT] = {", 1)[1]
     entries = re.findall(
         r"\.(\w+)\s*=\s*\{\s*\.offset\s*=\s*0x[0-9A-Fa-f]+,\s*\.size\s*=\s*0x([0-9A-Fa-f]+)\s*\}",
         table,

@@ -824,7 +824,7 @@ void hit_pattern_extdat_check(WORK* as) { // 🟡
                 if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_GROUND_CHAIN_COMBO_DISABLED)) {
                     i = 0;
 
-                    if (((PLW*)as)->player_number == 4) {
+                    if (((PLW*)as)->player_number == CHAR_DUDLEY) {
                         as->cg_meoshi = chain_hidou_nm_ground_table[as->kow & 7];
                         as->cg_cancel |= 8;
                     } else {
@@ -839,7 +839,7 @@ void hit_pattern_extdat_check(WORK* as) { // 🟡
                 if (!(((PLW*)as)->spmv_ng_flag2 & DIP2_AIR_CHAIN_COMBO_DISABLED) && !hikusugi_check(as)) {
                     i = 0;
 
-                    if (((PLW*)as)->player_number == 7) {
+                    if (((PLW*)as)->player_number == CHAR_IBUKI) {
                         as->cg_meoshi = chain_hidou_nm_air_table[as->kow & 7];
                         as->cg_cancel |= 8;
                     } else {

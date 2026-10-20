@@ -961,7 +961,7 @@ void Damage_26000(PLW* wk) {
         set_dm_hos_flag_sky(wk);
         first_flight_union(wk, 3, 3);
 
-        if (wk->wu.routine_no[3] == 3 && wk->player_number == 8) {
+        if (wk->wu.routine_no[3] == 3 && wk->player_number == CHAR_ELENA) {
             wk->wu.rl_flag = (wk->wu.rl_flag + 1) & 1;
         }
 
@@ -1382,7 +1382,7 @@ void set_dm_hos_flag_sky(PLW* wk) {
         return;
     }
 
-    if (twk->player_number == 0 && twk->wu.now_koc == 5 && twk->wu.char_index == 59) {
+    if (twk->player_number == CHAR_GILL && twk->wu.now_koc == 5 && twk->wu.char_index == 59) {
         return;
     }
 
@@ -1418,7 +1418,7 @@ void set_dm_hos_flag_grd(PLW* wk) {
         return;
     }
 
-    if (twk->player_number == 0 && twk->wu.now_koc == 5 && twk->wu.char_index == 59) {
+    if (twk->player_number == CHAR_GILL && twk->wu.now_koc == 5 && twk->wu.char_index == 59) {
         return;
     }
 

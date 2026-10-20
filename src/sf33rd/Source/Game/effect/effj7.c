@@ -498,7 +498,7 @@ s32 effect_J7_init(PLW* wk) {
     WORK_Other* ewk;
     s16 ix;
 
-    if (wk->player_number != 0) {
+    if (wk->player_number != CHAR_GILL) {
         return 0;
     }
 

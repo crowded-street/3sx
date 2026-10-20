@@ -3922,10 +3922,10 @@ s32 Command_Type_00(PLW* wk, s16 Power_Level, u16 Tech_Number, s16 Ex_Shot) {
                 Rapid_Index[wk->wu.id] = Lever_Buff[wk->wu.id] & 0xFF0;
                 Lever_Pool[wk->wu.id] = Lever_Buff[wk->wu.id] & 0xFF0;
             }
-            if ((wk->player_number == 6) && ((Tech_Number) == 0x8016)) {
+            if ((wk->player_number == CHAR_HUGO) && ((Tech_Number) == 0x8016)) {
                 CP_Index[wk->wu.id][1] = 5;
             } else {
-                if ((wk->player_number == 7) && ((Tech_Number) == 0x1F)) {
+                if ((wk->player_number == CHAR_IBUKI) && ((Tech_Number) == 0x1F)) {
                     Reaction_Exit_Sub(wk);
                 } else {
                     CP_Index[wk->wu.id][1]++;
@@ -4867,7 +4867,7 @@ s32 Check_Guard(PLW* wk) {
 }
 
 s32 Check_Makoto(PLW* wk) {
-    if (wk->player_number != 0x10) {
+    if (wk->player_number != CHAR_MAKOTO) {
         return 0;
     }
     if (wk->sa->ok != -1) {

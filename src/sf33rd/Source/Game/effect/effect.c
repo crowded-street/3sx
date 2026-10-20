@@ -325,7 +325,7 @@ s32 shell_live_check(PLW* wk, s16 wix) {
     WORK_Other* tmw;
     s16 i;
 
-    if (wk->player_number != 0xE) {
+    if (wk->player_number != CHAR_AKUMA) {
         for (i = 0; i < 8; i++) {
             if (wk->wu.shell_ix[i] == -1) {
                 break;

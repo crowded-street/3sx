@@ -1487,7 +1487,7 @@ void Load_Replay_Sub(struct _TASK* task_ptr) {
             E_No[2] = 0;
             E_No[3] = 0;
 
-            if (plw->wu.operator != 0) {
+            if (plw[0].wu.operator != 0) {
                 Sel_Arts_Complete[0] = -1;
             }
 

@@ -136,7 +136,7 @@ void player_mvbs_0000(PLW* wk) {
     wk->wu.cmwk[0] = 0;
     about_gauge_process(wk);
 
-    if (wk->player_number == 18) {
+    if (wk->player_number == CHAR_TWELVE) {
         metamor_color_restore(wk->wu.id);
     }
 }

@@ -325,7 +325,7 @@ const SA_DATA super_arts_DATA[20][4] = { { { 20, 24, 25, 0, 0, 0, 0, 3, 120, 2, 
                                            { 21, 0, 0, 0, 0, 0, 0, 0, 120, 2, 65536 },
                                            { 0, 0, 0, 0, 0, 0, 0, 0, 64, 1, 65536 } } };
 
-const s16 pl_piyo_tbl[NUM_CHARS] = {
+const s16 pl_piyo_tbl[CHAR_COUNT] = {
     72, // Gill
     72, // Alex
     64, // Ryu
@@ -351,7 +351,7 @@ const s16 pl_piyo_tbl[NUM_CHARS] = {
     56, // Remy
 };
 
-const s32 pl_nr_piyo_tbl[NUM_CHARS] = {
+const s32 pl_nr_piyo_tbl[CHAR_COUNT] = {
     3276, // Gill
     2849, // Alex
     2978, // Ryu
@@ -1420,7 +1420,7 @@ void set_player_shadow(PLW* wk) {
 void setup_other_data(PLW* wk) {
     s16 i;
 
-    if (wk->player_number == 0) {
+    if (wk->player_number == CHAR_GILL) {
         setup_GILL_exsa_obj();
     }
 

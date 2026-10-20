@@ -6,7 +6,7 @@
 #include "sf33rd/Source/Game/animation/app_data.h"
 #include "common.h"
 
-const s8 app_type_tbl[20][20][STAGE_COUNT] = {
+const s8 app_type_tbl[CHAR_COUNT][CHAR_COUNT][STAGE_COUNT] = {
     {
         { 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 28, 27, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
         { 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 28, 27, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
@@ -747,7 +747,7 @@ const s8 app_type_tbl[20][20][STAGE_COUNT] = {
         45, 45, 45, 45, 45, 28, 27, 45, 45, 45, 45, 45, 45, 45, 45, 45 } }
 };
 
-const s8 app_type_tbl2[20][20][STAGE_COUNT] = {
+const s8 app_type_tbl2[CHAR_COUNT][CHAR_COUNT][STAGE_COUNT] = {
     {
         { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 28, 27, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
         { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 28, 27, 0, 0, 0, 0, 0, 0, 0, 0, 0 },

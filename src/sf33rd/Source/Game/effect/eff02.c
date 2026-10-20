@@ -306,7 +306,7 @@ void effect_02_move(WORK_Other* ewk) {
 }
 
 void urian_guard_se_check(WORK_Other* ewk, PLW* twk, u16 oto) {
-    if (twk->player_number == 13 && (oto == 266 || oto == 267)) {
+    if (twk->player_number == CHAR_URIEN && (oto == 266 || oto == 267)) {
         sound_effect_request[280](ewk, 280);
         Last_Called_SE = 280;
         return;

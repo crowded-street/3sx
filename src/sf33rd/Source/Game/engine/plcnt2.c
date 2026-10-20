@@ -258,7 +258,7 @@ void setup_bs_scrrrl_bs2() {
 }
 
 void move_player_work_bonus() {
-    ichikannkei = check_work_position(&plw->wu, &plw[1].wu);
+    ichikannkei = check_work_position(&plw[0].wu, &plw[1].wu);
     set_rl_waza(&plw[0]);
     set_rl_waza(&plw[1]);
     Timer_Freeze = 0;
@@ -267,12 +267,11 @@ void move_player_work_bonus() {
         setup_bs_scrrrl_bs2();
     }
 
-    if (plw->wu.operator) {
+    if (plw[0].wu.operator) {
         move_P1_move_P2_bonus(*bs_scrrrl);
-        return;
+    } else {
+        move_P2_move_P1_bonus(*bs_scrrrl);
     }
-
-    move_P2_move_P1_bonus(*bs_scrrrl);
 }
 
 void move_P1_move_P2_bonus(s16* field_work) {

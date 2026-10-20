@@ -48,7 +48,7 @@ void effect_01_move(WORK_Other* ewk) {
                 ewk->wu.cg_olc.olc_ix[ewk->wu.type] = ewk->wu.cg_ix = mwk->cg_olc.olc_ix[ewk->wu.type];
                 ewk->wu.now_koc = ewk->wu.cg_ix;
 
-                if (ewk->wu.type == 0 && ((PLW*)mwk)->player_number == 0 && mwk->rl_flag) {
+                if (ewk->wu.type == 0 && ((PLW*)mwk)->player_number == CHAR_GILL && mwk->rl_flag) {
                     ewk->wu.now_koc++;
                 }
 
@@ -134,7 +134,7 @@ void effect_01_move(WORK_Other* ewk) {
 void get_new_parts_data(WORK_Other* ewk, PLW* mwk) {
     ewk->wu.now_koc = ewk->wu.cg_ix;
 
-    if (ewk->wu.type == 0 && mwk->player_number == 0 && mwk->wu.rl_flag) {
+    if (ewk->wu.type == 0 && mwk->player_number == CHAR_GILL && mwk->wu.rl_flag) {
         ewk->wu.now_koc++;
     }
 
