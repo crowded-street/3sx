@@ -409,7 +409,7 @@ void Setup_Face_ID() {
 }
 
 void Setup_1st_Play_Type() {
-    if (Play_Type == 1) {
+    if (Play_Type == PLAY_TYPE_PLAYER_VS_PLAYER) {
         Play_Type_1st = 99;
     } else {
         Play_Type_1st = Aborigine;
@@ -512,7 +512,7 @@ void Setup_FACE_BG() {
 }
 
 s16 Setup_Face_X() {
-    if (Play_Type == 1) {
+    if (Play_Type == PLAY_TYPE_PLAYER_VS_PLAYER) {
         return 604;
     }
 
@@ -524,7 +524,7 @@ s16 Setup_Face_X() {
 }
 
 s16 Setup_Face_Y() {
-    if (Play_Type == 1) {
+    if (Play_Type == PLAY_TYPE_PLAYER_VS_PLAYER) {
         return 0;
     }
 
@@ -2058,7 +2058,7 @@ void Correct_Control_Time(s16 PL_id) {
     u8 xx;
     u8 zz;
 
-    if (Play_Type == 1) {
+    if (Play_Type == PLAY_TYPE_PLAYER_VS_PLAYER) {
         return;
     }
 

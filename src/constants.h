@@ -149,4 +149,10 @@ typedef enum JumpDir : uint8_t {
     JUMP_DIR_BACKWARD = 2,
 } JumpDir;
 
+typedef enum PlayType : uint8_t {
+    PLAY_TYPE_PLAYER_VS_CPU,
+    PLAY_TYPE_PLAYER_VS_PLAYER,
+    PLAY_TYPE_COUNT,
+} PlayType;
+
 #endif

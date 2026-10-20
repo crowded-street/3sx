@@ -1,6 +1,7 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
+#include "constants.h"
 #include "sf33rd/AcrSDK/common/plcommon.h"
 #include "types.h"
 
@@ -912,7 +913,7 @@ struct _SAVE_W {
     _PAD_INFOR Pad_Infor[2];
     u8 Difficulty;
     s8 Time_Limit;
-    u8 Battle_Number[2];
+    u8 Battle_Number[PLAY_TYPE_COUNT];
     u8 Damage_Level;
     u8 Handicap;
     u8 Partner_Type[2];
@@ -965,7 +966,7 @@ struct _REP_GAME_INFOR {
 struct _MINI_SAVE_W {
     _PAD_INFOR Pad_Infor[2];
     s8 Time_Limit;
-    u8 Battle_Number[2];
+    u8 Battle_Number[PLAY_TYPE_COUNT];
     u8 Damage_Level;
     _EXTRA_OPTION extra_option;
 };

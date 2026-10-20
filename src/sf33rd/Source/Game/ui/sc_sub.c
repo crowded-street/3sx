@@ -1513,7 +1513,7 @@ void player_face() {
     scfont_put(42, 3, 129, 0, 0, 19, TopHUDPriority);
     scfont_put(42, 4, 129, 0, 0, 20, TopHUDPriority);
 
-    if (Play_Type == 0) {
+    if (Play_Type == PLAY_TYPE_PLAYER_VS_CPU) {
         return;
     }
 

@@ -26,18 +26,17 @@ typedef struct {
 extern JudgeGals judge_gals[2];
 extern JudgeCom judge_com[2];
 extern s16 last_judge_dada[2][5];
-extern GradeFinalData judge_final[2][2];
-extern GradeData judge_item[2][2];
+extern GradeFinalData judge_final[2][PLAY_TYPE_COUNT];
+extern GradeData judge_item[2][PLAY_TYPE_COUNT];
 extern u8 ji_sat[2][384];
 
 void grade_check_work_1st_init(s16 ix, s16 ix2);
 void grade_check_work_stage_init(s16 ix);
 void grade_check_work_round_init(s16 ix);
-void grade_makeup_final_parameter(s16 ix, s16 pt);
-void renew_judge_final_work(s16 ix, s16 pt);
-void makeup_final_grade(s16 ix, s16 pt);
+void renew_judge_final_work(s16 ix, PlayType pt);
+void makeup_final_grade(s16 ix, PlayType pt);
 void grade_final_grade_bonus();
-void makeup_spp_frdat(s16 ix, s16 pt);
+void makeup_spp_frdat(s16 ix, PlayType pt);
 void grade_makeup_round_parameter(s16 ix);
 void backup_RO_PT();
 void grade_makeup_round_para_dko();

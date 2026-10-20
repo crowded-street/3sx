@@ -18,8 +18,8 @@
 JudgeGals judge_gals[2];
 JudgeCom judge_com[2];
 s16 last_judge_dada[2][5];
-GradeData judge_item[2][2];
-GradeFinalData judge_final[2][2];
+GradeData judge_item[2][PLAY_TYPE_COUNT];
+GradeFinalData judge_final[2][PLAY_TYPE_COUNT];
 u8 ji_sat[2][384];
 
 const s16 ji_grd_init_data[16] = { 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 1, 1, 1, 1, 1, 1 };
@@ -164,7 +164,7 @@ void grade_check_work_stage_init(s16 ix) {
     judge_item[ix][Play_Type].round = 0;
     judge_item[ix][Play_Type].win_round = 0;
 
-    if (Play_Type == 1) {
+    if (Play_Type == PLAY_TYPE_PLAYER_VS_PLAYER) {
         judge_item[ix][Play_Type].renshou = Win_Record[ix];
         judge_item[ix][Play_Type].em_renshou = Win_Record[(ix + 1) & 1];
     } else {
@@ -225,7 +225,7 @@ void grade_check_work_round_init(s16 ix) {
     }
 }
 
-void grade_makeup_final_parameter(s16 ix, s16 pt) {
+void grade_makeup_final_parameter(s16 ix, PlayType pt) {
     renew_judge_final_work(ix, pt);
     judge_final[ix][pt].all_clear = (VS_Index[WINNER] < 10) ^ 1;
     judge_final[ix][pt].keizoku = Continue_Coin[ix];
@@ -233,7 +233,7 @@ void grade_makeup_final_parameter(s16 ix, s16 pt) {
     makeup_final_grade(ix, pt);
 }
 
-void renew_judge_final_work(s16 ix, s16 pt) {
+void renew_judge_final_work(s16 ix, PlayType pt) {
     u32* frsd;
     s16 i;
 
@@ -248,7 +248,7 @@ void renew_judge_final_work(s16 ix, s16 pt) {
     }
 }
 
-void makeup_final_grade(s16 ix, s16 pt) {
+void makeup_final_grade(s16 ix, PlayType pt) {
     s16 i;
     s16 tt = 0;
     s16 dt;
@@ -342,7 +342,7 @@ void grade_final_grade_bonus() {
     Score[WGJ_Target][Final_Play_Type[WGJ_Target]] += bonus_point;
 }
 
-void makeup_spp_frdat(s16 ix, s16 pt) {
+void makeup_spp_frdat(s16 ix, PlayType pt) {
     s16 i;
     s16 j;
     s16 k;
@@ -459,7 +459,7 @@ void grade_makeup_stage_parameter(s16 ix) {
     }
 
     if (ix == WINNER) {
-        if (Play_Type == 0) {
+        if (Play_Type == PLAY_TYPE_PLAYER_VS_CPU) {
             for (i = 0; i < 10; i++) {
                 if (judge_item[ix][Play_Type].no_lose < grade_t_straight[i + 1][0]) {
                     break;
@@ -490,7 +490,7 @@ void grade_makeup_stage_parameter(s16 ix) {
             judge_item[ix][Play_Type].tech_pts_total + judge_item[ix][Play_Type].ex_point_total;
     grade = get_grade_ix(point);
 
-    if (Play_Type == 0) {
+    if (Play_Type == PLAY_TYPE_PLAYER_VS_CPU) {
         switch (bg_w.stage) {
         case STAGE_3S_BONUS_BALLS:
         case STAGE_3S_BONUS_CAR:
@@ -514,7 +514,7 @@ void grade_makeup_stage_parameter(s16 ix) {
             break;
         }
 
-        grade_makeup_final_parameter(ix, Play_Type + 0);
+        grade_makeup_final_parameter(ix, Play_Type);
 
         if (ix == WINNER) {
             return;

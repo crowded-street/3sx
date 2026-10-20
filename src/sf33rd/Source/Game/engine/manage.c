@@ -199,7 +199,7 @@ void Game_Manage_1st() {
     Battle_Q[0] = 0;
     Battle_Q[1] = 0;
 
-    if (Play_Type == 0) {
+    if (Play_Type == PLAY_TYPE_PLAYER_VS_CPU) {
         Control_Time = SC_Personal_Time[Player_id];
         paring_ctr_ori[Player_id] = paring_ctr_vs[0][Player_id] = 0;
         Stage_Stock_Score[Player_id] = Score[Player_id][0];
@@ -493,7 +493,7 @@ void Game_Manage_2_4() {
         vital_dec_timer = 40;
         sag_inc_timer[0] = sag_inc_timer[1] = 0;
 
-        if (Play_Type == 0 && (EM_id == 0 || (My_char[Player_id] == 0 && EM_id == 1)) &&
+        if (Play_Type == PLAY_TYPE_PLAYER_VS_CPU && (EM_id == 0 || (My_char[Player_id] == 0 && EM_id == 1)) &&
             !(Introduce_Boss[Player_id][1] & 0x80)) {
             Introduce_Boss[Player_id][1] |= 128;
             Check_Stage_BGM();
@@ -524,7 +524,7 @@ void Game_Manage_3rd() {
 }
 
 void setFinishType() {
-    if (Play_Type == 0 && Mode_Type == MODE_ARCADE &&
+    if (Play_Type == PLAY_TYPE_PLAYER_VS_CPU && Mode_Type == MODE_ARCADE &&
         PL_Wins[Winner_id] >= save_w[Present_Mode].Battle_Number[Play_Type] && VS_Index[Winner_id] > 8 &&
         plw[Winner_id].wu.operator != 0 && E_Number[Loser_id][0] != 2) {
         E_Number[Loser_id][0] = 99;
@@ -812,7 +812,7 @@ s32 Check_Disp_Combo() {
 }
 
 void Game_Manage_7_3() {
-    if (Play_Type == 0 && Perfect_Flag == 0) {
+    if (Play_Type == PLAY_TYPE_PLAYER_VS_CPU && Perfect_Flag == 0) {
         if (--C_Timer) {
             return;
         }
@@ -1064,7 +1064,7 @@ void Game_Manage_9th() {
             C_Timer = 75;
             cpExitTask(TASK_PAUSE);
 
-            if (Play_Type != 1 && Round_Operator[WINNER] && Battle_Q[WINNER]) {
+            if (Play_Type != PLAY_TYPE_PLAYER_VS_PLAYER && Round_Operator[WINNER] && Battle_Q[WINNER]) {
                 C_No[0] = 10;
             }
 
@@ -1203,7 +1203,7 @@ void Check_Naming(s16 PL_id) {
 s32 Check_Ending() {
     s16 xx;
 
-    if (Play_Type == 1) {
+    if (Play_Type == PLAY_TYPE_PLAYER_VS_PLAYER) {
         return 0;
     }
 
@@ -1263,7 +1263,7 @@ u32 Setup_Comp_Bonus() {
     u32 xx;
     u16 zz;
 
-    if (Play_Type == 1) {
+    if (Play_Type == PLAY_TYPE_PLAYER_VS_PLAYER) {
         if (PL_Wins[Loser_id]) {
             return 0;
         }
@@ -1349,7 +1349,7 @@ void Update_VS_Data() {
         Stock_My_char[LOSER] = My_char[LOSER];
         Stock_Player_Color[LOSER] = Player_Color[LOSER];
 
-        if (Play_Type != 0) {
+        if (Play_Type != PLAY_TYPE_PLAYER_VS_CPU) {
             return;
         }
 
@@ -1442,7 +1442,7 @@ void BGM_Control() {
     case 2:
         BGM_No[0] = 0;
 
-        if (Play_Type == 0 && EM_id == 17) {
+        if (Play_Type == PLAY_TYPE_PLAYER_VS_CPU && EM_id == 17) {
             Stage_BGM(STAGE_3S_Q, Round_num);
             break;
         }
@@ -1472,7 +1472,7 @@ void Setup_BGM_Fade_In(s16 Time) {
 }
 
 void Check_Stage_BGM() {
-    if (Play_Type == 1) {
+    if (Play_Type == PLAY_TYPE_PLAYER_VS_PLAYER) {
         Stage_BGM(bg_w.stage, Round_num);
         return;
     }
@@ -1508,7 +1508,7 @@ void Control_Music_Fade(s16 Time) {
 }
 
 void Check_Conclusion_Type() {
-    if (Play_Type == 1) {
+    if (Play_Type == PLAY_TYPE_PLAYER_VS_PLAYER) {
         return;
     }
 
@@ -1540,7 +1540,7 @@ void chkComWins() {
 }
 
 void Update_BI_Term() {
-    if (Play_Type == 1) {
+    if (Play_Type == PLAY_TYPE_PLAYER_VS_PLAYER) {
         return;
     }
 
@@ -1581,7 +1581,7 @@ void Ck_Win_Record() {
 
     switch (Mode_Type) {
     case MODE_ARCADE:
-        if (Play_Type == 1) {
+        if (Play_Type == PLAY_TYPE_PLAYER_VS_PLAYER) {
             Win_Record[Loser_id] = 0;
 
             if (++Win_Record[Winner_id] > 999) {
@@ -1664,8 +1664,8 @@ void Quick_Entry() {
         Be_Continue();
     }
 
-    if (Play_Type == 1) {
-        grade = judge_item[Winner_id][1].grade;
+    if (Play_Type == PLAY_TYPE_PLAYER_VS_PLAYER) {
+        grade = judge_item[Winner_id][PLAY_TYPE_PLAYER_VS_PLAYER].grade;
 
         if (grade > Best_Grade[Winner_id]) {
             Best_Grade[Winner_id] = grade;
@@ -1678,7 +1678,7 @@ s32 Check_Entry_Again() {
         return 0;
     }
 
-    if (Play_Type == 1) {
+    if (Play_Type == PLAY_TYPE_PLAYER_VS_PLAYER) {
         return 1;
     }
 
@@ -1699,7 +1699,7 @@ void Loser_Sub() {
     Sel_PL_Complete[LOSER] = 0;
     Sel_Arts_Complete[LOSER] = 0;
 
-    if (Play_Type == 0) {
+    if (Play_Type == PLAY_TYPE_PLAYER_VS_CPU) {
         if (--Round_Level < 0) {
             Round_Level = 0;
         }
@@ -1723,7 +1723,7 @@ void Be_Continue() {
 }
 
 void Disp_Winner() {
-    if (Play_Type == 1) {
+    if (Play_Type == PLAY_TYPE_PLAYER_VS_PLAYER) {
         effect_56_init(My_char[Winner_id] + 7, 1);
         SsRequest(141);
     } else if (Round_Operator[Winner_id]) {
@@ -1797,7 +1797,7 @@ void Judge_Winner() {
     grade_makeup_judgement_gals();
 
     if (judge_gals[0].grade == judge_gals[1].grade) {
-        if (Play_Type == 0) {
+        if (Play_Type == PLAY_TYPE_PLAYER_VS_CPU) {
             Winner_id = Player_id;
             Loser_id = COM_id;
             return;

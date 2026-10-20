@@ -79,7 +79,7 @@ void Win_1st() {
     Setup_BG(1, 0x200, 0);
     Setup_BG(3, 0x2C0, 0);
 
-    if (Play_Type == 0) {
+    if (Play_Type == PLAY_TYPE_PLAYER_VS_CPU) {
         Last_Selected_EM[Winner_id] = 1;
     }
 

@@ -224,9 +224,9 @@ void Disp_Personal_Count(s16 PL_id, s8 counter) {
 
 void Setup_Play_Type() {
     if (Operator_Status[0] & 0x7F && Operator_Status[1] & 0x7F) {
-        Play_Type = 1;
+        Play_Type = PLAY_TYPE_PLAYER_VS_PLAYER;
     } else {
-        Play_Type = 0;
+        Play_Type = PLAY_TYPE_PLAYER_VS_CPU;
     }
 }
 
@@ -328,7 +328,7 @@ void Disp_Win_Record() {
 
     switch (Mode_Type) {
     case MODE_ARCADE:
-        if (Play_Type == 1) {
+        if (Play_Type == PLAY_TYPE_PLAYER_VS_PLAYER) {
             if (Win_Record[0] != 0 || Win_Record[1] != 0) {
                 if (Win_Record[0]) {
                     PL_id = 0;
@@ -433,7 +433,7 @@ s32 Button_Cut_EX(s16* Timer, s16 Limit_Time) {
 }
 
 s32 Setup_Target_PL() {
-    if (Play_Type == 1) {
+    if (Play_Type == PLAY_TYPE_PLAYER_VS_PLAYER) {
         return Winner_id;
     }
 
