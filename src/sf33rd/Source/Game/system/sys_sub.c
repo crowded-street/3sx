@@ -1675,7 +1675,7 @@ void Initialize_EM_Candidate(s16 PL_id) {
     EM_Candidate[PL_id][0][8] = Middle_Class_Boss_Data[My_char[PL_id]];
     EM_Candidate[PL_id][1][8] = Middle_Class_Boss_Data[My_char[PL_id]];
 
-    if (My_char[PL_id] != 0) {
+    if (My_char[PL_id] != CHAR_GILL) {
         EM_Candidate[PL_id][0][9] = 0;
         EM_Candidate[PL_id][1][9] = 0;
     } else {

@@ -5620,7 +5620,7 @@ s32 Check_SHINRYU(PLW* wk) {
     if (em->sa->ok != -1) {
         return 0;
     }
-    if (My_char[em->wu.id] != 0xB) {
+    if (My_char[em->wu.id] != CHAR_KEN) {
         return 0;
     }
     if (plw[em->wu.id].sa->kind_of_arts != 1) {
@@ -5700,7 +5700,7 @@ s32 ETC_Term_0001(PLW* wk, WORK* em) {
     if (wk->sa->ok != -1) {
         return 1;
     }
-    if (My_char[wk->wu.id] != 9) {
+    if (My_char[wk->wu.id] != CHAR_ORO) {
         return 1;
     }
     if (plw[wk->wu.id].sa->kind_of_arts) {

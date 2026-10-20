@@ -749,7 +749,7 @@ void Select_CPU_3rd() {
         Order[COM_id + 11] = 1;
         Order_Timer[COM_id + 11] = 1;
 
-        if (check_use_all_SA() == 0 && check_without_SA() == 0 && EM_id != 0) {
+        if (check_use_all_SA() == 0 && check_without_SA() == 0 && EM_id != CHAR_GILL) {
             effect_98_init(COM_id, COM_id + 0x28, Super_Arts[COM_id], 2);
             Order[COM_id + 40] = 1;
             Order_Timer[COM_id + 40] = 1;

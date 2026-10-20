@@ -1480,7 +1480,7 @@ void Check_Stage_BGM() {
 
     switch (EM_id) {
     case 1:
-        if (My_char[Player_id] != 0) {
+        if (My_char[Player_id] != CHAR_GILL) {
             Stage_BGM(bg_w.stage, Round_num);
         }
 

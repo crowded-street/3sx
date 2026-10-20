@@ -502,7 +502,7 @@ s32 effect_J7_init(PLW* wk) {
         return 0;
     }
 
-    if (My_char[wk->wu.id] != 0) {
+    if (My_char[wk->wu.id] != CHAR_GILL) {
         return 0;
     }
 
