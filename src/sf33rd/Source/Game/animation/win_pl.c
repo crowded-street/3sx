@@ -1619,18 +1619,6 @@ const s16 meta_win_tbl[CHAR_COUNT] = { 33, 32, 32, 32, 32, 32, 33, 32, 32, 37, 3
 void meta_win_pause(PLW* wk) {
     bg_app_stop = 1;
 
-    switch (wk->wu.routine_no[3]) {
-    case 0:
-        wk->wu.routine_no[3]++;
-        set_char_move_init(&wk->wu, 9, meta_win_tbl[wk->player_number]);
-        break;
-
-    case 1:
-    case 9:
-        char_move(&wk->wu);
-        break;
-    }
-
     if (Bonus_Game_Flag) {
         if (set_field_hosei_flag(&plw[1], bs_scrrrl[1][0], 1)) {
             set_field_hosei_flag(&plw[1], bs_scrrrl[1][1], 0);
@@ -1643,5 +1631,17 @@ void meta_win_pause(PLW* wk) {
         if (set_field_hosei_flag(&plw[wk->wu.id], scrr, 1)) {
             set_field_hosei_flag(&plw[wk->wu.id], scrl, 0);
         }
+    }
+
+    switch (wk->wu.routine_no[3]) {
+    case 0:
+        wk->wu.routine_no[3]++;
+        set_char_move_init(&wk->wu, 9, meta_win_tbl[wk->player_number]);
+        break;
+
+    case 1:
+    case 9:
+        char_move(&wk->wu);
+        break;
     }
 }
