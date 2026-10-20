@@ -619,7 +619,7 @@ s32 check_stand_up(PLW* wk) { // 🟢
 }
 
 s32 check_defense_lever(PLW* wk) { // 🟢
-    if (wk->spmv_ng_flag & DIP_GUARD_DISABLED) {
+    if (!ArcadeBalance_IsEnabled() && (wk->spmv_ng_flag & DIP_GUARD_DISABLED)) {
         return 0;
     }
 
