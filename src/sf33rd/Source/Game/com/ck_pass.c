@@ -633,15 +633,15 @@ s32 Check_Limited_Attack(PLW* wk, WORK* em, s16 VS_Technique, u8 PL_Status, s8 S
 
     xx = (em->cg_ix / em->cgd_type);
 
-    if ((((PLW*)em)->player_number == 17) && (VS_Technique == 7)) {
+    if ((((PLW*)em)->player_number == CHAR_Q) && (VS_Technique == 7)) {
         Limit_Number += 1;
     }
 
-    if ((((PLW*)em)->player_number == 10) && (VS_Technique == 7)) {
+    if ((((PLW*)em)->player_number == CHAR_YANG) && (VS_Technique == 7)) {
         Limit_Number += 1;
     }
 
-    if ((((PLW*)em)->player_number == 3) && (VS_Technique == 7)) {
+    if ((((PLW*)em)->player_number == CHAR_YUN) && (VS_Technique == 7)) {
         Limit_Number += 2;
     }
 

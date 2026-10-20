@@ -401,7 +401,7 @@ s32 effect_38_init(s16 PL_id, s16 dir_old, s16 Your_Char, s16 Play_Status, s16 T
                                                           EFF38_Correct_Data[ewk->master_id][1][ewk->wu.dir_step][1];
         }
     } else {
-        if (Your_Char != 0x7F && My_char[PL_id] == 0) {
+        if (Your_Char != 0x7F && My_char[PL_id] == CHAR_GILL) {
             ewk->wu.dir_step = 0x17;
         }
 

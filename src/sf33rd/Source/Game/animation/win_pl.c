@@ -58,7 +58,7 @@ s16 win_rno[2];
 s16 win_free[2];
 s16 poison_flag[2];
 
-const s16 winner_type_tbl[20] = { 6, 0, 0, 6, 2, 7, 9, 3, 4, 1, 12, 0, 5, 14, 8, 13, 6, 10, 11, 15 };
+const s16 winner_type_tbl[CHAR_COUNT] = { 6, 0, 0, 6, 2, 7, 9, 3, 4, 1, 12, 0, 5, 14, 8, 13, 6, 10, 11, 15 };
 
 void win_player(PLW* wk) {
     void (*win_jp_tbl[16])(PLW*) = { Win_00000, Win_01000, Win_02000, Win_03000, Win_04000, Win_05000,
@@ -638,7 +638,7 @@ void Win_07000(PLW* wk) {
             work = win_select(wk, 7);
 
             if (work < 4) {
-                if (plw[0].player_number == 5 && plw[1].player_number == 5) {
+                if (plw[0].player_number == CHAR_NECRO && plw[1].player_number == CHAR_NECRO) {
                     win_rno[0] = 0;
                     set_char_move_init(&wk->wu, 9, work + 32);
                     break;
@@ -651,7 +651,7 @@ void Win_07000(PLW* wk) {
                 break;
             }
 
-            if (plw[0].player_number == 5 && plw[1].player_number == 5) {
+            if (plw[0].player_number == CHAR_NECRO && plw[1].player_number == CHAR_NECRO) {
                 win_rno[0] = 0;
                 set_char_move_init(&wk->wu, 9, work + 32);
                 break;
@@ -892,10 +892,10 @@ void Win_10000(PLW* wk) {
     }
 }
 
-const s16 q_em_distance_tbl[20][2] = { { -96, -16 }, { -104, 0 },  { -90, -16 }, { -100, -8 }, { -100, 0 },
-                                       { -106, 0 },  { 12, -117 }, { -84, -21 }, { -112, 0 },  { -106, 4 },
-                                       { -100, 0 },  { -90, -16 }, { -90, -16 }, { -96, -16 }, { -90, -16 },
-                                       { -90, -16 }, { 0, -96 },   { -2, -112 }, { -112, 4 },  { -96, -6 } };
+const s16 q_em_distance_tbl[CHAR_COUNT][2] = { { -96, -16 }, { -104, 0 },  { -90, -16 }, { -100, -8 }, { -100, 0 },
+                                               { -106, 0 },  { 12, -117 }, { -84, -21 }, { -112, 0 },  { -106, 4 },
+                                               { -100, 0 },  { -90, -16 }, { -90, -16 }, { -96, -16 }, { -90, -16 },
+                                               { -90, -16 }, { 0, -96 },   { -2, -112 }, { -112, 4 },  { -96, -6 } };
 
 s16 q_em_distance_chk(PLW* wk) {
     s16 work;
@@ -1614,7 +1614,7 @@ void bonus_game_win_pause(PLW* wk) {
     }
 }
 
-const s16 meta_win_tbl[20] = { 33, 32, 32, 32, 32, 32, 33, 32, 32, 37, 32, 32, 32, 32, 34, 32, 32, 32, 32, 32 };
+const s16 meta_win_tbl[CHAR_COUNT] = { 33, 32, 32, 32, 32, 32, 33, 32, 32, 37, 32, 32, 32, 32, 34, 32, 32, 32, 32, 32 };
 
 void meta_win_pause(PLW* wk) {
     bg_app_stop = 1;

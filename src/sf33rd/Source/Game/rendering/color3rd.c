@@ -208,7 +208,7 @@ void init_trans_color_ram(s16 id, s16 key, u8 type, u16 data) {
     switch (type) {
     case 1:
         plcol[id] = Get_ramcnt_pointer(key);
-        if (My_char[id] == 0) {
+        if (My_char[id] == CHAR_GILL) {
             for (i = 0; i < 64; i++) {
                 ColorRAM[id * 16][i] = palConvSrcToRam(plcol[id]->col[0][Player_Color[id]][i]);
                 ColorRAM[(id * 16) + 8][i] = palConvSrcToRam(plcol[id]->col[1][Player_Color[id]][i]);

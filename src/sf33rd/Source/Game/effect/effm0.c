@@ -87,8 +87,8 @@ void animal_init(WORK_Other* ewk) {
         break;
 
     case 6:
-        if (plw->player_number == 7) {
-            ewk->wu.my_col_code = plw->wu.my_col_code;
+        if (plw[0].player_number == CHAR_IBUKI) {
+            ewk->wu.my_col_code = plw[0].wu.my_col_code;
         } else {
             ewk->wu.my_col_code = plw[1].wu.my_col_code;
         }

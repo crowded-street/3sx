@@ -1324,7 +1324,7 @@ void Game09() {
         win_lose_work_clear();
 
         if (Bonus_Game_Flag == STAGE_3S_BONUS_BALLS) {
-            My_char[COM_id] = 12;
+            My_char[COM_id] = CHAR_SEAN;
         } else {
             My_char[COM_id] = My_char[Player_id];
         }

@@ -7,8 +7,6 @@
 #define HUD_SHIFT 64
 
 #if CPS3
-#define NUM_CHARS 21
-
 typedef enum Character {
     CHAR_GILL = 0,
     CHAR_ALEX = 1,
@@ -31,10 +29,9 @@ typedef enum Character {
     CHAR_Q = 18,
     CHAR_TWELVE = 19,
     CHAR_REMY = 20,
+    CHAR_COUNT,
 } Character;
 #else
-#define NUM_CHARS 20
-
 typedef enum Character : uint16_t {
     CHAR_GILL = 0,
     CHAR_ALEX = 1,
@@ -56,6 +53,7 @@ typedef enum Character : uint16_t {
     CHAR_Q = 17,
     CHAR_TWELVE = 18,
     CHAR_REMY = 19,
+    CHAR_COUNT,
 } Character;
 #endif
 

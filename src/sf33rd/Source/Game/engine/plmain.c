@@ -1168,7 +1168,7 @@ void check_omop_vital(PLW* wk) { // 🔴
             break;
         }
 
-        if (wk->player_number == 0) {
+        if (wk->player_number == CHAR_GILL) {
             if ((wk->wu.routine_no[1] == 4) && (wk->wu.routine_no[2] == 21)) {
                 if (ca_check_flag == 0) {
                     ca_check_flag = 1;

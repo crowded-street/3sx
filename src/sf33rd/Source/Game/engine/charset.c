@@ -1033,8 +1033,8 @@ s32 comm_if_s(WORK* wk, UNK11* ctc) {
 
     shdat = get_comm_if_shot(wk);
 
-    if (wk->work_id == 1 && ((PLW*)wk)->player_number == 16 && ((PLW*)wk)->spmv_ng_flag & DIP_TAUNT_AFTER_KO_DISABLED &&
-        my_shdat == 0x440 && pcon_dp_flag) {
+    if (wk->work_id == 1 && ((PLW*)wk)->player_number == CHAR_MAKOTO &&
+        ((PLW*)wk)->spmv_ng_flag & DIP_TAUNT_AFTER_KO_DISABLED && my_shdat == 0x440 && pcon_dp_flag) {
         shdat = 0;
     }
 
@@ -1264,7 +1264,7 @@ s32 comm_sajp(WORK* wk, UNK11* ctc) {
     PLW* pwk;
 
     if (wk->work_id == 1) {
-        if (My_char[wk->id] != 18 && ((PLW*)wk)->sa->kind_of_arts == ctc->koc && ((PLW*)wk)->sa->ok == -1) {
+        if (My_char[wk->id] != CHAR_TWELVE && ((PLW*)wk)->sa->kind_of_arts == ctc->koc && ((PLW*)wk)->sa->ok == -1) {
             return decord_if_jump(wk, ctc, ctc->ix);
         }
     } else {
@@ -2527,7 +2527,7 @@ void check_cgd_patdat(WORK* wk) {
                 }
 
                 if (!(WK_AS_PLW->spmv_ng_flag2 & DIP2_GROUND_CHAIN_COMBO_DISABLED)) {
-                    if (WK_AS_PLW->player_number == 4) {
+                    if (WK_AS_PLW->player_number == CHAR_DUDLEY) {
                         wk->cg_meoshi = chain_hidou_nm_ground_table[wk->kow & 7];
                         wk->cg_cancel |= 8;
                         return;
@@ -2542,7 +2542,7 @@ void check_cgd_patdat(WORK* wk) {
 
             case 2:
                 if (!(WK_AS_PLW->spmv_ng_flag2 & DIP2_AIR_CHAIN_COMBO_DISABLED) && !hikusugi_check(wk)) {
-                    if (WK_AS_PLW->player_number == 7) {
+                    if (WK_AS_PLW->player_number == CHAR_IBUKI) {
                         wk->cg_meoshi = chain_hidou_nm_air_table[wk->kow & 7];
                         wk->cg_cancel |= 8;
                         return;

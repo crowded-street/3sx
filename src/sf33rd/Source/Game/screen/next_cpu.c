@@ -749,7 +749,7 @@ void Select_CPU_3rd() {
         Order[COM_id + 11] = 1;
         Order_Timer[COM_id + 11] = 1;
 
-        if (check_use_all_SA() == 0 && check_without_SA() == 0 && EM_id != 0) {
+        if (check_use_all_SA() == 0 && check_without_SA() == 0 && EM_id != CHAR_GILL) {
             effect_98_init(COM_id, COM_id + 0x28, Super_Arts[COM_id], 2);
             Order[COM_id + 40] = 1;
             Order_Timer[COM_id + 40] = 1;
@@ -949,12 +949,12 @@ s16 Next_Q() {
 void Next_Q_1st() {
     After_Bonus_1st();
     Setup_ID();
-    EM_id = 17;
+    EM_id = CHAR_Q;
     Setup_Next_Fighter();
     Purge_mmtm_area(8);
     Purge_com_player_from_mm();
     Make_texcash_of_list(7);
-    Push_LDREQ_Queue_Player(COM_id, 17);
+    Push_LDREQ_Queue_Player(COM_id, CHAR_Q);
 }
 
 void Next_Q_2nd() {
@@ -1097,7 +1097,7 @@ void Sel_CPU_Sub(s16 PL_id, u16 sw, u16 /* unused */) {
 }
 
 void Setup_EM_List() {
-    if (My_char[Player_id] == 0) {
+    if (My_char[Player_id] == CHAR_GILL) {
         EM_Candidate[Player_id][0][9] = 1;
         EM_Candidate[Player_id][1][9] = 1;
     } else {
@@ -1114,13 +1114,13 @@ void Setup_Next_Fighter() {
     paring_bonus_r[COM_id] = 0;
     My_char[COM_id] = EM_id;
 
-    if (EM_id == 17) {
+    if (EM_id == CHAR_Q) {
         Battle_Country = Q_Country;
         bg_w.stage = Q_Country;
     } else {
         Battle_Country = STAGE_OF_CHAR(EM_id);
 
-        if (My_char[Player_id] == 0 && EM_id == 1) {
+        if (My_char[Player_id] == CHAR_GILL && EM_id == CHAR_ALEX) {
             Battle_Country = STAGE_3S_GILL;
         }
 
@@ -1152,7 +1152,7 @@ void Setup_Next_Fighter() {
 const u8 Arts_Rnd_Data[8] = { 0, 0, 0, 1, 1, 1, 2, 2 };
 
 s8 Setup_Com_Arts() {
-    if (EM_id == 0) {
+    if (EM_id == CHAR_GILL) {
         return 1;
     }
 

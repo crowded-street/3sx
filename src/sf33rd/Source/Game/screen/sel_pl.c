@@ -846,7 +846,7 @@ void PL_Sel_1st() {
             return;
         }
 
-        if (My_char[ID2] == 0) {
+        if (My_char[ID2] == CHAR_GILL) {
             return;
         }
 
@@ -887,7 +887,7 @@ void PL_Sel_2nd() {
         ret2 = check_without_SA();
         ret |= ret2;
 
-        if (ret != 0 || My_char[ID2] == 0) {
+        if (ret != 0 || My_char[ID2] == CHAR_GILL) {
             SP_No[ID2][3]++;
             Cursor_Timer[ID2] = 40;
             Go_Away_Red_Lines();
@@ -2125,12 +2125,12 @@ u8 Setup_Battle_Country() {
         return VS_Stage;
     }
 
-    if (My_char[0] == 17 && My_char[1] == 17) {
+    if (My_char[0] == CHAR_Q && My_char[1] == CHAR_Q) {
         Rnd32 = random_32();
         return Resolve_Akuma_Stage(Random_Stage_Data[0][Rnd32]);
     }
 
-    if (My_char[New_Challenger] == 17) {
+    if (My_char[New_Challenger] == CHAR_Q) {
         return Resolve_Akuma_Stage(STAGE_OF_CHAR(My_char[Champion]));
     }
 

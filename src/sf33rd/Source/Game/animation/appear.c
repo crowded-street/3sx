@@ -63,10 +63,10 @@ s32 home_visitor_check(PLW* wk) {
     }
 
     if (Play_Type == PLAY_TYPE_PLAYER_VS_PLAYER) {
-        if (Champion == wk->wu.id && wk->player_number == pl_num && pl_num != 8) {
+        if (Champion == wk->wu.id && wk->player_number == pl_num && pl_num != CHAR_ELENA) {
             hv_type = 1;
         }
-    } else if (wk->wu.operator && wk->player_number == pl_num && pl_num != 8) {
+    } else if (wk->wu.operator && wk->player_number == pl_num && pl_num != CHAR_ELENA) {
         hv_type = 1;
     }
 
@@ -613,7 +613,7 @@ void Appear_08000(PLW* wk) {
 }
 
 s32 sean_appear_check(PLW* wk, s16 id) {
-    if (plw[id].player_number == 12 && bg_w.stage == STAGE_3S_SEAN) {
+    if (plw[id].player_number == CHAR_SEAN && bg_w.stage == STAGE_3S_SEAN) {
         return 1;
     }
 
@@ -949,11 +949,11 @@ s16 gill_appear_check() {
 
     id_w = -1;
 
-    if (plw[0].player_number == 0) {
+    if (plw[0].player_number == CHAR_GILL) {
         id_w = 1;
     }
 
-    if (plw[1].player_number == 0) {
+    if (plw[1].player_number == CHAR_GILL) {
         id_w = 0;
     }
 
@@ -1035,7 +1035,7 @@ void Appear_18000(PLW* wk) {
         wk->wu.routine_no[3]++;
         wk->wu.disp_flag = 1;
 
-        if (plw[0].player_number == 8 && plw[1].player_number == 8) {
+        if (plw[0].player_number == CHAR_ELENA && plw[1].player_number == CHAR_ELENA) {
             Appear_free[wk->wu.id] = 0;
 
             if (wk->wu.id) {
@@ -1652,7 +1652,7 @@ void animal_decide(PLW* wk) {
 void don_appear_check(PLW* wk) {
     s16 id_w = wk->wu.id ^ 1;
 
-    if (plw[id_w].player_number == 7) {
+    if (plw[id_w].player_number == CHAR_IBUKI) {
         effect_M0_init(wk->wu.rl_flag, 6);
     }
 }

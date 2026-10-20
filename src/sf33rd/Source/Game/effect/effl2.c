@@ -85,17 +85,17 @@ s32 effect_L2_init() {
     s16 ix;
     s16 oya_id;
 
-    if (My_char[0] == 10 || My_char[1] == 10) {
+    if (My_char[0] == CHAR_YANG || My_char[1] == CHAR_YANG) {
         return -1;
     }
 
-    if (My_char[0] == 3 && My_char[1] == 3) {
+    if (My_char[0] == CHAR_YUN && My_char[1] == CHAR_YUN) {
         return -1;
     }
 
-    if (My_char[0] == 3) {
+    if (My_char[0] == CHAR_YUN) {
         oya_id = 0;
-    } else if (My_char[1] == 3) {
+    } else if (My_char[1] == CHAR_YUN) {
         oya_id = 1;
     } else {
         return -1;

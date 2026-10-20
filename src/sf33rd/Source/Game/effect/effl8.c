@@ -88,7 +88,7 @@ s32 effect_L8_init(PLW* wk) {
     WORK_Other* ewk;
     s16 ix;
 
-    if (wk->player_number != 16) {
+    if (wk->player_number != CHAR_MAKOTO) {
         return 0;
     }
 
