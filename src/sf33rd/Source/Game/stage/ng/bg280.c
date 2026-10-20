@@ -1,6 +1,6 @@
 /**
  * @file bg280.c
- * Yun's stage from New Generation (BG050 in the NG arcade ROM)
+ * Yun's and Yang's stage from New Generation (BG050/BG170 in the NG arcade ROM).
  */
 
 #include "sf33rd/Source/Game/stage/ng/bg280.h"
@@ -31,6 +31,7 @@ static void bg2802();
 static void bg2802_init00();
 static void bg2802_move01();
 static void bg280_move00();
+static void bg280_intro_init();
 static bool bg280_demo_check();
 
 void BG280() {
@@ -58,13 +59,7 @@ static void bg2800_init00() {
     bgw_ptr->hos_xy[0].disp.pos = bgw_ptr->wxy[0].disp.pos - bg_w.pos_offset;
     bgw_ptr->hos_xy[0].disp.low = 0;
 
-    if (bg280_demo_check()) {
-        bgw_ptr->r_no_0 = 2;
-    } else {
-        bgw_ptr->r_no_0++;
-        bgw_ptr->free = 52;
-        bgw_ptr->xy[1].cal = bgw_ptr->wxy[1].cal = 0xC40000;
-    }
+    bg280_intro_init();
 }
 
 static void bg2800_move01() {
@@ -85,18 +80,12 @@ static void bg2801_init00() {
     bgw_ptr->hos_xy[0].disp.pos = bgw_ptr->wxy[0].disp.pos - bg_w.pos_offset;
     bgw_ptr->hos_xy[0].disp.low = 0;
 
-    if (bg280_demo_check()) {
-        bgw_ptr->r_no_0 = 2;
-    } else {
-        bgw_ptr->r_no_0++;
-        bgw_ptr->free = 52;
-        bgw_ptr->xy[1].cal = bgw_ptr->wxy[1].cal = 0xC40000;
-    }
+    bg280_intro_init();
 
     effect_05_init();
     effect_06_init();
 
-    if (bg_w.area == 0) {
+    if (bg_w.bg_index == AREA_NG_YUN_A) {
         effect_ng18_init(2); // Woman with a grocery bag and scared girls
         effect_ng87_init(2); // Men sitting at the table and merchant
         effect_ng23_init();  // Bird seller
@@ -119,7 +108,7 @@ static void bg2801_move01() {
 static void bg2802() {
     void (*bg2802_jmp[3])() = { bg2802_init00, bg280_move00, bg2802_move01 };
 
-    if (bg_w.area == 0) {
+    if (bg_w.bg_index == AREA_NG_YUN_A) {
         bg2802_jmp[bgw_ptr->r_no_0]();
     }
 }
@@ -132,13 +121,7 @@ static void bg2802_init00() {
     bgw_ptr->hos_xy[0].disp.pos = bgw_ptr->wxy[0].disp.pos - bg_w.pos_offset;
     bgw_ptr->hos_xy[0].disp.low = 0;
 
-    if (bg280_demo_check()) {
-        bgw_ptr->r_no_0 = 2;
-    } else {
-        bgw_ptr->r_no_0++;
-        bgw_ptr->free = 52;
-        bgw_ptr->xy[1].cal = bgw_ptr->wxy[1].cal = 0xC40000;
-    }
+    bg280_intro_init();
 }
 
 static void bg2802_move01() {
@@ -146,7 +129,23 @@ static void bg2802_move01() {
     bg_y_move_check();
 }
 
-/// Waits, then scrolls the layer down into place during the intro
+static void bg280_intro_init() {
+    if (bg280_demo_check()) {
+        bgw_ptr->r_no_0 = 2;
+        return;
+    }
+
+    bgw_ptr->r_no_0++;
+
+    if (bg_w.stage == STAGE_NG_YANG) {
+        bgw_ptr->free = 74;
+        bgw_ptr->xy[1].cal = bgw_ptr->wxy[1].cal = 0x960000;
+    } else {
+        bgw_ptr->free = 52;
+        bgw_ptr->xy[1].cal = bgw_ptr->wxy[1].cal = 0xC40000;
+    }
+}
+
 static void bg280_move00() {
     switch (bgw_ptr->r_no_1) {
     case 0:
@@ -180,15 +179,20 @@ static void bg280_move00() {
     }
 }
 
-/// Whether the intro is skipped. It only plays in area 0 when one of the players is Yun.
 static bool bg280_demo_check() {
+    const Character owner = (bg_w.stage == STAGE_NG_YANG) ? CHAR_YANG : CHAR_YUN;
+
     if (bg_w.area != 0) {
         return true;
     }
 
-    return (plw[0].player_number != CHAR_YUN) && (plw[1].player_number != CHAR_YUN);
+    return (plw[0].player_number != owner) && (plw[1].player_number != owner);
 }
 
 bool bg280_yun_intro_plays() {
-    return bg_w.bg_index == AREA_NG_YUN_A && !bg280_demo_check();
+    return bg_w.stage == STAGE_NG_YUN && !bg280_demo_check();
+}
+
+bool bg280_yang_intro_plays() {
+    return bg_w.stage == STAGE_NG_YANG && !bg280_demo_check();
 }

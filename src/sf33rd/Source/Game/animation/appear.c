@@ -8,6 +8,8 @@
 #include "sf33rd/Source/Game/animation/app_data.h"
 #include "sf33rd/Source/Game/animation/ng/appear42.h"
 #include "sf33rd/Source/Game/animation/ng/appear43.h"
+#include "sf33rd/Source/Game/animation/ng/appear44.h"
+#include "sf33rd/Source/Game/animation/ng/appear45.h"
 #include "sf33rd/Source/Game/effect/eff09.h"
 #include "sf33rd/Source/Game/effect/eff15.h"
 #include "sf33rd/Source/Game/effect/eff46.h"
@@ -115,13 +117,13 @@ void appear_data_init_set(PLW* wk) {
 }
 
 void appear_player(PLW* wk) {
-    void (*appear_jmp_tbl[44])(PLW* wk) = {
+    void (*appear_jmp_tbl[46])(PLW* wk) = {
         Appear_00000, Appear_01000, Appear_01000, Appear_03000, Appear_04000, Appear_05000, Appear_06000, Appear_07000,
         Appear_08000, Appear_09000, Appear_10000, Appear_11000, Appear_12000, Appear_13000, Appear_14000, Appear_15000,
         Appear_16000, Appear_17000, Appear_18000, Appear_19000, Appear_20000, Appear_21000, Appear_22000, Appear_23000,
         Appear_24000, Appear_25000, Appear_26000, Appear_06000, Appear_28000, Appear_29000, Appear_30000, Appear_31000,
         Appear_32000, Appear_33000, Appear_34000, Appear_01000, Appear_36000, Appear_37000, Appear_38000, Appear_39000,
-        Appear_06000, Appear_41000, Appear_42000, Appear_43000
+        Appear_06000, Appear_41000, Appear_42000, Appear_43000, Appear_44000, Appear_45000
     };
 
     appear_jmp_tbl[wk->wu.routine_no[4]](wk);
@@ -495,6 +497,10 @@ const APPEAR_DATA appear_data[] = {
     { -96, 384, -128, 0, 1, 43, 0 },
     // New Generation's drop from the ceiling on Oro's stage (its record 9)
     { -96, 200, -128, 0, 1, 9, 16 },
+    // Yang leaping in on his stage from New Generation (its record 5)
+    { 464, 216, 464, 1, 1, 44, 0 },
+    // Yun bowing back to Yang on Yang's stage from New Generation (its record 2, with NG's bow)
+    { -96, 0, -128, 0, 1, 45, 0 },
 };
 
 void Appear_07000(PLW* wk) {
