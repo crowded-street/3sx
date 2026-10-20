@@ -4,7 +4,6 @@
  */
 
 #include "sf33rd/Source/Game/animation/appear.h"
-#include "arcade/arcade_balance.h"
 #include "common.h"
 #include "sf33rd/Source/Game/animation/app_data.h"
 #include "sf33rd/Source/Game/animation/ng/appear42.h"
@@ -916,19 +915,13 @@ void Appear_15000(PLW* wk) {
 }
 
 void Appear_16000(PLW* wk) {
-    s16 smoke = smoke_check[bg_w.bg_index];
-
-    if (ArcadeBalance_IsEnabled() && (bg_w.bg_index == AREA_3S_MAKOTO || bg_w.bg_index == AREA_3S_TWELVE)) {
-        smoke = bg_w.bg_index == AREA_3S_MAKOTO;
-    }
-
     switch (wk->wu.routine_no[3]) {
     case 0:
         wk->wu.routine_no[3]++;
         wk->wu.disp_flag = 1;
         bg_app_stop = 1;
 
-        if (smoke) {
+        if (smoke_check[bg_w.bg_index]) {
             set_char_move_init(&wk->wu, 9, 14);
         } else {
             set_char_move_init(&wk->wu, 9, 12);
@@ -1345,7 +1338,7 @@ const s16 smoke_check[AREA_COUNT] = {
     [AREA_3S_DUDLEY] = 1,  [AREA_3S_NECRO] = 0,     [AREA_3S_HUGO] = 0,        [AREA_3S_IBUKI] = 1,
     [AREA_3S_ELENA] = 0,   [AREA_3S_ORO] = 1,       [AREA_3S_YANG] = 0,        [AREA_3S_KEN] = 0,
     [AREA_3S_SEAN] = 1,    [AREA_3S_URIEN] = 1,     [AREA_3S_AKUMA] = 0,       [AREA_3S_SHIN_AKUMA] = 0,
-    [AREA_3S_CHUNLI] = 0,  [AREA_3S_MAKOTO] = 0,    [AREA_3S_Q] = 1,           [AREA_3S_TWELVE] = 1,
+    [AREA_3S_CHUNLI] = 0,  [AREA_3S_MAKOTO] = 1,    [AREA_3S_Q] = 1,           [AREA_3S_TWELVE] = 0,
     [AREA_3S_REMY] = 0,    [AREA_3S_BONUS_CAR] = 0, [AREA_3S_BONUS_BALLS] = 0, [AREA_NG_GILL] = 1,
     [AREA_NG_ALEX] = 1,    [AREA_NG_RYU_A] = 0,     [AREA_NG_RYU_B] = 0,       [AREA_NG_YUN_A] = 0,
     [AREA_NG_YUN_B] = 0,   [AREA_NG_DUDLEY_A] = 0,  [AREA_NG_DUDLEY_B] = 0,    [AREA_NG_NECRO] = 1,
