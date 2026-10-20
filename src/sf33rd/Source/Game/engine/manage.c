@@ -493,7 +493,8 @@ void Game_Manage_2_4() {
         vital_dec_timer = 40;
         sag_inc_timer[0] = sag_inc_timer[1] = 0;
 
-        if (Play_Type == PLAY_TYPE_PLAYER_VS_CPU && (EM_id == 0 || (My_char[Player_id] == CHAR_GILL && EM_id == 1)) &&
+        if (Play_Type == PLAY_TYPE_PLAYER_VS_CPU &&
+            (EM_id == CHAR_GILL || (My_char[Player_id] == CHAR_GILL && EM_id == CHAR_ALEX)) &&
             !(Introduce_Boss[Player_id][1] & 0x80)) {
             Introduce_Boss[Player_id][1] |= 128;
             Check_Stage_BGM();
@@ -1365,7 +1366,7 @@ void Update_VS_Data() {
             EM_History[WINNER][VS_Index[WINNER]] = EM_id;
             Result_Timer[WINNER] += 30;
 
-            if (EM_id == 17) {
+            if (EM_id == CHAR_Q) {
                 Break_Com[WINNER][EM_id] = (s8)(VS_Index[WINNER]);
             } else {
                 VS_Index[WINNER]++;
@@ -1442,12 +1443,12 @@ void BGM_Control() {
     case 2:
         BGM_No[0] = 0;
 
-        if (Play_Type == PLAY_TYPE_PLAYER_VS_CPU && EM_id == 17) {
+        if (Play_Type == PLAY_TYPE_PLAYER_VS_CPU && EM_id == CHAR_Q) {
             Stage_BGM(STAGE_3S_Q, Round_num);
-            break;
+        } else {
+            Stage_BGM(bg_w.stage, Round_num);
         }
 
-        Stage_BGM(bg_w.stage, Round_num);
         break;
 
     case 3:
