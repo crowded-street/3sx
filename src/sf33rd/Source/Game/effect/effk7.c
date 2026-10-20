@@ -110,7 +110,7 @@ void K7_move_type_0(WORK_Other* ewk, PLW* mwk) {
             break;
         }
 
-        if (pcon_rno[0] != 1) {
+        if (!ArcadeBalance_IsEnabled() && pcon_rno[0] != 1) {
             ewk->wu.routine_no[1] = 9;
             break;
         }
