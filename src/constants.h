@@ -93,6 +93,8 @@ typedef enum Stage {
     STAGE_NG_IBUKI = 29,
     STAGE_NG_ELENA = 30,
     STAGE_NG_ORO = 31,
+    STAGE_NG_YANG = 32,
+    STAGE_NG_KEN = 33,
     STAGE_COUNT,
 } Stage;
 
