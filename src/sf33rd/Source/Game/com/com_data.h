@@ -31,7 +31,7 @@ extern const s16 Area_Unit_Data[20][3];
 extern const s16 Shell_Area_Unit_Data[20][3];
 extern const s16 Arts_Super_Name_Data[20][3];
 extern const u8 Faint_Rapid_Data[8][8];
-extern const s8 PL_Damage_Data[];
+extern const s8 PL_Damage_Data[59];
 extern const u8 Shell_Renzoku_Flip_Data[20][8];
 extern const s8 Flip_Attack_Data[20][8];
 extern const u8 Rapid_Exit_Data[8][8];
