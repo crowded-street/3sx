@@ -61,7 +61,7 @@ s32 check_full_gauge_attack(PLW* wk, s8 always) { // 🟡
     }
 
     if (((Bonus_Game_Flag == STAGE_3S_BONUS_CAR) && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0)) {
-        if (wk->spmv_ng_flag & DIP_UNKNOWN_30) {
+        if (wk->spmv_ng_flag & DIP_GROUND_SUPER_ARTS_DISABLED) {
             return 0;
         }
 
@@ -77,7 +77,8 @@ s32 check_full_gauge_attack(PLW* wk, s8 always) { // 🟡
             return 0;
         }
 
-        if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_23) && chainex_check[wk->wu.id][wk->sa->exsa_g_ix - 20]) {
+        if ((wk->spmv_ng_flag2 & DIP2_SUPER_ART_REPEAT_IN_CHAIN_DISABLED) &&
+            chainex_check[wk->wu.id][wk->sa->exsa_g_ix - 20]) {
             return 0;
         }
 
@@ -137,7 +138,7 @@ s32 check_full_gauge_attack(PLW* wk, s8 always) { // 🟡
 
         return 0;
     } else {
-        if (wk->spmv_ng_flag & DIP_UNKNOWN_31) {
+        if (wk->spmv_ng_flag & DIP_AIR_SUPER_ARTS_DISABLED) {
             return 0;
         }
 
@@ -153,7 +154,8 @@ s32 check_full_gauge_attack(PLW* wk, s8 always) { // 🟡
             return 0;
         }
 
-        if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_23) && chainex_check[wk->wu.id][wk->sa->exsa_a_ix - 20]) {
+        if ((wk->spmv_ng_flag2 & DIP2_SUPER_ART_REPEAT_IN_CHAIN_DISABLED) &&
+            chainex_check[wk->wu.id][wk->sa->exsa_a_ix - 20]) {
             return 0;
         }
 
@@ -230,7 +232,7 @@ s32 check_full_gauge_attack2(PLW* wk, s8 always) { // 🟡
     }
 
     if (((Bonus_Game_Flag == STAGE_3S_BONUS_CAR) && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0)) {
-        if (wk->spmv_ng_flag & DIP_UNKNOWN_30) {
+        if (wk->spmv_ng_flag & DIP_GROUND_SUPER_ARTS_DISABLED) {
             return 0;
         }
 
@@ -246,7 +248,8 @@ s32 check_full_gauge_attack2(PLW* wk, s8 always) { // 🟡
             return 0;
         }
 
-        if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_23) && chainex_check[wk->wu.id][wk->sa->exs2_g_ix - 20]) {
+        if ((wk->spmv_ng_flag2 & DIP2_SUPER_ART_REPEAT_IN_CHAIN_DISABLED) &&
+            chainex_check[wk->wu.id][wk->sa->exs2_g_ix - 20]) {
             return 0;
         }
 
@@ -306,7 +309,7 @@ s32 check_full_gauge_attack2(PLW* wk, s8 always) { // 🟡
 
         return 0;
     } else {
-        if (wk->spmv_ng_flag & DIP_UNKNOWN_31) {
+        if (wk->spmv_ng_flag & DIP_AIR_SUPER_ARTS_DISABLED) {
             return 0;
         }
 
@@ -322,7 +325,8 @@ s32 check_full_gauge_attack2(PLW* wk, s8 always) { // 🟡
             return 0;
         }
 
-        if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_23) && chainex_check[wk->wu.id][wk->sa->exs2_a_ix - 20]) {
+        if ((wk->spmv_ng_flag2 & DIP2_SUPER_ART_REPEAT_IN_CHAIN_DISABLED) &&
+            chainex_check[wk->wu.id][wk->sa->exs2_a_ix - 20]) {
             return 0;
         }
 
@@ -427,7 +431,7 @@ s32 check_super_arts_attack_dc(PLW* wk) { // 🟡
     }
 
     if (((Bonus_Game_Flag == STAGE_3S_BONUS_CAR) && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0)) {
-        if (wk->spmv_ng_flag & DIP_UNKNOWN_30) {
+        if (wk->spmv_ng_flag & DIP_GROUND_SUPER_ARTS_DISABLED) {
             return 0;
         }
 
@@ -439,7 +443,8 @@ s32 check_super_arts_attack_dc(PLW* wk) { // 🟡
             return 0;
         }
 
-        if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_23) && chainex_check[wk->wu.id][wk->sa->nmsa_g_ix - 20]) {
+        if ((wk->spmv_ng_flag2 & DIP2_SUPER_ART_REPEAT_IN_CHAIN_DISABLED) &&
+            chainex_check[wk->wu.id][wk->sa->nmsa_g_ix - 20]) {
             return 0;
         }
 
@@ -503,7 +508,7 @@ s32 check_super_arts_attack_dc(PLW* wk) { // 🟡
 
         return 0;
     } else {
-        if (wk->spmv_ng_flag & DIP_UNKNOWN_31) {
+        if (wk->spmv_ng_flag & DIP_AIR_SUPER_ARTS_DISABLED) {
             return 0;
         }
 
@@ -515,7 +520,8 @@ s32 check_super_arts_attack_dc(PLW* wk) { // 🟡
             return 0;
         }
 
-        if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_23) && chainex_check[wk->wu.id][wk->sa->nmsa_a_ix - 20]) {
+        if ((wk->spmv_ng_flag2 & DIP2_SUPER_ART_REPEAT_IN_CHAIN_DISABLED) &&
+            chainex_check[wk->wu.id][wk->sa->nmsa_a_ix - 20]) {
             return 0;
         }
 
@@ -591,7 +597,7 @@ s32 execute_super_arts(PLW* wk) { // 🟡
     }
 
     if (((Bonus_Game_Flag == STAGE_3S_BONUS_CAR) && wk->bs2_on_car) || (wk->wu.xyz[1].disp.pos <= 0)) {
-        if (wk->spmv_ng_flag & DIP_UNKNOWN_30) {
+        if (wk->spmv_ng_flag & DIP_GROUND_SUPER_ARTS_DISABLED) {
             return 0;
         }
 
@@ -631,7 +637,7 @@ s32 execute_super_arts(PLW* wk) { // 🟡
 
         return 1;
     } else {
-        if (wk->spmv_ng_flag & DIP_UNKNOWN_31) {
+        if (wk->spmv_ng_flag & DIP_AIR_SUPER_ARTS_DISABLED) {
             return 0;
         }
 
@@ -692,7 +698,7 @@ s32 check_special_attack(PLW* wk) { // 🟡
         conpane = &wk->cp->sw_lvbt;
 
         for (i = 28; i < 38; i++) {
-            if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_22) && chainex_check[wk->wu.id][i - 20]) {
+            if ((wk->spmv_ng_flag2 & DIP2_SPECIAL_REPEAT_IN_CHAIN_DISABLED) && chainex_check[wk->wu.id][i - 20]) {
                 continue;
             }
 
@@ -794,7 +800,7 @@ s32 check_special_attack(PLW* wk) { // 🟡
         conpane = &wk->cp->sw_lvbt;
 
         for (i = 46; i < 56; i++) {
-            if ((wk->spmv_ng_flag2 & DIP2_UNKNOWN_22) && chainex_check[wk->wu.id][i - 20]) {
+            if ((wk->spmv_ng_flag2 & DIP2_SPECIAL_REPEAT_IN_CHAIN_DISABLED) && chainex_check[wk->wu.id][i - 20]) {
                 continue;
             }
 

@@ -72,7 +72,8 @@ const s16 sag_length_omake[17] = { -8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4
 const s16 base_vital_omake[7] = { 0xfe3e, 0xfed4, 0xff6a, 0x0000, 0x0096, 0x012c, 0x01c2 };
 
 u32 sag_ikinari_max() {
-    return ((omop_spmv_ng_table2[0] & 0x40000) + (omop_spmv_ng_table2[1] & 0x40000)) == 0x80000;
+    return (omop_spmv_ng_table2[0] & DIP2_SA_GAUGE_MAX_START_DISABLED) &&
+           (omop_spmv_ng_table2[1] & DIP2_SA_GAUGE_MAX_START_DISABLED);
 }
 
 u32 check_use_all_SA() {
@@ -96,8 +97,8 @@ void init_omop() {
     omop_spmv_ng_table[0] = 0;
     omop_spmv_ng_table2[1] = 0;
     omop_spmv_ng_table[1] = 0;
-    omop_spmv_ng_table2[0] |= DIP2_UNKNOWN_22;
-    omop_spmv_ng_table2[0] |= DIP2_UNKNOWN_23;
+    omop_spmv_ng_table2[0] |= DIP2_SPECIAL_REPEAT_IN_CHAIN_DISABLED;
+    omop_spmv_ng_table2[0] |= DIP2_SUPER_ART_REPEAT_IN_CHAIN_DISABLED;
 
     if (Mode_Type == MODE_NETWORK) {
         get_system_direction_parameter(&system_dir[2]);
@@ -117,10 +118,10 @@ void init_omop() {
 
     omop_spmv_ng_table[0] |= sysdir_base_move[My_char[0]];
     omop_spmv_ng_table[1] |= sysdir_base_move[My_char[1]];
-    cmd_sel[0] = (omop_spmv_ng_table[0] & DIP2_ALL_SUPER_ARTS_AVAILABLE_DISABLED) == 0;
-    cmd_sel[1] = (omop_spmv_ng_table[1] & DIP2_ALL_SUPER_ARTS_AVAILABLE_DISABLED) == 0;
-    no_sa[0] = (omop_spmv_ng_table[0] & (DIP_UNKNOWN_30 | DIP_UNKNOWN_31)) != 0;
-    no_sa[1] = (omop_spmv_ng_table[1] & (DIP_UNKNOWN_30 | DIP_UNKNOWN_31)) != 0;
+    cmd_sel[0] = (omop_spmv_ng_table[0] & DIP_ALL_SUPER_ARTS_AVAILABLE_DISABLED) == 0;
+    cmd_sel[1] = (omop_spmv_ng_table[1] & DIP_ALL_SUPER_ARTS_AVAILABLE_DISABLED) == 0;
+    no_sa[0] = (omop_spmv_ng_table[0] & (DIP_GROUND_SUPER_ARTS_DISABLED | DIP_AIR_SUPER_ARTS_DISABLED)) != 0;
+    no_sa[1] = (omop_spmv_ng_table[1] & (DIP_GROUND_SUPER_ARTS_DISABLED | DIP_AIR_SUPER_ARTS_DISABLED)) != 0;
     vib_sel[0] = 1;
     vib_sel[1] = 1;
 }
@@ -135,29 +136,29 @@ void get_extra_option_parameter(_EXTRA_OPTION* omop_extra) {
 
     switch (omop_extra->contents[1][0]) {
     case 1:
-        omop_spmv_ng_table2[0] |= 0x80000;
+        omop_spmv_ng_table2[0] |= DIP2_SA_GAUGE_AUTO_MAX_DISABLED;
         break;
 
     case 2:
-        omop_spmv_ng_table2[0] |= 0x10000;
+        omop_spmv_ng_table2[0] |= DIP2_SA_GAUGE_AUTO_FILL_DISABLED;
         break;
 
     default:
-        omop_spmv_ng_table2[0] |= 0x90000;
+        omop_spmv_ng_table2[0] |= (DIP2_SA_GAUGE_AUTO_FILL_DISABLED | DIP2_SA_GAUGE_AUTO_MAX_DISABLED);
         break;
     }
 
     switch (omop_extra->contents[1][1]) {
     case 1:
-        omop_spmv_ng_table2[1] |= 0x80000;
+        omop_spmv_ng_table2[1] |= DIP2_SA_GAUGE_AUTO_MAX_DISABLED;
         break;
 
     case 2:
-        omop_spmv_ng_table2[1] |= 0x10000;
+        omop_spmv_ng_table2[1] |= DIP2_SA_GAUGE_AUTO_FILL_DISABLED;
         break;
 
     default:
-        omop_spmv_ng_table2[1] |= 0x90000;
+        omop_spmv_ng_table2[1] |= (DIP2_SA_GAUGE_AUTO_FILL_DISABLED | DIP2_SA_GAUGE_AUTO_MAX_DISABLED);
         break;
     }
 
@@ -186,7 +187,7 @@ void get_extra_option_parameter(_EXTRA_OPTION* omop_extra) {
 
 void get_system_direction_parameter(SystemDir* sysdir_data) {
     if (sysdir_data->contents[0][0] == 0) { // Ground parry disabled
-        omop_spmv_ng_table[0] |= (DIP_UNKNOWN_8 | DIP_UNKNOWN_9);
+        omop_spmv_ng_table[0] |= (DIP_HIGH_PARRY_DISABLED | DIP_LOW_PARRY_DISABLED);
     }
 
     if (sysdir_data->contents[0][1] == 0) {
@@ -276,7 +277,7 @@ void get_system_direction_parameter(SystemDir* sysdir_data) {
     }
 
     if (sysdir_data->contents[5][0] == 0) { // Super arts disabled
-        omop_spmv_ng_table[0] |= (DIP_UNKNOWN_30 | DIP_UNKNOWN_31);
+        omop_spmv_ng_table[0] |= (DIP_GROUND_SUPER_ARTS_DISABLED | DIP_AIR_SUPER_ARTS_DISABLED);
     }
 
     if (sysdir_data->contents[5][1] == 0) { // Special moves disabled
@@ -358,7 +359,7 @@ void get_system_direction_parameter(SystemDir* sysdir_data) {
     }
 
     if (sysdir_data->contents[9][0] == 0) {
-        omop_spmv_ng_table[0] |= DIP2_ALL_SUPER_ARTS_AVAILABLE_DISABLED;
+        omop_spmv_ng_table[0] |= DIP_ALL_SUPER_ARTS_AVAILABLE_DISABLED;
     }
 
     if (sysdir_data->contents[9][1] == 0) {

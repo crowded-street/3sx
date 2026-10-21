@@ -40,7 +40,7 @@ void effect_E4_move(WORK_Other* ewk) {
         }
 
         omop_vital_ix[mwk->wu.id] = 1;
-        mwk->spmv_ng_flag &= 0xFFFEFFFF;
+        mwk->spmv_ng_flag &= ~DIP_JUMP_DISABLED;
         num = 0;
 
         if (New_Challenger == mwk->wu.id) {
@@ -51,38 +51,41 @@ void effect_E4_move(WORK_Other* ewk) {
 
         switch (num) {
         case 1:
-            mwk->spmv_ng_flag2 &= 0xFFFBFFFF;
-            mwk->spmv_ng_flag2 |= 0x90000;
+            mwk->spmv_ng_flag2 &= ~DIP2_SA_GAUGE_MAX_START_DISABLED;
+            mwk->spmv_ng_flag2 |= (DIP2_SA_GAUGE_AUTO_FILL_DISABLED | DIP2_SA_GAUGE_AUTO_MAX_DISABLED);
             demo_set_sa_full(mwk->sa);
             tr_spgauge_cont_init2(mwk->wu.id);
             break;
 
         case 3:
-            mwk->spmv_ng_flag2 &= 0xFFF7FFFF;
-            mwk->spmv_ng_flag2 |= 0x50000;
+            mwk->spmv_ng_flag2 &= ~DIP2_SA_GAUGE_AUTO_MAX_DISABLED;
+            mwk->spmv_ng_flag2 |= (DIP2_SA_GAUGE_AUTO_FILL_DISABLED | DIP2_SA_GAUGE_MAX_START_DISABLED);
             demo_set_sa_full(mwk->sa);
             tr_spgauge_cont_init2(mwk->wu.id);
             break;
 
         case 2:
-            mwk->spmv_ng_flag2 &= 0xFFFEFFFF;
-            mwk->spmv_ng_flag2 |= 0xC0000;
+            mwk->spmv_ng_flag2 &= ~DIP2_SA_GAUGE_AUTO_FILL_DISABLED;
+            mwk->spmv_ng_flag2 |= (DIP2_SA_GAUGE_MAX_START_DISABLED | DIP2_SA_GAUGE_AUTO_MAX_DISABLED);
             clear_super_arts_point(mwk);
             tr_spgauge_cont_init(mwk->wu.id);
             break;
 
         case 0:
-            mwk->spmv_ng_flag2 |= 0xD0000;
+            mwk->spmv_ng_flag2 |=
+                (DIP2_SA_GAUGE_AUTO_FILL_DISABLED | DIP2_SA_GAUGE_MAX_START_DISABLED | DIP2_SA_GAUGE_AUTO_MAX_DISABLED);
             clear_super_arts_point(mwk);
             tr_spgauge_cont_init(mwk->wu.id);
             break;
         }
 
         if (mwk->wu.id == New_Challenger || Training->contents[1][0][2] == 0) {
-            mwk->spmv_ng_flag |= 0x80;
+            mwk->spmv_ng_flag |= DIP_AUTO_PARRY_DISABLED;
         } else {
-            mwk->spmv_ng_flag &= ~0x80;
-            mwk->spmv_ng_flag &= ~0xF00;
+            mwk->spmv_ng_flag &= ~DIP_AUTO_PARRY_DISABLED;
+            mwk->spmv_ng_flag &=
+                ~(DIP_HIGH_PARRY_DISABLED | DIP_LOW_PARRY_DISABLED | DIP_AIR_PARRY_DISABLED |
+                  DIP_ANTI_AIR_PARRY_DISABLED);
         }
 
         omop_spmv_ng_table[mwk->wu.id] = mwk->spmv_ng_flag;

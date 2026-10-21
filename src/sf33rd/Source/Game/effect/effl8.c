@@ -7,6 +7,7 @@
 #include "common.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/rendering/color3rd.h"
+#include "sf33rd/Source/Game/system/sysdir.h"
 
 u32 spmv_ng_save[2];
 
@@ -28,7 +29,7 @@ void effect_L8_move(WORK_Other* ewk) {
         check_new_color_data_L8(&ewk->wu);
         mwk->att_plus = 14;
         spmv_ng_save[ewk->master_id] = mwk->spmv_ng_flag;
-        mwk->spmv_ng_flag = (mwk->spmv_ng_flag | 48);
+        mwk->spmv_ng_flag = (mwk->spmv_ng_flag | DIP_GUARD_DISABLED | DIP_AIR_GUARD_DISABLED);
         break;
 
     case 1:
