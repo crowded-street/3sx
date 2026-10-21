@@ -725,6 +725,11 @@ void Damage_1st(PLW* wk) {
             break;
         }
 
+        if (wk->wu.routine_no[1] != 1) {
+            Exit_Damage_Sub(wk);
+            break;
+        }
+
         if (wk->wu.routine_no[3] == 0) {
             // Damage reaction hasn't been converted to a damage routine number yet
             break;

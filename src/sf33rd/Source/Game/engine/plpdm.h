@@ -6,6 +6,7 @@
 
 extern const u8 guard_kind[];
 extern const s8 atsagct[];
+extern const AS dm_reaction_table[];
 
 void Player_damage(PLW* wk);
 void subtract_dm_vital(PLW* wk);
