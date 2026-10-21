@@ -492,9 +492,6 @@ void about_gauge_process(PLW* wk) { // 🟡
     eag_union(wk);
     sag_union(wk);
     mpg_union(wk);
-
-    // CPS3 has no equivalent max-gauge bit update, but training mode's SA gauge
-    // option depends on it.
     add_sp_arts_gauge_maxbit(wk);
 }
 
