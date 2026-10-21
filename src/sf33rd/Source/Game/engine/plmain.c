@@ -335,9 +335,7 @@ void player_mv_4000(PLW* wk) { // 🟡
             wk->zuru_flag = false;
         }
 
-        if (!ArcadeBalance_IsEnabled()) {
-            check_omop_vital(wk);
-        }
+        check_omop_vital(wk);
     }
 
     if (Timer_Freeze == 0) {
