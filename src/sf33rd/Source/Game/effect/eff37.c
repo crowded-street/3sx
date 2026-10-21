@@ -99,6 +99,6 @@ s32 effect_37_init(WORK* wk, u8 gal, u8 ohen) {
     ewk->wu.my_family = 2;
     ewk->wu.my_mts = 14;
     ewk->wu.position_z = wk->position_z - 1;
-    ewk->wu.char_table[0] = _ag_face_panel_table;
+    ewk->wu.char_table[0] = _ag_char_table.face_panel;
     return 0;
 }

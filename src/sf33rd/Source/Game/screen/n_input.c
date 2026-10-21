@@ -501,7 +501,7 @@ void start_cut_check(s16 pl_id) {
     s16 i;
 
     if (Naming_Cut[pl_id]) {
-        if (name_ptr->r_no_0 < 6) {
+        if (name_ptr->r_no_0 != 0 && name_ptr->r_no_0 < 6) {
             name_ptr->r_no_0 = 6;
         }
 

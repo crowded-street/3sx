@@ -256,8 +256,9 @@ void setup_EJG_index() {
     }
 }
 
-u32* ag_char_table[] = { _ag_00_char_table, _ag_01_char_table, _ag_02_char_table, _ag_03_char_table,
-                         _ag_04_char_table, _ag_05_char_table, _ag_06_char_table, _ag_07_char_table };
+u32* ag_char_table[] = { _ag_char_table.judges[0], _ag_char_table.judges[1], _ag_char_table.judges[2],
+                         _ag_char_table.judges[3], _ag_char_table.judges[4], _ag_char_table.judges[5],
+                         _ag_char_table.judges[6], _ag_char_table.judges[7] };
 
 const s32 efy_data[6] = { 40, -368, -851968, 32768, 229376, -24576 };
 

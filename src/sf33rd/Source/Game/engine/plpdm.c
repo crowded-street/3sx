@@ -1693,7 +1693,9 @@ void get_catch_off_data(PLW* wk, s16 ix) {
 void check_bullet_damage(PLW* wk) {
     WORK* tk = (WORK*)wk->wu.dmg_adrs;
 
-    if (tk->work_id != 1 && tk->id == 13 && tama_select[tk->type] != 0) {
+    // Urien has a type 240 projectile, one past the end of tama_select. CPS3 reads the
+    // first byte of the next table, which is 0.
+    if (tk->work_id != 1 && tk->id == 13 && tk->type < SDL_arraysize(tama_select) && tama_select[tk->type] != 0) {
         wk->bullet_hcnt += tama_select[tk->type];
         wk->bhcnt_timer = 800;
     }
