@@ -1017,6 +1017,10 @@ void add_sp_arts_gauge_nagenuke(PLW* wk) { // 🟢 Difficulty handling differs
 
 #if !CPS3
 void add_sp_arts_gauge_maxbit(PLW* wk) { // 🔴
+    if (!Is_Training_Mode(Mode_Type)) {
+        return;
+    }
+
     if (pcon_rno[0] != 1) {
         return;
     }

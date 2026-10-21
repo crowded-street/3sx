@@ -492,11 +492,7 @@ void about_gauge_process(PLW* wk) { // 🟡
     eag_union(wk);
     sag_union(wk);
     mpg_union(wk);
-
-    // CPS3 has no equivalent max-gauge bit update.
-    if (!ArcadeBalance_IsEnabled()) {
-        add_sp_arts_gauge_maxbit(wk);
-    }
+    add_sp_arts_gauge_maxbit(wk);
 }
 
 void mpg_union(PLW* wk) { // 🟡
