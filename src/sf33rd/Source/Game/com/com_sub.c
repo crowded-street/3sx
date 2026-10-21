@@ -2793,7 +2793,7 @@ void Command_Attack(PLW* wk, s16 Reaction, u16 Tech_Number, s16 Power_Level, s16
         CP_Index[wk->wu.id][1]++;
         Check_First_Menu(wk);
 
-        if (Power_Level & 0x4000) {
+        if (Power_Level != -1 && (Power_Level & 0x4000)) {
             Free_Lever[wk->wu.id] = Power_Lv_Data[(Power_Level & 0xF) - 8];
         } else {
             Free_Lever[wk->wu.id] = 0;

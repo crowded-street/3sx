@@ -47,15 +47,16 @@ extern u32 _ng_yun_appear_char_table[];
 extern u32 _ng_yun_bow_char_table[];
 extern u32 _ng_eff94_char_table[];
 extern u32 _effD4_char_table[];
-extern u32 _ag_00_char_table[];
-extern u32 _ag_01_char_table[];
-extern u32 _ag_02_char_table[];
-extern u32 _ag_03_char_table[];
-extern u32 _ag_04_char_table[];
-extern u32 _ag_05_char_table[];
-extern u32 _ag_06_char_table[];
-extern u32 _ag_07_char_table[];
-extern u32 _ag_face_panel_table[];
+
+/// The judges' tables hold offsets from their own start that land in the face panel
+/// scripts after all eight, so everything has to be laid out back to back.
+typedef struct {
+    u32 judges[8][4];
+    u32 face_panel[490];
+} AgCharTable;
+
+extern AgCharTable _ag_char_table;
+
 extern u32 _ef01_char_table[];
 extern u32 _plef_char_table[];
 extern u32 _ef13_char_table[];

@@ -161,8 +161,9 @@ void (*const plpdm_lv_00[32])(PLW* wk) = {
     Damage_24000, Damage_25000, Damage_26000, Damage_27000, Damage_28000, Damage_29000, Damage_30000, Damage_31000
 };
 
-const s8 atsagct[31] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 17, 0, 1, 1, 0, 1, 1,
-                         /* 0 */ }; // TODO: Might be 32 in length
+const s8 atsagct[32] = {
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 17, 0, 1, 1, 0, 1, 1, 0
+};
 
 const u16 exdm_ix_data[2][20][5] = {
     { { 15, 0, 1, 0, 359 },       { 65535, 12, 1, 0, 1801 }, { 2, 13, 1, 0, 2744 },     { 4, 2, 1, 0, 3865 },
@@ -1692,7 +1693,9 @@ void get_catch_off_data(PLW* wk, s16 ix) {
 void check_bullet_damage(PLW* wk) {
     WORK* tk = (WORK*)wk->wu.dmg_adrs;
 
-    if (tk->work_id != 1 && tk->id == 13 && tama_select[tk->type] != 0) {
+    // Urien has a type 240 projectile, one past the end of tama_select. CPS3 reads the
+    // first byte of the next table, which is 0.
+    if (tk->work_id != 1 && tk->id == 13 && tk->type < SDL_arraysize(tama_select) && tama_select[tk->type] != 0) {
         wk->bullet_hcnt += tama_select[tk->type];
         wk->bhcnt_timer = 800;
     }

@@ -1252,10 +1252,19 @@ void FUN_06117f28(PLW* wk) { // 🔵
     not_implemented(__func__);
 }
 
-void set_quake(PLW* wk) { // 🟢
+void set_quake(PLW* wk) { // 🟡
+    s16 ix;
+
     if (wk->wu.hit_quake) {
         wk->wu.hit_quake--;
-        wk->wu.next_x = quake_table[wk->wu.hit_quake];
+        ix = wk->wu.hit_quake;
+
+        // Some supers set a hit stop longer than the table (Q's goes up to 74)
+        if (ix >= SDL_arraysize(quake_table)) {
+            ix = SDL_arraysize(quake_table) - 2 + (ix & 1);
+        }
+
+        wk->wu.next_x = quake_table[ix];
 
         if (wk->wu.rl_flag) {
             wk->wu.next_x = -wk->wu.next_x;
