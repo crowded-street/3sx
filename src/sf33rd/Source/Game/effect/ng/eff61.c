@@ -163,7 +163,16 @@ static void eff61_win_reaction(WORK_Other* ewk) {
     disp_pos_trans_entry_s_ng(ewk);
 }
 
+static void restart_if_new_round(WORK_Other* ewk) {
+    if (ewk->wu.routine_no[0] >= 3 && !is_round_over()) {
+        ewk->wu.routine_no[0] = 0;
+        ewk->wu.routine_no[1] = 0;
+    }
+}
+
 void effect_ng61_move(WORK_Other* ewk) {
+    restart_if_new_round(ewk);
+
     switch (ewk->wu.routine_no[0]) {
     case 0:
         eff61_start(ewk);
