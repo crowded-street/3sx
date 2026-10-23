@@ -41,6 +41,20 @@ static const s16 eff88_elena_b_data_3[1][9] = {
     { 1, 2, 8524, 319, 65, 71, 11, 1, 0 },
 };
 
+/// Sean's stage. Colour codes are converted from palette rows 0x40 and 0x58 to the PS2 BG palette rows 0x12C and 0x144.
+static const s16 eff88_sean_data_0[2][9] = {
+    { 1, 2, 300, 580, 109, 89, 1, 1, 0 },
+    { 1, 2, 8516, 704, 38, 80, 13, 0, 0 },
+};
+
+static const s16 eff88_sean_data_1[1][9] = {
+    { 1, 2, 8516, 854, 48, 80, 14, 0, 0 },
+};
+
+static const s16 eff88_sean_data_3[1][9] = {
+    { 1, 2, 8516, 130, 78, 79, 12, 0, 0 },
+};
+
 #define EFF88_VARIANT(data) { data, SDL_arraysize(data) }
 
 static const Eff88Variant eff88_variants[5][4] = {
@@ -48,6 +62,10 @@ static const Eff88Variant eff88_variants[5][4] = {
             EFF88_VARIANT(eff88_elena_b_data_0),
             EFF88_VARIANT(eff88_elena_b_data_2),
             EFF88_VARIANT(eff88_elena_b_data_3) },
+    [2] = { EFF88_VARIANT(eff88_sean_data_0),
+            EFF88_VARIANT(eff88_sean_data_1),
+            EFF88_VARIANT(eff88_sean_data_1),
+            EFF88_VARIANT(eff88_sean_data_3) },
     [4] = { EFF88_VARIANT(eff88_ryu_b_data),
             EFF88_VARIANT(eff88_ryu_b_data),
             EFF88_VARIANT(eff88_ryu_b_data),

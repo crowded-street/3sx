@@ -63,7 +63,7 @@ s32 palFormConv;
 
 // forward decls
 const u16 hitmark_color[128];
-const col_file_data color_file[193];
+const col_file_data color_file[195];
 
 void q_ldreq_color_data(LoadRequest* curr) {
     col_file_data* cfn;
@@ -539,14 +539,23 @@ void palUpdateGhostDC() {
 void palUpdateGhostCP3(s32 pal, s32 nums) {
     plContext bits;
     s32 i;
+    s32 rows;
+    s32 j;
     u16* srcAdrs;
     u16* dstAdrs;
 
-    for (i = pal; i < (pal + nums); i++) {
+    for (i = SDL_max(pal - 3, 0); i < (pal + nums); i++) {
+        rows = SDL_min(4, 512 - i);
         flLockPalette(NULL, col3rd_w.palCP3.handle[i], &bits, 2);
         dstAdrs = bits.ptr;
         srcAdrs = (u16*)&ColorRAM[i];
-        SDL_memcpy(dstAdrs, srcAdrs, 0x80);
+        SDL_memcpy(dstAdrs, srcAdrs, rows * 0x80);
+
+        // For 8bpp graphics only color 0 is transparent
+        for (j = 1; j < rows; j++) {
+            dstAdrs[j * 64] |= 0x8000;
+        }
+
         flUnlockPalette(col3rd_w.palCP3.handle[i]);
     }
 }
@@ -562,7 +571,7 @@ const u16 hitmark_color[128] = {
     64478, 58270, 54174, 49950, 45662, 43550, 43486, 41310, 64478, 58206, 56094, 53982, 53918, 51806, 49694, 47582
 };
 
-const col_file_data color_file[193] = {
+const col_file_data color_file[195] = {
     { .data = 0x0, .type = 0x1, .apfn = 0x5B7, .free = 0x0 },
     { .data = 0x0, .type = 0x1, .apfn = 0x5BA, .free = 0x0 },
     { .data = 0x0, .type = 0x1, .apfn = 0x5BE, .free = 0x0 },
@@ -773,4 +782,7 @@ const col_file_data color_file[193] = {
     // NG Oro's stage: stage palette and stage PPG
     { .data = 0x12C, .type = 0x2, .apfn = RESOURCE_CACHE_FNUM(CACHE_FILE_NG_ORO_BG_PALETTE), .free = 0x0 },
     { .data = 0x0, .type = 0x0, .apfn = RESOURCE_CACHE_FNUM(CACHE_FILE_NG_ORO_STAGE), .free = 0x0 },
+    // NG Sean's stage: stage palette and stage PPG
+    { .data = 0x12C, .type = 0x2, .apfn = RESOURCE_CACHE_FNUM(CACHE_FILE_NG_SEAN_BG_PALETTE), .free = 0x0 },
+    { .data = 0x0, .type = 0x0, .apfn = RESOURCE_CACHE_FNUM(CACHE_FILE_NG_SEAN_STAGE), .free = 0x0 },
 };

@@ -53,6 +53,10 @@ static const char* const paths[CACHE_FILE_COUNT] = {
     [CACHE_FILE_NG_ORO_BG_PALETTE] = "ng/bg16_palette.bin",
     [CACHE_FILE_NG_ORO_STAGE] = "ng/stage16.ppg",
     [CACHE_FILE_NG_ORO_OBJECTS] = "ng/bg16.bin",
+    [CACHE_FILE_NG_SEAN_BG_PALETTE] = "ng/bg02_palette.bin",
+    [CACHE_FILE_NG_SEAN_STAGE] = "ng/stage02.ppg",
+    [CACHE_FILE_NG_SEAN_OBJECTS] = "ng/bg02.bin",
+    [CACHE_FILE_NG_EF44] = "ng/ef44.bin",
     [CACHE_FILE_NG_EF94] = "ng/ef94.bin",
     [CACHE_FILE_NG_EF94_PALETTE] = "ng/ef94_palette.bin",
 };

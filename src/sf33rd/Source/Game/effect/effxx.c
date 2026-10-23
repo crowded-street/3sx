@@ -220,6 +220,7 @@
 #include "sf33rd/Source/Game/effect/ng/eff28.h"
 #include "sf33rd/Source/Game/effect/ng/eff29.h"
 #include "sf33rd/Source/Game/effect/ng/eff34.h"
+#include "sf33rd/Source/Game/effect/ng/eff44.h"
 #include "sf33rd/Source/Game/effect/ng/eff45.h"
 #include "sf33rd/Source/Game/effect/ng/eff47.h"
 #include "sf33rd/Source/Game/effect/ng/eff53.h"
@@ -227,6 +228,8 @@
 #include "sf33rd/Source/Game/effect/ng/eff55.h"
 #include "sf33rd/Source/Game/effect/ng/eff56.h"
 #include "sf33rd/Source/Game/effect/ng/eff60.h"
+#include "sf33rd/Source/Game/effect/ng/eff61.h"
+#include "sf33rd/Source/Game/effect/ng/eff62.h"
 #include "sf33rd/Source/Game/effect/ng/eff64.h"
 #include "sf33rd/Source/Game/effect/ng/eff65.h"
 #include "sf33rd/Source/Game/effect/ng/eff66.h"
@@ -257,7 +260,7 @@ void effect_dummy_move(WORK_Other* /* unused */) {
     // Do nothing
 }
 
-EffectMoveCallback const effmovejptbl[276] = {
+EffectMoveCallback const effmovejptbl[279] = {
     (EffectMoveCallback)effect_00_move,
     effect_01_move,
     effect_02_move,
@@ -503,6 +506,7 @@ EffectMoveCallback const effmovejptbl[276] = {
     [EFFECT_NG29_ID] = effect_ng29_move,
     [EFFECT_NG34_ID] = effect_ng34_move,
     [EFFECT_NG35_ID] = effect_ng35_move,
+    [EFFECT_NG44_ID] = effect_ng44_move,
     [EFFECT_NG45_ID] = effect_ng45_move,
     [EFFECT_NG47_ID] = effect_ng47_move,
     [EFFECT_NG53_ID] = effect_ng53_move,
@@ -510,6 +514,8 @@ EffectMoveCallback const effmovejptbl[276] = {
     [EFFECT_NG55_ID] = effect_ng55_move,
     [EFFECT_NG56_ID] = effect_ng56_move,
     [EFFECT_NG60_ID] = effect_ng60_move,
+    [EFFECT_NG61_ID] = effect_ng61_move,
+    [EFFECT_NG62_ID] = effect_ng62_move,
     [EFFECT_NG64_ID] = effect_ng64_move,
     [EFFECT_NG65_ID] = effect_ng65_move,
     [EFFECT_NG66_ID] = effect_ng66_move,

@@ -521,4 +521,15 @@ const TexGroupData texgrpdat[TEXGROUP_COUNT] = {
               .mode = TEXGROUP_MODE_NORMAL,
               .to_tex = 0x3B00,
               .to_chd = 0x0 }, // ng/bg16.bin
+    [114] = { .num_of_1st = 42825,
+              .apfn = RESOURCE_CACHE_FNUM(CACHE_FILE_NG_SEAN_OBJECTS),
+              .mode = TEXGROUP_MODE_NORMAL,
+              .to_tex = 0x10700,
+              .to_chd = 0x0 }, // ng/bg02.bin
+    [115] = { .num_of_1st = 43524,
+              .apfn = RESOURCE_CACHE_FNUM(CACHE_FILE_NG_EF44),
+              .mode = TEXGROUP_MODE_NORMAL,
+              .to_tex = 0x3500,
+              .to_chd = 0x0,
+              .is_8bpp = true }, // ng/ef44.bin
 };

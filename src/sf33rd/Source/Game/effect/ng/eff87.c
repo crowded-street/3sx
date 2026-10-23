@@ -31,11 +31,27 @@ static const s16 eff87_elena_b_data[2][9] = {
     { 1, 2, 8524, 704, 49, 81, 15, 1, 0 },
 };
 
+/// Sean's stage, for object sets 1-2 and 3. Set 0 has none. Colour codes are converted from palette rows 0x40 and 0x58
+/// to the PS2 BG palette rows 0x12C and 0x144.
+static const s16 eff87_sean_data_1[1][9] = {
+    { 0, 2, 8492, 512, 64, 79, 5, 1, 0 },
+};
+
+static const s16 eff87_sean_data_3[3][9] = {
+    { 1, 2, 8516, 496, 96, 90, 17, 0, 0 },
+    { 1, 2, 8516, 512, 96, 79, 16, 0, 0 },
+    { 0, 2, 300, 528, 64, 92, 6, 1, 0 },
+};
+
 #define EFF87_VARIANT(data) { data, SDL_arraysize(data) }
 #define EFF87_NO_OBJECTS { NULL, 0 }
 
 /// Indexed by variant and `bg_w.object_set`. The empty variants belong to stages that aren't ported yet.
 static const Eff87Variant eff87_variants[5][4] = {
+    [1] = { EFF87_NO_OBJECTS,
+            EFF87_VARIANT(eff87_sean_data_1),
+            EFF87_VARIANT(eff87_sean_data_1),
+            EFF87_VARIANT(eff87_sean_data_3) },
     [2] = { EFF87_VARIANT(eff87_yun_a_data),
             EFF87_VARIANT(eff87_yun_a_data),
             EFF87_VARIANT(eff87_yun_a_data),

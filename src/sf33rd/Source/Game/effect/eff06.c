@@ -27,7 +27,7 @@ const s16 scr_obj_num6[AREA_COUNT] = {
     [AREA_NG_ALEX] = 8,    [AREA_NG_RYU_A] = 4,     [AREA_NG_RYU_B] = 11,      [AREA_NG_YUN_A] = 7,
     [AREA_NG_YUN_B] = 3,   [AREA_NG_DUDLEY_A] = 12, [AREA_NG_DUDLEY_B] = 15,   [AREA_NG_NECRO] = 17,
     [AREA_NG_IBUKI_A] = 2, [AREA_NG_IBUKI_B] = 2,   [AREA_NG_IBUKI_C] = 2,     [AREA_NG_ELENA_A] = 9,
-    [AREA_NG_ELENA_B] = 2, [AREA_NG_ORO] = 10,
+    [AREA_NG_ELENA_B] = 2, [AREA_NG_ORO] = 10,      [AREA_NG_SEAN] = 2,
 };
 
 const s16 st0000_data_tbl[9] = {
@@ -210,6 +210,9 @@ const s16 ng_st0900_data_tbl[90] = {
     1, 2, 8492, 720, 96,  90, 9, 1, 0,
 };
 
+/// New Generation's Sean stage. Colour codes are converted from palette row 0x40 to the PS2 BG palette row 0x12C.
+const s16 ng_st0c00_data_tbl[18] = { 1, 2, 8492, 192, 56, 82, 0, 0, 0, 0, 2, 300, 624, 192, 79, 4, 1, 0 };
+
 const s16* scr_obj_data6[AREA_COUNT] = {
     [AREA_3S_GILL] = st0000_data_tbl,
     [AREA_3S_ALEX] = st0100_data_tbl,
@@ -249,6 +252,7 @@ const s16* scr_obj_data6[AREA_COUNT] = {
     [AREA_NG_ELENA_A] = ng_st0800_data_tbl,
     [AREA_NG_ELENA_B] = ng_st0810_data_tbl,
     [AREA_NG_ORO] = ng_st0900_data_tbl,
+    [AREA_NG_SEAN] = ng_st0c00_data_tbl,
 };
 
 void effect_06_move(WORK_Other* ewk) {

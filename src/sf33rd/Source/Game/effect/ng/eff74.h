@@ -4,7 +4,7 @@
 #include "structs.h"
 #include "types.h"
 
-#define EFFECT_NG74_ID 260
+#define EFFECT_NG74_ID 263
 
 void effect_ng74_move(WORK_Other* ewk);
 s32 effect_ng74_init();

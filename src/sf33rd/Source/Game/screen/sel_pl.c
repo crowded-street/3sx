@@ -2025,6 +2025,7 @@ static bool Is_VS_Stage_Selectable(s8 stage) {
     case STAGE_NG_ORO:
     case STAGE_NG_YANG:
     case STAGE_NG_KEN:
+    case STAGE_NG_SEAN:
         return ArcadeStage_IsRomProcessed(ROM_GAME_SFIII);
 
     default:

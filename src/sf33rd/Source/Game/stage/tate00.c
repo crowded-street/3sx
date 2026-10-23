@@ -31,6 +31,7 @@
 #include "sf33rd/Source/Game/stage/bonus_bg.h"
 #include "sf33rd/Source/Game/stage/ng/bg230.h"
 #include "sf33rd/Source/Game/stage/ng/bg240.h"
+#include "sf33rd/Source/Game/stage/ng/bg250.h"
 #include "sf33rd/Source/Game/stage/ng/bg260.h"
 #include "sf33rd/Source/Game/stage/ng/bg270.h"
 #include "sf33rd/Source/Game/stage/ng/bg280.h"
@@ -80,6 +81,7 @@ void (*ta_move_tbl[AREA_COUNT])() = {
     [AREA_NG_ELENA_A] = BG370,
     [AREA_NG_ELENA_B] = BG380,
     [AREA_NG_ORO] = BG390,
+    [AREA_NG_SEAN] = BG250,
 };
 
 void ta0_init00();

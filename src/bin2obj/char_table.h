@@ -41,6 +41,8 @@ extern u32 _ng_eff67_char_table[];
 extern u32 _ng_afc_a_char_table[];
 extern u32 _ng_afc_b_char_table[];
 extern u32 _ng_brz_char_table[];
+extern u32 _ng_nyc_char_table[];
+extern u32 _ng_eff44_char_table[];
 extern u32 _ng_eff09_char_table[];
 extern u32 _ng_effc1_char_table[];
 extern u32 _ng_yun_appear_char_table[];

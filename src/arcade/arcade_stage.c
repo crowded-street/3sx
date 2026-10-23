@@ -460,6 +460,13 @@ static const StageSource stage_sources[] = {
       .ppg_file = CACHE_FILE_NG_ORO_STAGE,
       .object_palettes = { 0x6C },
       .object_palette_count = 1 },
+    { .game = ROM_GAME_SFIII,
+      .bg_index = 2,
+      .area = AREA_NG_SEAN,
+      .palette_file = CACHE_FILE_NG_SEAN_BG_PALETTE,
+      .ppg_file = CACHE_FILE_NG_SEAN_STAGE,
+      .object_palettes = { 0x69 },
+      .object_palette_count = 1 },
 };
 
 #define MAX_CG_RANGES 4
@@ -593,6 +600,22 @@ static const CgGroupSource cg_group_sources[] = {
       .range_count = 1,
       .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
       .file = CACHE_FILE_NG_ORO_OBJECTS },
+
+    // Objects of NG Sean's stage. Its char table is _ng_nyc_char_table.
+    { .game = ROM_GAME_SFIII,
+      .group = 114,
+      .ranges = { { 0x5D30, 699 } },
+      .range_count = 1,
+      .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS,
+      .file = CACHE_FILE_NG_SEAN_OBJECTS },
+
+    // Buildings of NG Sean's stage (effect 44). Its char table is _ng_eff44_char_table.
+    { .game = ROM_GAME_SFIII,
+      .group = 115,
+      .ranges = { { 0x5872, 102 } },
+      .range_count = 1,
+      .flags = ARCADE_CG_PART_PALETTES | ARCADE_CG_COMPRESS | ARCADE_CG_8BPP,
+      .file = CACHE_FILE_NG_EF44 },
 };
 
 /// CPS3 graphics addresses start this far before the graphics region
@@ -708,19 +731,22 @@ static Uint8* load_tiles(const StageRom* rom, int bg_index, size_t* tiles_size) 
     Uint32 dictionary_word;
     Uint32 size;
     Uint32 source_word;
+    Uint32 mode;
     size_t dictionary;
     size_t source;
 
     if (!program_u32(rom, record, &dictionary_word) || !program_u32(rom, record + 4, &size) ||
-        !program_u32(rom, record + 8, &source_word) || !graphics_offset(rom, dictionary_word * 2, &dictionary) ||
-        !graphics_offset(rom, source_word * 2, &source)) {
+        !program_u32(rom, record + 8, &source_word) || !program_u32(rom, record + 12, &mode) ||
+        !graphics_offset(rom, dictionary_word * 2, &dictionary) || !graphics_offset(rom, source_word * 2, &source)) {
         return NULL;
     }
 
     *tiles_size = ((size_t)size + 1) * 16;
     Uint8* tiles = SDL_malloc(*tiles_size);
 
-    if (tiles == NULL || !Cps3_DecodeDma(rom->graphics, source, dictionary, tiles, *tiles_size)) {
+    // Mode 2 holds 8bpp tiles
+    if (tiles == NULL || !(mode == 2 ? Cps3_DecodeDma8(rom->graphics, source, dictionary, tiles, *tiles_size)
+                                     : Cps3_DecodeDma(rom->graphics, source, dictionary, tiles, *tiles_size))) {
         SDL_free(tiles);
         return NULL;
     }
@@ -731,8 +757,10 @@ static Uint8* load_tiles(const StageRom* rom, int bg_index, size_t* tiles_size) 
 /// Converts a palette that `palette_load` loads.
 /// @param palette Receives the colors after the `*count` already in it.
 /// @param first_row Receives the CPS3 palette row that the palette is loaded at.
+/// @param for_8bpp Whether 8bpp graphics use the palette.
 static bool load_palette(
-    const StageRom* rom, Uint16 palette_id, Uint16* palette, size_t capacity, size_t* count, int* first_row
+    const StageRom* rom, Uint16 palette_id, Uint16* palette, size_t capacity, size_t* count, int* first_row,
+    bool for_8bpp
 ) {
     const Uint32 record = rom->tables->palette_load_tbl + (palette_id & 0xFF) * 12;
     Uint32 source_address;
@@ -750,7 +778,10 @@ static bool load_palette(
 
     for (size_t i = 0; i < size / 2; i++) {
         const Uint8* src = rom->graphics.data + source + i * 2;
-        palette[*count + i] = SDL_Swap16LE(convert_color(src[0] | (src[1] << 8), i, true));
+        const Uint16 color = src[0] | (src[1] << 8);
+        const Uint16 converted =
+            for_8bpp && i % 64 == 0 ? convert_color(color, 1, false) & 0x7FFF : convert_color(color, i, true);
+        palette[*count + i] = SDL_Swap16LE(converted);
     }
 
     *count += size / 2;
@@ -761,20 +792,24 @@ static bool load_palette(
 
 /// Converts the stage palette that `bg_initialize` loads, followed by the stage's object palettes.
 /// @param first_row Receives the CPS3 palette row that the stage palette is loaded at.
-static Uint16* load_stage_palette(const StageRom* rom, const StageSource* source, size_t* count, int* first_row) {
+/// @param for_8bpp Whether the stage has 8bpp tiles
+static Uint16* load_stage_palette(
+    const StageRom* rom, const StageSource* source, size_t* count, int* first_row, bool for_8bpp
+) {
     Uint16* palette = SDL_malloc(MAX_STAGE_PALETTE_COLORS * sizeof(Uint16));
     Uint16 palette_id;
     bool success = palette != NULL && program_u16(rom, rom->tables->bg_pal_tbl + source->bg_index * 2, &palette_id);
     *count = 0;
-    success = success && load_palette(rom, palette_id, palette, MAX_STAGE_PALETTE_COLORS, count, first_row);
+    success = success && load_palette(rom, palette_id, palette, MAX_STAGE_PALETTE_COLORS, count, first_row, for_8bpp);
 
     for (int i = 0; i < source->object_palette_count && success; i++) {
         int row;
         const int expected_row = *first_row + (int)(*count / 64);
 
         // Object palettes must continue the stage palette, since the PS2 format loads one block
-        success = load_palette(rom, source->object_palettes[i], palette, MAX_STAGE_PALETTE_COLORS, count, &row) &&
-                  row == expected_row;
+        success =
+            load_palette(rom, source->object_palettes[i], palette, MAX_STAGE_PALETTE_COLORS, count, &row, for_8bpp) &&
+            row == expected_row;
     }
 
     if (!success) {
@@ -913,13 +948,16 @@ static bool draw_chip(
 
             const size_t tile = (entry >> 16) >> 1;
             const Uint16 attributes = (Uint16)(entry + palette_base);
-            const int palette = (attributes & 0x1FF) - (palette_base & 0x1FF);
+            const bool is_6bpp = attributes & 0x200;
             const bool flip_y = attributes & 0x800;
             const bool flip_x = attributes & 0x1000;
             bool empty = true;
 
-            // Only 6bpp tiles fit in the PS2 format's 64-color palettes
-            if (!(attributes & 0x200) || (tile + 1) * TILE_BYTES > tiles_size) {
+            // An 8bpp tile's palette code counts 256-color palettes. It reads 4 rows starting at its row, which the
+            // engine's palettes allow.
+            const int palette = ((attributes & 0x1FF) - (palette_base & 0x1FF)) * (is_6bpp ? 1 : 4);
+
+            if ((tile + 1) * TILE_BYTES > tiles_size) {
                 return false;
             }
 
@@ -927,7 +965,7 @@ static bool draw_chip(
                 for (int x = 0; x < 16; x++) {
                     const int source_x = flip_x ? 15 - x : x;
                     const int source_y = flip_y ? 15 - y : y;
-                    const Uint8 pixel = tiles[tile * TILE_BYTES + source_y * 16 + source_x] & 0x3F;
+                    const Uint8 pixel = tiles[tile * TILE_BYTES + source_y * 16 + source_x] & (is_6bpp ? 0x3F : 0xFF);
                     pixels[(by * 16 + y) * PPG_CHIP_SIZE + bx * 16 + x] = pixel;
                     empty = empty && pixel == 0;
                 }
@@ -937,7 +975,7 @@ static bool draw_chip(
                 continue;
             }
 
-            if (palette < 0 || palette >= palette_rows) {
+            if (palette < 0 || palette + (is_6bpp ? 1 : 4) > palette_rows) {
                 SDL_LogDebug(
                     SDL_LOG_CATEGORY_APPLICATION,
                     "Dropping tile %zu of chip %d: palette %d is outside the stage palette",
@@ -1133,6 +1171,11 @@ static bool write_cg_group(const CgGroupSource* source, const StageRom* rom) {
     Uint8* file = NULL;
     bool success = cgs != NULL;
 
+    if (texgrpdat[source->group].is_8bpp != ((source->flags & ARCADE_CG_8BPP) != 0)) {
+        SDL_Log("8bpp flag of %s doesn't match its texture group", Cache_GetPath(source->file));
+        success = false;
+    }
+
     for (int i = 0, slot = 0; i < source->range_count && success; i++) {
         for (int j = 0; j < source->ranges[i].count; j++, slot++) {
             const Uint16 cg = source->ranges[i].first + j;
@@ -1177,17 +1220,18 @@ static bool write_stage(const StageSource* source, const StageRom* rom) {
     size_t tiles_size = 0;
     size_t palette_count = 0;
     int first_row = 0;
-    Uint16 palette_base;
+    Uint16 palette_base = 0;
     ByteBuffer ppg = { 0 };
-    Uint8* tiles = load_tiles(rom, source->bg_index, &tiles_size);
-    Uint16* palette = load_stage_palette(rom, source, &palette_count, &first_row);
-    bool success = tiles != NULL && palette != NULL &&
-                   program_u16(rom, rom->tables->bg_pal_base_tbl + source->bg_index * 2, &palette_base);
+    Uint16* palette = NULL;
+    Uint8* tiles = NULL;
+    bool success = program_u16(rom, rom->tables->bg_pal_base_tbl + source->bg_index * 2, &palette_base);
+    palette_base = palette_base == 0x200 ? 0x240 : palette_base + 0x10;
+    const bool is_8bpp = !(palette_base & 0x200);
 
     if (success) {
-        // Mirrors FUN_0607bc36. Its special case for the stage 0xD isn't needed yet.
-        palette_base = palette_base == 0x200 ? 0x240 : palette_base + 0x10;
-        success = (palette_base & 0x1FF) == first_row &&
+        tiles = load_tiles(rom, source->bg_index, &tiles_size);
+        palette = load_stage_palette(rom, source, &palette_count, &first_row, is_8bpp);
+        success = tiles != NULL && palette != NULL && (palette_base & 0x1FF) * (is_8bpp ? 4 : 1) == first_row &&
                   build_ppg(rom, source, tiles, tiles_size, palette_base, (int)(palette_count / 64), &ppg) &&
                   Cache_Write(source->palette_file, palette, palette_count * sizeof(Uint16)) &&
                   Cache_Write(source->ppg_file, ppg.data, ppg.size);

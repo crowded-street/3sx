@@ -48,7 +48,12 @@ void effect_26_move(WORK_Other* ewk) {
             eff26_jp_tbl[ewk->wu.old_rno[2] / 2](ewk);
         }
 
-        disp_pos_trans_entry_rs(ewk);
+        if (AREA_IS_NG(bg_w.bg_index)) {
+            disp_pos_trans_entry_rs_ng(ewk);
+        } else {
+            disp_pos_trans_entry_rs(ewk);
+        }
+
         break;
 
     case 2:
@@ -393,11 +398,14 @@ const s16* scr_obj_data26[1] = { eff26_data_0000 };
 
 // New Generation's data. Colour codes are converted from palette row 0x40 to the PS2 BG palette row 0x12C.
 
-static const s16 ng_eff26_num[1] = { 1 };
+static const s16 ng_eff26_num[2] = { 1, 1 };
 
 static const s16 ng_eff26_data_0000[17] = { 0, 5, 2, 8492, 672, 96, 96, 4, 0, 0, -1, 10, 11, 32, 75, 0, 5 };
 
-static const s16* const ng_scr_obj_data26[1] = { ng_eff26_data_0000 };
+/// Sean's stage. The colour code is converted from palette row 0x58 to the PS2 BG palette row 0x144.
+static const s16 ng_eff26_data_0001[17] = { 1, 6, 2, 8516, -304, 55, 78, 18, 0, 1, -1, 19, 4, 19, 19, 0, -1 };
+
+static const s16* const ng_scr_obj_data26[2] = { ng_eff26_data_0000, ng_eff26_data_0001 };
 
 s32 effect_26_init(WORK_Other* oya, s16 type26) {
     WORK_Other* ewk;

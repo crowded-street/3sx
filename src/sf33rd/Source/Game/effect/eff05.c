@@ -26,7 +26,7 @@ const s16 scr_obj_num[AREA_COUNT] = {
     [AREA_NG_ALEX] = 4,    [AREA_NG_RYU_A] = 1,     [AREA_NG_RYU_B] = 4,       [AREA_NG_YUN_A] = 6,
     [AREA_NG_YUN_B] = 3,   [AREA_NG_DUDLEY_A] = 3,  [AREA_NG_DUDLEY_B] = 5,    [AREA_NG_NECRO] = 9,
     [AREA_NG_IBUKI_A] = 2, [AREA_NG_IBUKI_B] = 2,   [AREA_NG_IBUKI_C] = 2,     [AREA_NG_ELENA_A] = 0,
-    [AREA_NG_ELENA_B] = 4, [AREA_NG_ORO] = 2,
+    [AREA_NG_ELENA_B] = 4, [AREA_NG_ORO] = 2,       [AREA_NG_SEAN] = 0,
 };
 
 const s16 stg_dum_data_tbl[1] = { 0 };
@@ -216,6 +216,7 @@ u32* char_add[AREA_COUNT] = {
     [AREA_NG_ELENA_A] = _ng_afc_a_char_table,
     [AREA_NG_ELENA_B] = _ng_afc_b_char_table,
     [AREA_NG_ORO] = _ng_brz_char_table,
+    [AREA_NG_SEAN] = _ng_nyc_char_table,
 };
 
 const s16* scr_obj_data[AREA_COUNT] = {
@@ -238,6 +239,7 @@ const s16* scr_obj_data[AREA_COUNT] = {
     [AREA_NG_IBUKI_A] = ng_stg0700_data_tbl,  [AREA_NG_IBUKI_B] = ng_stg0700_data_tbl,
     [AREA_NG_IBUKI_C] = ng_stg0700_data_tbl,  [AREA_NG_ELENA_A] = stg_dum_data_tbl,
     [AREA_NG_ELENA_B] = ng_stg0810_data_tbl,  [AREA_NG_ORO] = ng_stg0900_data_tbl,
+    [AREA_NG_SEAN] = stg_dum_data_tbl,
 };
 
 void effect_05_move(WORK_Other* ewk) {

@@ -116,6 +116,8 @@ static s32 get_mltbuf32(MultiTexture* mt, u32 code, u32 palt, s32* ret);
 static s32 get_mltbuf32_ext(MultiTexture* mt, u32 code, u32 palt);
 static s32 get_mltbuf32_ext_2(MultiTexture* mt, u32 code, u32 palt, s32* ret, PatternInstance* cp);
 static void lz_ext_p6_fx(u8* srcptr, u8* dstptr, u32 len);
+static void lz_ext_p8(u8* srcptr, u8* dstptr, u32 len);
+static void ext_texture(TEX* texptr, u8* dstptr, u32 len, s32 group);
 static void lz_ext_p6_cx(u8* srcptr, u16* dstptr, u32 len, u16* palptr);
 static u16 x16_mapping_set(PatternMap* map, s32 code);
 static u16 x32_mapping_set(PatternMap* map, s32 code);
@@ -848,7 +850,7 @@ void mlt_obj_trans_cp3_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
                 case 1:
                 case 2:
                     if (get_mltbuf16_ext_2(mt, cc.code, 0, &code, cp) != 0) {
-                        lz_ext_p6_fx(&((u8*)texptr)[1], mt->mltbuf, size);
+                        ext_texture(texptr, mt->mltbuf, size, i);
                         njReLoadTexturePartNumG(mt->mltgidx16 + (code >> 8), (s8*)mt->mltbuf, code & 0xFF, size);
                     }
 
@@ -868,7 +870,7 @@ void mlt_obj_trans_cp3_ext(MultiTexture* mt, WORK* wk, s32 base_y) {
 
                 case 4:
                     if (get_mltbuf32_ext_2(mt, cc.code, 0, &code, cp) != 0) {
-                        lz_ext_p6_fx(&((u8*)texptr)[1], mt->mltbuf, size);
+                        ext_texture(texptr, mt->mltbuf, size, i);
                         njReLoadTexturePartNumG(mt->mltgidx32 + (code >> 6), (s8*)mt->mltbuf, code & 0x3F, size);
                     }
 
@@ -1930,6 +1932,39 @@ static s32 get_free_patcash_index(PatternCollection* padr) {
 
     flLogOut("ＣＧキャッシュバッファが一杯になりました。\n");
     while (1) {}
+}
+
+static void ext_texture(TEX* texptr, u8* dstptr, u32 len, s32 group) {
+    if (texgrpdat[group].is_8bpp) {
+        lz_ext_p8(&((u8*)texptr)[1], dstptr, len);
+    } else {
+        lz_ext_p6_fx(&((u8*)texptr)[1], dstptr, len);
+    }
+}
+
+static void lz_ext_p8(u8* srcptr, u8* dstptr, u32 len) {
+    u8* endptr = dstptr + len;
+    u8* tmpptr;
+    u32 tmp;
+
+    while (dstptr < endptr) {
+        tmp = *srcptr++;
+
+        if (tmp < 0x80) {
+            tmp += 1;
+
+            while (tmp--) {
+                *dstptr++ = *srcptr++;
+            }
+        } else {
+            tmpptr = dstptr - (*srcptr++ + 1);
+            tmp = (tmp & 0x7F) + 2;
+
+            while (tmp--) {
+                *dstptr++ = *tmpptr++;
+            }
+        }
+    }
 }
 
 static void lz_ext_p6_fx(u8* srcptr, u8* dstptr, u32 len) {

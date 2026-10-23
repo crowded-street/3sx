@@ -124,7 +124,12 @@ void effect_27_move(WORK_Other* ewk) {
             (AREA_IS_NG(bg_w.bg_index) ? ng_eff27_jp_tbl : eff27_jp_tbl)[ewk->wu.old_rno[0]](ewk);
         }
 
-        disp_pos_trans_entry_rs(ewk);
+        if (AREA_IS_NG(bg_w.bg_index)) {
+            disp_pos_trans_entry_rs_ng(ewk);
+        } else {
+            disp_pos_trans_entry_rs(ewk);
+        }
+
         break;
 
     case 2:
