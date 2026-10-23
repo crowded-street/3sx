@@ -15,7 +15,7 @@ Whether the game should start in fullscreen mode.
 
 ### `window-width` / `window-height`
 
-Window dimensions to use when `fullscreen` is set to `false`.
+Window dimensions to use when `fullscreen` is set to `false`. The minimum window size is 298x224.
 
 ### `scale-mode`
 
@@ -32,6 +32,10 @@ Produces a pixel-perfect image, but requires a 4K display.
 > [!WARNING] 
 > The image is gonna be cropped if your display resolution is smaller than 2688x2016.
 
+#### `vertical-integer`
+
+Scales the image height by the largest whole-number multiple of 224 that fits the window. The width follows `aspect-ratio`. If that width doesn't fit the window, the multiple is lowered until it does. Produces a pixel-perfect image vertically.
+
 #### `square-pixels`
 
 The internal buffer is scaled up by an integer (whole number) factor. Use this if you play on a CRT
@@ -39,6 +43,19 @@ The internal buffer is scaled up by an integer (whole number) factor. Use this i
 ### `scanlines`
 
 Defines the strength of the scanline filter (from `0` to `100`). `0` means the filter is disabled.
+
+### `aspect-ratio`
+
+The display aspect ratio, written as a decimal number with six decimal places.
+
+Useful for systems like Batocera or Recalbox, which use small or very wide resolutions. Examples:
+- `1.333333`: 298x224
+- `1.428580`: 320x224
+- `1.428580`: 1920x1344 (with `vertical-integer` and `fullscreen` on a 2560x1440 display, produces a pixel-perfect image)
+- `8.571429`: 1920x224
+
+> [!NOTE]
+> This setting only applies to the `nearest` and `vertical-integer` scale modes.
 
 ### `draw-players-above-hud`
 
