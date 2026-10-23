@@ -393,11 +393,14 @@ const s16* scr_obj_data26[1] = { eff26_data_0000 };
 
 // New Generation's data. Colour codes are converted from palette row 0x40 to the PS2 BG palette row 0x12C.
 
-static const s16 ng_eff26_num[1] = { 1 };
+static const s16 ng_eff26_num[2] = { 1, 1 };
 
 static const s16 ng_eff26_data_0000[17] = { 0, 5, 2, 8492, 672, 96, 96, 4, 0, 0, -1, 10, 11, 32, 75, 0, 5 };
 
-static const s16* const ng_scr_obj_data26[1] = { ng_eff26_data_0000 };
+/// Sean's stage. The colour code is converted from palette row 0x58 to the PS2 BG palette row 0x144.
+static const s16 ng_eff26_data_0001[17] = { 1, 6, 2, 8516, -304, 55, 78, 18, 0, 1, -1, 19, 4, 19, 19, 0, -1 };
+
+static const s16* const ng_scr_obj_data26[2] = { ng_eff26_data_0000, ng_eff26_data_0001 };
 
 s32 effect_26_init(WORK_Other* oya, s16 type26) {
     WORK_Other* ewk;

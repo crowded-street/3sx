@@ -387,6 +387,12 @@ const LoadRequestEntry ldreq_tbl[LDREQ_TBL_SIZE] = {
     [353] = { .type = LDREQ_TEXTURE, .ix = 113, .frre = 1, .kokey = 19 },
     [354] = { .type = LDREQ_TEXTURE, .ix = 101, .frre = 1, .kokey = 19 }, // Ibuki's tanuki
     [355] = { .type = LDREQ_COLOR, .ix = 164, .frre = 1, .kokey = 2 },    // Ibuki's tanuki palette
+
+    // NG Sean's stage
+    [356] = { .type = LDREQ_COLOR, .ix = 193, .frre = 1, .kokey = 2 },
+    [357] = { .type = LDREQ_SCREEN, .ix = 194, .frre = 1, .kokey = 18 },
+    [358] = { .type = LDREQ_TEXTURE, .ix = 114, .frre = 1, .kokey = 19 },
+    [359] = { .type = LDREQ_TEXTURE, .ix = 115, .frre = 1, .kokey = 19 }, // Buildings (effect 44)
 };
 
 /// Load request spans. Spans from 20 on hold the resources of area `index - 20`. AREA_3S_Q's span loads Ken's stage
@@ -411,5 +417,5 @@ const Span spans[] = {
     { .start = 315, .length = 3 }, { .start = 318, .length = 5 }, { .start = 323, .length = 5 },
     { .start = 328, .length = 3 }, { .start = 331, .length = 3 }, { .start = 334, .length = 5 },
     { .start = 339, .length = 5 }, { .start = 344, .length = 3 }, { .start = 347, .length = 4 },
-    { .start = 351, .length = 5 },
+    { .start = 351, .length = 5 }, { .start = 356, .length = 4 },
 };

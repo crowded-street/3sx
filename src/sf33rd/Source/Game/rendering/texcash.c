@@ -375,5 +375,5 @@ const s16 mts_OB_page[STAGE_COUNT][2] = {
     [STAGE_NG_ALEX] = { 1, 3 },       [STAGE_NG_RYU] = { 1, 4 },         [STAGE_NG_YUN] = { 2, 10 },
     [STAGE_NG_DUDLEY] = { 1, 4 },     [STAGE_NG_NECRO] = { 1, 4 },       [STAGE_NG_IBUKI] = { 1, 4 },
     [STAGE_NG_ELENA] = { 1, 10 },     [STAGE_NG_ORO] = { 1, 10 },        [STAGE_NG_YANG] = { 2, 10 },
-    [STAGE_NG_KEN] = { 1, 4 },
+    [STAGE_NG_KEN] = { 1, 4 },        [STAGE_NG_SEAN] = { 2, 10 },
 };

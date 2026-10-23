@@ -15,4 +15,6 @@
 /// @return `false` if the data runs past the end of `graphics`.
 bool Cps3_DecodeDma(RomRegion graphics, size_t source, size_t dictionary, Uint8* dst, size_t length);
 
+bool Cps3_DecodeDma8(RomRegion graphics, size_t source, size_t dictionary, Uint8* dst, size_t length);
+
 #endif

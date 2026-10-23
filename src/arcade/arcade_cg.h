@@ -33,6 +33,8 @@ typedef enum ArcadeCgFlags {
 
     /// Compress textures the way PS2 files do. Uncompressed textures are valid too, but take 4–10 times the memory.
     ARCADE_CG_COMPRESS = 1 << 1,
+
+    ARCADE_CG_8BPP = 1 << 2,
 } ArcadeCgFlags;
 
 bool ArcadeCg_Exists(const ArcadeCgSource* source, Uint16 cg);

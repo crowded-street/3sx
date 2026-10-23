@@ -76,7 +76,9 @@ static bool graphics_offset(const ArcadeCgSource* source, Uint32 dma_word, size_
     return true;
 }
 
-static Uint8* decode_cram(const ArcadeCgSource* source, const CgDescriptor* descriptor, size_t* allocation) {
+static Uint8* decode_cram(
+    const ArcadeCgSource* source, const CgDescriptor* descriptor, bool is_8bpp, size_t* allocation
+) {
     *allocation = ((descriptor->allocation >> 5) + 1) * 0x1000;
     Uint8* cram = SDL_calloc(1, *allocation);
     size_t dictionary = 0;
@@ -94,7 +96,8 @@ static Uint8* decode_cram(const ArcadeCgSource* source, const CgDescriptor* desc
 
         if (destination > *allocation || length > *allocation - destination ||
             !graphics_offset(source, be32(span), &offset) ||
-            !Cps3_DecodeDma(source->graphics, offset, dictionary, cram + destination, length)) {
+            !(is_8bpp ? Cps3_DecodeDma8
+                      : Cps3_DecodeDma)(source->graphics, offset, dictionary, cram + destination, length)) {
             SDL_free(cram);
             return NULL;
         }
@@ -120,6 +123,56 @@ static int swizzle(int x, int y) {
     }
 
     return index;
+}
+
+/// Compresses 8bpp pixels into the format that `lz_ext_p8` in mtrans.c expands.
+static bool compress_p8(const Uint8* pixels, size_t length, ByteBuffer* output) {
+    size_t i = 0;
+    size_t literal_start = 0;
+    bool success = true;
+
+    while (i <= length && success) {
+        size_t best_length = 0;
+        size_t best_distance = 0;
+
+        for (size_t distance = 1; i < length && distance <= 256 && distance <= i; distance++) {
+            size_t match = 0;
+
+            while (match < 129 && i + match < length && pixels[i + match] == pixels[i - distance + match]) {
+                match++;
+            }
+
+            if (match > best_length) {
+                best_length = match;
+                best_distance = distance;
+            }
+        }
+
+        const bool copy = best_length >= 3;
+
+        // Flush pending literals before a copy, at the end, or when they fill a code
+        if (i > literal_start && (copy || i == length || i - literal_start == 128)) {
+            const Uint8 code = (Uint8)(i - literal_start - 1);
+            success = ByteBuffer_Append(output, &code, 1) &&
+                      ByteBuffer_Append(output, &pixels[literal_start], i - literal_start);
+            literal_start = i;
+        }
+
+        if (i == length) {
+            break;
+        }
+
+        if (copy && success) {
+            const Uint8 code[2] = { 0x80 | (Uint8)(best_length - 2), (Uint8)(best_distance - 1) };
+            success = ByteBuffer_Append(output, code, 2);
+            i += best_length;
+            literal_start = i;
+        } else {
+            i++;
+        }
+    }
+
+    return success;
 }
 
 /// Compresses 6bpp pixels into the format that `lz_ext_p6_fx` in mtrans.c expands.
@@ -198,7 +251,8 @@ static bool add_cg(
     }
 
     size_t cram_size = 0;
-    Uint8* cram = decode_cram(source, &descriptor, &cram_size);
+    const bool is_8bpp = flags & ARCADE_CG_8BPP;
+    Uint8* cram = decode_cram(source, &descriptor, is_8bpp, &cram_size);
 
     if (cram == NULL) {
         return false;
@@ -214,7 +268,7 @@ static bool add_cg(
     int count = 0;
     bool success = true;
 
-    // CPS3 draws a sprite's later parts in front, while 3S draws a CG's earlier chips in front, 
+    // CPS3 draws a sprite's later parts in front, while 3S draws a CG's earlier chips in front,
     // so the parts are stored last to first
     for (int i = 0; i < descriptor.parts && success; i++) {
         const int part_index = descriptor.parts - 1 - i;
@@ -251,7 +305,7 @@ static bool add_cg(
                             break;
                         }
 
-                        tex[1 + swizzle(x, y)] = cram[pixel] & 0x3f;
+                        tex[1 + swizzle(x, y)] = cram[pixel] & (is_8bpp ? 0xFF : 0x3F);
                     }
                 }
 
@@ -263,12 +317,15 @@ static bool add_cg(
                 texture_offsets[*texture_count] = (Uint32)pixels->size;
                 TileMapEntry placement = { .x = (Sint16)(previous_x - (left + block_x * 16)),
                                            .y = (Sint16)(-top - block_y * 16 - previous_y),
-                                           .attr = (flags & ARCADE_CG_PART_PALETTES) ? attributes & 0x1FF : 0,
+                                           .attr = (flags & ARCADE_CG_PART_PALETTES)
+                                                       ? (attributes & 0x1FF) * (is_8bpp ? 4 : 1)
+                                                       : 0,
                                            .code = (Uint16)*texture_count };
                 previous_x = left + block_x * 16;
                 previous_y = -top - block_y * 16;
                 if (flags & ARCADE_CG_COMPRESS) {
-                    success = ByteBuffer_Append(pixels, tex, 1) && compress_p6(&tex[1], side * side, pixels);
+                    success = ByteBuffer_Append(pixels, tex, 1) &&
+                              (is_8bpp ? compress_p8 : compress_p6)(&tex[1], side * side, pixels);
                 } else {
                     success = ByteBuffer_Append(pixels, tex, 1 + side * side);
                 }
@@ -282,7 +339,8 @@ static bool add_cg(
 
     if (success && count <= UINT16_MAX) {
         const Uint16 count16 = (Uint16)count;
-        success = ByteBuffer_Append(placements, &count16, sizeof(count16)) && ByteBuffer_Append(placements, entries.data, entries.size);
+        success = ByteBuffer_Append(placements, &count16, sizeof(count16)) &&
+                  ByteBuffer_Append(placements, entries.data, entries.size);
     }
 
     SDL_free(entries.data);

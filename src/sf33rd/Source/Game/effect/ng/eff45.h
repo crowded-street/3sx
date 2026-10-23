@@ -4,7 +4,7 @@
 #include "structs.h"
 #include "types.h"
 
-#define EFFECT_NG45_ID 243
+#define EFFECT_NG45_ID 244
 
 void effect_ng45_move(WORK_Other* ewk);
 s32 effect_ng45_init();

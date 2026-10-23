@@ -18,11 +18,12 @@ const s16 Pos_Data_99[5][3] = { { -144, 128, 23 }, { 48, 128, 23 }, { 8, 54, 23 
 const char* Letter_Data_99[5][VS_STAGE_RANDOM + 1] = {
     { ";;;;;;;#", ";;;;;;##", ";;;;;###", ";;;;####", ";;;#####", ";;######", ";#######", "########" },
     { "#;;;;;;;", "##;;;;;;", "###;;;;;", "####;;;;", "#####;;;", "######;;", "#######;", "########" },
-    { "UNKNOWN", "AMERICA", "JAPAN",   "HONG KONG", "ENGLAND",   "RUSSIA",    "GERMANY",
-      "JAPAN",   "KENYA",   "BRAZIL",  "HONG KONG", "AMERICA",   "BRAZIL",    "MEXICO",
-      "JAPAN",   "JAPAN",   "CHINA",   "JAPAN",     "",          "RUSSIA",    "FRANCE",
-      "",        "",        "UNKNOWN", "AMERICA",   "JAPAN",     "HONG KONG", "ENGLAND",
-      "RUSSIA",  "JAPAN",   "KENYA",   "AMAZON",    "HONG KONG", "JAPAN",     [VS_STAGE_RANDOM] = "RANDOM" },
+    { "UNKNOWN", "AMERICA", "JAPAN",     "HONG KONG", "ENGLAND",   "RUSSIA",
+      "GERMANY", "JAPAN",   "KENYA",     "BRAZIL",    "HONG KONG", "AMERICA",
+      "BRAZIL",  "MEXICO",  "JAPAN",     "JAPAN",     "CHINA",     "JAPAN",
+      "",        "RUSSIA",  "FRANCE",    "",          "",          "UNKNOWN",
+      "AMERICA", "JAPAN",   "HONG KONG", "ENGLAND",   "RUSSIA",    "JAPAN",
+      "KENYA",   "AMAZON",  "HONG KONG", "JAPAN",     "AMERICA",   [VS_STAGE_RANDOM] = "RANDOM" },
     { "GILL STAGE",
       "SUBWAY STATION",
       "SUZAKU CASTLE ROOFTOP",
@@ -57,6 +58,7 @@ const char* Letter_Data_99[5][VS_STAGE_RANDOM + 1] = {
       "HERMIT'S GROTTO",
       "ANTIQUE SHOP",
       "ONSEN RESORT",
+      "NEW YORK STREETS",
       [VS_STAGE_RANDOM] = "" },
     { "",
       "ALEX STAGE",
@@ -92,6 +94,7 @@ const char* Letter_Data_99[5][VS_STAGE_RANDOM + 1] = {
       "ORO STAGE (NG)",
       "YANG STAGE (NG)",
       "KEN STAGE (NG)",
+      "SEAN STAGE (NG)",
       [VS_STAGE_RANDOM] = "" }
 };
 

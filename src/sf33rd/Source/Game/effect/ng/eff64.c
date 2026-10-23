@@ -1,6 +1,6 @@
 /**
  * @file eff64.c
- * Moving stage objects from New Generation (effect 64 in the NG arcade ROM), such as animals running across the floor
+ * Moving stage objects from New Generation
  */
 
 #include "sf33rd/Source/Game/effect/ng/eff64.h"
@@ -22,7 +22,7 @@ typedef struct Eff64Data {
     s16 dead_f;
 
     /// 0–1 cross once, 2–3 repeat after the repeat wait, 4–7 repeat after a random wait. Odd behaviours move left.
-    /// 8 is moved by its animation and isn't supported yet.
+    /// 8 is moved by its animation and moves left.
     s16 behaviour;
 
     s16 my_family;
@@ -47,7 +47,8 @@ typedef struct Eff64Data {
 } Eff64Data;
 
 static const Eff64Data ng_eff64_data_tbl[5] = {
-    // Stage 2
+    // Sean's stage. Colour codes are converted from palette rows 0x40 and 0x58 to the PS2 BG palette rows 0x12C and
+    // 0x144.
     { 1, 8, 2, 8516, 704, 76, 85, 11, 1, 0, -440, 32, 32, 0, -0x10000, 0, 0, 0 },
     { 1, 5, 2, 300, 656, 114, 102, 2, 1, 0, -64, 40, 0, 0, -0x10000, 0, 0, 0 },
     { 1, 4, 2, 300, 448, 115, 102, 3, 1, 0, 144, 48, 0, 0, 0x10000, 0, 0, 0 },
@@ -189,6 +190,47 @@ static void eff64_move_repeat(WORK_Other* ewk, bool random_wait) {
     }
 }
 
+static void eff64_move_animated(WORK_Other* ewk) {
+    switch (ewk->wu.routine_no[2]) {
+    case 0:
+        if (bg_w.bgw[1].xy[0].disp.pos < -0x40) {
+            eff64_setup(ewk, false);
+        }
+
+        ewk->wu.routine_no[2] = 2;
+        break;
+
+    case 1:
+        if (bg_w.bgw[1].xy[0].disp.pos < -0x40) {
+            eff64_setup(ewk, true);
+        }
+
+        break;
+
+    case 2:
+        eff64_wait(ewk);
+        break;
+
+    case 3:
+        // NG goes on to animate an object that was never set up. It stays hidden, but its char table is null here.
+        if (!ewk->wu.disp_flag) {
+            break;
+        }
+
+        if (!EXE_flag && !Game_pause) {
+            char_move(&ewk->wu);
+
+            if (ewk->wu.xyz[0].disp.pos < ewk->wu.old_rno[0]) {
+                ewk->wu.routine_no[2] = 1;
+                ewk->wu.old_rno[1] = random_wait_tbl2[random_16()];
+            }
+        }
+
+        disp_pos_trans_entry_rs_ng(ewk);
+        break;
+    }
+}
+
 void effect_ng64_move(WORK_Other* ewk) {
     switch (ewk->wu.routine_no[0]) {
     case 0:
@@ -220,8 +262,7 @@ void effect_ng64_move(WORK_Other* ewk) {
             break;
 
         default:
-            // Behaviour 8 (0609f2ce in the NG ROM) needs step_xy_table support
-            ewk->wu.routine_no[0]++;
+            eff64_move_animated(ewk);
             break;
         }
 
