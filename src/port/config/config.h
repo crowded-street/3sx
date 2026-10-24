@@ -10,6 +10,7 @@
 #define CFG_KEY_SCANLINES "scanlines"
 #define CFG_DRAW_PLAYERS_ABOVE_HUD "draw-players-above-hud"
 #define CFG_ARCADE_BALANCE "arcade-balance"
+#define CFG_KEY_ASPECT_RATIO "aspect-ratio"
 
 /// Initialize config system
 void Config_Init();
@@ -24,6 +25,10 @@ bool Config_GetBool(const char* key);
 /// Get the value associated with the given key as an `int`
 /// @return The value associated with `key` if `key` is among entries and the value's type is `int`, `0` otherwise
 int Config_GetInt(const char* key);
+
+/// Get the value associated with the given key as an `float`
+/// @return The value associated with `key` if `key` is among entries and the value's type is `float`, `0.0` otherwise
+float Config_GetFloat(const char* key);
 
 /// Get the value associated with the given key as a `string`
 /// @return The value associated with `key` if `key` is among entries and the value's type is `string`, `NULL` otherwise
