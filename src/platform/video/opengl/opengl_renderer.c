@@ -652,42 +652,93 @@ static void OpenGLRenderer_RenderFrame(SDL_Rect viewport) {
 
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLVertex) * arrlen(quads) * 4, vertices);
 
+    // tracking variables for batching
+    GLuint current_shader = 0;
+    GLuint current_texture = 0;
+    GLuint current_palette = 0;
+
+    int batch_start_index = 0;
+    int batch_quad_count = 0;
+
     for (int i = 0; i < arrlen(quads); i++) {
         const GLQuad* quad = &quads[i];
 
-        if (quad->texture_spec.texture.handle == 0) {
-            glUseProgram(solid_shader);
-        } else {
+        GLuint req_shader = solid_shader;
+        GLuint req_texture = 0;
+        GLuint req_palette = 0;
+
+        if (quad->texture_spec.texture.handle != 0) {
+            req_texture = quad->texture_spec.texture.handle;
+            
             switch (quad->texture_spec.texture.palette_type) {
-            case PALETTE_4:
-                glUseProgram(palette_4_shader);
-                const GLint texture_size_loc = glGetUniformLocation(palette_4_shader, "uTextureSize");
-                glUniform2i(texture_size_loc, quad->texture_spec.texture.width, quad->texture_spec.texture.width);
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_1D, quad->texture_spec.palette);
-                glActiveTexture(GL_TEXTURE1);
-                glBindTexture(GL_TEXTURE_2D, quad->texture_spec.texture.handle);
-                break;
-
-            case PALETTE_8:
-                SDL_assert(quad->texture_spec.palette != 0);
-                glUseProgram(palette_8_shader);
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_1D, quad->texture_spec.palette);
-                glActiveTexture(GL_TEXTURE1);
-                glBindTexture(GL_TEXTURE_2D, quad->texture_spec.texture.handle);
-                break;
-
-            case PALETTE_NONE:
-                glUseProgram(direct_shader);
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, quad->texture_spec.texture.handle);
-                break;
+                case PALETTE_NONE:
+                    req_shader = direct_shader;
+                    break;
+                case PALETTE_4:
+                    req_shader = palette_4_shader;
+                    req_palette = quad->texture_spec.palette;
+                    break;
+                case PALETTE_8:
+                    req_shader = palette_8_shader;
+                    req_palette = quad->texture_spec.palette;
+                    break;
+                default:
+                    req_shader = direct_shader;
+                    break;
             }
         }
 
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (GLvoid*)(sizeof(GLuint) * 6 * i));
+        if ((req_shader == palette_4_shader || req_shader == palette_8_shader) && req_palette == 0) {
+            req_shader = direct_shader;
+        }
+        
+        if (req_shader != solid_shader && req_texture == 0) {
+            req_shader = solid_shader;
+        }
+
+        bool state_changed = (req_shader != current_shader) || 
+                             (req_texture != current_texture) || 
+                             (req_palette != current_palette);
+
+        if(state_changed) {
+            if (batch_quad_count > 0) {
+                glDrawElements(GL_TRIANGLES, batch_quad_count * 6, GL_UNSIGNED_INT, (GLvoid*)(sizeof(GLuint) * 6 * batch_start_index));
+            }
+
+            current_shader = req_shader;
+            current_texture = req_texture;
+            current_palette = req_palette;
+            
+            glUseProgram(current_shader);
+
+            if (current_shader == direct_shader) {
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, current_texture);
+            }
+            else if (current_shader == palette_4_shader || current_shader == palette_8_shader) {
+                if (current_shader == palette_4_shader) {
+                    const GLint texture_size_loc = glGetUniformLocation(palette_4_shader, "uTextureSize");
+                    glUniform2i(texture_size_loc, quad->texture_spec.texture.width, quad->texture_spec.texture.height);
+                }
+                
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_1D, current_palette);
+                glActiveTexture(GL_TEXTURE1);
+                glBindTexture(GL_TEXTURE_2D, current_texture);
+            }
+
+            batch_start_index = i;
+            batch_quad_count = 1;
+        } else {
+            // state is identical
+            batch_quad_count++;
+        }
     }
+
+    if (batch_quad_count > 0) {
+        glDrawElements(GL_TRIANGLES, batch_quad_count * 6, GL_UNSIGNED_INT, (GLvoid*)(sizeof(GLuint) * 6 * batch_start_index));
+    }
+    
 
     // Draw canvas to window
 
