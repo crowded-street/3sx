@@ -6,32 +6,6 @@
 #define UNIT_OF_TIMER_MAX 50
 #define HUD_SHIFT 64
 
-#if CPS3
-typedef enum Character {
-    CHAR_GILL = 0,
-    CHAR_ALEX = 1,
-    CHAR_RYU = 2,
-    CHAR_YUN = 3,
-    CHAR_DUDLEY = 4,
-    CHAR_NECRO = 5,
-    CHAR_HUGO = 6,
-    CHAR_IBUKI = 7,
-    CHAR_ELENA = 8,
-    CHAR_ORO = 9,
-    CHAR_YANG = 10,
-    CHAR_KEN = 11,
-    CHAR_SEAN = 12,
-    CHAR_URIEN = 13,
-    CHAR_AKUMA = 14,
-    CHAR_SHIN_AKUMA = 15,
-    CHAR_CHUNLI = 16,
-    CHAR_MAKOTO = 17,
-    CHAR_Q = 18,
-    CHAR_TWELVE = 19,
-    CHAR_REMY = 20,
-    CHAR_COUNT,
-} Character;
-#else
 typedef enum Character : uint16_t {
     CHAR_GILL = 0,
     CHAR_ALEX = 1,
@@ -55,7 +29,6 @@ typedef enum Character : uint16_t {
     CHAR_REMY = 19,
     CHAR_COUNT,
 } Character;
-#endif
 
 #define CHAR_3SX_TO_ARCADE(c) ((c) > CHAR_AKUMA ? (c) + 1 : (c))
 #define CHAR_ARCADE_TO_3SX(c) ((c) > CHAR_AKUMA ? (c) - 1 : (c))

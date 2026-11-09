@@ -341,9 +341,7 @@ const s16 pl_piyo_tbl[CHAR_COUNT] = {
     64, // Sean
     64, // Urien
     56, // Akuma
-#if CPS3
-    56, // Shin Akuma
-#endif
+    // 56, // Shin Akuma
     64, // Chun-Li
     64, // Makoto
     72, // Q
@@ -367,9 +365,7 @@ const s32 pl_nr_piyo_tbl[CHAR_COUNT] = {
     2849, // Sean
     3120, // Urien
     2849, // Akuma
-#if CPS3
-    2978, // Shin Akuma
-#endif
+    // 2978, // Shin Akuma
     2978, // Chun-Li
     3276, // Makoto
     2978, // Q

@@ -94,12 +94,6 @@ else()
     )
 endif()
 
-
-# Feature toggles
-target_compile_definitions(3sx PRIVATE
-    # CPS3
-)
-
 if(CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_C_COMPILER_ID STREQUAL "AppleClang")
     set(DISABLED_WARNINGS
         -Wpointer-to-int-cast
