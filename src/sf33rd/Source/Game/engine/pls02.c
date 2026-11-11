@@ -1015,7 +1015,6 @@ void add_sp_arts_gauge_nagenuke(PLW* wk) { // 🟢 Difficulty handling differs
     add_super_arts_gauge(wk->sa, wk->wu.id, asag, wk->metamorphose);
 }
 
-#if !CPS3
 void add_sp_arts_gauge_maxbit(PLW* wk) { // 🔴
     if (!Is_Training_Mode(Mode_Type)) {
         return;
@@ -1049,7 +1048,6 @@ void add_sp_arts_gauge_maxbit(PLW* wk) { // 🔴
         add_super_arts_gauge(wk->sa, wk->wu.id, 1, wk->metamorphose);
     }
 }
-#endif
 
 void add_super_arts_gauge(SA_WORK* wk, s16 ix, s16 asag, u8 mf) { // 🟡
     if (test_flag) {

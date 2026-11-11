@@ -50,24 +50,8 @@ void setup_metamor_kezuri(WORK* wk);
 void set_char_move_init(WORK* wk, s16 koc, s16 index) {
     wk->now_koc = koc;
     wk->char_index = index;
-
-#if CPS3
-    wk->set_char_ad = (u32*)wk->char_table[koc][index];
-
-    const u32* src = wk->set_char_ad;
-    u32* dst = (u32*)&wk->cg_ctr;
-
-    for (int i = 0; i < 6; i++) {
-        dst[i] = 0;
-    }
-
-    dst[-1] = src[-1];
-    dst[-2] = src[-2];
-#else
     wk->set_char_ad = &wk->char_table[koc][wk->char_table[koc][index] / sizeof(u32)];
     setupCharTableData(wk, 1, 1);
-#endif
-
     wk->cg_ix = -wk->cgd_type;
     wk->cg_ctr = 1;
     wk->cg_next_ix = 0;
@@ -78,10 +62,7 @@ void set_char_move_init(WORK* wk, s16 koc, s16 index) {
     wk->cmoa.pat = 1;
     wk->cmwk[8] = 0;
     wk->cmwk[15] = 0;
-
-#if !CPS3
     wk->kow = wk->kind_of_waza;
-#endif
 
     if (wk->work_id & 0xF) {
         wk->at_koa = acatkoa_table[wk->kind_of_waza];
@@ -129,7 +110,6 @@ void set_char_move_init2(WORK* wk, s16 koc, s16 index, s16 ip, s16 scf) {
     u8 pst;
     u8 kow;
 
-#if !CPS3
     if (index < 0) {
         index = 0;
     }
@@ -137,30 +117,13 @@ void set_char_move_init2(WORK* wk, s16 koc, s16 index, s16 ip, s16 scf) {
     if (ip <= 0) {
         ip = 1;
     }
-#endif
 
     pst = wk->pat_status;
     kow = wk->kind_of_waza;
     wk->now_koc = koc;
     wk->char_index = index;
-
-#if CPS3
-    wk->set_char_ad = (u32*)wk->char_table[koc][index];
-
-    const u32* src = wk->set_char_ad;
-    u32* dst = (u32*)&wk->cg_ctr;
-
-    for (int i = 0; i < 6; i++) {
-        dst[i] = 0;
-    }
-
-    dst[-1] = src[-1];
-    dst[-2] = src[-2];
-#else
     wk->set_char_ad = wk->char_table[koc] + (wk->char_table[koc][index] / 4);
     setupCharTableData(wk, 1, 1);
-#endif
-
     wk->cg_ix = (ip - 1) * wk->cgd_type - wk->cgd_type;
     wk->cg_ctr = 1;
     wk->cg_next_ix = 0;
@@ -177,9 +140,7 @@ void set_char_move_init2(WORK* wk, s16 koc, s16 index, s16 ip, s16 scf) {
         wk->pat_status = pst;
         wk->kind_of_waza = kow;
     } else {
-#if !CPS3
         wk->kow = wk->kind_of_waza;
-#endif
     }
 
     if (wk->work_id & 0xF) {
@@ -195,27 +156,9 @@ void exset_char_move_init(WORK* wk, s16 koc, s16 index) {
 
     wk->now_koc = koc;
     wk->char_index = index;
-
-#if CPS3
-    wk->set_char_ad = (u32*)wk->char_table[koc][index];
-#else
     wk->set_char_ad = &wk->char_table[koc][wk->char_table[koc][index] / 4];
-#endif
-
     now_ctr = wk->cg_ctr;
-
-#if CPS3
-    u32* dst = (u32*)&wk->cg_ctr;
-    const u32* src = wk->set_char_ad + wk->cg_ix;
-
-    for (int i = 0; i < wk->cgd_type; i++) {
-        dst[i] = src[i];
-    }
-
-#else
     setupCharTableData(wk, 0, 0);
-#endif
-
     wk->cg_ctr = now_ctr;
     wk->cmoa.koc = wk->now_koc;
     wk->cmoa.ix = wk->char_index;
@@ -267,28 +210,10 @@ void char_move_cmja(WORK* wk) {
     set_char_move_init2(wk, wk->cmja.koc, wk->cmja.ix, wk->cmja.pat, 0);
 }
 
-#if CPS3
-void char_move_cmj2(WORK* wk) {
-    setup_comm_back(wk);
-    set_char_move_init2(wk, wk->cmj2.koc, wk->cmj2.ix, wk->cmj2.pat, 0);
-}
-
-void char_move_cmj3(WORK* wk) {
-    setup_comm_back(wk);
-    set_char_move_init2(wk, wk->cmj3.koc, wk->cmj3.ix, wk->cmj3.pat, 0);
-}
-#endif
-
 void char_move_cmj4(WORK* wk) {
     setup_comm_back(wk);
     set_char_move_init2(wk, wk->cmj4.koc, wk->cmj4.ix, wk->cmj4.pat, 0);
 }
-
-#if CPS3
-void char_move_cmoa(WORK* wk) {
-    set_char_move_init2(wk, wk->cmoa.koc, wk->cmoa.ix, wk->cmoa.pat, 0);
-}
-#endif
 
 void char_move_cmms(WORK* wk) {
     setup_comm_back(wk);
@@ -304,19 +229,8 @@ void char_move_cmms2(WORK* wk) {
     now_cgd = wk->cgd_type;
     wk->now_koc = wk->cmms.koc;
     wk->char_index = wk->cmms.ix;
-
-#if CPS3
-    wk->set_char_ad = (u32*)wk->char_table[wk->now_koc][wk->char_index];
-
-    const u32* src = wk->set_char_ad;
-    u32* dst = wk->cg_ctr;
-
-    dst[-1] = src[-1];
-    dst[-2] = src[-2];
-#else
     wk->set_char_ad = &wk->char_table[wk->now_koc][wk->char_table[wk->now_koc][wk->char_index] / 4];
     setupCharTableData(wk, 0, 1);
-#endif
 
     if (now_cgd > wk->cgd_type) {
         // FIXME: this will break if the layout of WORK changes
@@ -332,10 +246,7 @@ void char_move_cmms2(WORK* wk) {
     wk->cg_next_ix = 0;
     wk->old_cgnum = 0;
     wk->cg_wca_ix = 0;
-
-#if !CPS3
     wk->kow = wk->kind_of_waza;
-#endif
 }
 
 s32 char_move_cmms3(PLW* wk) {
@@ -350,25 +261,10 @@ s32 char_move_cmms3(PLW* wk) {
     now_cgd = wk->wu.cgd_type;
     wk->wu.now_koc = wk->wu.cmms.koc;
     wk->wu.char_index = wk->wu.cmms.ix;
-
-#if CPS3
-    wk->wu.set_char_ad = (u32*)wk->wu.char_table[wk->wu.now_koc][wk->wu.char_index];
-
-    const u32* src = wk->wu.set_char_ad;
-    u32* dst = wk - wu.cg_ctr;
-
-    dst[-1] = src[-1];
-    dst[-2] = src[-2];
-#else
     wk->wu.set_char_ad = &wk->wu.char_table[wk->wu.now_koc][wk->wu.char_table[wk->wu.now_koc][wk->wu.char_index] / 4];
     setupCharTableData(&wk->wu, 0, 1);
-#endif
-
     wk->wu.cg_ix = wk->wu.cmms.pat * wk->wu.cgd_type - wk->wu.cgd_type;
-
-#if !CPS3
     wk->wu.kow = wk->wu.kind_of_waza;
-#endif
 
     while (1) {
         cpc = (UNK11*)(wk->wu.set_char_ad + wk->wu.cg_ix);
