@@ -2,7 +2,7 @@ name: Release
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main"]
 
 permissions:
   contents: write
@@ -141,6 +141,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y $(cat tools/requirements-ubuntu.txt)
+          sudo gem install --no-document fpm
           ./build-deps.sh
         shell: bash
 
@@ -150,6 +151,14 @@ jobs:
           CC=clang CXX=clang++ cmake -B build -DCMAKE_BUILD_TYPE=Release
           cmake --build build --parallel $(nproc) 2>&1 | tee build.log
         shell: bash
+
+      - name: Install to staging dir
+        run: cmake --install build --prefix dist
+
+      - name: Package DEB/RPM/Arch
+        run: |
+          chmod +x tools/linux-package.sh
+          ./tools/linux-package.sh "${{ matrix.runner.arch }}" dist "${GITHUB_SHA::7}"
 
       - name: Package TGZ
         run: |
@@ -173,6 +182,9 @@ jobs:
           name: release-assets-linux-${{ matrix.runner.arch }}
           path: |
             3SX-*-linux-${{ matrix.runner.arch }}.tar.gz
+            3SX-*.deb
+            3SX-*.rpm
+            3SX-*.pkg.tar.zst
 
       - name: Upload Linux (${{ matrix.runner.arch }}) build log
         if: always()
