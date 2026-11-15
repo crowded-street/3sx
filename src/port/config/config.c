@@ -13,12 +13,14 @@ typedef enum ConfigType {
     CFG_BOOL,
     CFG_INT,
     CFG_STRING,
+    CFG_FLOAT,
 } ConfigType;
 
 typedef union ConfigValue {
     bool b;
     int i;
     char* s;
+    float f;
 } ConfigValue;
 
 typedef struct ConfigEntry {
@@ -35,6 +37,7 @@ static const ConfigEntry default_entries[] = {
     { .key = CFG_KEY_SCANLINES, .type = CFG_INT, .value.i = 0 },
     { .key = CFG_DRAW_PLAYERS_ABOVE_HUD, .type = CFG_BOOL, .value.b = false },
     { .key = CFG_ARCADE_BALANCE, .type = CFG_BOOL, .value.b = false },
+    { .key = CFG_KEY_ASPECT_RATIO, .type = CFG_FLOAT, .value.f = 0.0f },
 };
 
 static ConfigEntry entries[CONFIG_ENTRIES_MAX] = { 0 };
@@ -43,6 +46,18 @@ static int entry_count = 0;
 static bool is_int(const char* string) {
     for (int i = 0; i < SDL_strlen(string); i++) {
         if (SDL_isdigit(string[i]) || ((i == 0) && (string[i] == '-'))) {
+            continue;
+        } else {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+static bool is_float(const char* string) {
+    for (int i = 0; i < SDL_strlen(string); i++) {
+        if (SDL_isdigit(string[i]) || (string[i] == '.') || ((i == 0) && (string[i] == '-'))) {
             continue;
         } else {
             return false;
@@ -99,6 +114,10 @@ static void print_config_entry_to_io(SDL_IOStream* io, const ConfigEntry* entry)
     case CFG_STRING:
         io_printf(io, entry->value.s);
         break;
+
+    case CFG_FLOAT:
+        io_printf(io, (entry->value.f == (int)entry->value.f) ? "%.1f" : "%.6g", entry->value.f);
+        break;
     }
 }
 
@@ -133,6 +152,15 @@ static bool dict_iterator(const char* key, const char* value) {
     } else if (is_int(value)) {
         entry->type = CFG_INT;
         entry->value.i = SDL_atoi(value);
+    } else if (is_float(value)) {
+        entry->type = CFG_FLOAT;
+
+        float float_value = SDL_atof(value);
+        if (SDL_isinf(float_value) || float_value < 0.01f) {
+            float_value = 0.0f;
+        }
+
+        entry->value.f = float_value;
     } else {
         entry->type = CFG_STRING;
         entry->value.s = SDL_strdup(value);
@@ -193,6 +221,16 @@ int Config_GetInt(const char* key) {
     }
 
     return entry->value.i;
+}
+
+float Config_GetFloat(const char* key) {
+    const ConfigEntry* entry = find_entry(key);
+
+    if (entry == NULL || entry->type != CFG_FLOAT) {
+        return 0.0;
+    }
+
+    return entry->value.f;
 }
 
 const char* Config_GetString(const char* key) {
