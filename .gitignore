@@ -27,3 +27,6 @@ dump
 # LLMs
 
 .mcp.json
+
+# Doxygen
+html

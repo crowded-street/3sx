@@ -1,0 +1,77 @@
+name: Build and Deploy Doxygen
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+
+      - name: Install latest Doxygen and Graphviz
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl jq graphviz
+
+          URL=$(curl -fsSL \
+            https://api.github.com/repos/doxygen/doxygen/releases/latest \
+            | jq -r '.assets[].browser_download_url
+              | select(endswith("linux.bin.tar.gz"))' \
+            | head -n 1)
+
+          if [ -z "$URL" ]; then
+            echo "Could not find the Doxygen Linux binary tarball"
+            exit 1
+          fi
+
+          echo "Downloading $URL"
+          curl -fL "$URL" -o doxygen.tar.gz
+          tar -xzf doxygen.tar.gz
+
+          DOXYGEN_BIN=$(find . -path '*/bin/doxygen' -type f -print -quit)
+
+          if [ -z "$DOXYGEN_BIN" ]; then
+            echo "Could not find the Doxygen executable"
+            exit 1
+          fi
+
+          sudo install -m 755 "$DOXYGEN_BIN" /usr/local/bin/doxygen
+          doxygen --version
+
+      - name: Generate documentation
+        run: doxygen Doxyfile
+
+      - name: Disable Jekyll
+        run: touch html/.nojekyll
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload HTML artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: html
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
