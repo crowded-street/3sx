@@ -4,6 +4,7 @@
  */
 
 #include "sf33rd/Source/Game/animation/win_pl.h"
+#include "arcade/arcade_balance.h"
 #include "common.h"
 #include "sf33rd/Source/Game/animation/ng/bridge_fall.h"
 #include "sf33rd/Source/Game/effect/eff30.h"
@@ -11,6 +12,7 @@
 #include "sf33rd/Source/Game/effect/eff32.h"
 #include "sf33rd/Source/Game/effect/eff82.h"
 #include "sf33rd/Source/Game/effect/eff83.h"
+#include "sf33rd/Source/Game/effect/effd9.h"
 #include "sf33rd/Source/Game/effect/effect.h"
 #include "sf33rd/Source/Game/effect/effl3.h"
 #include "sf33rd/Source/Game/effect/effl6.h"
@@ -1397,7 +1399,12 @@ void Win_14000(PLW* wk) {
         if (win_rno[0]) {
             urien_dash(wk);
         } else {
+            const u16 previous_cg = wk->wu.cg_number;
             Normal_normal_Winner(wk);
+
+            if (ArcadeBalance_IsEnabled() && previous_cg != 0x46DD && wk->wu.cg_number == 0x46DD) {
+                effect_D9_init(wk, 6);
+            }
         }
 
         break;
