@@ -325,7 +325,7 @@ s16 exchange_current_colcd(WORK* wk) {
         const bool intro_skin = cg >= 0x4679 && cg <= 0x468C;
         const bool win_pillar = (cg >= 0x46B5 && cg <= 0x46CD) || cg == 0x46DD;
 
-        // Urien's arcade intro skin and win pillar use tile palettes on the main sprite.
+        // Urien's arcade balance intro skin and win pillar use tile palettes on the main sprite.
         if ((intro_skin || win_pillar) && ArcadeBalance_IsEnabled()) {
             source_col = (wk->my_col_code + (intro_skin ? 4 : 6)) & 0x1FF;
         }
