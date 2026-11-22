@@ -4,7 +4,6 @@
  */
 
 #include "sf33rd/Source/Game/rendering/aboutspr.h"
-#include "arcade/arcade_balance.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 #include "sf33rd/Source/Game/effect/effect.h"
@@ -318,21 +317,10 @@ s16 exchange_current_colcd(WORK* wk) {
     s16 col = wk->current_colcd;
 
     switch (wk->work_id) {
-    case 1: {
+    case 1:
         col = wk->id * 8;
-        s16 source_col = wk->current_colcd;
-        const u16 cg = wk->cg_number;
-        const bool intro_skin = cg >= 0x4679 && cg <= 0x468C;
-        const bool win_pillar = (cg >= 0x46B5 && cg <= 0x46CD) || cg == 0x46DD;
-
-        // Urien's arcade balance intro skin and win pillar use tile palettes on the main sprite.
-        if ((intro_skin || win_pillar) && ArcadeBalance_IsEnabled()) {
-            source_col = (wk->my_col_code + (intro_skin ? 4 : 6)) & 0x1FF;
-        }
-
-        push_color_trans_req(source_col, col);
+        push_color_trans_req(wk->current_colcd, col);
         break;
-    }
 
     case 8:
     case 0x10:
