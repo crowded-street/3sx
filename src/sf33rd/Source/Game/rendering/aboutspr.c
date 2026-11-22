@@ -4,6 +4,7 @@
  */
 
 #include "sf33rd/Source/Game/rendering/aboutspr.h"
+#include "arcade/arcade_balance.h"
 #include "common.h"
 #include "sf33rd/AcrSDK/ps2/foundaps2.h"
 #include "sf33rd/Source/Game/effect/effect.h"
@@ -319,7 +320,9 @@ s16 exchange_current_colcd(WORK* wk) {
     switch (wk->work_id) {
     case 1:
         col = wk->id * 8;
-        push_color_trans_req(wk->current_colcd, col);
+        // Urien's intro draws the skin on the main sprite which skips the tiles palette offset when arcade balance is enabled.
+        const bool use_intro_palette = wk->cg_number >= 0x4679 && wk->cg_number <= 0x468C && ArcadeBalance_IsEnabled();
+        push_color_trans_req(use_intro_palette ? (wk->my_col_code + 4) & 0x1FF : wk->current_colcd, col);
         break;
 
     case 8:
