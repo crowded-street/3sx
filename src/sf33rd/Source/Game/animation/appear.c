@@ -4,6 +4,7 @@
  */
 
 #include "sf33rd/Source/Game/animation/appear.h"
+#include "arcade/arcade_balance.h"
 #include "common.h"
 #include "sf33rd/Source/Game/animation/app_data.h"
 #include "sf33rd/Source/Game/animation/ng/appear42.h"
@@ -167,7 +168,7 @@ void Appear_01000(PLW* wk) {
         if (Appear_flag[wk->wu.id]) {
             wk->wu.routine_no[3]++;
             char_move(&wk->wu);
-            return;
+            break;
         }
         wk->wu.routine_no[3] = 3;
         set_char_move_init(&wk->wu, 9, wk->wu.char_index + 8);
@@ -189,6 +190,13 @@ void Appear_01000(PLW* wk) {
             Appear_end++;
         }
         break;
+    }
+
+    if (wk->wu.routine_no[4] == 1 && wk->player_number == CHAR_URIEN && ArcadeBalance_IsEnabled()) {
+        const u16 cg = wk->wu.cg_number;
+        const bool skin_frame = wk->wu.routine_no[2] == 0 && cg >= 0x4679 && cg <= 0x468C;
+        // Group 14 applies the tile palette offset on Urien's arcade intro skin.
+        wk->wu.my_mts = skin_frame ? 14 : 3 + wk->wu.id;
     }
 }
 
